@@ -1,0 +1,1 @@
+First run EasyTARC, then copy the request file to the Creator folder. Then run the license creator and move the created license file to the EasyTARC folder and run EasyTARC again.

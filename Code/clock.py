@@ -1,0 +1,447 @@
+from datetime import datetime,timedelta
+import decimal
+import re
+
+class Clock():
+    def __init__(self,main_app,passed_hours, passed_minutes, passed_seconds, added_minutes):
+
+        self.main_app = main_app
+        self.running = False
+
+        self.previous_passed_time = timedelta()
+        self.previous_total_time = timedelta()
+
+        self.passed_time = timedelta(hours = passed_hours,minutes = passed_minutes,seconds=passed_seconds)
+        self.added_time = timedelta(minutes = added_minutes)
+        self.total_time = self.passed_time + self.added_time
+
+        self.time_str_list = []
+
+    def get_runninig(self):
+        return(self.running)
+
+    def get_time_str_list(self):
+        return(self.time_str_list)
+
+    def get_total_time(self):
+        if self.running == True:
+            request_timestamp = datetime.now()
+            time_delta = timedelta()
+            time_delta = request_timestamp - self.start_timestamp
+            self.passed_time = self.previous_passed_time + time_delta
+            self.total_time = self.previous_total_time + time_delta
+        else:
+            pass    
+        return(self.total_time)
+
+    def stop(self):
+        if self.running == True:
+            self.running = False
+            self.stop_timestamp = datetime.now()
+            time_delta = timedelta()
+            time_delta = self.stop_timestamp - self.start_timestamp
+            self.passed_time = self.previous_passed_time + time_delta
+            self.total_time = self.previous_total_time + time_delta
+            time_delta_string = self.start_timestamp.strftime('%H:%M') + ' Uhr bis ' + self.stop_timestamp.strftime('%H:%M') +  ' Uhr   (Dauer: ' + self.str_timedelta(time_delta) + ')'
+            self.time_str_list.append(time_delta_string)
+        else:
+            pass
+
+    def str_timedelta(self,duration):
+        days, seconds = duration.days, duration.seconds
+
+        def add_zero(time_count):
+            if time_count < 10:
+                time_str = '0'+str(time_count)
+            else:
+                time_str = str(time_count)
+            return(time_str)
+
+        hours = days * 24 + seconds // 3600
+        str_hours = add_zero(hours)
+
+        minutes = (seconds % 3600) // 60
+        str_minutes = add_zero(minutes)
+
+        seconds = (seconds % 60)
+        str_seconds = add_zero(seconds)
+
+        delta_string = str_hours + ':' + str_minutes + ':' + str_seconds
+        return (delta_string)
+
+    def __del__(self):
+        print('Clock closed')
+
+
+class InfoClock(Clock):
+    def __init__(self,main_app,passed_hours, passed_minutes, passed_seconds, added_minutes, name):
+        super().__init__(main_app,passed_hours, passed_minutes, passed_seconds, added_minutes)
+
+        self.name = name
+
+    def get_name(self):
+        return(self.name)
+
+    def get_full_name(self):
+        return(self.name)
+
+    def start(self):
+        data_manager = self.main_app.data_manager
+        if self.running == False:
+            if self.name == 'Arbeitszeit':
+                pause_clock = data_manager.get_pause_clock()
+                pause_clock.stop()
+            elif self.name == 'Pause':
+                work_clock = data_manager.get_work_clock()
+                active_clock = data_manager.get_active_clock()
+                work_clock.stop()
+                if active_clock != None:
+                    active_clock.stop()
+                work_clock.stop()
+                data_manager.set_active_clock(self)
+            else:
+                print('Unbekannte Uhr ohne Zeitkonto')
+                return
+            self.running = True
+            self.start_timestamp = datetime.now()
+            self.previous_passed_time = self.passed_time
+            self.previous_total_time = self.total_time
+        else:
+            pass
+
+    def add_time(self,sign,add_minutes):
+        add_time = timedelta(minutes=add_minutes)
+
+        if self.running == True and sign == '+':
+            self.added_time = self.added_time + add_time
+            self.previous_total_time = self.previous_total_time + add_time
+            self.total_time = self.total_time + add_time
+            return(True)
+        elif self.running == True and sign == '-' and add_time <= self.total_time:
+            self.added_time = self.added_time - add_time
+            self.previous_total_time = self.previous_total_time - add_time
+            self.total_time = self.total_time - add_time
+            return(True)
+        elif self.running == False and sign == '+':
+            self.added_time = self.added_time + add_time
+            self.total_time = self.total_time + add_time
+            return(True)
+        elif self.running == False and sign == '-' and add_time <= self.total_time:
+            self.added_time = self.added_time - add_time
+            self.total_time = self.total_time - add_time
+            return(True)
+        else:
+            return(False)
+
+    def reset_account_time(self, account_total_time):
+        if self.running == True and account_total_time <= self.total_time:
+            self.added_time = self.added_time - account_total_time
+            self.previous_total_time = self.previous_total_time - account_total_time
+            self.total_time = self.total_time - account_total_time
+            return(True)
+        elif self.running == False and account_total_time <= self.total_time:
+            self.added_time = self.added_time - account_total_time
+            self.total_time = self.total_time - account_total_time
+            return(True)
+        else:
+            return(False)
+
+
+    def __del__(self):
+        print('Clock closed')
+
+
+class AccountClock(Clock):
+    def __init__(self,main_app,passed_hours, passed_minutes, passed_seconds, added_minutes, account_dict,load_backup=False):
+        super().__init__(main_app,passed_hours, passed_minutes, passed_seconds, added_minutes)
+
+        self.account_dict = account_dict
+        self.datamanager = main_app.data_manager
+        self.db = main_app.data_manager.db
+
+        self.id = self.account_dict.get("account_id")
+        self.kind = self.account_dict.get("account_kind")
+        self.main_id = self.account_dict.get("main_id")
+        self.name = self.account_dict.get("name")
+        self.description_text = self.account_dict.get("description_text")
+        self.project_nbr = self.account_dict.get("project_nbr")
+        self.process_nbr = self.account_dict.get("process_nbr")
+        self.response_nbr = self.account_dict.get("response_nbr")
+        self.default_text = self.account_dict.get("default_text")
+        self.auto_booking = self.account_dict.get("auto_booking")
+        self.account_status = self.account_dict.get("status")
+        self.rank = self.account_dict.get("rank")
+        self.bookable = self.account_dict.get("bookable")
+
+        if load_backup == True:
+            self.load_backup_time()
+
+    def get_account_dict(self):
+        return(self.account_dict)
+
+    def get_id(self):
+        return(self.id)
+
+    def get_name(self):
+        return(self.name)
+
+    def get_full_name(self):
+        return(self.name)
+
+    def get_project_nbr(self):
+        return(self.project_nbr)
+
+    def get_auto_booking(self):
+        return(self.auto_booking)
+
+    def get_process_nbr(self):
+        return(self.process_nbr)
+
+    def get_response_nbr(self):
+        return(self.response_nbr)
+    
+    def get_account_status(self):
+        return(self.account_status)
+
+    def get_clock_kind(self):
+        return(self.clock_kind)
+
+    def get_start_rank(self):
+        return(self.rank)
+    
+    def set_status_current(self):
+        self.db.account_set_current(self.id)
+        self.account_status = 'current'
+
+    def set_status_open(self):
+        self.db.account_set_open(self.id)
+        self.account_status = 'open'
+
+    def set_status_close(self):
+        self.db.account_set_close(self.id)
+        self.account_status = 'close'
+
+    def add_time(self,sign,add_minutes):
+        data_manager = self.main_app.data_manager
+        work_clock = data_manager.get_work_clock()
+
+        add_time = timedelta(minutes=add_minutes)
+
+        if self.running == True and sign == '+':
+            result = work_clock.add_time(sign,add_minutes)
+            if result == True:
+                self.added_time = self.added_time + add_time
+                self.previous_total_time = self.previous_total_time + add_time
+                self.total_time = self.total_time + add_time
+                return(True)
+            else:
+                return(False)
+
+        elif self.running == True and sign == '-' and add_time <= self.total_time:
+            result = work_clock.add_time(sign,add_minutes)
+            if result == True:
+                self.added_time = self.added_time - add_time
+                self.previous_total_time = self.previous_total_time - add_time
+                self.total_time = self.total_time - add_time
+                return(True)
+            else:
+                return(False)
+
+        elif self.running == False and sign == '+':
+            result = work_clock.add_time(sign,add_minutes)
+            if result == True:
+                self.added_time = self.added_time + add_time
+                self.total_time = self.total_time + add_time
+                return(True)
+            else:
+                return(False)
+
+        elif self.running == False and sign == '-' and add_time <= self.total_time:
+            result = work_clock.add_time(sign,add_minutes)
+            if result == True:
+                self.added_time = self.added_time - add_time
+                self.total_time = self.total_time - add_time
+                return(True)
+            else:
+                return(False)
+        else:
+            return(False)
+
+    def get_added_time(self):
+        zero_time = timedelta()
+        if self.added_time > zero_time:
+            added_str_time = self.str_timedelta(self.added_time)
+            sign = '+'
+        else:
+            added_secounds = int(abs(self.added_time.total_seconds()))
+            abs_added_time = timedelta(seconds=added_secounds)
+            added_str_time = self.str_timedelta(abs_added_time)
+            sign = '-'
+        
+        return(sign,added_str_time)
+
+    def start(self):
+        data_manager = self.main_app.data_manager
+        if self.running == False:
+            work_clock = data_manager.get_work_clock()
+            pause_clock = data_manager.get_pause_clock()
+            active_clock = data_manager.get_active_clock()
+            
+            if active_clock != None:
+                active_clock.stop()
+            pause_clock.stop()
+            work_clock.start()
+            data_manager.set_active_clock(self)
+
+            self.running = True
+            self.start_timestamp = datetime.now()
+            self.previous_passed_time = self.passed_time
+            self.previous_total_time = self.total_time
+        else:
+            pass
+
+    def reset_time(self):
+        data_manager = self.main_app.data_manager
+        if self.running == False:
+            work_clock = data_manager.get_work_clock()
+            check = work_clock.reset_account_time(self.total_time)
+            if check == True:
+                self.previous_passed_time = timedelta(hours = 0,minutes = 0,seconds=0)
+                self.previous_total_time = timedelta(hours = 0,minutes = 0,seconds=0)
+                self.passed_time = timedelta(hours = 0,minutes = 0,seconds=0)
+                self.added_time = timedelta(hours = 0,minutes = 0,seconds=0)
+                self.total_time = timedelta(hours = 0,minutes = 0,seconds=0)
+
+    def get_passed_time(self):
+        if self.running == True:
+            request_timestamp = datetime.now()
+            time_delta = timedelta()
+            time_delta = request_timestamp - self.start_timestamp
+            self.passed_time = self.previous_passed_time + time_delta
+            self.total_time = self.previous_total_time + time_delta
+        else:
+            pass    
+        return(self.passed_time)
+
+    def load_backup_time(self):
+        backup_dict = self.db.get_backup_details_dict(self.id)
+        if backup_dict != None:
+            hours = backup_dict.get("hours")
+            add_minutes = hours*60
+            self.add_time('+', add_minutes)
+            print('load back up')
+        return
+
+    def __del__(self):
+        print('Clock closed')
+
+class MainAccountClock(AccountClock):
+    def __init__(self,main_app,passed_hours, passed_minutes, passed_seconds, added_minutes, account_dict,load_backup=False):
+        super().__init__(main_app,passed_hours, passed_minutes, passed_seconds, added_minutes, account_dict,load_backup)
+        self.main_app = main_app
+        self.db = self.main_app.data_manager.db
+        self.extension_clock_list = []
+
+        self.account_dict = account_dict
+        self.clock_kind = 'main' 
+
+        id = self.account_dict.get("account_id")
+        extension_account_id_list = self.db.get_extension_accounts(id)
+        for account_id in extension_account_id_list:
+            account_dict = self.db.get_account_details(account_id)
+            extension_clock = ExtensionAccountClock(self.main_app,passed_hours, passed_minutes, passed_seconds, added_minutes, account_dict, self,load_backup)
+            self.extension_clock_list.append(extension_clock)
+
+    def get_account_runninig(self):
+        account_running = False
+        for extension_clock in self.extension_clock_list:
+            if extension_clock.get_runninig() == True:
+                account_running = True
+        if self.get_runninig() == True:
+            account_running = True
+        return(account_running)
+
+    def get_extension_clock_list(self):
+        return(self.extension_clock_list)
+
+    def add_extension_clock(self,account_dict):
+        extension_clock = ExtensionAccountClock(self.main_app, 0, 0, 0, 0,
+                                                account_dict, self)
+        self.extension_clock_list.append(extension_clock)
+        return(extension_clock)
+
+    def get_total_time_sum(self):
+        time_sum = self.get_total_time()
+        for extension_clock in self.extension_clock_list:
+            time_sum = time_sum + extension_clock.get_total_time()
+        return(time_sum)
+    
+    def get_extension_time_sum(self):
+        time_sum = timedelta()
+        for extension_clock in self.extension_clock_list:
+            time_sum = time_sum + extension_clock.get_total_time()
+        return(time_sum)
+
+    def get_full_info(self):
+        info_str = ''
+        info_str = info_str + 'Art:\t\t' + 'Hauptkonto'  + '\n'
+        info_str = info_str + 'Name:\t\t' + str(self.name) + '\n'
+        info_str = info_str + 'Beschreibung:\t' + str(self.description_text) + '\n'
+        if self.bookable == 1:
+            info_str = info_str + 'Projekt:\t\t' + str(self.project_nbr) + '\n'
+            info_str = info_str + 'Vorgang:\t' + str(self.process_nbr) + '\n'
+            info_str = info_str + 'Rückmelde-Nr.:\t' + str(self.response_nbr) + '\n'
+            info_str = info_str + 'Rückmeldetext:\t' + str(self.default_text) + '\n'
+            if self.auto_booking == 1:
+                auto_booking = 'Ja'
+            else:
+                auto_booking = 'Nein'
+            info_str = info_str + 'Auto-Buchung:\t' + str(auto_booking) + '\n'
+        info_str = info_str + 'Zeit:\t\t' + str(self.str_timedelta(self.get_total_time())) + '\n'
+        return(info_str)
+
+class ExtensionAccountClock(AccountClock):
+    def __init__(self,main_app,passed_hours, passed_minutes, passed_seconds, added_minutes, account_dict,main_account_clock,load_backup=False):
+        super().__init__(main_app,passed_hours, passed_minutes, passed_seconds, added_minutes, account_dict,load_backup)
+
+        self.main_account_clock = main_account_clock
+
+        self.account_dict = account_dict
+        self.clock_kind = 'extension' 
+
+    def get_main_name(self):
+        name  = self.main_account_clock.get_name()
+        return(name)
+
+    def get_full_name(self):
+        name = self.get_name() + ' (' + self.main_account_clock.get_name() + ')'
+        return(name)
+    
+    def get_account_runninig(self):
+        account_running = self.main_account_clock.get_account_runninig()
+        return(account_running)
+    
+    def get_extension_time_sum(self):
+        time_sum = self.main_account_clock.get_extension_time_sum()
+        return(time_sum)
+
+    def get_full_info(self):
+        info_str = ''
+        info_str = info_str + 'Art:\t\t' + 'Unterkonto'  + '\n'
+        info_str = info_str + 'Hauptkonto:\t' + str(self.main_account_clock.get_name()) + '\n'
+        info_str = info_str + 'Name:\t\t' + str(self.name) + '\n'
+        info_str = info_str + 'Beschreibung:\t' + str(self.description_text) + '\n'
+        info_str = info_str + 'Projekt:\t\t' + str(self.project_nbr) + '\n'
+        info_str = info_str + 'Vorgang:\t' + str(self.process_nbr) + '\n'
+        info_str = info_str + 'Rückmelde-Nr.:\t' + str(self.response_nbr) + '\n'
+        info_str = info_str + 'Rückmeldetext:\t' + str(self.default_text) + '\n'
+        if self.auto_booking == 1:
+            auto_booking = 'Ja'
+        else:
+            auto_booking = 'Nein'
+        info_str = info_str + 'Auto-Buchung:\t' + str(auto_booking) + '\n'
+        info_str = info_str + 'Zeit:\t\t' + str(self.str_timedelta(self.get_total_time())) + '\n'
+        return(info_str)
+
+
+

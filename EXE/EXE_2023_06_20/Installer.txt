@@ -1,0 +1,2 @@
+Windows PowerShell: pyinstaller -F -w -i "Logo.ico" EasyTARC.py
+Windows PowerShell: pyinstaller -F -w  User_License_Creator.py
