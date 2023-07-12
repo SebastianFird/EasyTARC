@@ -96,7 +96,7 @@ class SetupHead:
 EasyTARC 
 (Easy time accounts recording control)
 
-Entwickler: Sebastian Feiert
+Entwickler: Sebastian F.
 Github: SebastianFird / EasyTARC
 
 Zu mir:
