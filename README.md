@@ -13,7 +13,6 @@ History:
 ![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/88782735-9337-421f-8e94-ffc915caefd4)
 
 
-![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/92b7d9a4-7113-4db5-82ac-a0b02cebf713)
 
 
 
