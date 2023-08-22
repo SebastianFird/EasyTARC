@@ -1,7 +1,22 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageDraw, ImageTk
+'''
+Copyright 2023 Sebastian Feiert
 
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+'''
+__author__ = 'Sebastian Feiert'
 
 
 class Myttk:
@@ -112,8 +127,35 @@ class MyFrame(tk.Frame):
         #for widget in self.winfo_children():
         #    widget.refresh_style()
 
-
 class MyButton(tk.Button):
+    def __init__(self, master, data_manager, **kw):
+        tk.Button.__init__(self, master=master, **kw)
+        self.data_manager = data_manager
+        self.style_dict = self.data_manager.get_style_dict()
+
+        self['background'] = self.style_dict["btn_color"]
+        self['foreground'] = self.style_dict["font_color"]
+        self['disabledforeground'] = self.style_dict["strong_highlight_color"]  
+        self['activebackground'] = self.style_dict["strong_highlight_color"]  
+
+        self.bind("<Enter>", self.on_enter)
+        self.bind("<Leave>", self.on_leave)
+
+    def on_enter(self, e):
+            self['background'] = self.style_dict["highlight_color"]
+
+    def on_leave(self, e):
+        self['background'] = self.style_dict["btn_color"]
+
+    def refresh_style(self):
+        self.style_dict = self.data_manager.get_style_dict()
+        self.configure(background=self.style_dict["btn_color"])
+        self.configure(foreground=self.style_dict["font_color"])
+        self.configure(disabledforeground=self.style_dict["strong_highlight_color"])
+        self.configure(activebackground=self.style_dict["strong_highlight_color"])
+
+
+class MyButtonPixel(tk.Button):
     def __init__(self, master, data_manager, **kw):
         tk.Button.__init__(self, master=master, **kw)
         self.data_manager = data_manager
@@ -142,6 +184,7 @@ class MyButton(tk.Button):
         self.configure(background=self.style_dict["btn_color"])
         self.configure(foreground=self.style_dict["font_color"])
         self.configure(disabledforeground=self.style_dict["strong_highlight_color"])
+        self.configure(activebackground=self.style_dict["strong_highlight_color"])
 
 
 class MyLabel(tk.Label):
@@ -156,6 +199,40 @@ class MyLabel(tk.Label):
         self.style_dict = self.data_manager.get_style_dict()
         self.configure(background=self.style_dict["bg_color"])
         self.configure(foreground=self.style_dict["font_color"])
+
+class MyLabelPixel(tk.Label):
+    def __init__(self, master, data_manager, **kw):
+        tk.Label.__init__(self, master=master, **kw)
+        self.data_manager = data_manager
+        self.style_dict = self.data_manager.get_style_dict()
+        self.x_pixel = 0
+        self.y_pixel = 1
+        self.pixel = tk.PhotoImage(width=self.x_pixel, height=self.y_pixel)
+
+        self['background'] = self.style_dict["bg_color"]
+        self['foreground'] = self.style_dict["font_color"]
+        self['image'] = self.pixel
+        self['compound'] = "center"
+        self['height'] = 0
+        self['width'] = 0
+
+    def refresh_style(self):
+        self.style_dict = self.data_manager.get_style_dict()
+        self.configure(background=self.style_dict["bg_color"])
+        self.configure(foreground=self.style_dict["font_color"])
+
+    def set_photo_width(self,x_pixel):
+        self.x_pixel = x_pixel
+        self.create_photo()
+    
+    def set_photo_height(self,y_pixel):
+        self.y_pixel = y_pixel
+        self.create_photo()
+
+    def create_photo(self):
+        self.pixel = tk.PhotoImage(width=self.x_pixel, height=self.y_pixel)
+        self.configure(image=self.pixel,compound='center')
+
 
 class MyTipLabel(tk.Label):
     def __init__(self, master, data_manager, **kw):
@@ -179,12 +256,24 @@ class MyEntry(tk.Entry):
         self['background'] = self.style_dict["bg_color"]
         self['foreground'] = self.style_dict["font_color"]
         self['insertbackground']=self.style_dict["font_color"]
+        self['disabledbackground'] = self.style_dict["bg_color"]
+        self['disabledforeground'] = self.style_dict["font_color"]
+
+        self['highlightcolor'] = self.style_dict["selected_color"]
+        self['highlightbackground'] = self.style_dict["selected_color"]
+        self['highlightthickness'] = 0
 
     def refresh_style(self):
         self.style_dict = self.data_manager.get_style_dict()
         self.configure(background=self.style_dict["bg_color"])
         self.configure(foreground=self.style_dict["font_color"])
         self.configure(insertbackground=self.style_dict["font_color"])
+        self.configure(disabledbackground=self.style_dict["bg_color"])
+        self.configure(disabledforeground=self.style_dict["font_color"])
+
+        self.configure(highlightcolor=self.style_dict["selected_color"])
+        self.configure(highlightbackground=self.style_dict["selected_color"])
+        
 
 class MyText(tk.Text):
     def __init__(self, master, data_manager, **kw):
@@ -217,21 +306,7 @@ class MyCheckbutton(tk.Checkbutton):
         self.configure(activebackground=self.style_dict["bg_color"])
         self.configure(foreground=self.style_dict["font_color"])
 
-class MyLabelDiffHeight(tk.Label):
-    def __init__(self, master, data_manager, **kw):
-        tk.Label.__init__(self, master=master, **kw)
-        self.data_manager = data_manager
-        self.style_dict = self.data_manager.get_style_dict()
-        self.pixel = tk.PhotoImage(width=1, height=1)
 
-        self['background'] = self.style_dict["bg_color"]
-        self['foreground'] = self.style_dict["font_color"]
-        self['height'] = 18
-        self['image'] = self.pixel
-        self['compound'] = "center"
 
-    def refresh_style(self):
-        self.style_dict = self.data_manager.get_style_dict()
-        self.configure(background=self.style_dict["bg_color"])
-        self.configure(foreground=self.style_dict["font_color"])
+
 

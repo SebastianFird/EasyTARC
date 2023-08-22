@@ -1,3 +1,20 @@
+'''
+Copyright 2023 Sebastian Feiert
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+'''
+__author__ = 'Sebastian Feiert'
+
 from datetime import datetime,timedelta
 import decimal
 import re
@@ -70,7 +87,7 @@ class Clock():
         return (delta_string)
 
     def __del__(self):
-        print('Clock closed')
+        return
 
 
 class InfoClock(Clock):
@@ -100,7 +117,6 @@ class InfoClock(Clock):
                 work_clock.stop()
                 data_manager.set_active_clock(self)
             else:
-                print('Unbekannte Uhr ohne Zeitkonto')
                 return
             self.running = True
             self.start_timestamp = datetime.now()
@@ -148,7 +164,7 @@ class InfoClock(Clock):
 
 
     def __del__(self):
-        print('Clock closed')
+        return
 
 
 class AccountClock(Clock):
@@ -157,7 +173,7 @@ class AccountClock(Clock):
 
         self.account_dict = account_dict
         self.datamanager = main_app.data_manager
-        self.db = main_app.data_manager.db
+        self.user_db = main_app.data_manager.user_db
 
         self.id = self.account_dict.get("account_id")
         self.kind = self.account_dict.get("account_kind")
@@ -165,12 +181,13 @@ class AccountClock(Clock):
         self.name = self.account_dict.get("name")
         self.description_text = self.account_dict.get("description_text")
         self.project_nbr = self.account_dict.get("project_nbr")
+        self.order_nbr = self.account_dict.get("order_nbr")
         self.process_nbr = self.account_dict.get("process_nbr")
         self.response_nbr = self.account_dict.get("response_nbr")
         self.default_text = self.account_dict.get("default_text")
         self.auto_booking = self.account_dict.get("auto_booking")
         self.account_status = self.account_dict.get("status")
-        self.rank = self.account_dict.get("rank")
+        self.group = self.account_dict.get("group")
         self.bookable = self.account_dict.get("bookable")
 
         if load_backup == True:
@@ -193,6 +210,9 @@ class AccountClock(Clock):
 
     def get_auto_booking(self):
         return(self.auto_booking)
+    
+    def get_order_nbr(self):
+        return(self.order_nbr)
 
     def get_process_nbr(self):
         return(self.process_nbr)
@@ -206,20 +226,23 @@ class AccountClock(Clock):
     def get_clock_kind(self):
         return(self.clock_kind)
 
-    def get_start_rank(self):
-        return(self.rank)
+    def get_group(self):
+        return(self.group)
+    
+    def get_bookable(self):
+        return(self.bookable)
     
     def set_status_current(self):
-        self.db.account_set_current(self.id)
+        self.user_db.account_set_current(self.id)
         self.account_status = 'current'
 
     def set_status_open(self):
-        self.db.account_set_open(self.id)
+        self.user_db.account_set_open(self.id)
         self.account_status = 'open'
 
-    def set_status_close(self):
-        self.db.account_set_close(self.id)
-        self.account_status = 'close'
+    def set_status_closed(self):
+        self.user_db.account_set_closed(self.id)
+        self.account_status = 'closed'
 
     def add_time(self,sign,add_minutes):
         data_manager = self.main_app.data_manager
@@ -324,90 +347,93 @@ class AccountClock(Clock):
         return(self.passed_time)
 
     def load_backup_time(self):
-        backup_dict = self.db.get_backup_details_dict(self.id)
+        backup_dict = self.user_db.get_backup_details_dict(self.id)
         if backup_dict != None:
             hours = backup_dict.get("hours")
             add_minutes = hours*60
             self.add_time('+', add_minutes)
-            print('load back up')
         return
 
     def __del__(self):
-        print('Clock closed')
+        return
 
 class MainAccountClock(AccountClock):
     def __init__(self,main_app,passed_hours, passed_minutes, passed_seconds, added_minutes, account_dict,load_backup=False):
         super().__init__(main_app,passed_hours, passed_minutes, passed_seconds, added_minutes, account_dict,load_backup)
         self.main_app = main_app
-        self.db = self.main_app.data_manager.db
-        self.extension_clock_list = []
+        self.sub_clock_list = []
 
         self.account_dict = account_dict
         self.clock_kind = 'main' 
 
         id = self.account_dict.get("account_id")
-        extension_account_id_list = self.db.get_extension_accounts(id)
-        for account_id in extension_account_id_list:
-            account_dict = self.db.get_account_details(account_id)
-            extension_clock = ExtensionAccountClock(self.main_app,passed_hours, passed_minutes, passed_seconds, added_minutes, account_dict, self,load_backup)
-            self.extension_clock_list.append(extension_clock)
+        sub_account_id_list = self.user_db.get_sub_accounts(id)
+        for account_id in sub_account_id_list:
+            account_dict = self.user_db.get_account_details(account_id)
+            sub_clock = SubAccountClock(self.main_app,passed_hours, passed_minutes, passed_seconds, added_minutes, account_dict, self,load_backup)
+            self.sub_clock_list.append(sub_clock)
 
     def get_account_runninig(self):
         account_running = False
-        for extension_clock in self.extension_clock_list:
-            if extension_clock.get_runninig() == True:
+        for sub_clock in self.sub_clock_list:
+            if sub_clock.get_runninig() == True:
                 account_running = True
         if self.get_runninig() == True:
             account_running = True
         return(account_running)
 
-    def get_extension_clock_list(self):
-        return(self.extension_clock_list)
+    def get_sub_clock_list(self):
+        return(self.sub_clock_list)
 
-    def add_extension_clock(self,account_dict):
-        extension_clock = ExtensionAccountClock(self.main_app, 0, 0, 0, 0,
+    def add_sub_clock(self,account_dict):
+        sub_clock = SubAccountClock(self.main_app, 0, 0, 0, 0,
                                                 account_dict, self)
-        self.extension_clock_list.append(extension_clock)
-        return(extension_clock)
+        self.sub_clock_list.append(sub_clock)
+        return(sub_clock)
 
     def get_total_time_sum(self):
         time_sum = self.get_total_time()
-        for extension_clock in self.extension_clock_list:
-            time_sum = time_sum + extension_clock.get_total_time()
+        for sub_clock in self.sub_clock_list:
+            time_sum = time_sum + sub_clock.get_total_time()
         return(time_sum)
     
-    def get_extension_time_sum(self):
+    def get_sub_time_sum(self):
         time_sum = timedelta()
-        for extension_clock in self.extension_clock_list:
-            time_sum = time_sum + extension_clock.get_total_time()
+        for sub_clock in self.sub_clock_list:
+            time_sum = time_sum + sub_clock.get_total_time()
         return(time_sum)
 
-    def get_full_info(self):
-        info_str = ''
-        info_str = info_str + 'Art:\t\t' + 'Hauptkonto'  + '\n'
-        info_str = info_str + 'Name:\t\t' + str(self.name) + '\n'
-        info_str = info_str + 'Beschreibung:\t' + str(self.description_text) + '\n'
-        if self.bookable == 1:
-            info_str = info_str + 'Projekt:\t\t' + str(self.project_nbr) + '\n'
-            info_str = info_str + 'Vorgang:\t' + str(self.process_nbr) + '\n'
-            info_str = info_str + 'Rückmelde-Nr.:\t' + str(self.response_nbr) + '\n'
-            info_str = info_str + 'Rückmeldetext:\t' + str(self.default_text) + '\n'
+    def get_info_dict(self):
+        info_dict = {'Art':'Hauptkonto',
+                    'Name':str(self.name),
+                    'Beschreibung':str(self.description_text)                        
+                    }
+        if self.id != 0:
+            info_dict.update({                
+                        'Projekt':str(self.project_nbr),  
+                        'Auftrag':str(self.order_nbr),                              
+                        'Vorgang':str(self.process_nbr),      
+                        'Rückmelde-Nr.':str(self.response_nbr),                            
+                        'Rückmeldetext':str(self.default_text)               
+                        })
+            
             if self.auto_booking == 1:
-                auto_booking = 'Ja'
+                info_dict.update({'Auto-Buchung':'Ja'}) 
             else:
-                auto_booking = 'Nein'
-            info_str = info_str + 'Auto-Buchung:\t' + str(auto_booking) + '\n'
-        info_str = info_str + 'Zeit:\t\t' + str(self.str_timedelta(self.get_total_time())) + '\n'
-        return(info_str)
+                info_dict.update({'Auto-Buchung':'Nein'}) 
 
-class ExtensionAccountClock(AccountClock):
+        info_dict.update({'Stunden':str(self.str_timedelta(self.get_total_time()))}) 
+        
+        return(info_dict)
+
+class SubAccountClock(AccountClock):
     def __init__(self,main_app,passed_hours, passed_minutes, passed_seconds, added_minutes, account_dict,main_account_clock,load_backup=False):
         super().__init__(main_app,passed_hours, passed_minutes, passed_seconds, added_minutes, account_dict,load_backup)
 
         self.main_account_clock = main_account_clock
 
         self.account_dict = account_dict
-        self.clock_kind = 'extension' 
+        self.clock_kind = 'sub' 
 
     def get_main_name(self):
         name  = self.main_account_clock.get_name()
@@ -421,27 +447,37 @@ class ExtensionAccountClock(AccountClock):
         account_running = self.main_account_clock.get_account_runninig()
         return(account_running)
     
-    def get_extension_time_sum(self):
-        time_sum = self.main_account_clock.get_extension_time_sum()
+    def get_sub_time_sum(self):
+        time_sum = self.main_account_clock.get_sub_time_sum()
         return(time_sum)
+    
+    def set_status_hidden(self):
+        self.user_db.account_set_hidden(self.id)
+        self.account_status = 'hidden'
 
-    def get_full_info(self):
-        info_str = ''
-        info_str = info_str + 'Art:\t\t' + 'Unterkonto'  + '\n'
-        info_str = info_str + 'Hauptkonto:\t' + str(self.main_account_clock.get_name()) + '\n'
-        info_str = info_str + 'Name:\t\t' + str(self.name) + '\n'
-        info_str = info_str + 'Beschreibung:\t' + str(self.description_text) + '\n'
-        info_str = info_str + 'Projekt:\t\t' + str(self.project_nbr) + '\n'
-        info_str = info_str + 'Vorgang:\t' + str(self.process_nbr) + '\n'
-        info_str = info_str + 'Rückmelde-Nr.:\t' + str(self.response_nbr) + '\n'
-        info_str = info_str + 'Rückmeldetext:\t' + str(self.default_text) + '\n'
-        if self.auto_booking == 1:
-            auto_booking = 'Ja'
-        else:
-            auto_booking = 'Nein'
-        info_str = info_str + 'Auto-Buchung:\t' + str(auto_booking) + '\n'
-        info_str = info_str + 'Zeit:\t\t' + str(self.str_timedelta(self.get_total_time())) + '\n'
-        return(info_str)
+    def get_info_dict(self):
+        info_dict = {'Art':'Unterkonto',
+                    'Hauptkonto':str(self.main_account_clock.get_name()),
+                    'Name':str(self.name),
+                    'Beschreibung':str(self.description_text)                        
+                    }
+        if self.id != 0:
+            info_dict.update({                
+                        'Projekt':str(self.project_nbr),
+                        'Auftrag':str(self.order_nbr),                                
+                        'Vorgang':str(self.process_nbr),      
+                        'Rückmelde-Nr.':str(self.response_nbr),                            
+                        'Rückmeldetext':str(self.default_text)               
+                        })
+            
+            if self.auto_booking == 1:
+                info_dict.update({'Auto-Buchung':'Ja'}) 
+            else:
+                info_dict.update({'Auto-Buchung':'Nein'}) 
+
+        info_dict.update({'Stunden':str(self.str_timedelta(self.get_total_time()))}) 
+
+        return(info_dict)
 
 
 

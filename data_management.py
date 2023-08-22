@@ -1,10 +1,29 @@
-"""
-can be used
-"""
+'''
+Copyright 2023 Sebastian Feiert
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+'''
 __author__ = 'Sebastian Feiert'
 
 from datetime import datetime,timedelta
-from sqlite_c_db import SqlManager
+from PIL import ImageTk, Image
+from os import getcwd
+import os
+import shutil
+
+from sqlite_db_conn.sqlite_user_db import SqlUserDataManager
+from sqlite_db_conn.sqlite_settings_db import SqlSettingDataManager
+
 from clock import InfoClock
 from clock import MainAccountClock
 import decimal
@@ -41,58 +60,25 @@ class DataManager:
 #################################################################
         
     def start_data_management(self):
-        self.db = SqlManager(self.main_app)
-        test_id = self.db.get_new_accountid()
 
-        def new_data_base():
-            account_id = 0
-            name = 'Ohne Projekt'
-            description_text = 'Dieses Zeitkonto kann nicht verbucht werden'
-            kind = 1
-            main_id = 0
-            project_nbr = ""
-            process_nbr = ""
-            response_nbr = ""
-            default_text = " - "
-            auto_booking = 1
-            status = "current"
-            rank = 0
-            bookable = 0
+        self.user_db = SqlUserDataManager(self.main_app)
+        self.settings_db = SqlSettingDataManager(self.main_app)
 
-            account_dict = {"account_id":account_id,
-                            "account_kind":kind,
-                            "main_id":main_id,
-                            "name":name,
-                            "description_text":description_text,
-                            "project_nbr":project_nbr,
-                            "process_nbr":process_nbr,
-                            "response_nbr":response_nbr,
-                            "default_text":default_text,
-                            "auto_booking":auto_booking,
-                            "status":status,
-                            "rank":rank,
-                            "bookable":bookable
-                            }
+        self.load_image_dicts()
 
-            self.db.add_account((account_dict))
-            return()
+        style_id = self.settings_db.get_style_id()
+        self.load_style_dict(style_id)
 
-        if test_id == 0:
-            new_data_base()
-
-        style_id = self.db.get_style_id()
-        self.style_dict = self.db.get_style_dict(style_id)
-
-        self.work_window = self.db.get_work_window()
+        self.work_window = self.settings_db.get_work_window()
         self.font_family = "Segoe UI"
-        self.font_size = self.db.get_font_size()
+        self.font_size = self.settings_db.get_font_size()
 
-        print('Backup_list: ' +  str(self.db.get_backup_account_id_list()))
-        if self.db.get_backup_account_id_list() == []:
+        # print('Backup_list: ' +  str(self.user_db.get_backup_account_id_list()))
+        if self.user_db.get_backup_account_id_list() == []:
             self.backup_found = False
         else:
             self.backup_found = True
-            print('backup found')
+            # print('backup found')
 
         self.work_clock = InfoClock(self.main_app,0, 0, 0, 0,"Arbeitszeit")
         self.pause_clock = InfoClock(self.main_app,0, 0, 0, 0,"Pause")
@@ -102,12 +88,12 @@ class DataManager:
 #################################################################
 
     def load_clocks_and_start(self, load_back_up=False):
-        self.current_main_account_id_list = self.db.get_open_main_accounts()
+        self.current_main_account_id_list = self.user_db.get_open_main_accounts()
 
         for account_id in self.current_main_account_id_list:
-            account_dict = self.db.get_account_details(account_id)
+            account_dict = self.user_db.get_account_details(account_id)
             account_clock = self.create_main_account_clock(account_dict,load_back_up)
-            if account_clock.get_name() == "Ohne Projekt":
+            if account_clock.get_id() == 0:
                 self.default_clock = account_clock
 
         dt = datetime.now()
@@ -116,6 +102,12 @@ class DataManager:
 
         self.default_clock.start()
         return
+    
+    def load_main_account_clock(self, account_id, load_back_up=False):
+        account_dict = self.user_db.get_account_details(account_id)
+        account_clock = self.create_main_account_clock(account_dict,load_back_up)
+        return(account_clock)
+
     
 #################################################################
     
@@ -134,9 +126,7 @@ class DataManager:
 
     def set_active_clock(self, clock):
         if self.active_clock != None:
-            if self.active_clock.get_name() != 'Pause' and self.active_clock.get_name() != 'Ohne Projekt' and self.last_active_clock != self.active_clock:
-                if self.last_active_clock != None:
-                    self.last_last_active_clock = self.last_active_clock
+            if self.active_clock.get_name() != 'Pause' and self.active_clock.get_id() != 0 and self.last_active_clock != self.active_clock:
                 self.last_active_clock = self.active_clock
         self.active_clock = clock
         return
@@ -146,14 +136,13 @@ class DataManager:
 
     def get_last_active_clock(self):
         return(self.last_active_clock)
-
-    def get_last_last_active_clock(self):
-        return(self.last_last_active_clock)
     
 #################################################################
 
     def get_save_status(self):
         return(self.times_saved)
+    
+#################################################################
 
     def get_pause_clock(self):
         return(self.pause_clock)
@@ -180,17 +169,12 @@ class DataManager:
         month = int(dt.strftime("%m"))
         year = int(dt.strftime("%Y"))
 
-        rank = 0
-
         for main_clock in current_main_account_clock_list:
-
-            self.db.account_set_rank(main_clock.get_id(),rank)
-            rank = rank + 1
 
             clock_list = []
             clock_list.append(main_clock)
-            extension_clock_list = main_clock.get_extension_clock_list()
-            clock_list = clock_list + extension_clock_list
+            sub_clock_list = main_clock.get_sub_clock_list()
+            clock_list = clock_list + sub_clock_list
 
             for clock in clock_list:
                 clock.stop()
@@ -199,7 +183,7 @@ class DataManager:
                 hours = days * 24 + seconds / 3600
                 if hours > 0:
                     hours = float(hours)
-                    passed_id = self.db.get_new_passedid()
+                    passed_id = self.user_db.get_new_passedid()
                     account_dict = clock.get_account_dict()
                     #print(clock.get_name())
                     account_id = account_dict['account_id']
@@ -217,13 +201,24 @@ class DataManager:
                                         "booked": auto_booking
                                         }
 
-                    self.db.add_passed_times(passed_time_dict)
+                    self.user_db.add_passed_times(passed_time_dict)
                 else:
                     pass
             else:
                 pass
-        self.db.delete_backup()
+        self.user_db.delete_backup()
         self.times_saved = True
+
+        path = os.path.abspath(os.getcwd())
+
+        if os.path.isfile('full_db_backup_EasyTARC_Database_User_crypted.sql.gz') == True:
+            if os.path.isfile('last_full_db_backup_EasyTARC_Database_User_crypted.sql.gz') == True:
+                os.remove(path+'\\last_full_db_backup_EasyTARC_Database_User_crypted.sql.gz')
+            os.rename('full_db_backup_EasyTARC_Database_User_crypted.sql.gz', 'last_full_db_backup_EasyTARC_Database_User_crypted.sql.gz')
+        
+        shutil.copy(path+'\\EasyTARC_Database_User_crypted.sql.gz', path+'\\full_db_backup_EasyTARC_Database_User_crypted.sql.gz')
+
+        return
 
 #################################################################
 
@@ -235,16 +230,24 @@ class DataManager:
         return
     
     def load_backup_time(self,account_id):
-        backup_dict = self.db.get_backup_details_dict(account_id)
+        backup_dict = self.user_db.get_backup_details_dict(account_id)
         return (backup_dict)
 
     def save_backup_to_db(self):
-        account_id_list = self.db.get_backup_account_id_list()
-        for account_id in account_id_list:
-            backup_dict = self.db.get_backup_details_dict(account_id)
-            passed_id = self.db.get_new_passedid()
+        db_passed_id_list = self.user_db.get_passed_times_passed_id_list()
+        backup_passed_id_list = self.user_db.get_backup_passed_id_list()
 
-            passed_time_dict = {"passed_id": passed_id,
+        for backup_passed_id in backup_passed_id_list:
+            if backup_passed_id in db_passed_id_list:
+                # print('Fehlerhaftes Backup!')
+                self.user_db.delete_backup()
+                return(False)
+
+        account_id_list = self.user_db.get_backup_account_id_list()
+        for account_id in account_id_list:
+            backup_dict = self.user_db.get_backup_details_dict(account_id)
+
+            passed_time_dict = {"passed_id": backup_dict['passed_id'],
                                 "account_id": backup_dict['account_id'],
                                 "year": backup_dict['year'],
                                 "month": backup_dict['month'],
@@ -256,12 +259,15 @@ class DataManager:
                                 "booked": backup_dict['booked']
                                 }
 
-            self.db.add_passed_times(passed_time_dict)
-        return
+            self.user_db.add_passed_times(passed_time_dict)
+        self.user_db.delete_backup()
+        return(True)
     
     def capture_backup(self, current_main_account_clock_list):
 
-        self.db.delete_backup()
+        self.user_db.delete_backup()
+        if self.times_saved == True:
+            return(False)
 
         dt = datetime.now()
 
@@ -273,17 +279,14 @@ class DataManager:
         month = int(dt.strftime("%m"))
         year = int(dt.strftime("%Y"))
 
-        rank = 0
-
         for main_clock in current_main_account_clock_list:
-
-            self.db.account_set_rank(main_clock.get_id(),rank)
-            rank = rank + 1
 
             clock_list = []
             clock_list.append(main_clock)
-            extension_clock_list = main_clock.get_extension_clock_list()
-            clock_list = clock_list + extension_clock_list
+            sub_clock_list = main_clock.get_sub_clock_list()
+            clock_list = clock_list + sub_clock_list
+
+            passed_id = self.user_db.get_new_passedid()  
 
             for clock in clock_list:
                 duration = clock.get_total_time()
@@ -291,13 +294,14 @@ class DataManager:
                 hours = days * 24 + seconds / 3600
                 if hours > 0:
                     hours = float(hours)
-                    backup_id = self.db.get_new_backupid()
+                    backup_id = self.user_db.get_new_backupid()          
                     account_dict = clock.get_account_dict()
-                    print(clock.get_name())
+                    # print(clock.get_name())
                     account_id = account_dict['account_id']
                     auto_booking = account_dict['auto_booking']
 
                     backup_dict = {"backup_id": backup_id,
+                                        "passed_id": passed_id,
                                         "account_id": account_id,
                                         "year": year,
                                         "month": month,
@@ -309,25 +313,91 @@ class DataManager:
                                         "booked": auto_booking
                                         }
 
-                    self.db.add_backup(backup_dict)
-                    print('Backup: ' + str(backup_dict))
+                    self.user_db.add_backup(backup_dict)
+                    # print('Backup: ' + str(backup_dict))
+                    passed_id = passed_id + 1
                 else:
                     pass
             else:
                 pass
+        return(True)
     
 #################################################################
+
+    def load_image_dicts(self):
+        photo_btn_on = Image.open("images/btn_on.png").convert('RGBA')
+        photo_btn_highlight = Image.open("images/btn_highlight.PNG").convert('RGBA')
+        photo_btn_off = Image.open("images/btn_off.png").convert('RGBA')
+        photo_btn_pause = Image.open("images/btn_pause.png").convert('RGBA')
+
+        photo_btn_plus_light_strong_highlight = Image.open("images/btn_plus_146.png").convert('RGBA')
+        photo_btn_plus_light_font = Image.open("images/btn_plus_0.png").convert('RGBA')
+        photo_btn_plus_dark_strong_highlight = Image.open("images/btn_plus_110.png").convert('RGBA')
+        photo_btn_plus_dark_font = Image.open("images/btn_plus_255.png").convert('RGBA')
+
+        photo_btn_plus_plus_light_strong_highlight = Image.open("images/btn_plus_plus_146.png").convert('RGBA')
+        photo_btn_plus_plus_light_font = Image.open("images/btn_plus_plus_0.png").convert('RGBA')
+        photo_btn_plus_plus_dark_strong_highlight = Image.open("images/btn_plus_plus_110.png").convert('RGBA')
+        photo_btn_plus_plus_dark_font = Image.open("images/btn_plus_plus_255.png").convert('RGBA')
+
+        photo_btn_minus_light_strong_highlight = Image.open("images/btn_minus_146.png").convert('RGBA')
+        photo_btn_minus_light_font = Image.open("images/btn_minus_0.png").convert('RGBA')
+        photo_btn_minus_dark_strong_highlight = Image.open("images/btn_minus_110.png").convert('RGBA')
+        photo_btn_minus_dark_font = Image.open("images/btn_minus_255.png").convert('RGBA')
+
+        photo_btn_minus_minus_light_strong_highlight = Image.open("images/btn_minus_minus_146.png").convert('RGBA')
+        photo_btn_minus_minus_light_font = Image.open("images/btn_minus_minus_0.png").convert('RGBA')
+        photo_btn_minus_minus_dark_strong_highlight = Image.open("images/btn_minus_minus_110.png").convert('RGBA')
+        photo_btn_minus_minus_dark_font = Image.open("images/btn_minus_minus_255.png").convert('RGBA')
+
+        self.image_general_dict = {
+            "photo_btn_on":photo_btn_on,
+            "photo_btn_highlight":photo_btn_highlight,
+            "photo_btn_off":photo_btn_off,
+            "photo_btn_pause":photo_btn_pause
+        }
+
+        self.image_light_dict = {
+            "photo_btn_plus_strong_highlight":photo_btn_plus_light_strong_highlight,
+            "photo_btn_plus_font":photo_btn_plus_light_font,
+            "photo_btn_plus_plus_strong_highlight":photo_btn_plus_plus_light_strong_highlight,
+            "photo_btn_plus_plus_font":photo_btn_plus_plus_light_font,
+            "photo_btn_minus_strong_highlight":photo_btn_minus_light_strong_highlight,
+            "photo_btn_minus_font":photo_btn_minus_light_font,
+            "photo_btn_minus_minus_strong_highlight":photo_btn_minus_minus_light_strong_highlight,
+            "photo_btn_minus_minus_font":photo_btn_minus_minus_light_font,
+        }
+
+        self.image_dark_dict = {
+            "photo_btn_plus_strong_highlight":photo_btn_plus_dark_strong_highlight,
+            "photo_btn_plus_font":photo_btn_plus_dark_font,
+            "photo_btn_plus_plus_strong_highlight":photo_btn_plus_plus_dark_strong_highlight,
+            "photo_btn_plus_plus_font":photo_btn_plus_plus_dark_font,
+            "photo_btn_minus_strong_highlight":photo_btn_minus_dark_strong_highlight,
+            "photo_btn_minus_font":photo_btn_minus_dark_font,
+            "photo_btn_minus_minus_strong_highlight":photo_btn_minus_minus_dark_strong_highlight,
+            "photo_btn_minus_minus_font":photo_btn_minus_minus_dark_font,
+        }
+#################################################################
+
+    def load_style_dict(self,style_id):
+        self.style_dict = self.settings_db.get_style_dict(style_id)
+        self.style_dict.update(self.image_general_dict)
+        if style_id == 1:
+            self.style_dict.update(self.image_dark_dict)
+        else:
+            self.style_dict.update(self.image_light_dict)
 
     def get_style_dict(self):
         return(self.style_dict)
     
     def get_styles_overview_dict(self):
-        styles_overview_dict = self.db.get_styles_overview_dict()
+        styles_overview_dict = self.settings_db.get_styles_overview_dict()
         return(styles_overview_dict)
     
     def set_style(self, style_id):
-        self.db.set_style_id(style_id)
-        self.style_dict = self.db.get_style_dict(style_id)
+        self.settings_db.set_style_id(style_id)
+        self.load_style_dict(style_id)
         return()
     
 #################################################################
@@ -336,7 +406,7 @@ class DataManager:
         return(self.work_window)
         
     def set_work_window(self, work_window):
-        self.db.set_work_window(work_window)
+        self.settings_db.set_work_window(work_window)
         self.work_window = work_window
         return()
     
@@ -349,7 +419,7 @@ class DataManager:
         return(self.font_size)
 
     def set_font_size(self,size):
-        self.db.set_font_size(size)
+        self.settings_db.set_font_size(size)
         self.font_size = size
 
 
@@ -357,7 +427,7 @@ class DataManager:
     
     def get_language_dict(self):
         return()
-    
+
 #################################################################
 
     def create_main_account_clock(self,account_dict,load_back_up=False):
@@ -372,92 +442,72 @@ class DataManager:
     def get_main_account_clock_list(self):
         return(self.main_account_clock_list)
     
+    def close_main_account_clock(self, main_account_clock):
+        new_main_account_clock_list_without_closed_clock = [ele for ele in self.main_account_clock_list if ele != main_account_clock]
+        self.main_account_clock_list = new_main_account_clock_list_without_closed_clock
+        return
+    
 #################################################################
 
-    def check_new_account_input(self,name,project,process,response,main_account):
-        list_nbr = [project,process,response]
-
-        if main_account == True:
-            if name == '' or name == 'Zeitkonto'or name == 'Neues Zeitkonto':
-                return('Sie müssen einen gültigen Namen vergeben')
-            else:
-                pass
-
-            if  name.isspace() == True:
-                return('Der Name darf nicht nur Leerzeichen beinhalten')
-
-            try:
-                float(name)
-                return('Der Name darf nicht nur Nummern enthalten.')
-            except ValueError:
-                pass
-
-            name_list = self.db.get_account_name_list()
-            if name in name_list:
-                return('Dieser Name existiert bereits.')
-            else:
-                pass
-        else:
-            if  name.isspace() == True:
-                return('Der Name darf nicht nur Leerzeichen beinhalten')
-
-            try:
-                float(name)
-                return('Der Name darf nicht nur Nummern enthalten.')
-            except ValueError:
-                pass
-                
-        for nbr_field in list_nbr:
-            if nbr_field != '':
-                try:
-                    float(nbr_field)
-                except (ValueError,decimal.InvalidOperation):
-                    return('Machen Sie keine Angabe oder geben Sie \nbitte eine Zahl bei Nummerfeldern ein.')
-        return(True)
-
-    def create_time_account(self,name,description_text,project_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id):
-        account_id = self.db.get_new_accountid()
+    def create_time_account(self,name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id,group):
+        account_id = self.user_db.get_new_accountid()
         if kind == 1:
             main_id = account_id
 
         status = "current"
         bookable = 1
-        rank = 0
 
-        account_dict = {"account_id":account_id,                # unique identification nbr
-                        "account_kind":kind,                    # kinds: 1 -> main, 0 -> extension
-                        "main_id":main_id,                      # if extension account the id of the main account else the main id
-                        "name":name,                            # name of the account
-                        "description_text":description_text,    # description of the account
-                        "project_nbr":project_nbr,              # project nbr
-                        "process_nbr":process_nbr,              # process nbr
-                        "response_nbr":response_nbr,            # response or booking nbr
-                        "default_text":default_text,            # booking default text
-                        "auto_booking":auto_booking,            # autobooking on -> 1, off -> 0; if on the system dont show the account for booking
-                        "status":status,                        # open -> the account can capture time, closed -> the account cant capture time, current -> the account is open and is displayed
-                        "rank":rank,                            # 0 -> default rank, position on the display
-                        "bookable":bookable                     # 1 -> part of the booking time, 0 -> part of the non booking time
+        dt = datetime.now()
+        a_day = int(dt.strftime("%d"))
+        a_month = int(dt.strftime("%m"))
+        a_year = int(dt.strftime("%Y"))
+
+        account_dict = {"account_id":int(account_id),                # unique identification nbr
+                        "account_kind":int(kind),                    # kinds: 1 -> main, 0 -> sub
+                        "main_id":int(main_id),                      # if sub account the id of the main account else the main id
+                        "name":str(name),                            # name of the account
+                        "description_text":str(description_text),    # description of the account
+                        "project_nbr":str(project_nbr),              # project nbr
+                        "order_nbr":str(order_nbr),                  # order nbr
+                        "process_nbr":str(process_nbr),              # process nbr
+                        "response_nbr":str(response_nbr),            # response or booking nbr
+                        "default_text":str(default_text),            # booking default text
+                        "auto_booking":int(auto_booking),            # autobooking on -> 1, off -> 0; if on the system dont show the account for booking
+                        "status":str(status),                        # open -> the account can capture time, closed -> the account cant capture time, current -> the account is open and is displayed
+                        "group":str(group),                            # default -> default group, group on the display
+                        "bookable":int(bookable),                    # 1 -> part of the booking time, 0 -> part of the non booking time
+                        "a_year":int(a_year),                        # year of creation
+                        "a_month":int(a_month),                      # month of creation
+                        "a_day":int(a_day)                           # day of creation
                         }
 
-        self.db.add_account((account_dict))
+        self.user_db.add_account((account_dict))
         #project_clock = self.create_instance_clock(account_dict)
         return(account_dict)
     
     #################################################################
 
-    def get_unbooked_times_sum_dict_list(self):
+    def get_unbooked_record_dict_list_sum_list(self):
+        dt = datetime.now()
+        this_month = int(dt.strftime("%m"))
+        this_year = int(dt.strftime("%Y"))
+        if this_month == 1:
+            last_month = this_month
+        else:
+            last_month = this_month - 1
 
-        unbooked_times_sum_dict_list = []
+        unbooked_record_dict_list_sum_list = []
 
-        df = self.db.get_unbooked_passed_times_with_accounts()
+        booking_status = 'unbooked'
+        df = self.user_db.get_passed_times_with_accounts(this_year,this_month,last_month,booking_status)
         if df.empty:
             return([])
-        df = df.fillna('x')
-        print(df)
+        df = df.fillna('')
+        # print(df)
         main_id_list = df.main_id.values.tolist()
         main_id_list = list(set(main_id_list))
 
-        main_name_dict = self.db.get_namedict_by_accountid_list(main_id_list)
+        main_name_dict = self.user_db.get_namedict_by_accountid_list(main_id_list)
 
         for main_id in main_id_list:
             account_id_list = df.loc[(df['main_id'] == main_id)].accountid.values.tolist()
@@ -471,71 +521,273 @@ class DataManager:
                             "main_name":main_name_dict[main_id],                    
                             "name":df.loc[(df['accountid'] == account_id)].name.values.tolist()[0],                               
                             "description_text":df.loc[(df['accountid'] == account_id)].description_text.values.tolist()[0],      
-                            "project_nbr":df.loc[(df['accountid'] == account_id)].project_nbr.values.tolist()[0],               
+                            "project_nbr":df.loc[(df['accountid'] == account_id)].project_nbr.values.tolist()[0], 
+                            "order_nbr":df.loc[(df['accountid'] == account_id)].order_nbr.values.tolist()[0],              
                             "process_nbr":df.loc[(df['accountid'] == account_id)].process_nbr.values.tolist()[0],                 
                             "response_nbr":df.loc[(df['accountid'] == account_id)].response_nbr.values.tolist()[0],              
                             "default_text":df.loc[(df['accountid'] == account_id)].default_text.values.tolist()[0],
                             "hours":df.loc[(df['accountid'] == account_id)].hours.sum()                  
                             }
-                print(record_dict)
-                unbooked_times_sum_dict_list.append(record_dict)
-        return(unbooked_times_sum_dict_list)
+                # print(record_dict)
+                unbooked_record_dict_list_sum_list.append(record_dict)
+        return(unbooked_record_dict_list_sum_list)
     
     def set_unbooked_times_sum_by_account_id(self,account_id):
-        self.db.set_unbooked_accound_time_sum_booked(account_id)
+        self.user_db.set_unbooked_accound_time_sum_booked(account_id)
 
     #################################################################
 
-    def get_passed_time_dict_list(self):
+    def create_record_dict_list_date_list(self,df):
 
-        passed_time_dict_list = []
-
-        df = self.db.get_passed_times_with_accounts()
-        if df.empty:
-            return([])
-        df = df.fillna('x')
-        print(df)
-
-        date_int_list = df.date_int.values.tolist()
-        date_int_list = list(set(date_int_list))
-        date_int_list.sort(reverse=True)
-        print(date_int_list)
+        record_dict_list_date_list = []
 
         main_id_list = df.main_id.values.tolist()
         main_id_list = list(set(main_id_list))
 
-        main_name_dict = self.db.get_namedict_by_accountid_list(main_id_list)
+        main_name_dict = self.user_db.get_namedict_by_accountid_list(main_id_list)
 
-        for date_int in date_int_list:
-            passed_time_dict_list.append(df.loc[(df['date_int'] == date_int)].date.values.tolist()[0])
-            passed_id_list = df.loc[(df['date_int'] == date_int)].passedid.values.tolist()
-            for passed_id in passed_id_list:
-                record_dict = {"account_id":df.loc[(df['passedid'] == passed_id)].accountid.values.tolist()[0],               
-                            "account_kind":df.loc[(df['passedid'] == passed_id)].account_kind.values.tolist()[0],   
-                            "main_id":df.loc[(df['passedid'] == passed_id)].main_id.values.tolist()[0], 
-                            "main_name":main_name_dict[df.loc[(df['passedid'] == passed_id)].main_id.values.tolist()[0]], 
-                            "name":df.loc[(df['passedid'] == passed_id)].name.values.tolist()[0], 
-                            "description_text":df.loc[(df['passedid'] == passed_id)].description_text.values.tolist()[0],      
-                            "project_nbr":df.loc[(df['passedid'] == passed_id)].project_nbr.values.tolist()[0],               
-                            "process_nbr":df.loc[(df['passedid'] == passed_id)].process_nbr.values.tolist()[0],                 
-                            "response_nbr":df.loc[(df['passedid'] == passed_id)].response_nbr.values.tolist()[0],              
-                            "default_text":df.loc[(df['passedid'] == passed_id)].default_text.values.tolist()[0],
-                            "hours":df.loc[(df['passedid'] == passed_id)].hours.values.tolist()[0],
-                            "date_int":df.loc[(df['passedid'] == passed_id)].date_int.values.tolist()[0],
-                            "date":df.loc[(df['passedid'] == passed_id)].date.values.tolist()[0],
-                            "datetime":df.loc[(df['passedid'] == passed_id)].datetime.values.tolist()[0],
-                            "booked":df.loc[(df['passedid'] == passed_id)].booked.values.tolist()[0]
-                }
+
+        date_int_list = df.date_int.values.tolist()
+        date_int_list = list(set(date_int_list))
+        date_int_list.sort(reverse = True)
+        date_int_list_2 = date_int_list.copy()
+        for date_int in date_int_list_2:
+
+            record_dict_list = []
+
+            main_id_list = df.loc[(df['date_int'] == date_int)].main_id.values.tolist()
+            main_id_list = list(set(main_id_list))
+            main_id_list.sort()
+            main_id_list_2 = main_id_list.copy()
+            for main_id in main_id_list_2:
+
+                account_id_list = df.loc[(df['date_int'] == date_int) & (df['main_id'] == main_id)].accountid.values.tolist()
+                account_id_list = list(set(account_id_list))
+                account_id_list.sort()
+                account_id_list_2 = account_id_list.copy()
+                for account_id in account_id_list_2:
+
+                    passed_id_list = df.loc[(df['date_int'] == date_int) & (df['main_id'] == main_id) & (df['accountid'] == account_id)].passedid.values.tolist()
+                    passed_id_list.sort()
+                    passed_id_list_2 = passed_id_list.copy()
+                    for passed_id in passed_id_list_2:
+                        
+                        record_dict = {"passed_id":passed_id,   
+                                       "account_id":account_id,   
+                                       "main_id":main_id,  
+                                       "main_name":main_name_dict[main_id],
+                                       "account_kind":df.loc[(df['accountid'] == account_id)].account_kind.values.tolist()[0],  
+                                       "name":df.loc[(df['accountid'] == account_id)].name.values.tolist()[0], 
+                                       "description_text":df.loc[(df['accountid'] == account_id)].description_text.values.tolist()[0],  
+                                       "project_nbr":df.loc[(df['accountid'] == account_id)].project_nbr.values.tolist()[0], 
+                                       "order_nbr":df.loc[(df['accountid'] == account_id)].order_nbr.values.tolist()[0],  
+                                       "process_nbr":df.loc[(df['accountid'] == account_id)].process_nbr.values.tolist()[0],  
+                                       "response_nbr":df.loc[(df['accountid'] == account_id)].response_nbr.values.tolist()[0],   
+                                       "default_text":df.loc[(df['accountid'] == account_id)].default_text.values.tolist()[0], 
+                                       "auto_booking":df.loc[(df['accountid'] == account_id)].auto_booking.values.tolist()[0], 
+                                       "status":df.loc[(df['accountid'] == account_id)].status.values.tolist()[0],
+                                       "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0], 
+                                       "date_int":df.loc[(df['passedid'] == passed_id)].date_int.values.tolist()[0],
+                                       "date":df.loc[(df['passedid'] == passed_id)].date.values.tolist()[0],
+                                       "datetime":df.loc[(df['passedid'] == passed_id)].datetime.values.tolist()[0],
+                                       "booked":df.loc[(df['passedid'] == passed_id)].booked.values.tolist()[0],
+                                       "hours":df.loc[(df['passedid'] == passed_id)].hours.values.tolist()[0]  }
+                        record_dict_list.append(record_dict)
+            record_dict_list_date_list.append(record_dict_list)
+        return(record_dict_list_date_list)
+
+    #################################################################
+
+    def create_account_dict_list(self,df):
+
+        account_dict_list = []
+
+        main_id_list = df.main_id.values.tolist()
+        main_id_list = list(set(main_id_list))
+
+        main_name_dict = self.user_db.get_namedict_by_accountid_list(main_id_list)
+
+        order_nbr_list = df.order_nbr.values.tolist()
+        order_nbr_list = list(set(order_nbr_list))
+        order_nbr_list.sort()
+        order_nbr_list_2 = order_nbr_list.copy()
+        for order_nbr in order_nbr_list_2:
                 
-                passed_time_dict_list.append(record_dict)
-        print(passed_time_dict_list)
-        return(passed_time_dict_list)
+            process_nbr_list = df.loc[(df['order_nbr'] == order_nbr)].process_nbr.values.tolist()
+            process_nbr_list = list(set(process_nbr_list))
+            process_nbr_list.sort()
+            process_nbr_list_2 = process_nbr_list.copy()
+            for process_nbr in process_nbr_list_2:
+
+                main_id_list = df.loc[(df['order_nbr'] == order_nbr) & (df['process_nbr'] == process_nbr)].main_id.values.tolist()
+                main_id_list = list(set(main_id_list))
+                main_id_list.sort()
+                main_id_list_2 = main_id_list.copy()
+                for main_id in main_id_list_2:
+
+                    account_id_list = df.loc[(df['order_nbr'] == order_nbr) & (df['process_nbr'] == process_nbr) & (df['main_id'] == main_id)].accountid.values.tolist()
+                    account_id_list = list(set(account_id_list))
+                    account_id_list.sort()
+                    account_id_list_2 = account_id_list.copy()
+                    for account_id in account_id_list_2:      
+
+                        account_dict = {"account_id":account_id,   
+                                        "main_id":main_id,  
+                                        "main_name":main_name_dict[main_id],
+                                        "account_kind":df.loc[(df['accountid'] == account_id)].account_kind.values.tolist()[0],  
+                                        "name":df.loc[(df['accountid'] == account_id)].name.values.tolist()[0], 
+                                        "description_text":df.loc[(df['accountid'] == account_id)].description_text.values.tolist()[0],  
+                                        "project_nbr":df.loc[(df['accountid'] == account_id)].project_nbr.values.tolist()[0], 
+                                        "order_nbr":df.loc[(df['accountid'] == account_id)].order_nbr.values.tolist()[0],  
+                                        "process_nbr":df.loc[(df['accountid'] == account_id)].process_nbr.values.tolist()[0],  
+                                        "response_nbr":df.loc[(df['accountid'] == account_id)].response_nbr.values.tolist()[0],   
+                                        "default_text":df.loc[(df['accountid'] == account_id)].default_text.values.tolist()[0], 
+                                        "auto_booking":df.loc[(df['accountid'] == account_id)].auto_booking.values.tolist()[0], 
+                                        "status":df.loc[(df['accountid'] == account_id)].status.values.tolist()[0],
+                                        "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0]}
+                        account_dict_list.append(account_dict)
+        return(account_dict_list)
+
+
+
+    #################################################################
+
+    def get_project_name_list_dict(self):
+        project_list, name_list = self.user_db.get_project_name_lists()
+        project_list = list(set(project_list))
+        project_list.sort()
+        new_project_list = project_list.copy()
+
+        project_name_list_dict = {'Index': 'Projekt-Nr.'}
+        counter = 1
+        for project_nbr in new_project_list:
+            project_name_list_dict[str(counter)] =  str(project_nbr)
+            counter = counter + 1
+
+        return(project_name_list_dict)
+
+    #################################################################
+
+    def get_unbooked_record_dict_list_date_list(self):
+        dt = datetime.now()
+        this_month = int(dt.strftime("%m"))
+        this_year = int(dt.strftime("%Y"))
+        if this_month == 1:
+            last_month = this_month
+        else:
+            last_month = this_month - 1
+
+        booking_status = 'unbooked'
+        df = self.user_db.get_passed_times_with_accounts(this_year,this_month,last_month,booking_status)
+        if df.empty:
+            return([])
+        df = df.fillna('')
+        # print(df)
+
+        record_dict_list_date_list = self.create_record_dict_list_date_list(df)
+        return(record_dict_list_date_list)
     
+    def set_unbooked_times_by_passed_id(self,passed_id):
+        self.user_db.set_unbooked_time_booked(passed_id)
+
+    #################################################################
+
+    def get_passed_record_dict_list_date_list(self):
+        dt = datetime.now()
+        this_month = int(dt.strftime("%m"))
+        this_year = int(dt.strftime("%Y"))
+        if this_month == 1:
+            last_month = this_month
+        else:
+            last_month = this_month - 1
+
+        booking_status = 'all'
+        df = self.user_db.get_passed_times_with_accounts(this_year,this_month,last_month,booking_status)
+        if df.empty:
+            return([])
+        df = df.fillna('')
+        # print(df)
+
+        record_dict_list_date_list = self.create_record_dict_list_date_list(df)
+        return(record_dict_list_date_list)
+
+#################################################################
+
+    def get_account_dict_list_by_project_nbr(self,project_nbr):
+
+        try:
+            float(project_nbr)
+        except (ValueError,decimal.InvalidOperation):
+            return([])
+
+        df = self.user_db.get_accounts_by_project_nbr(project_nbr)
+        if df.empty:
+            return([])
+        df = df.fillna('')
+        #print(df)
+
+        account_dict_list = self.create_account_dict_list(df)
+        account_dict_list = [ele for ele in account_dict_list if ele['account_id'] != 0]
+        return(account_dict_list)
+    
+    def export_account_df(self, path):
+        df = self.user_db.get_accounts_df()
+        if df.empty:
+            return()
+        df = df.fillna('')
+        df = df.drop(columns=['date_int','bookable','status'])
+        dt = datetime.now()
+        str_today = dt.strftime("%Y") + "_" + dt.strftime("%m") + "_" + dt.strftime("%d")
+        save_str = path + '\EasyTARC_Konten_export_' + str_today + '.xlsx'
+        df.to_excel(save_str, index=False)
+        return()
+    
+    def export_passed_times_df(self, path):
+        df = self.user_db.get_passed_times_df()
+        if df.empty:
+            return()
+        df = df.fillna('')
+        df = df.drop(columns=['date_int','bookable','status','datetime','passedid'])
+        dt = datetime.now()
+        str_today = dt.strftime("%Y") + "_" + dt.strftime("%m") + "_" + dt.strftime("%d")
+        save_str = path + '\EasyTARC_Zeiten_export_' + str_today + '.xlsx'
+        df.to_excel(save_str, index=False)
+        return()
+
+#################################################################
+
+    def update_account(self,account_dict):
+        
+        if account_dict['account_kind'] == 1:
+            self.user_db.update_main_account(account_dict)
+            sub_account_id_list = self.user_db.get_sub_accounts(account_dict['account_id'])
+            for account_id in sub_account_id_list:
+                self.user_db.update_linked_sub_account(account_id,account_dict)
+        else:
+            self.user_db.update_sub_account(account_dict)
+
+
+    def delete_account(self,account_dict):
+        if account_dict['account_kind'] == 1:
+            sub_account_id_list = self.user_db.get_sub_accounts(account_dict['account_id'])
+            for account_id in sub_account_id_list:
+                self.user_db.delete_passed_time_by_account_id(account_id)
+                self.user_db.delete_account_by_id(account_id)
+
+        self.user_db.delete_passed_time_by_account_id(account_dict['account_id'])
+        self.user_db.delete_account_by_id(account_dict['account_id'])
+
+    def get_account_dict_by_account_id(self,account_id):
+        account_dict = self.user_db.get_account_details(account_id)
+        return(account_dict)
+
+
 #################################################################
 
     #delete instance
     def __del__(self):
-        print('Destructor called, data_managment.')
+        # print('Destructor called, data_managment.')
+        return
 
 
 

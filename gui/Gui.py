@@ -1,12 +1,33 @@
+'''
+Copyright 2023 Sebastian Feiert
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+'''
+__author__ = 'Sebastian Feiert'
+
 import tkinter as tk
 from tkinter import messagebox
+import subprocess
+import time
+import threading 
+import sys
 
 from style_classes import Myttk
 from gui.Window_Additionals import ExitSavingWindow
-from gui.Window_Main import MainWindow
-from gui.Window_Mini import MiniWindow
-from gui.Window_Bar import BarWindow
-from gui.Window_Main_CaseFrame_Manager import NotebookFrame
+from gui.window_main.Window_Main import MainWindow
+from gui.window_mini.Window_Work_Mini import MiniWorkWindow
+from gui.window_mini.Window_Work_Bar import BarWorkWindow
+from gui.window_main.Window_Main_CaseFrame_Manager import NotebookFrame
 
 
 class TkErrorCatcher:
@@ -70,25 +91,24 @@ class Gui_Manager:
         self.pause_clock = self.data_manager.get_pause_clock()
 
         self.status_main_window = True
-        self.miniWindow = None
-        self.barWindow = None
+        self.miniWorkWindow = None
+        self.barWorkWindow = None
 
-        self.mini_window_geo_set = False
-        self.mini_window_x = None
-        self.mini_window_y = None
+        self.mini_work_window_geo_set = False
+        self.mini_work_window_x = None
+        self.mini_work_window_y = None
 
-        self.bar_window_geo_set = False
-        self.bar_window_x = None
-        self.bar_window_y = None
+        self.bar_work_window_geo_set = False
+        self.bar_work_window_x = None
+        self.bar_work_window_y = None
 
         self.run_gui()
 
     def run_gui(self):
         
         self.root = NewRoot()
-        self.root.title('EasyTARV')
+        self.root.title('EasyTARC')
         self.root.iconbitmap("Logo.ico")
-        #   self.root.tk.call('tk', 'scaling', 2.0)
 
         self.myttk = Myttk(self.data_manager)
 
@@ -100,27 +120,30 @@ class Gui_Manager:
         self.main_window = MainWindow(self.main_app,self.root,self)
         self.main_window.attributes('-topmost',True)
 
+        self.show_after_unlocking_screen()
+
         self.main_window.mainloop()
         return
     
-    def unminimised(self):
+    def unminimise(self):
         if self.status_main_window == False:
             self.status_main_window = True
             self.main_window.case_frame.frames[NotebookFrame].tab_manager.go_to_start()
-            if self.miniWindow != None:
-                self.miniWindow.destroy()
-                self.miniWindow = None
-            if self.barWindow != None:
-                self.barWindow.destroy()
-                self.barWindow = None
+            if self.miniWorkWindow != None:
+                self.miniWorkWindow.destroy()
+                self.miniWorkWindow = None
+            if self.barWorkWindow != None:
+                self.barWorkWindow.destroy()
+                self.barWorkWindow = None
 
-    def minimised(self):
+    def minimise(self):
         if self.status_main_window == True:
             self.status_main_window = False
-            if self.data_manager.get_work_window() == 'mini_window':
-                self.mini_window()
-            elif self.data_manager.get_work_window() == 'bar_window':
-                self.bar_window()
+            if self.main_app.get_action_state() != 'disabled':
+                if self.data_manager.get_work_window() == 'mini_work_window':
+                    self.mini_work_window()
+                elif self.data_manager.get_work_window() == 'bar_work_window':
+                    self.bar_work_window()
 
     def disable_main_window(self):
         self.main_window.attributes('-topmost',False)
@@ -134,53 +157,105 @@ class Gui_Manager:
         ExitSavingWindow(self.root,self.main_app,self,self.main_window)
         return
     
-############################################################
+    def activate_current_tab(self):
+        # This function is important for the info windows
+        # Without this Function the canvas rutens a windows path error
+        self.main_window.case_frame.frames[NotebookFrame].tab_manager.active_tab.activate()
+    
+########################################################################################################################
+########################################################################################################################
 
-    def mini_window(self):
-        self.miniWindow = MiniWindow(self.main_app,self.root,self)
+    def lock_for_unlocking_and_pop_up_mw(self):
+        #https://stackoverflow.com/questions/34514644/in-python-3-how-can-i-tell-if-windows-is-locked
+        #https://stackoverflow.com/questions/1813872/running-a-process-in-pythonw-with-popen-without-a-console
 
-    def reset_mini_window_pos(self):
-        self.mini_window_geo_set = False
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
-    def get_mini_window_pos(self):
-        if self.mini_window_geo_set == False:
+        while True:
+            process_name='LogonUI.exe'
+            callall='TASKLIST'
+
+            outputall=subprocess.check_output(callall,startupinfo=startupinfo)
+            outputstringall=str(outputall)
+            if process_name in outputstringall:
+                status = 'locked' 
+                if status != self.screen_status:
+                    print("pop up")
+
+                    if self.miniWorkWindow != None:
+                        self.miniWorkWindow.destroy()
+
+                    if self.barWorkWindow != None:
+                        self.barWorkWindow.destroy()
+
+                    self.unminimise()
+                    self.root.deiconify()
+                    self.main_window.pos_window_central_and_highlight()
+            else:
+                status = 'unlocked' 
+                if status != self.screen_status:
+                    print("unlocked")
+            self.screen_status = status
+            time.sleep(1)
+
+    def show_after_unlocking_screen(self):
+        #https://www.geeksforgeeks.org/how-to-use-thread-in-tkinter-python/
+        #https://www.geeksforgeeks.org/python-different-ways-to-kill-a-thread/
+        #self.screen_status = 'unlocked'
+        #t1=threading.Thread(target=self.lock_for_unlocking_and_pop_up_mw)
+        #t1.daemon = True
+        #t1.start()
+        return
+    
+########################################################################################################################
+########################################################################################################################
+
+    def mini_work_window(self):
+        self.miniWorkWindow = MiniWorkWindow(self.main_app,self.root,self)
+
+    def reset_mini_work_window_pos(self):
+        self.mini_work_window_geo_set = False
+
+    def get_mini_work_window_pos(self):
+        if self.mini_work_window_geo_set == False:
             return(None)
         else:
-            return(self.mini_window_x,self.mini_window_y)
+            return(self.mini_work_window_x,self.mini_work_window_y)
         
-    def set_mini_window_pos(self,x,y):
-        self.mini_window_x = x
-        self.mini_window_y = y
-        self.mini_window_geo_set = True
+    def set_mini_work_window_pos(self,x,y):
+        self.mini_work_window_x = x
+        self.mini_work_window_y = y
+        self.mini_work_window_geo_set = True
 
-    def miniwindow_to_barwindow(self):
-        self.miniWindow.destroy()
-        self.miniWindow = None
-        self.bar_window()
+    def mini_work_window_to_bar_work_window(self):
+        self.miniWorkWindow.destroy()
+        self.miniWorkWindow = None
+        self.bar_work_window()
         return
 
 ############################################################
 
-    def bar_window(self):
-        self.barWindow = BarWindow(self.main_app,self.root,self)
+    def bar_work_window(self):
+        self.barWorkWindow = BarWorkWindow(self.main_app,self.root,self)
 
-    def reset_bar_window_pos(self):
-        self.bar_window_geo_set = False
+    def reset_bar_work_window_pos(self):
+        self.bar_work_window_geo_set = False
 
-    def get_bar_window_pos(self):
-        if self.bar_window_geo_set == False:
+    def get_bar_work_window_pos(self):
+        if self.bar_work_window_geo_set == False:
             return(None)
         else:
-            return(self.bar_window_x)
+            return(self.bar_work_window_x)
         
-    def set_bar_window_pos(self,x):
-        self.bar_window_x = x
-        self.bar_window_geo_set = True
+    def set_bar_work_window_pos(self,x):
+        self.bar_work_window_x = x
+        self.bar_work_window_geo_set = True
 
-    def barwindow_to_miniwindow(self):
-        self.barWindow.destroy()
-        self.barWindow = None
-        self.mini_window()
+    def bar_work_window_to_mini_work_window(self):
+        self.barWorkWindow.destroy()
+        self.barWorkWindow = None
+        self.mini_work_window()
         return
 
 ############################################################
@@ -191,7 +266,7 @@ class Gui_Manager:
         self.myttk.refresh_style()
         self.root.option_add("*TCombobox*Font", self.myttk.get_defaultFont())
         self.root.option_add("*TCombobox*Listbox*Font", self.myttk.get_defaultFont())
-        #self.root.option_add("*TCombobox*Listbox*background", self.style_dict["bg_color"])     #dont work
-        #self.root.option_add("*TCombobox*Listbox*foreground", self.style_dict["font_color"])   #dont work
+        self.root.option_add("*TCombobox*Listbox*background", self.style_dict["bg_color"])     #dont work for main window
+        self.root.option_add("*TCombobox*Listbox*foreground", self.style_dict["font_color"])   #dont work for main window
         self.main_window.refresh()
 
