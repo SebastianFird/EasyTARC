@@ -1,4 +1,4 @@
-#https://opensource.stackexchange.com/questions/7872/how-to-properly-assemble-notice-file-for-new-software-under-apache-license-2-0
+#https://www.apache.org/foundation/license-faq.html#Apply-My-Software
 '''
 Copyright 2023 Sebastian Feiert
 
