@@ -39,7 +39,6 @@ For further information please contact me.
 
 ____________________________________________________________________
 A short excursion into the development:
-![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/4d784647-f3c9-42f1-ae5f-cb8ce09b637b)
 ![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/e183dc77-8c0c-4cb7-aa41-86dfda06af7d)
 ![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/b2133689-ee91-4670-9454-dfa6e6b293f5)
 
