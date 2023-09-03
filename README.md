@@ -29,8 +29,8 @@ The executable files in the folder Version_X_X_EXE are great for a first impress
 Release 1.6.1:
 
 ![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/4d784647-f3c9-42f1-ae5f-cb8ce09b637b)
-![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/0a5af677-9daf-4de4-93fc-edb450ee3381)
-![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/a703e96c-c411-4d5c-bfda-5afd70afe6c8)
+![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/cd03b556-370d-4089-9c80-6175bb95a2b6)
+![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/9bc97586-4b5d-44ae-b9c6-1e38269023af)
 
 
 History:
