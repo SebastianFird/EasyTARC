@@ -28,8 +28,11 @@ The executable files in the folder Version_X_X_EXE are great for a first impress
 
 Release 1.6.1:
 
+Main-Window:
 ![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/4d784647-f3c9-42f1-ae5f-cb8ce09b637b)
+While working, the work window function is useful to keep track of time and still be able to work with concentration, here you can see the bar window:
 ![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/cd03b556-370d-4089-9c80-6175bb95a2b6)
+And here is the second working window, the mini window:
 ![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/9bc97586-4b5d-44ae-b9c6-1e38269023af)
 
 
