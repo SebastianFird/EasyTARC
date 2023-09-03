@@ -7,7 +7,7 @@ ____________________________________________________________________
 Release 1.6.1:
 
 Main-Window:
-![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/352d9d7b-e251-48a9-8023-4d8f99322c5f)
+![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/f3e8fee1-83e5-4ea1-a1be-21708ee151d8)
 While working, the work window function is useful to keep track of time and still be able to work with concentration, you can choose between two work windows and also switch at any time.
 Here you can see the bar window:
 ![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/cd03b556-370d-4089-9c80-6175bb95a2b6)
