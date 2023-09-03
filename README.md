@@ -35,6 +35,7 @@ You like EasyTARC and want to use it in your team or company?
 Then these are your next steps:
 
 The executable files in the folder Version_X_X_EXE are great for a first impression, but there are still dummy passwords in the source code. To really use EasyTARC with specific passwords in your team or company, you have to define the passwords in the source code (file easytarc_pw_container.py) and then create your own EasyTARC.exe and User_License_Creator.exe. To create these files you need Python and the extension pyinstaller. Then you can use the Windows PowerShell with the command "pyinstaller -F -w -i "Logo.ico" EasyTARC.py" and the command "pyinstaller -F -w User_License_Creator.py" to create your own executables with your passwords.
+For further information please contact me.
 
 ____________________________________________________________________
 A short excursion into the development:
