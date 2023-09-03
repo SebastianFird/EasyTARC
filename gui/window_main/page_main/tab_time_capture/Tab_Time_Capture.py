@@ -109,12 +109,6 @@ class CaptureTab(Scroll_Frame):
     
 #################################################################
 
-    def show_clock_info(self):
-        selected_clock = self.data_manager.get_selected_clock()
-        info_dict = selected_clock.get_info_dict()
-        info_window = InfoDictWindow(self.main_app, self.gui, self.main_frame ,info_dict,400,280)
-        return
-
     def create_sub_account(self):
         selected_clock = self.data_manager.get_selected_clock()
         if selected_clock.clock_kind == 'main' and selected_clock.get_id() != 0:

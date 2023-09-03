@@ -142,7 +142,7 @@ class MyButton(tk.Button):
         self.bind("<Leave>", self.on_leave)
 
     def on_enter(self, e):
-            self['background'] = self.style_dict["highlight_color"]
+        self['background'] = self.style_dict["highlight_color"]
 
     def on_leave(self, e):
         self['background'] = self.style_dict["btn_color"]

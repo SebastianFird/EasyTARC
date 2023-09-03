@@ -20,6 +20,7 @@ from PIL import ImageTk, Image
 from os import getcwd
 import os
 import shutil
+import json
 
 from sqlite_db_conn.sqlite_user_db import SqlUserDataManager
 from sqlite_db_conn.sqlite_settings_db import SqlSettingDataManager
@@ -64,24 +65,31 @@ class DataManager:
         self.user_db = SqlUserDataManager(self.main_app)
         self.settings_db = SqlSettingDataManager(self.main_app)
 
+        with open('style.json',encoding='UTF-8') as json_file:
+            self.style_json = json.load(json_file)
+
+        with open('language.json',encoding='UTF-8') as json_file:
+            self.language_json = json.load(json_file)
+
         self.load_image_dicts()
 
-        style_id = self.settings_db.get_style_id()
-        self.load_style_dict(style_id)
+        style_name = self.settings_db.get_style_name()
+        self.load_style_dict(style_name)
+
+        language_name = self.settings_db.get_language_name()
+        self.load_language_dict(language_name)
 
         self.work_window = self.settings_db.get_work_window()
         self.font_family = "Segoe UI"
         self.font_size = self.settings_db.get_font_size()
 
-        # print('Backup_list: ' +  str(self.user_db.get_backup_account_id_list()))
         if self.user_db.get_backup_account_id_list() == []:
             self.backup_found = False
         else:
             self.backup_found = True
-            # print('backup found')
 
-        self.work_clock = InfoClock(self.main_app,0, 0, 0, 0,"Arbeitszeit")
-        self.pause_clock = InfoClock(self.main_app,0, 0, 0, 0,"Pause")
+        self.work_clock = InfoClock(self.main_app,0, 0, 0, 0,"work_time")
+        self.pause_clock = InfoClock(self.main_app,0, 0, 0, 0,"break_time")
 
         return
     
@@ -126,7 +134,7 @@ class DataManager:
 
     def set_active_clock(self, clock):
         if self.active_clock != None:
-            if self.active_clock.get_name() != 'Pause' and self.active_clock.get_id() != 0 and self.last_active_clock != self.active_clock:
+            if self.active_clock.get_name() != 'break_time' and self.active_clock.get_id() != 0 and self.last_active_clock != self.active_clock:
                 self.last_active_clock = self.active_clock
         self.active_clock = clock
         return
@@ -185,7 +193,6 @@ class DataManager:
                     hours = float(hours)
                     passed_id = self.user_db.get_new_passedid()
                     account_dict = clock.get_account_dict()
-                    #print(clock.get_name())
                     account_id = account_dict['account_id']
                     auto_booking = account_dict['auto_booking']
 
@@ -239,7 +246,6 @@ class DataManager:
 
         for backup_passed_id in backup_passed_id_list:
             if backup_passed_id in db_passed_id_list:
-                # print('Fehlerhaftes Backup!')
                 self.user_db.delete_backup()
                 return(False)
 
@@ -296,7 +302,6 @@ class DataManager:
                     hours = float(hours)
                     backup_id = self.user_db.get_new_backupid()          
                     account_dict = clock.get_account_dict()
-                    # print(clock.get_name())
                     account_id = account_dict['account_id']
                     auto_booking = account_dict['auto_booking']
 
@@ -314,7 +319,6 @@ class DataManager:
                                         }
 
                     self.user_db.add_backup(backup_dict)
-                    # print('Backup: ' + str(backup_dict))
                     passed_id = passed_id + 1
                 else:
                     pass
@@ -380,10 +384,12 @@ class DataManager:
         }
 #################################################################
 
-    def load_style_dict(self,style_id):
-        self.style_dict = self.settings_db.get_style_dict(style_id)
+    def load_style_dict(self,style_name):
+
+        self.style_dict = self.style_json[style_name]
+
         self.style_dict.update(self.image_general_dict)
-        if style_id == 1:
+        if style_name == 'dark':
             self.style_dict.update(self.image_dark_dict)
         else:
             self.style_dict.update(self.image_light_dict)
@@ -391,13 +397,30 @@ class DataManager:
     def get_style_dict(self):
         return(self.style_dict)
     
-    def get_styles_overview_dict(self):
-        styles_overview_dict = self.settings_db.get_styles_overview_dict()
-        return(styles_overview_dict)
+    def get_style_list(self): #get_styles_overview_dict
+        style_list = list(self.style_json.keys())
+        return(style_list)
     
-    def set_style(self, style_id):
-        self.settings_db.set_style_id(style_id)
-        self.load_style_dict(style_id)
+    def set_style(self, style_name):
+        self.settings_db.set_style_name(style_name)
+        self.load_style_dict(style_name)
+        return()
+    
+#################################################################
+
+    def load_language_dict(self,language_name):
+        self.language_dict = self.language_json[language_name]
+
+    def get_language_dict(self):
+        return(self.language_dict)
+    
+    def get_language_list(self):
+        language_list = list(self.language_json.keys())
+        return(language_list)
+    
+    def set_language(self, language_name):
+        self.settings_db.set_language_name(language_name)
+        self.load_language_dict(language_name)
         return()
     
 #################################################################
@@ -421,12 +444,6 @@ class DataManager:
     def set_font_size(self,size):
         self.settings_db.set_font_size(size)
         self.font_size = size
-
-
-#################################################################
-    
-    def get_language_dict(self):
-        return()
 
 #################################################################
 
@@ -464,7 +481,7 @@ class DataManager:
 
         account_dict = {"account_id":int(account_id),                # unique identification nbr
                         "account_kind":int(kind),                    # kinds: 1 -> main, 0 -> sub
-                        "main_id":int(main_id),                      # if sub account the id of the main account else the main id
+                        "main_id":int(main_id),                      # if sub account the id of the main-account else the main id
                         "name":str(name),                            # name of the account
                         "description_text":str(description_text),    # description of the account
                         "project_nbr":str(project_nbr),              # project nbr
@@ -503,7 +520,6 @@ class DataManager:
         if df.empty:
             return([])
         df = df.fillna('')
-        # print(df)
         main_id_list = df.main_id.values.tolist()
         main_id_list = list(set(main_id_list))
 
@@ -519,16 +535,17 @@ class DataManager:
                             "account_kind":df.loc[(df['accountid'] == account_id)].account_kind.values.tolist()[0],                    
                             "main_id":main_id,   
                             "main_name":main_name_dict[main_id],                    
-                            "name":df.loc[(df['accountid'] == account_id)].name.values.tolist()[0],                               
+                            "name":df.loc[(df['accountid'] == account_id)].name.values.tolist()[0],  
+                            "group":df.loc[(df['accountid'] == account_id)].a_group.values.tolist()[0],                              
                             "description_text":df.loc[(df['accountid'] == account_id)].description_text.values.tolist()[0],      
                             "project_nbr":df.loc[(df['accountid'] == account_id)].project_nbr.values.tolist()[0], 
                             "order_nbr":df.loc[(df['accountid'] == account_id)].order_nbr.values.tolist()[0],              
                             "process_nbr":df.loc[(df['accountid'] == account_id)].process_nbr.values.tolist()[0],                 
                             "response_nbr":df.loc[(df['accountid'] == account_id)].response_nbr.values.tolist()[0],              
                             "default_text":df.loc[(df['accountid'] == account_id)].default_text.values.tolist()[0],
+                            "auto_booking":df.loc[(df['accountid'] == account_id)].auto_booking.values.tolist()[0], 
                             "hours":df.loc[(df['accountid'] == account_id)].hours.sum()                  
                             }
-                # print(record_dict)
                 unbooked_record_dict_list_sum_list.append(record_dict)
         return(unbooked_record_dict_list_sum_list)
     
@@ -578,6 +595,7 @@ class DataManager:
                                        "main_name":main_name_dict[main_id],
                                        "account_kind":df.loc[(df['accountid'] == account_id)].account_kind.values.tolist()[0],  
                                        "name":df.loc[(df['accountid'] == account_id)].name.values.tolist()[0], 
+                                       "group":df.loc[(df['accountid'] == account_id)].a_group.values.tolist()[0], 
                                        "description_text":df.loc[(df['accountid'] == account_id)].description_text.values.tolist()[0],  
                                        "project_nbr":df.loc[(df['accountid'] == account_id)].project_nbr.values.tolist()[0], 
                                        "order_nbr":df.loc[(df['accountid'] == account_id)].order_nbr.values.tolist()[0],  
@@ -636,6 +654,7 @@ class DataManager:
                                         "main_name":main_name_dict[main_id],
                                         "account_kind":df.loc[(df['accountid'] == account_id)].account_kind.values.tolist()[0],  
                                         "name":df.loc[(df['accountid'] == account_id)].name.values.tolist()[0], 
+                                        "group":df.loc[(df['accountid'] == account_id)].a_group.values.tolist()[0], 
                                         "description_text":df.loc[(df['accountid'] == account_id)].description_text.values.tolist()[0],  
                                         "project_nbr":df.loc[(df['accountid'] == account_id)].project_nbr.values.tolist()[0], 
                                         "order_nbr":df.loc[(df['accountid'] == account_id)].order_nbr.values.tolist()[0],  
@@ -644,27 +663,13 @@ class DataManager:
                                         "default_text":df.loc[(df['accountid'] == account_id)].default_text.values.tolist()[0], 
                                         "auto_booking":df.loc[(df['accountid'] == account_id)].auto_booking.values.tolist()[0], 
                                         "status":df.loc[(df['accountid'] == account_id)].status.values.tolist()[0],
+                                        "a_year":df.loc[(df['accountid'] == account_id)].a_year.values.tolist()[0],
+                                        "a_month":df.loc[(df['accountid'] == account_id)].a_month.values.tolist()[0],
+                                        "a_day":df.loc[(df['accountid'] == account_id)].a_day.values.tolist()[0],
                                         "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0]}
                         account_dict_list.append(account_dict)
         return(account_dict_list)
 
-
-
-    #################################################################
-
-    def get_project_name_list_dict(self):
-        project_list, name_list = self.user_db.get_project_name_lists()
-        project_list = list(set(project_list))
-        project_list.sort()
-        new_project_list = project_list.copy()
-
-        project_name_list_dict = {'Index': 'Projekt-Nr.'}
-        counter = 1
-        for project_nbr in new_project_list:
-            project_name_list_dict[str(counter)] =  str(project_nbr)
-            counter = counter + 1
-
-        return(project_name_list_dict)
 
     #################################################################
 
@@ -682,7 +687,6 @@ class DataManager:
         if df.empty:
             return([])
         df = df.fillna('')
-        # print(df)
 
         record_dict_list_date_list = self.create_record_dict_list_date_list(df)
         return(record_dict_list_date_list)
@@ -706,25 +710,27 @@ class DataManager:
         if df.empty:
             return([])
         df = df.fillna('')
-        # print(df)
 
         record_dict_list_date_list = self.create_record_dict_list_date_list(df)
         return(record_dict_list_date_list)
 
 #################################################################
 
-    def get_account_dict_list_by_project_nbr(self,project_nbr):
+    def get_account_dict_list_by_search(self,modus,search_input):
 
-        try:
-            float(project_nbr)
-        except (ValueError,decimal.InvalidOperation):
-            return([])
+        if modus in ['project_nbr','order_nbr','process_nbr']:
+            try:
+                float(search_input)
+            except (ValueError,decimal.InvalidOperation):
+                return([])
 
-        df = self.user_db.get_accounts_by_project_nbr(project_nbr)
+        df = self.user_db.get_accounts_by_search_input(modus,search_input)
         if df.empty:
             return([])
+        if modus == 'name':
+            id_list = df['accountid'].tolist()
+            df = self.user_db.get_sub_accounts_by_search_name(df,id_list)
         df = df.fillna('')
-        #print(df)
 
         account_dict_list = self.create_account_dict_list(df)
         account_dict_list = [ele for ele in account_dict_list if ele['account_id'] != 0]
@@ -753,6 +759,13 @@ class DataManager:
         save_str = path + '\EasyTARC_Zeiten_export_' + str_today + '.xlsx'
         df.to_excel(save_str, index=False)
         return()
+    
+    def get_all_account_groups(self):
+        group_list = self.user_db.get_all_account_groups()
+        group_list = [ele for ele in group_list if ele != 'default']
+        group_list = list(set(group_list))
+        return(group_list)
+
 
 #################################################################
 
@@ -786,7 +799,6 @@ class DataManager:
 
     #delete instance
     def __del__(self):
-        # print('Destructor called, data_managment.')
         return
 
 

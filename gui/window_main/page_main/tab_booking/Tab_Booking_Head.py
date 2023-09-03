@@ -73,14 +73,13 @@ class BookingHead:
         self.language_dict = self.data_manager.get_language_dict()
 
         self.refresh_main_head()
-        #self.refresh_second_head()
         self.refresh_table_head()
         return
 
 #################################################################
 
     def updtcblist(self):
-        self.account_cbox['values'] = ['Summen buchen','Nach Datum buchen']
+        self.account_cbox['values'] = [self.language_dict["book_sums"],self.language_dict["book_by_date"]]
         if self.booking_tab.get_booking_kind() == 'sum':
             self.account_cbox.current(0)
         elif self.booking_tab.get_booking_kind() == 'date':
@@ -101,27 +100,30 @@ class BookingHead:
 
         def set_booking_view(booking_view):
 
-            if booking_view == 'Summen buchen':
+            if booking_view == self.language_dict["book_sums"]:
                 self.show_cumulativ_booking()
-            elif booking_view == 'Nach Datum buchen':
+            elif booking_view == self.language_dict["book_by_date"]:
                 self.show_booking_by_date()
             self.updtcblist()
             return
 
-        self.btn_booking_view = MyButton(self.main_head_frame, self.data_manager, text='Anwenden',width=12,command=lambda:set_booking_view(clicked.get()))
+        self.btn_booking_view = MyButton(self.main_head_frame, self.data_manager, text=self.language_dict["apply"],width=12,command=lambda:set_booking_view(clicked.get()))
         self.btn_booking_view.pack(side='left',padx = 10,pady=10)
 
         self.update_main_head()
         return
     
-    def update_main_head(self):            
+    def update_main_head(self):
+        self.updtcblist()            
         return
 
     def refresh_main_head(self):
         self.main_head_frame.refresh_style()
         self.btn_booking_view.refresh_style()
-
         self.main_head_frame.configure(background=self.style_dict["header_color"])
+
+        self.btn_booking_view.configure(text=self.language_dict["apply"])
+
         self.update_main_head()
         return
     
@@ -170,7 +172,7 @@ class BookingHead:
         self.lbl_empty13 = MyLabel(self.booking_visible_frame, self.data_manager, width=5)
         self.lbl_empty13.pack(side='right',padx=3)
 
-        self.lbl_booking = MyLabel(self.booking_visible_frame, self.data_manager, text='Buchen',width=8)
+        self.lbl_booking = MyLabel(self.booking_visible_frame, self.data_manager, text=self.language_dict["book"],width=8)
         self.lbl_booking.pack(side='right',padx = 3)
 
         self.lbl_empty2 = MyLabel(self.booking_visible_frame, self.data_manager, width=5)
@@ -196,7 +198,7 @@ class BookingHead:
         self.lbl_empty4 = MyLabel(self.response_visible_frame, self.data_manager, width=2)
         self.lbl_empty4.pack(side='right',padx=3)
 
-        self.lbl_response = MyLabel(self.response_visible_frame, self.data_manager, text='Rückmeldetext',width=21)
+        self.lbl_response = MyLabel(self.response_visible_frame, self.data_manager, text=self.language_dict["booking_text"],width=21)
         self.lbl_response.pack(side='right',padx = 3)
 
         self.lbl_empty5 = MyLabel(self.response_visible_frame, self.data_manager, width=5)
@@ -222,7 +224,7 @@ class BookingHead:
         self.lbl_empty7 = MyLabel(self.passed_time_visible_frame, self.data_manager, width=2)
         self.lbl_empty7.pack(side='right',padx=3)
 
-        self.lbl_passed_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text='Stunden',width=9)
+        self.lbl_passed_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=self.language_dict["hours"],width=9)
         self.lbl_passed_time.pack(side='right',padx = 3)
 
         self.lbl_empty8 = MyLabel(self.passed_time_visible_frame, self.data_manager, width=5)
@@ -248,7 +250,7 @@ class BookingHead:
         self.lbl_empty10 = MyLabel(self.response_nbr_visible_frame, self.data_manager, width=2)
         self.lbl_empty10.pack(side='right',padx=3)
 
-        self.lbl_response_nbr = MyLabel(self.response_nbr_visible_frame, self.data_manager, text='Rückmelde-Nr.',width=16)
+        self.lbl_response_nbr = MyLabel(self.response_nbr_visible_frame, self.data_manager, text=self.language_dict["booking_nbr"],width=16)
         self.lbl_response_nbr.pack(side='right',padx = 3)
 
         self.lbl_empty11 = MyLabel(self.response_nbr_visible_frame, self.data_manager, width=5)
@@ -271,7 +273,7 @@ class BookingHead:
         self.name_visible_frame = MyFrame(self.name_frame,self.data_manager)
         self.name_visible_frame.pack(side = "top")
 
-        self.lbl_name = MyLabel(self.name_visible_frame, self.data_manager, text='Name')
+        self.lbl_name = MyLabel(self.name_visible_frame, self.data_manager, text=self.language_dict["name"])
         self.lbl_name.pack(side='left',padx = 3)
 
         self.update_table_head()     
@@ -333,6 +335,13 @@ class BookingHead:
         self.passed_time_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
         self.response_nbr_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
         self.name_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
+
+        self.lbl_booking.configure(text=self.language_dict["book"])
+        self.lbl_response.configure(text=self.language_dict["booking_text"])
+        self.lbl_passed_time.configure(text=self.language_dict["hours"])
+        self.lbl_response_nbr.configure(text=self.language_dict["booking_nbr"])
+        self.lbl_name.configure(text=self.language_dict["name"])
+
         self.update()
         return
     

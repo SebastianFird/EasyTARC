@@ -74,7 +74,7 @@ class MainWindowStatus(tk.Frame):
         self.lbl_backup = MyLabel(self.s_frame, self.data_manager,  text=u'\U0001F5D8',width=2, anchor='w')
         self.lbl_backup.configure(foreground=self.style_dict["highlight_color"])
         self.lbl_backup.pack(side = "right")
-        self.lbl_backup_ttp = CreateToolTip(self.lbl_backup, self.data_manager, 5, 30, 'Daten werden zwischengespeichert')
+        self.lbl_backup_ttp = CreateToolTip(self.lbl_backup, self.data_manager, 5, 30, self.language_dict["data_are_stored_temporarily"])
 
         self.lbl_btn_info = MyLabel(self.s_frame, self.data_manager, text=u'\U00002139',width=5)
         self.lbl_btn_info.configure(foreground=self.style_dict["font_color"])
@@ -85,7 +85,7 @@ class MainWindowStatus(tk.Frame):
         self.lbl_pausetime.configure(foreground=self.style_dict["font_color"])
         self.lbl_pausetime.pack(side = "right")
 
-        self.lbl_pausetime_name = MyLabel(self.s_frame, self.data_manager, text='Pausenzeit: ', width=10, anchor='w')
+        self.lbl_pausetime_name = MyLabel(self.s_frame, self.data_manager, text= self.language_dict["break_time"] + ': ', width=10, anchor='e')
         self.lbl_pausetime_name.configure(foreground=self.style_dict["font_color"])
         self.lbl_pausetime_name.pack(side = "right")
 
@@ -93,7 +93,7 @@ class MainWindowStatus(tk.Frame):
         self.lbl_bookingrate.configure(foreground=self.style_dict["font_color"])
         self.lbl_bookingrate.pack(side = "right")
 
-        self.lbl_bookingrate_name = MyLabel(self.s_frame, self.data_manager, text='Quote: ', width=6, anchor='w')
+        self.lbl_bookingrate_name = MyLabel(self.s_frame, self.data_manager, text= self.language_dict["rate"] + ': ', width=6, anchor='e')
         self.lbl_bookingrate_name.configure(foreground=self.style_dict["font_color"])
         self.lbl_bookingrate_name.pack(side = "right")
 
@@ -101,11 +101,11 @@ class MainWindowStatus(tk.Frame):
         self.lbl_worktime.configure(foreground=self.style_dict["font_color"])
         self.lbl_worktime.pack(side = "right")
 
-        self.lbl_worktime_name = MyLabel(self.s_frame, self.data_manager, text='Arbeitszeit: ', width=10, anchor='w')
+        self.lbl_worktime_name = MyLabel(self.s_frame, self.data_manager, text=self.language_dict["working_time"] + ': ', width=14, anchor='e')
         self.lbl_worktime_name.configure(foreground=self.style_dict["font_color"])
         self.lbl_worktime_name.pack(side = "right")
 
-        self.lbl_current = MyLabel(self.s_frame, self.data_manager, text='Aktuell: ', width=10, anchor='center')
+        self.lbl_current = MyLabel(self.s_frame, self.data_manager, text=self.language_dict["current"] + ': ', width=10, anchor='center')
         self.lbl_current.configure(foreground=self.style_dict["font_color"])
         self.lbl_current.pack(side = "left")
 
@@ -164,7 +164,7 @@ class MainWindowStatus(tk.Frame):
                 self.lbl_btn_info.configure(background=self.style_dict["titlebar_color"])
             self.gui.myttk.change_sizegrip_background(self.style_dict["titlebar_color"])
 
-            self.lbl_status_text.configure(text='Gesperrt')
+            self.lbl_status_text.configure(text=self.language_dict["locked"])
 
         elif work_clock.get_runninig() == True:
             self.s_frame.configure(background=self.style_dict["bottom_active_color"])
@@ -182,7 +182,10 @@ class MainWindowStatus(tk.Frame):
             self.gui.myttk.change_sizegrip_background(self.style_dict["bottom_active_color"])
             
             self.active_clock = self.data_manager.get_active_clock()
-            self.lbl_status_text.configure(text=self.active_clock.get_full_name())
+            if self.active_clock.get_id() != 0:
+                self.lbl_status_text.configure(text=self.active_clock.get_full_name())
+            else:
+                self.lbl_status_text.configure(text=self.language_dict["without_allocation"])
 
         elif pause_clock.get_runninig() == True:
             self.s_frame.configure(background=self.style_dict["bottom_pause_color"])
@@ -199,7 +202,7 @@ class MainWindowStatus(tk.Frame):
                 self.lbl_btn_info.configure(background=self.style_dict["bottom_pause_color"])
             self.gui.myttk.change_sizegrip_background(self.style_dict["bottom_pause_color"])
 
-            self.lbl_status_text.configure(text='Pause')
+            self.lbl_status_text.configure(text=self.language_dict["break"])
                 
 
         else:
@@ -217,14 +220,13 @@ class MainWindowStatus(tk.Frame):
                 self.lbl_btn_info.configure(background=self.style_dict["titlebar_color"])
             self.gui.myttk.change_sizegrip_background(self.style_dict["titlebar_color"])
 
-            self.lbl_status_text.configure(text='Feierabend')
-
+            self.lbl_status_text.configure(text=self.language_dict["closing_time"]) 
+ 
         self.main_frame.after(1000, lambda:self.auto_update_status_frame())
 
     def refresh_status_frame(self):
         # configure style and language of main frame
         self.lbl_backup_ttp.refresh()
-
         self.s_frame.refresh_style()
         self.lbl_current.refresh_style()
         self.lbl_btn_info.refresh_style()
@@ -236,8 +238,13 @@ class MainWindowStatus(tk.Frame):
         self.lbl_worktime_name.refresh_style()
         self.lbl_backup.refresh_style()
         self.lbl_status_text.refresh_style()
-
         self.lbl_backup.configure(foreground=self.style_dict["highlight_color"])
+
+        self.lbl_backup_ttp.text = self.language_dict["data_are_stored_temporarily"]
+        self.lbl_pausetime_name.configure(text= self.language_dict["break_time"] + ': ')
+        self.lbl_bookingrate_name.configure(text= self.language_dict["rate"] + ': ')
+        self.lbl_worktime_name.configure(text=self.language_dict["working_time"] + ': ')
+        self.lbl_current.configure(text=self.language_dict["current"] + ': ')
 
         self.auto_update_status_frame()
         return
@@ -266,7 +273,7 @@ class MainWindowStatus(tk.Frame):
         self.lbl_close_reminder.bind("<Button-1>", close_reminder)
 
 
-        self.lbl_reminder = MyLabel(self.r_frame, self.data_manager, text=' Hinweis: Erinnerung zum Verbuchen. Das Monatsende ist in Sicht.', anchor='w')
+        self.lbl_reminder = MyLabel(self.r_frame, self.data_manager, text=self.language_dict["booking_reminder"], anchor='w')
         self.lbl_reminder.configure(background=self.style_dict["selected_color"],foreground=self.style_dict["font_color_3"])
         self.lbl_reminder.pack(side = "left")
 
@@ -280,6 +287,8 @@ class MainWindowStatus(tk.Frame):
         self.r_frame.configure(background=self.style_dict["selected_color"],highlightthickness=1,highlightbackground=self.style_dict["btn_color"],highlightcolor=self.style_dict["btn_color"])
         self.lbl_close_reminder.configure(background=self.style_dict["selected_color"],foreground=self.style_dict["font_color_3"])
         self.lbl_reminder.configure(background=self.style_dict["selected_color"],foreground=self.style_dict["font_color_3"])
+
+        self.lbl_reminder.configure(text=self.language_dict["booking_reminder"], anchor='w')
         return
     
     def backup_saved_on(self):
@@ -318,19 +327,20 @@ class MainWindowStatus(tk.Frame):
         if self.main_app.get_action_state() == 'disabled':
             return
 
-        info_dict = {'Beginn':str(self.data_manager.start_timestamp) + ' Uhr'}
+        info_dict = {self.language_dict["begin"]:str(self.data_manager.start_timestamp) + ' '+ self.language_dict["o_clock"]}
 
         pause_clock = self.data_manager.get_pause_clock()
-        pause_shift_list = pause_clock.get_time_str_list()
-        if pause_shift_list != []:
+        pause_shift_list_list = pause_clock.get_time_str_list_list()
+        if pause_shift_list_list != []:
             pause_counter = 1
-            for pause_shift in pause_shift_list:
-                info_dict.update({'Pause ' + str(pause_counter):str(pause_shift)})
+            for pause_shift in pause_shift_list_list:
+                pause_text =  pause_shift[0] + ' '+ self.language_dict["o_clock"] + ' ' + self.language_dict["to"] +' ' + pause_shift[1] + ' '+ self.language_dict["o_clock"] + ' (' + self.language_dict["duration"] + ': ' + pause_shift[2] + ')'
+                info_dict.update({self.language_dict["break"] + ' ' + str(pause_counter):pause_text})
                 pause_counter = pause_counter + 1
 
         end_timestamp = self.data_manager.end_timestamp
         if end_timestamp != None:
-            info_dict.update({'Ende':str(self.data_manager.end_timestamp) + ' Uhr'})
+            info_dict.update({self.language_dict["end"]:str(self.data_manager.end_timestamp) + ' '+ self.language_dict["o_clock"]})
 
 
         info_window = InfoDictWindow(self.main_app, self.gui ,self.main_window,info_dict,450,300)

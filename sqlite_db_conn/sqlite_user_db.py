@@ -46,37 +46,44 @@ class SqlUserDataManager(SqlManager):
         self.main_app = main_app
 
         name = 'EasyTARC_Database_User'
-        db_name_enc = name + '_crypted.sql.gz'
-        user_db_password = self.main_app.get_db_user_password()
-        current_user_hash = self.main_app.get_current_user_hash()
-        db_password = str.encode(user_db_password + current_user_hash)
+        self.db_name_enc = name + '_crypted.sql.gz'
+        db_user_password = self.main_app.get_db_user_password()
+        db_password = str.encode(db_user_password)
 
-        super().__init__(main_app, name, db_name_enc, db_password)
+        super().__init__(main_app, name, self.db_name_enc, db_password)
     
-        if os.path.isfile(db_name_enc) == False:
+        if os.path.isfile(self.db_name_enc) == False:
             self.create_db()
         else:
             try:
                 test_id = self.get_new_accountid()
             except:
-                self.root = NewRoot()
+                self.restore_backup()
 
-                full_db_backup_db_name_enc = 'full_db_backup_' + db_name_enc
-                if os.path.isfile(full_db_backup_db_name_enc) == True:
-                    result = messagebox.askquestion("EasyTARC", 'EsayTARC kann keine Daten abrufen, es liegt ein Datenbankfehler vor. Jedoch wurde ein Backup gefunden, soll das Backup beim nächsten Start verwendet werden?', icon='warning')
-                    if result == 'yes':
-                        path = os.path.abspath(os.getcwd())
-                        file_path = path + '\\' + db_name_enc # EasyTARC_Database_User_crypted.sql.gz
-                        file_path_err = path + '\\error_' + db_name_enc
-                        os.rename(file_path, file_path_err)
-                        full_db_backup_path  = path + '\\' + full_db_backup_db_name_enc
-                        os.rename(full_db_backup_path, file_path)
-                        messagebox.showinfo('EasyTARC','Bitte starte EasyTARC erneut.')
-                    else:
-                        messagebox.showinfo('EasyTARC','Bitte wende dich an den Admin.')
-                else:
-                    messagebox.showinfo('EasyTARC','EsayTARC kann keine Daten abrufen, es liegt ein Datenbankfehler vor. Bitte wende dich an den Admin.')
-                self.main_app.fast_exit()
+    def request_restoring_backup(self):
+        self.root = NewRoot()
+        full_db_backup_db_name_enc = 'full_db_backup_' + self.db_name_enc
+        if os.path.isfile(full_db_backup_db_name_enc) == True:
+            result = messagebox.askquestion("EasyTARC", 'EsayTARC cannot retrieve any data, there is a database error. However, a backup was found, should the backup be used at the next start?', icon='warning')
+            if result == 'yes':
+                self.restore_backup()
+            else:
+                messagebox.showinfo('EasyTARC',' Please report this error to the support')
+        else:
+            messagebox.showinfo('EasyTARC','EsayTARC cannot retrieve data, there is a database error. Please contact the admin.')
+        self.main_app.fast_exit()
+
+    def restore_backup(self):
+        path = os.path.abspath(os.getcwd())
+        # renaming the crashed db in error_db 
+        file_path = path + '\\' + self.db_name_enc 
+        file_path_err = path + '\\error_' + self.db_name_enc
+        os.rename(file_path, file_path_err)
+        # renaming the backup_db in db 
+        full_db_backup_db_name_enc = 'full_db_backup_' + self.db_name_enc
+        full_db_backup_path  = path + '\\' + full_db_backup_db_name_enc
+        os.rename(full_db_backup_path, file_path)
+        return
 
 ######################################
 
@@ -145,8 +152,8 @@ class SqlUserDataManager(SqlManager):
         def new_data_base():
 
             account_id = 0
-            name = 'Ohne Projekt'
-            description_text = 'Dieses Zeitkonto kann nicht verbucht werden'
+            name = 'Without allocation'
+            description_text = ''
             kind = 1
             main_id = 0
             project_nbr = 0
@@ -159,7 +166,7 @@ class SqlUserDataManager(SqlManager):
             group = 'default'
             bookable = 0
 
-            dt = datetime.now()
+            dt = datetime.datetime.now()
             a_day = int(dt.strftime("%d"))
             a_month = int(dt.strftime("%m"))
             a_year = int(dt.strftime("%Y"))
@@ -191,23 +198,6 @@ class SqlUserDataManager(SqlManager):
 
         return()
 ######################################
-
-    def get_style_id(self):
-        conn = self.open_encrypted_db()
-        cur = conn.cursor()
-        cur.execute("SELECT styleid FROM settings WHERE settingid = ?", (0,))
-        style_id = cur.fetchone()[0]
-        self.save_encrypted_db(conn)
-        conn.close()
-        return(style_id)
-
-    def set_style_id(self, style_id):
-        conn = self.open_encrypted_db()
-        cur = conn.cursor()
-        cur.execute("UPDATE settings SET styleid = ? WHERE settingid = ?", (style_id,0,))
-        self.save_encrypted_db(conn)
-        conn.close()
-        return()
     
     def get_work_window(self):
         conn = self.open_encrypted_db()
@@ -400,7 +390,7 @@ class SqlUserDataManager(SqlManager):
         cur = conn.cursor()
         name_dict = {}
         for accountid in accountid_list:
-            cur.execute("SELECT name FROM accounts WHERE accountid = ?", (accountid,))
+            cur.execute("SELECT name FROM accounts WHERE accountid = ?", (str(accountid),))
             name = cur.fetchone()[0]
             name_dict[accountid] = name
         self.save_encrypted_db(conn)
@@ -441,15 +431,6 @@ class SqlUserDataManager(SqlManager):
         self.save_encrypted_db(conn)
         conn.close()
         return(id_list)
-    
-    def get_project_name_lists(self):
-        conn = self.open_encrypted_db()
-        cur = conn.cursor()
-        project_list = [project_nbr[0] for project_nbr in cur.execute("SELECT project_nbr FROM accounts WHERE account_kind = ?", (1,))]
-        name_list = [name[0] for name in cur.execute("SELECT name FROM accounts WHERE account_kind = ?", (1,))]
-        self.save_encrypted_db(conn)
-        conn.close()
-        return(project_list,name_list)
 
     # Liste aller Zeitkonten die am Anfang eingeblendet werden sollen
     def get_sub_accounts(self,main_account_id):
@@ -494,17 +475,15 @@ class SqlUserDataManager(SqlManager):
                         "a_month":result[15],
                         "a_day":result[16],
                         }
+        if account_dict['account_kind'] == 0:
+            name_dict = self.get_namedict_by_accountid_list([account_dict['main_id']])
+            account_dict.update({'main_name':str(name_dict[account_dict['main_id']])})
         #print(account_dict)
         self.save_encrypted_db(conn)
         conn.close()
         return(account_dict)
     
-    def get_accounts_by_project_nbr(self,project_nbr):
-        conn = self.open_encrypted_db()
-        cur = conn.cursor()
-
-        query = cur.execute("SELECT * FROM accounts WHERE project_nbr LIKE  ?", ('%'+str(project_nbr)+'%',))
-
+    def process_accoubt_dict(self,query):
         cols = [column[0] for column in query.description]
         df= pd.DataFrame.from_records(data = query.fetchall(), columns = cols)
         if df.empty:
@@ -513,7 +492,6 @@ class SqlUserDataManager(SqlManager):
         date_1 = pd.to_datetime(date_0)
         date_str = date_1.dt.strftime('%d.%m.%Y')
         date_nbr = date_1.dt.strftime('%Y%m%d').astype(int)
-        df = df.drop(columns=['a_year', 'a_month', 'a_day'])
         df.insert(0, 'date', date_str)
         date_int_list = []
         for x in date_nbr:
@@ -523,9 +501,60 @@ class SqlUserDataManager(SqlManager):
         df = df.loc[:,~df.columns.duplicated()].copy()
         df = df.replace(r'^\s*$', np.nan, regex=True)
 
+        return(df)
+    
+    def get_accounts_by_search_input(self,modus,search_input):
+        print('sql',modus,search_input)
+        conn = self.open_encrypted_db()
+        cur = conn.cursor()
+
+        if modus == 'open':
+            query = cur.execute("SELECT * FROM accounts WHERE status != ?", ('closed',))
+        elif modus == 'closed':
+            query = cur.execute("SELECT * FROM accounts WHERE status = ?", ('closed',))
+        elif modus == 'all':
+            query = cur.execute("SELECT * FROM accounts")
+        elif modus == 'name':
+            query = cur.execute("SELECT * FROM accounts WHERE name LIKE  ?", ('%'+str(search_input)+'%',))
+        elif modus == 'a_group' and search_input == '':
+            query = cur.execute("SELECT * FROM accounts WHERE a_group LIKE  ?", ('default',))
+        elif modus == 'a_group':
+            query = cur.execute("SELECT * FROM accounts WHERE a_group LIKE  ? AND a_group != ?", ('%'+str(search_input)+'%','default',))
+        elif modus == 'project_nbr':
+            query = cur.execute("SELECT * FROM accounts WHERE project_nbr LIKE  ?", ('%'+str(search_input)+'%',))
+        elif modus == 'order_nbr':
+            query = cur.execute("SELECT * FROM accounts WHERE order_nbr LIKE  ?", ('%'+str(search_input)+'%',))
+        elif modus == 'process_nbr':
+            query = cur.execute("SELECT * FROM accounts WHERE process_nbr LIKE  ?", ('%'+str(search_input)+'%',))
+        else:
+            return
+        
+        df = self.process_accoubt_dict(query)
+
         self.save_encrypted_db(conn)
         conn.close()
         return(df)
+    
+    def get_sub_accounts_by_search_name(self,main_df,id_list):
+        conn = self.open_encrypted_db()
+        cur = conn.cursor()
+        for id in id_list:
+            query = cur.execute("SELECT * FROM accounts WHERE main_id == ? AND account_kind == ? ", (id,str(0),))
+            sub_df = self.process_accoubt_dict(query)
+            df3 = pd.concat([main_df,sub_df])
+            main_df = df3.copy()
+
+        self.save_encrypted_db(conn)
+        conn.close()
+        return(main_df)
+    
+    def get_all_account_groups(self):
+        conn = self.open_encrypted_db()
+        cur = conn.cursor()
+        group_list = [group[0] for group in cur.execute("SELECT a_group FROM accounts")]
+        self.save_encrypted_db(conn)
+        conn.close()
+        return(group_list)
 
     def get_accounts_df(self):
         conn = self.open_encrypted_db()

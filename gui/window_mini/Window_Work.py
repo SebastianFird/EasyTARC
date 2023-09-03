@@ -18,6 +18,7 @@ __author__ = 'Sebastian Feiert'
 import tkinter as tk
 from tkinter import ttk
 from PIL import ImageTk, Image
+from gui.Gui_OptionMenu import GuiOptionMenu
 
 
 class WorkWindow(tk.Toplevel):
@@ -26,6 +27,7 @@ class WorkWindow(tk.Toplevel):
         self.main_app = main_app
         self.data_manager = self.main_app.get_data_manager()
         self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
 
         tk.Toplevel.__init__(self,root,highlightthickness=1, highlightcolor = self.style_dict["border_color"], highlightbackground=self.style_dict["border_color"])
 
@@ -45,6 +47,8 @@ class WorkWindow(tk.Toplevel):
         self.work_clock = self.data_manager.get_work_clock()
         self.pause_clock = self.data_manager.get_pause_clock()
         self.default_clock = self.data_manager.get_default_clock()
+
+        self.option_menu = GuiOptionMenu(self,self.main_app,self.gui)
 
 #################################################################################
 
@@ -253,5 +257,10 @@ class WorkWindow(tk.Toplevel):
     def expand_to_main_window(self,event):
         self.gui.unminimise()
         self.root.deiconify()
+
+#################################################################################
+
+    def right_clicked(self,e):
+        self.option_menu.popup(e)
 
 #################################################################################

@@ -57,6 +57,7 @@ class AccountList(tk.Frame):
 
         for account_dict in account_dict_list:
             account_frame = AccountFrame(self.main_frame, self.main_app, self.gui,self.accounts_tab,self,account_dict)
+            account_frame.pack(side = "top", fill = "x")
             self.account_frame_list.append(account_frame)
 
         self.update()

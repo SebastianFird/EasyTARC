@@ -39,14 +39,14 @@ class CaseFrameManagerMW(tk.Frame):
         self.show_notebook_frame()
 
 
-    def destroy_all_children_widgets(self, frame):
-        print(frame.winfo_name())
-        w_children_list = frame.winfo_children()
-        print(w_children_list)
-        if w_children_list != []:
-            for w_children in w_children_list:
-                self.destroy_all_children_widgets(w_children)
-        frame.destroy()
+    #def destroy_all_children_widgets(self, frame):
+    #    print(frame.winfo_name())
+    #    w_children_list = frame.winfo_children()
+    #    print(w_children_list)
+    #    if w_children_list != []:
+    #        for w_children in w_children_list:
+    #            self.destroy_all_children_widgets(w_children)
+    #    frame.destroy()
     
 
     def destroy_frames(self,frame):
@@ -67,7 +67,6 @@ class CaseFrameManagerMW(tk.Frame):
         frame = self.frames[cont]
         self.destroy_frames(frame)
         frame.tkraise()
-        # print(self.frames)
 
     def show_notebook_frame(self, destination = None):
         if NotebookFrame in self.frames:

@@ -105,6 +105,7 @@ class TimeTip(object):
         self.widget = widget
         self.data_manager = data_manager
         self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
         self.rel_x = rel_x
         self.rey_y = rey_y
         self.clock = clock
@@ -117,6 +118,9 @@ class TimeTip(object):
         self.widget.bind("<ButtonPress>", self.leave)
         self.id = None
         self.tw = None
+
+        self.full_time_name = self.language_dict["total_time"]
+        self.single_times_name = self.language_dict["single_times"]
 
     def enter(self, event=None):
         self.schedule()
@@ -147,26 +151,26 @@ class TimeTip(object):
         frame = tk.Frame(self.tw, highlightthickness=1, highlightcolor = self.style_dict["font_color"], highlightbackground = self.style_dict["font_color"])
         frame.pack()
         if self.time_column != 'full_time':
-            time_text = 'Gestamtzeit: '+ self.clock.str_timedelta(self.clock.get_total_time())
+            time_text = self.full_time_name + ': '+ self.clock.str_timedelta(self.clock.get_total_time())
         else:
             sign, added_minutes = self.clock.get_added_time()
-            time_text = 'Einzelzeiten: '+ self.clock.str_timedelta(self.clock.get_passed_time())
+            time_text = self.single_times_name + ': ' + self.clock.str_timedelta(self.clock.get_passed_time())
             if added_minutes != "00:00:00":
                     time_text = time_text + ' ' + sign + ' ' + str(added_minutes)
-        label = MyTipLabel(frame,self.data_manager, text=time_text, justify='left')
-        label.pack()
+        self.label = MyTipLabel(frame,self.data_manager, text=time_text, justify='left')
+        self.label.pack()
+        self.update_frame()
 
-        def update_frame():
-            if self.time_column != 'full_time':
-                time_text = 'Gestamtzeit: '+ self.clock.str_timedelta(self.clock.get_total_time())
-            else:
-                sign, added_minutes = self.clock.get_added_time()
-                time_text = 'Einzelzeiten: '+ self.clock.str_timedelta(self.clock.get_passed_time())
-                if added_minutes != "00:00:00":
-                     time_text = time_text + ' ' + sign + ' ' + str(added_minutes)
-            label.configure(text = time_text)
-            self.tw.after(500, lambda:update_frame())
-        update_frame()
+    def update_frame(self):
+        if self.time_column != 'full_time':
+            time_text = self.full_time_name + ': ' + self.clock.str_timedelta(self.clock.get_total_time())
+        else:
+            sign, added_minutes = self.clock.get_added_time()
+            time_text = self.single_times_name + ': ' + self.clock.str_timedelta(self.clock.get_passed_time())
+            if added_minutes != "00:00:00":
+                    time_text = time_text + ' ' + sign + ' ' + str(added_minutes)
+        self.label.configure(text = time_text)
+        self.tw.after(500, lambda:self.update_frame())
         
 
     def hidetip(self):
@@ -179,6 +183,9 @@ class TimeTip(object):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
 
+        self.full_time_name = self.language_dict["total_time"]
+        self.single_times_name = self.language_dict["single_times"]
+
 class CurrentAddedTimeTip(object):
     """
     create a tooltip for a given widget
@@ -188,6 +195,7 @@ class CurrentAddedTimeTip(object):
         self.widget = widget
         self.data_manager = data_manager
         self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
         self.rel_x = rel_x
         self.rey_y = rey_y
         self.clock_frame = clock_frame
@@ -225,7 +233,7 @@ class CurrentAddedTimeTip(object):
             self.label = MyTipLabel(frame,self.data_manager, justify='left')
             self.label.pack()
 
-        self.operation_text = self.operation_text + '\n' + str(sign) + ' ' + str(added_time) + ' min'
+        self.operation_text = self.operation_text + '\n' + str(sign) + ' ' + str(added_time) + ' ' + self.language_dict['min']
 
         if str(sign) == '+':
             self.added_full_time = self.added_full_time + added_time
@@ -239,7 +247,7 @@ class CurrentAddedTimeTip(object):
         else:
             full_time_sign = ''
 
-        full_time_text = full_time_sign +' '+ str(abs(self.added_full_time)) + ' min' + '\n______________'
+        full_time_text = full_time_sign +' '+ str(abs(self.added_full_time)) + ' ' + self.language_dict['min'] + '\n______________'
 
         info_text = full_time_text + self.operation_text
         self.label.configure(text = info_text)
@@ -265,7 +273,7 @@ class CurrentAddedTimeTip(object):
         else:
             full_time_sign = ''
         if abs(self.added_full_time) > 0:
-            self.clock_frame.add_full_time_correction_str('\nKorrektur: ' + full_time_sign +' '+ str(abs(self.added_full_time)) + ' min')
+            self.clock_frame.add_full_time_correction_str('\n' + self.language_dict['correction'] + ': ' + full_time_sign +' '+ str(abs(self.added_full_time)) + ' ' + self.language_dict['min'])
 
         self.unschedule()
         tw = self.tw
@@ -290,6 +298,7 @@ class CreateToolResponse(object):
         self.widget = widget
         self.data_manager = data_manager
         self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
         self.rel_x = rel_x
         self.rey_y = rey_y
         self.text = text
@@ -403,6 +412,7 @@ class InfoWindow(tk.Toplevel):
         self.main_app = main_app
         self.data_manager = self.main_app.get_data_manager()
         self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
         self.widget = widget
         self.h = h
         self.w = w
@@ -461,7 +471,7 @@ class InfoWindow(tk.Toplevel):
         close_button.bind("<Enter>", on_enter1)
         close_button.bind("<Leave>", on_leave1)
 
-        lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text = '   Info')
+        lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text = '   ' + self.language_dict["info"])
         lbl_name.configure(background=self.widget_color,height=30,foreground=self.title_fcolor)
         lbl_name.pack(side='left')
         lbl_name.bind('<B1-Motion>', self.move_window)
@@ -517,6 +527,7 @@ class InfoDictWindow(tk.Toplevel):
         self.main_app = main_app
         self.data_manager = self.main_app.get_data_manager()
         self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
         self.widget = widget
         self.h = h
         self.w = w
@@ -575,7 +586,7 @@ class InfoDictWindow(tk.Toplevel):
         close_button.bind("<Enter>", on_enter1)
         close_button.bind("<Leave>", on_leave1)
 
-        lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text = '   Info')
+        lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text = '   ' + self.language_dict["info"])
         lbl_name.configure(background=self.widget_color,height=30,foreground=self.title_fcolor)
         lbl_name.pack(side='left')
         lbl_name.bind('<B1-Motion>', self.move_window)
@@ -650,6 +661,7 @@ class ExitSavingWindow(tk.Toplevel):
         self.main_app = main_app
         self.data_manager = self.main_app.get_data_manager()
         self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
         self.widget = widget
         self.h = 200
         self.w = 350
@@ -705,7 +717,7 @@ class ExitSavingWindow(tk.Toplevel):
         close_button.bind("<Enter>", on_enter1)
         close_button.bind("<Leave>", on_leave1)
 
-        lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text='Warnung')
+        lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text=self.language_dict["warning"])
         lbl_name.configure(background=self.widget_color, height=30, foreground=self.title_fcolor)
         lbl_name.pack(side='left')
         lbl_name.bind('<B1-Motion>', self.move_window)
@@ -715,13 +727,13 @@ class ExitSavingWindow(tk.Toplevel):
             btnframe = MyFrame(self.main_frame,self.data_manager)
             btnframe.configure(background=self.style_dict["btn_color"])
 
-            btn_close = MyButton(btnframe, self.data_manager, width=8, text='Nein', command=self.close_window)
+            btn_close = MyButton(btnframe, self.data_manager, width=8, text=self.language_dict["no"], command=self.close_window)
             btn_close.pack(side='right', pady=5, padx=5)
 
-            btn_backup = MyButton(btnframe, self.data_manager, width=8, text='Ja', command=self.back_up_and_close)
+            btn_backup = MyButton(btnframe, self.data_manager, width=8, text=self.language_dict["yes"], command=self.back_up_and_close)
             btn_backup.pack(side='right', pady=5, padx=5)
 
-            btn_back = MyButton(btnframe, self.data_manager, width=8, text='Zurück', command=self.return_window)
+            btn_back = MyButton(btnframe, self.data_manager, width=8, text=self.language_dict["back"], command=self.return_window)
             btn_back.pack(side='right', pady=5, padx=5)
 
             return(btnframe)
@@ -733,7 +745,7 @@ class ExitSavingWindow(tk.Toplevel):
             bodyframe = MyFrame(self.main_frame,self.data_manager)
             scroll_frame = self.scroll.create_scroll_frame(bodyframe)
 
-            lbl_text = MyLabel(scroll_frame, self.data_manager, text='Die erfassten Zeiten wurden noch nicht gespeichert. Möchten Sie die bereits erfassten Zeiten zwischenspeichern?', wraplength=self.w - 20,
+            lbl_text = MyLabel(scroll_frame, self.data_manager, text=self.language_dict["exit_window_text"], wraplength=self.w - 20,
                                justify="left")
             lbl_text.pack(pady=5, padx=5)
 
@@ -778,6 +790,7 @@ class DeleteAccountWarning(tk.Toplevel):
         self.main_app = main_app
         self.data_manager = self.main_app.get_data_manager()
         self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
         self.widget = widget
         self.account_tab = account_tab
         self.account_dict = account_dict
@@ -835,7 +848,7 @@ class DeleteAccountWarning(tk.Toplevel):
         close_button.bind("<Enter>", on_enter1)
         close_button.bind("<Leave>", on_leave1)
 
-        lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text='Warnung')
+        lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text=self.language_dict["warning"])
         lbl_name.configure(background=self.widget_color, height=30, foreground=self.title_fcolor)
         lbl_name.pack(side='left')
         lbl_name.bind('<B1-Motion>', self.move_window)
@@ -845,10 +858,10 @@ class DeleteAccountWarning(tk.Toplevel):
             btnframe = MyFrame(self.main_frame,self.data_manager)
             btnframe.configure(background=self.style_dict["btn_color"])
 
-            btn_backup = MyButton(btnframe, self.data_manager, width=20, text='Zeitkonto löschen', command=self.delete_account)
+            btn_backup = MyButton(btnframe, self.data_manager, width=20, text=self.language_dict["delete_time_account"], command=self.delete_account)
             btn_backup.pack(side='right', pady=5, padx=5)
 
-            btn_back = MyButton(btnframe, self.data_manager, width=8, text='Nein', command=self.return_window)
+            btn_back = MyButton(btnframe, self.data_manager, width=8, text=self.language_dict["no"], command=self.return_window)
             btn_back.pack(side='right', pady=5, padx=5)
 
             return(btnframe)
@@ -860,7 +873,7 @@ class DeleteAccountWarning(tk.Toplevel):
             bodyframe = MyFrame(self.main_frame,self.data_manager)
             scroll_frame = self.scroll.create_scroll_frame(bodyframe)
 
-            lbl_text = MyLabel(scroll_frame, self.data_manager, text='Möchtest du wirklich dieses Zeitkonto löschen?\nAlle auf dieses Zeitkono erfasste Zeiten werden auch gelöscht.', wraplength=self.w - 20,
+            lbl_text = MyLabel(scroll_frame, self.data_manager, text=self.language_dict['delete_time_account_text'], wraplength=self.w - 20,
                                justify="left")
             lbl_text.pack(pady=5, padx=5)
 
@@ -902,6 +915,7 @@ class CloseAccountWarning(tk.Toplevel):
         self.main_app = main_app
         self.data_manager = self.main_app.get_data_manager()
         self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
         self.widget = widget
         self.account_tab = account_tab
         self.account_dict = account_dict
@@ -959,7 +973,7 @@ class CloseAccountWarning(tk.Toplevel):
         close_button.bind("<Enter>", on_enter1)
         close_button.bind("<Leave>", on_leave1)
 
-        lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text='Warnung')
+        lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text=self.language_dict["warning"])
         lbl_name.configure(background=self.widget_color, height=30, foreground=self.title_fcolor)
         lbl_name.pack(side='left')
         lbl_name.bind('<B1-Motion>', self.move_window)
@@ -969,10 +983,10 @@ class CloseAccountWarning(tk.Toplevel):
             btnframe = MyFrame(self.main_frame,self.data_manager)
             btnframe.configure(background=self.style_dict["btn_color"])
 
-            btn_backup = MyButton(btnframe, self.data_manager, width=20, text='Zeitkonto schließen', command=self.close_account)
+            btn_backup = MyButton(btnframe, self.data_manager, width=20, text=self.language_dict["close_time_account"], command=self.close_account)
             btn_backup.pack(side='right', pady=5, padx=5)
 
-            btn_back = MyButton(btnframe, self.data_manager, width=8, text='Nein', command=self.return_window)
+            btn_back = MyButton(btnframe, self.data_manager, width=8, text=self.language_dict["no"], command=self.return_window)
             btn_back.pack(side='right', pady=5, padx=5)
 
             return(btnframe)
@@ -984,7 +998,11 @@ class CloseAccountWarning(tk.Toplevel):
             bodyframe = MyFrame(self.main_frame,self.data_manager)
             scroll_frame = self.scroll.create_scroll_frame(bodyframe)
 
-            lbl_text = MyLabel(scroll_frame, self.data_manager, text='Möchtest du wirklich dieses Zeitkonto schließen?\nWenn du in der heutigen Session bereits Zeiten auf diesem Konto erfasst hast, gehen diese beim schließen verloren.', wraplength=self.w - 20,
+            if self.main_app.get_action_state() == 'normal' or self.main_app.get_action_state() == 'arrange_clocks':
+                info_text = self.language_dict["close_time_account_text_1"]
+            else:
+                info_text = self.language_dict["close_time_account_text_2"]
+            lbl_text = MyLabel(scroll_frame, self.data_manager, text=info_text, wraplength=self.w - 20,
                                justify="left")
             lbl_text.pack(pady=5, padx=5)
 

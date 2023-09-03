@@ -83,7 +83,7 @@ class DataHead:
         self.main_head_frame.configure(background=self.style_dict["header_color"])
         self.main_head_frame.pack(side = "top", fill = "x")
 
-        self.btn_records_to_excel = MyButton(self.main_head_frame, self.data_manager, text='Zeiten in Excel ausgeben',width=25,command=lambda:self.data_tab.export_all_passed_times())
+        self.btn_records_to_excel = MyButton(self.main_head_frame, self.data_manager, text=self.language_dict["output_times_in_excel"],width=25,command=lambda:self.data_tab.export_all_passed_times())
         self.btn_records_to_excel.pack(side='right',padx = 10,pady=10)
         self.btn_records_to_excel_ttp = CreateToolTip(self.btn_records_to_excel, self.data_manager, 50, 30, 'test')
 
@@ -101,6 +101,8 @@ class DataHead:
 
         self.main_head_frame.configure(background=self.style_dict["header_color"])
         self.update_main_head()
+
+        self.btn_records_to_excel.configure(text=self.language_dict["output_times_in_excel"])
         return
 
 #################################################################
@@ -137,7 +139,7 @@ class DataHead:
         self.status_visible_frame = MyFrame(self.status_frame,self.data_manager)
         self.status_visible_frame.pack(side = "top",fill='y')
 
-        self.lbl_status_name = MyLabel(self.status_visible_frame, self.data_manager, text='Status', width=17)
+        self.lbl_status_name = MyLabel(self.status_visible_frame, self.data_manager, text=self.language_dict["status"], width=17)
         self.lbl_status_name.pack(side='right',padx=3)
 
         self.lbl_status = MyLabel(self.status_visible_frame, self.data_manager,width=0)
@@ -163,7 +165,7 @@ class DataHead:
         self.lbl_empty3 = MyLabel(self.passed_time_visible_frame, self.data_manager, width=2)
         self.lbl_empty3.pack(side='right',padx=3)
 
-        self.lbl_passed_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text='Stunden',width=8)
+        self.lbl_passed_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=self.language_dict["hours"],width=8)
         self.lbl_passed_time.pack(side='right',padx = 3)
 
         self.lbl_empty4 = MyLabel(self.passed_time_visible_frame, self.data_manager, width=2)
@@ -186,7 +188,7 @@ class DataHead:
         self.name_visible_frame = MyFrame(self.name_frame,self.data_manager)
         self.name_visible_frame.pack(side = "top")
 
-        self.lbl_name = MyLabel(self.name_visible_frame, self.data_manager, text='Name')
+        self.lbl_name = MyLabel(self.name_visible_frame, self.data_manager, text=self.language_dict["name"])
         self.lbl_name.pack(side='left',padx = 3)
 
         self.update_table_head()     
@@ -229,6 +231,11 @@ class DataHead:
         self.status_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
         self.passed_time_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
         self.name_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
+
+        self.lbl_status_name.configure(text=self.language_dict["status"])
+        self.lbl_passed_time.configure(text=self.language_dict["hours"])
+        self.lbl_name.configure(text=self.language_dict["name"])
+
         self.update()
         return
 

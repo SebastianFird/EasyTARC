@@ -55,6 +55,7 @@ class AccountsHead:
 
         self.create_main_head()
         self.create_table_head()
+        self.update()
         return
 
     def update(self):
@@ -78,44 +79,98 @@ class AccountsHead:
         self.main_head_frame.configure(background=self.style_dict["header_color"])
         self.main_head_frame.pack(side = "top", fill = "x")
 
-        self.lbl_project_nbr = MyLabel(self.main_head_frame, self.data_manager,text='Projekt-Nr:',width=10)
-        self.lbl_project_nbr.configure(background=self.style_dict["header_color"])
-        self.lbl_project_nbr.pack(side="left", padx=10,pady=10)
+        clicked_search = tk.StringVar()
+        self.search_cbox = ttk.Combobox(self.main_head_frame, state="readonly", width = 25, textvariable = clicked_search, postcommand = self.updt_search_cblist)
+        self.search_cbox.bind("<<ComboboxSelected>>", self.updt_search_entry)
+        self.search_cbox.pack(side="left", padx=10,pady=10)
 
-        self.project_nbr = tk.StringVar()
-        self.textBox_project_nbr = MyEntry(self.main_head_frame, self.data_manager, textvariable=self.project_nbr, width=36)
-        self.textBox_project_nbr.pack(side="left", padx=10,pady=10)
-        self.textBox_project_nbr.bind('<Return>', self.hit_enter_textBox)
+        self.search_var = tk.StringVar()
+        self.textBox_search_var = MyEntry(self.main_head_frame, self.data_manager, textvariable=self.search_var, width=36)
+        self.textBox_search_var.pack(side="left", padx=10,pady=10)
+        self.textBox_search_var.bind('<Return>', self.hit_enter_textBox)
 
-        self.btn_search = MyButton(self.main_head_frame, self.data_manager,text='Suchen',width=10,command=lambda:self.accounts_tab.load_data_by_project_nbr(self.project_nbr.get()))
+        self.btn_search = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict["search"],width=10,command=self.hit_enter_textBox)
         self.btn_search.pack(side="left", padx=10,pady=10)
-
-        self.btn_account_list = MyButton(self.main_head_frame, self.data_manager,text='Projektliste',width=15,command=lambda:self.accounts_tab.show_project_list())
-        self.btn_account_list.pack(side="left", padx=30,pady=10)
-
-        self.btn_accounts_to_excel = MyButton(self.main_head_frame, self.data_manager, text='Konten in Excel ausgeben',width=25,command=lambda:self.accounts_tab.export_all_accounts())
-        self.btn_accounts_to_excel.pack(side='right',padx = 10,pady=10)
         
         self.update_main_head()
         return
+
+    def updt_search_entry(self,e=None):
+        if self.search_cbox.get() == self.language_dict["open"]:
+            self.search_var.set(self.language_dict["open_time_accounts"])
+            self.textBox_search_var.configure(state=tk.DISABLED)
+
+        elif self.search_cbox.get() == self.language_dict["closed"]:
+            self.search_var.set(self.language_dict["closed_time_accounts"])
+            self.textBox_search_var.configure(state=tk.DISABLED)
+
+        elif self.search_cbox.get() == self.language_dict["all"]:
+            self.search_var.set(self.language_dict["all_time_accounts"])
+            self.textBox_search_var.configure(state=tk.DISABLED)
+
+        else:
+            self.search_var.set('')
+            self.textBox_search_var.configure(state=tk.NORMAL)
     
-    def hit_enter_textBox(self,event):
-        self.accounts_tab.load_data_by_project_nbr(self.project_nbr.get())
+    def updt_search_cblist(self):
+        self.search_cbox['values'] = [self.language_dict["name"],self.language_dict["group"],self.language_dict["project_nbr"],self.language_dict["order_nbr"],self.language_dict["process_nbr"],self.language_dict["open"],self.language_dict["closed"],self.language_dict["all"]]
+        self.search_cbox.current(0)
+
+    def hit_enter_textBox(self,event=None):
+        if self.search_cbox.get() == self.language_dict["name"]:
+            modus = 'name'
+            search_input = self.search_var.get()
+
+        elif self.search_cbox.get() == self.language_dict["group"]:
+            modus = 'a_group'
+            search_input = self.search_var.get()
+
+        elif self.search_cbox.get() == self.language_dict["project_nbr"]:
+            modus = 'project_nbr'
+            search_input = self.search_var.get()
+
+        elif self.search_cbox.get() == self.language_dict["order_nbr"]:
+            modus = 'order_nbr'
+            search_input = self.search_var.get()
+
+        elif self.search_cbox.get() == self.language_dict["process_nbr"]:
+            modus = 'process_nbr'
+            search_input = self.search_var.get()
+
+        elif self.search_cbox.get() == self.language_dict["open"]:
+            modus = 'open'
+            search_input = None
+
+        elif self.search_cbox.get() == self.language_dict["closed"]:
+            modus = 'closed'
+            search_input = None
+
+        elif self.search_cbox.get() == self.language_dict["all"]:
+            modus = 'all'
+            search_input = None
+
+        else:
+            return
+
+        if search_input == '':
+            self.accounts_tab.show_empty_frame()
+        else:
+            self.accounts_tab.load_data_by_search(modus,search_input)
         return
     
     def update_main_head(self):
+        self.updt_search_cblist()
+        self.updt_search_entry()
         return
 
     def refresh_main_head(self):
         self.main_head_frame.refresh_style()
-        self.lbl_project_nbr.refresh_style()
-        self.textBox_project_nbr.refresh_style()
+        self.textBox_search_var.refresh_style()
         self.btn_search.refresh_style()
-        self.btn_account_list.refresh_style()
-        self.btn_accounts_to_excel.refresh_style()
-
         self.main_head_frame.configure(background=self.style_dict["header_color"])
-        self.lbl_project_nbr.configure(background=self.style_dict["header_color"])
+
+        self.btn_search.configure(text=self.language_dict["search"])
+
         self.update_main_head()
         return
 
@@ -156,7 +211,7 @@ class AccountsHead:
         self.lbl_empty2 = MyLabel(self.action_visible_frame, self.data_manager, text='', width=5)
         self.lbl_empty2.pack(side='right',padx=3)
 
-        self.lbl_action_name = MyLabel(self.action_visible_frame, self.data_manager, text='Aktion', width=10)
+        self.lbl_action_name = MyLabel(self.action_visible_frame, self.data_manager, text=self.language_dict["action"], width=10)
         self.lbl_action_name.pack(side='right',padx=3)
 
         self.lbl_empty3 = MyLabel(self.action_visible_frame, self.data_manager, text='', width=5)
@@ -179,7 +234,7 @@ class AccountsHead:
         self.status_visible_frame = MyFrame(self.status_frame,self.data_manager)
         self.status_visible_frame.pack(side = "top",fill='y')
 
-        self.lbl_status_name = MyLabel(self.status_visible_frame, self.data_manager, text='Status', width=17)
+        self.lbl_status_name = MyLabel(self.status_visible_frame, self.data_manager, text=self.language_dict["status"], width=17)
         self.lbl_status_name.pack(side='right',padx=3)
 
         self.lbl_status = MyLabel(self.status_visible_frame, self.data_manager,width=0)
@@ -202,7 +257,7 @@ class AccountsHead:
         self.process_visible_frame = MyFrame(self.process_frame,self.data_manager)
         self.process_visible_frame.pack(side = "top",fill='y')
 
-        self.lbl_process = MyLabel(self.process_visible_frame, self.data_manager, text='Vorgang', width=15)
+        self.lbl_process = MyLabel(self.process_visible_frame, self.data_manager, text=self.language_dict["process"], width=15)
         self.lbl_process.pack(side='right',padx=3)
 
         ################
@@ -222,7 +277,7 @@ class AccountsHead:
         self.order_visible_frame = MyFrame(self.order_frame,self.data_manager)
         self.order_visible_frame.pack(side = "top",fill='y')
 
-        self.lbl_order = MyLabel(self.order_visible_frame, self.data_manager, text='Auftrag', width=15)
+        self.lbl_order = MyLabel(self.order_visible_frame, self.data_manager, text=self.language_dict["order"], width=15)
         self.lbl_order.pack(side='right',padx=3)
 
         ################
@@ -242,7 +297,7 @@ class AccountsHead:
         self.project_visible_frame = MyFrame(self.project_frame,self.data_manager)
         self.project_visible_frame.pack(side = "top",fill='y')
 
-        self.lbl_project = MyLabel(self.project_visible_frame, self.data_manager, text='Projekt', width=15)
+        self.lbl_project = MyLabel(self.project_visible_frame, self.data_manager, text=self.language_dict["project"], width=15)
         self.lbl_project.pack(side='right',padx=3)
         ################
 
@@ -261,7 +316,7 @@ class AccountsHead:
         self.name_visible_frame = MyFrame(self.name_frame,self.data_manager)
         self.name_visible_frame.pack(side = "top")
 
-        self.lbl_name = MyLabel(self.name_visible_frame, self.data_manager, text='Name')
+        self.lbl_name = MyLabel(self.name_visible_frame, self.data_manager, text=self.language_dict["name"])
         self.lbl_name.pack(side='left',padx = 3)
 
         self.update_table_head()     
@@ -325,7 +380,15 @@ class AccountsHead:
         self.order_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
         self.project_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
         self.name_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
-        self.update()
+
+        self.lbl_action_name.configure(text=self.language_dict["action"])
+        self.lbl_status_name.configure(text=self.language_dict["status"])
+        self.lbl_process.configure(text=self.language_dict["process"])
+        self.lbl_order.configure(text=self.language_dict["order"])
+        self.lbl_project.configure(text=self.language_dict["project"])
+        self.lbl_name.configure(text=self.language_dict["name"])
+
+        self.update_table_head()
         return
 
 

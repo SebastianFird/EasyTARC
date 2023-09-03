@@ -17,11 +17,13 @@ __author__ = 'Sebastian Feiert'
 
 import tkinter as tk
 from tkinter import ttk
+import os
 
 from style_classes import MyFrame
 from style_classes import MyLabel
 from style_classes import MyButton 
 from gui.Window_Additionals import InfoWindow
+from gui.Window_Additionals import CreateInfo
 
 
 class SetupHead:
@@ -63,7 +65,6 @@ class SetupHead:
         # configure style and language of main frame
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
-
         self.refresh_main_head()
         return
 
@@ -74,74 +75,104 @@ class SetupHead:
         self.main_head_frame.configure(background=self.style_dict["header_color"])
         self.main_head_frame.pack(side = "top", fill = "x")
 
-        self.lbl_version = MyLabel(self.main_head_frame, self.data_manager,text='Version: 1.5.5')
+        self.lbl_version = MyLabel(self.main_head_frame, self.data_manager,text=self.language_dict['version'] + ': ' + str(self.main_app.get_version()))
         self.lbl_version.configure(background=self.style_dict["header_color"],foreground = self.style_dict["font_color_2"])
         self.lbl_version.pack(side='left',padx = 10,pady=10)
 
-        self.lbl_date = MyLabel(self.main_head_frame, self.data_manager,text='(22.08.2023)')
+        self.lbl_date = MyLabel(self.main_head_frame, self.data_manager,text=str(self.main_app.get_version_date()))
         self.lbl_date.configure(background=self.style_dict["header_color"],foreground = self.style_dict["font_color_2"])
         self.lbl_date.pack(side='left',padx = 10,pady=10)
 
-        self.btn_about = MyButton(self.main_head_frame, self.data_manager,text='Über EasyTARC',width=15,command=self.show_about)
-        self.btn_about.pack(side='right',padx = 10,pady=10)
+        self.btn_release_notes = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict['release_notes'],width=15,command=self.show_release_notes)
+        self.btn_release_notes.pack(side='right',padx = 10,pady=10)
 
-        self.btn_start_up = MyButton(self.main_head_frame, self.data_manager,text='Einrichten',width=15,command=self.show_setup)
+        self.btn_directory = MyButton(self.main_head_frame, self.data_manager,text=u'\U0001F4C1',width=3,command=self.show_directory)
+        self.btn_directory.pack(side='right',padx = 10,pady=10)
+        directory_text = self.language_dict['easytarc_directory']
+        self.btn_directory_ttp = CreateInfo(self.btn_directory, self.data_manager, 30, 25, directory_text)
+        self.btn_directory.bind("<Enter>", self.directory_enter)
+        self.btn_directory.bind("<Leave>", self.directory_leave)
+
+        self.btn_start_up = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict['set_up'],width=15,command=self.show_setup)
         self.btn_start_up.pack(side='right',padx = 10,pady=10)
+
+        self.btn_tips = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict['tips_and_tricks'],width=15,command=self.show_tips)
+        self.btn_tips.pack(side='right',padx = 10,pady=10)
 
         self.update_main_head()
         return
     
     def update_main_head(self):
         return
+    
+    def directory_enter(self,e):
+        self.btn_directory.configure(background=self.style_dict["highlight_color"])
+        self.btn_directory_ttp.scheduleinfo()
+
+    def directory_leave(self,e):
+        self.btn_directory.configure(background=self.style_dict["btn_color"])
+        self.btn_directory_ttp.hideinfo()
+
+    def show_release_notes(self):
+        text = self.language_dict['release_notes'] + ":"
+        text = text + "\n\n" + self.language_dict['release_note_text_1'] 
+        text = text + "\n\n" + self.language_dict['release_note_text_2']
+
+        info_window = InfoWindow(self.main_app, self.gui, self.setup_tab.main_frame ,text,600,400)
+        return
+    
+    def show_directory(self):
+        open_text = 'explorer ,"' + self.main_app.get_filepath() + '"'
+
+        os.startfile(self.main_app.get_filepath())
+        print(open_text)
+        #subprocess.Popen(open_text)
+        return
+    
+    def show_setup(self):
+        text = self.language_dict['setup_text_1'] 
+        text = text + "\n\n" + self.language_dict['setup_text_2'] 
+        text = text + "\n\n" + self.language_dict['setup_text_3'] 
+        text = text + "\n\n" + self.language_dict['setup_text_4'] 
+        text = text + "\n\n" + self.language_dict['setup_text_5'] 
+
+        info_window = InfoWindow(self.main_app, self.gui, self.setup_tab.main_frame ,text,600,400)
+        return
+    
+    def show_tips(self):
+        text = self.language_dict["tips_and_tricks_1"]
+        text = text + "\n\n" + self.language_dict["tips_and_tricks_2"]
+        text = text + "\n\n" + self.language_dict["tips_and_tricks_3"]
+        text = text + "\n\n" + self.language_dict["tips_and_tricks_4"]
+        text = text + "\n\n" + self.language_dict["tips_and_tricks_5"]
+        text = text + "\n\n" + self.language_dict["tips_and_tricks_6"]
+        text = text + "\n\n" + self.language_dict["tips_and_tricks_7"]
+        text = text + "\n\n" + self.language_dict["tips_and_tricks_8"]
+
+        info_window = InfoWindow(self.main_app, self.gui, self.setup_tab.main_frame ,text,600,400)
+        return
 
     def refresh_main_head(self):
         self.main_head_frame.refresh_style()
-        self.btn_about.refresh_style()
+        self.btn_release_notes.refresh_style()
+        self.btn_directory.refresh_style()
+        self.btn_tips.refresh_style()
         self.btn_start_up.refresh_style()
         self.lbl_version.refresh_style()
         self.lbl_date.refresh_style()
+        self.btn_directory_ttp.refresh()
 
         self.lbl_version.configure(background=self.style_dict["header_color"],foreground = self.style_dict["font_color_2"])
         self.lbl_date.configure(background=self.style_dict["header_color"],foreground = self.style_dict["font_color_2"])
         self.main_head_frame.configure(background=self.style_dict["header_color"])
         self.update_main_head()
+
+        self.lbl_version.configure(text=self.language_dict['version'] + ': ' + self.main_app.get_version())
+        self.btn_release_notes.configure(text=self.language_dict['release_notes'])
+        self.btn_tips.configure(text=self.language_dict['tips_and_tricks'])
+        self.btn_start_up.configure(text=self.language_dict['set_up'])
+
+        directory_text = self.language_dict['easytarc_directory']
+        self.btn_directory_ttp.text = directory_text
         return
     
-    
-    def show_about(self):
-        text = """
-EasyTARC 
-(Easy time accounts recording control)
-
-Entwickler: Sebastian Feiert
-Github: https://github.com/SebastianFird/EasyTARC 
-
-Zu mir:
-EasyTARC ist mein erstes Opensource-Projekt. Ziel ist es mit Hilfe dieses Projekts meine Kenntnisse in Python und in dem Framework Tkinter zu verbessern, sowie mich mit der Entwicklung von Desktop-Anwendungen vertraut zu machen.
-
-Ich hoffe dir gefällt das Programm, wenn du Anregungen hast, melde dich gerne bei mir.
-
-        """
-
-        info_window = InfoWindow(self.main_app, self.gui, self.setup_tab.main_frame ,text,400,280)
-        return
-    
-    def show_setup(self):
-        text = """
-Einrichten des Programms:
-
-1. Ablegen des Programms 
-Erstelle einen Ordner in den du die Dateien EasyTARC.exe, EasyTARC_Database_crypted.sql.gz und EasyTARC_User_License.txt packst.
-
-2. Verknüpfung erstellen: 
-Rechtsklick auf EasyTARC.exe und "Verknüpfung erstellen" auswählen, anschließend kannst du diese Verknüpfung auf deinem Desktop ablegen.
-
-3. Beim Starten von Windows ausführen:
-Erstelle zuerst eine weitere Verknüpfung, dann drückst du gleichzeitig die Windows-Taste und die R-Taste. Jetzt erscheint das Fenster "Ausführen", hier gibst du "shell:startup" ein. Nachdem du "Ok" gedrückst hast, öffnet sich ein Ordner, in den legst du nun die Verknüpfung ab. Beim nächsten Start deines Rechners startet nun EasyTARC ganz automatisch. 
-        
-Viel Spaß!
-
-        """
-
-        info_window = InfoWindow(self.main_app, self.gui, self.setup_tab.main_frame ,text,400,280)
-        return

@@ -16,7 +16,7 @@ limitations under the License.
 __author__ = 'Sebastian Feiert'
 
 import hashlib
-from easytarc_password_container import PasswordContainer
+from easytarc_pw_container import PasswordContainer
 
 def create_hash(username, password):
     
@@ -41,10 +41,9 @@ def start():
 
     pw_container = PasswordContainer()
 
-    license_password = pw_container.get_license_password()
+    license_hash_salt = pw_container.get_license_hash_salt()
 
-    hash_res = create_hash(request_user_str,license_password)
-    # print(hash_res)
+    hash_res = create_hash(request_user_str,license_hash_salt)
 
     create_license(hash_res)
     

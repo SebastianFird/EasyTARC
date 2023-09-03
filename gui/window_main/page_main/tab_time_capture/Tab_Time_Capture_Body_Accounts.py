@@ -118,6 +118,12 @@ class MainAccountFrame(tk.Frame):
             if clock_frame.clock.get_runninig() == True:
                 response = False
         return(response)
+    
+    def close_clocks(self):
+        for clock_frame in self.clock_frame_list:
+            clock_frame.clock.reset_time()
+            clock_frame.clock.set_status_closed()
+        return
 
     def refresh(self):
         for clock_frame in self.clock_frame_list:

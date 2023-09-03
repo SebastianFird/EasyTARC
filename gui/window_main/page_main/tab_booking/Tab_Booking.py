@@ -35,42 +35,6 @@ class BookingTab(Scroll_Frame):
         self.body.case_frame.show_empty_frame()
 
 #################################################################
-
-    def get_unbooked_record_dict_list_sum_list(self):
-        return(self.unbooked_record_dict_list_sum_list)
-    
-    def get_unbooked_record_dict_list_date_list(self):
-        return(self.unbooked_record_dict_list_date_list)
-
-#################################################################
-
-    def get_clicked_record_dict(self):
-        return(self.clicked_record_dict)
-    
-    def set_clicked_record_dict(self,record_dict):
-        self.clicked_record_dict = record_dict
-        return
-    
-    def reset_clicked_record_dict(self):
-        self.clicked_record_dict = None
-        return
-
-#################################################################
-
-    def get_booking_kind(self):
-        return(self.booking_kind)
-
-    def change_booking_kind(self,kind):
-        self.booking_kind = kind
-        if kind == 'date':
-            self.load_booking_by_date()
-        elif kind == 'sum':
-            self.load_booking_by_sum()
-        else:
-            self.main_frame.after(0,self.body.case_frame.show_empty_frame)
-        return
-
-#################################################################
         
     def create_main_frame(self,container):
 
@@ -79,14 +43,6 @@ class BookingTab(Scroll_Frame):
 
         self.create_head()
         self.create_body()
-
-    def reload(self):
-        if self.booking_kind == 'date':
-            self.load_booking_by_date()
-        elif self.booking_kind == 'sum':
-            self.load_booking_by_sum()
-        else:
-            self.main_frame.after(0,self.body.case_frame.show_empty_frame)
 
     def refresh(self):
         # configure style and language of main frame
@@ -113,25 +69,83 @@ class BookingTab(Scroll_Frame):
     def create_body(self):
         scroll_frame = self.create_scroll_frame(self.main_frame)
         self.body = BookingBody(scroll_frame, self.main_app, self.gui, self)
-        return
-        
-    def load_booking_by_sum(self):
-        self.body.case_frame.show_empty_frame()
-        self.unbooked_record_dict_list_sum_list = self.data_manager.get_unbooked_record_dict_list_sum_list()
-        self.main_frame.after(500,self.body.case_frame.show_booking_by_sum)
+        self.my_canvas.bind("<Button-1>", self.empty_body_clicked)
         return
 
-    def load_booking_by_date(self):
-        self.body.case_frame.show_empty_frame()
-        self.unbooked_record_dict_list_date_list = self.data_manager.get_unbooked_record_dict_list_date_list()
-        self.main_frame.after(500,self.body.case_frame.show_booking_by_date)
-        return
+    def reload(self):
+        if self.booking_kind == 'date':
+            self.load_booking_by_date()
+        elif self.booking_kind == 'sum':
+            self.load_booking_by_sum()
+        else:
+            self.main_frame.after(0,self.body.case_frame.show_empty_frame)
 
     def refresh_body(self):
         # configure style and language of main frame head
         self.refresh_scroll_frame()
         self.body.refresh()
         return
+    
+#################################################################
+
+    def get_booking_kind(self):
+        return(self.booking_kind)
+
+    def change_booking_kind(self,kind):
+        self.booking_kind = kind
+        if kind == 'date':
+            self.load_booking_by_date()
+        elif kind == 'sum':
+            self.load_booking_by_sum()
+        else:
+            self.main_frame.after(0,self.body.case_frame.show_empty_frame)
+        return
+
+    def load_booking_by_sum(self):
+        self.clicked_record_frame = None
+        self.body.case_frame.show_empty_frame()
+        self.unbooked_record_dict_list_sum_list = self.data_manager.get_unbooked_record_dict_list_sum_list()
+        self.main_frame.after(500,self.body.case_frame.show_booking_by_sum)
+        return
+
+    def get_unbooked_record_dict_list_sum_list(self):
+        return(self.unbooked_record_dict_list_sum_list)
+    
+    def load_booking_by_date(self):
+        self.clicked_record_frame = None
+        self.body.case_frame.show_empty_frame()
+        self.unbooked_record_dict_list_date_list = self.data_manager.get_unbooked_record_dict_list_date_list()
+        self.main_frame.after(500,self.body.case_frame.show_booking_by_date)
+        return
+    
+    def get_unbooked_record_dict_list_date_list(self):
+        return(self.unbooked_record_dict_list_date_list)
+
+#################################################################
+
+    def get_clicked_record_frame(self):
+        return(self.clicked_record_frame)
+    
+    def set_clicked_record_frame(self,record_frame):
+        reset_frame = self.clicked_record_frame
+        self.clicked_record_frame = record_frame
+        if reset_frame != None:
+            reset_frame.update()
+        return
+    
+    def reset_clicked_record_frame(self):
+        reset_frame = self.clicked_record_frame
+        self.clicked_record_frame = None
+        if reset_frame != None:
+            reset_frame.update()
+        return
+    
+    def empty_body_clicked(self,e):
+        self.set_clicked_record_frame(None)
+
+#################################################################
+
+
 
 
 

@@ -161,10 +161,10 @@ class ClockFrame(tk.Frame):
         self.lbl_add_time = MyLabel(self, self.data_manager, width=9, anchor='w')
         if added_minutes == "00:00:00":
             self.lbl_add_time.configure(text='')
-            self.add_full_time_correction_str('Start: ' + str(added_minutes))
+            self.add_full_time_correction_str(self.language_dict["start"] + ': ' + str(added_minutes))
         else:
             self.lbl_add_time.configure(text = sign + ' ' + str(added_minutes))
-            self.add_full_time_correction_str('Start: ' + sign + ' ' + str(added_minutes))
+            self.add_full_time_correction_str(self.language_dict["start"] + ': ' + sign + ' ' + str(added_minutes))
 
         info_text = ''
         self.lbl_add_time_ttp = CreateInfo(self.lbl_add_time, self.data_manager, 30, 25, info_text)
@@ -186,12 +186,13 @@ class ClockFrame(tk.Frame):
         
 ##################################################
 
-        self.lbl_name = MyLabel(self, self.data_manager,text = self.clock.get_name(), anchor='w')
-        
         if self.clock.get_id() != 0:
-            info_text = 'Name: ' + str(self.clock.get_name()) + '\nProjekt-Nr.: ' + str(self.clock.get_project_nbr()) + '\nAuftrags-Nr.: ' + str(self.clock.get_order_nbr()) + '\nVorgangs-Nr.: ' + str(self.clock.get_process_nbr())
+            name_text =  self.clock.get_name()
+            info_text = self.language_dict["name"] + ': ' + str(self.clock.get_name()) + '\n' + self.language_dict["project_nbr"]  + ': ' + str(self.clock.get_project_nbr()) + '\n' + self.language_dict["order_nbr"] + ': ' + str(self.clock.get_order_nbr()) + '\n' + self.language_dict["process_nbr"] + ': ' + str(self.clock.get_process_nbr())
         else:
-            info_text = 'Dieses Zeitkonto ist ohne Projekt und nicht buchbar'
+            name_text = self.language_dict["without_allocation"]
+            info_text = self.language_dict["without_allocation"]
+        self.lbl_name = MyLabel(self, self.data_manager,text = name_text, anchor='w')
         self.account_info_ttp = CreateInfo(self.lbl_name, self.data_manager, 30, 25, info_text)
         self.lbl_name.bind("<Enter>", self.name_enter)
         self.lbl_name.bind("<Leave>", self.name_leave)
@@ -555,6 +556,16 @@ class ClockFrame(tk.Frame):
         image_11 = self.style_dict['photo_btn_minus_font']
         self.photo_btn_minus_strong_highlight = ImageTk.PhotoImage(image_10.resize((20, 20), Image.ANTIALIAS))
         self.photo_btn_minus_font = ImageTk.PhotoImage(image_11.resize((20, 20), Image.ANTIALIAS))
+
+        if self.clock.get_id() != 0:
+            name_text =  self.clock.get_name()
+            info_text = self.language_dict["name"] + ': ' + str(self.clock.get_name()) + '\n' + self.language_dict["project_nbr"] + ': ' + str(self.clock.get_project_nbr()) + '\n' + self.language_dict["order_nbr"] + ': ' + str(self.clock.get_order_nbr()) + '\n' + self.language_dict["process_nbr"] + ': ' + str(self.clock.get_process_nbr())
+        else:
+            name_text = self.language_dict["without_allocation"]
+            info_text = self.language_dict["without_allocation"]
+
+        self.lbl_name.configure(text=name_text)
+        self.account_info_ttp.text = info_text
 
         self.update_frame()
         self.update_clock()

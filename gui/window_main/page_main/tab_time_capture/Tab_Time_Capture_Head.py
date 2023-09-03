@@ -53,7 +53,7 @@ class CaptureHead:
         self.capture_tab = capture_tab
 
         # special class variable
-        self.addable_account_list = ['Neues Zeitkonto']
+        self.addable_account_list = []
 
         # run the main frame of this layer
         self.create_main_frame(container)
@@ -92,7 +92,7 @@ class CaptureHead:
             if main_account_clock.get_account_status() == 'open':
                 not_current_main_account_clock_name_list.append(main_account_clock.get_name())
 
-        self.addable_account_list = ['Neues Hauptkonto'] + not_current_main_account_clock_name_list
+        self.addable_account_list = [self.language_dict['new_main_account']] + not_current_main_account_clock_name_list
 
         self.account_cbox['values'] = self.addable_account_list
         self.account_cbox.current(0)
@@ -111,17 +111,17 @@ class CaptureHead:
         
         def add_project_clock_by_name(account_name):
             self.updtcblist()
-            if account_name == 'Neues Hauptkonto':
+            if account_name == self.language_dict['new_main_account']:
                 self.case_frame_manager.add_new_account('new_main',self.capture_tab)
             else:
                 self.capture_tab.body.pack_main_account_frame_by_name(account_name)
                 self.updtcblist()
                 return
 
-        self.btn_add_clock = MyButton(self.main_head_frame, self.data_manager, text='Hinzufügen',width=15,command=lambda:add_project_clock_by_name(clicked.get()))
+        self.btn_add_clock = MyButton(self.main_head_frame, self.data_manager, text=self.language_dict['add'],width=15,command=lambda:add_project_clock_by_name(clicked.get()))
         self.btn_add_clock.pack(side='left',padx = 10,pady=10)
 
-        self.btn_end_of_work = MyButton(self.main_head_frame, self.data_manager, text=u'\U0001F4BE' + '   Feierabend',width=20,command=self.end_of_work)
+        self.btn_end_of_work = MyButton(self.main_head_frame, self.data_manager, text=u'\U0001F4BE' + '   ' + self.language_dict['closing_time'],width=20,command=self.end_of_work)
         self.btn_end_of_work.pack(side='right',padx = 10,pady=10)
         self.btn_end_of_work_ttp = CreateToolTip(self.btn_end_of_work, self.data_manager, 50, 30, '')
 
@@ -130,7 +130,7 @@ class CaptureHead:
         self.lbl_empty0.pack(side='right',padx=10)
 
         self.pause_clock = self.data_manager.get_pause_clock()
-        self.lbl_pause = MyLabel(self.main_head_frame, self.data_manager, text='Pause',width=5)
+        self.lbl_pause = MyLabel(self.main_head_frame, self.data_manager, text=self.language_dict['break'],width=5)
         self.lbl_pause.configure(background=self.style_dict["header_color"],foreground=self.style_dict["font_color_2"])
         self.lbl_pause.pack(side='right')
 
@@ -186,9 +186,9 @@ class CaptureHead:
             self.btn_add_clock.configure(state=tk.DISABLED)
         elif self.main_app.get_action_state() == "endofwork":
             self.btn_end_of_work.configure(state=tk.DISABLED)
-            self.btn_end_of_work_ttp.text = 'Die Erfassung ist beendet'
-            self.account_cbox.configure(state=tk.DISABLED)
-            self.btn_add_clock.configure(state=tk.DISABLED)
+            self.btn_end_of_work_ttp.text = self.language_dict["the_recording_is_finished"]
+            self.account_cbox.configure(state="readonly")
+            self.btn_add_clock.configure(state=tk.NORMAL)
         else:
             self.btn_end_of_work.configure(state=tk.NORMAL)
             self.btn_end_of_work_ttp.text = ''
@@ -219,7 +219,13 @@ class CaptureHead:
         self.lbl_pause.configure(background=self.style_dict["header_color"],foreground=self.style_dict["font_color_2"])
         self.lbl_activate_pause.configure(background=self.style_dict["header_color"])
         self.lbl_empty0.configure(background=self.style_dict["header_color"])
+        
+        self.btn_add_clock.configure(text=self.language_dict['add'])
+        self.btn_end_of_work.configure(text=u'\U0001F4BE' + '   ' + self.language_dict['closing_time'])
+        self.lbl_pause.configure(text=self.language_dict['break'])
+
         self.update_main_head()
+        self.updtcblist()
         return
 
 #################################################################
@@ -277,7 +283,7 @@ class CaptureHead:
         self.correction_visible_frame = MyFrame(self.correction_frame,self.data_manager)
         self.correction_visible_frame.pack(side = "top",fill='y')
 
-        self.lbl_correction = MyLabel(self.correction_visible_frame, self.data_manager, text='Korrektur')
+        self.lbl_correction = MyLabel(self.correction_visible_frame, self.data_manager, text=self.language_dict['correction'])
         self.lbl_correction.pack(side='top')
 
         ################
@@ -298,10 +304,10 @@ class CaptureHead:
         self.passed_time_visible_frame.pack(side = "top",fill='y')
 
         if self.capture_tab.get_time_column() ==  'full_time':
-            time_column = 'Gesamtzeit'
+            time_column = self.language_dict['total_time']
             lbl_switch = u'\U000025D0'
         else:
-            time_column = 'Einzelzeit'
+            time_column = self.language_dict['single_times']
             lbl_switch = u'\U000025D1'
 
         self.lbl_switch_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=lbl_switch,width=3)
@@ -335,7 +341,7 @@ class CaptureHead:
         self.name_visible_frame = MyFrame(self.name_frame,self.data_manager)
         self.name_visible_frame.pack(side = "top")
 
-        self.lbl_name = MyLabel(self.name_visible_frame, self.data_manager, text='Name')
+        self.lbl_name = MyLabel(self.name_visible_frame, self.data_manager, text=self.language_dict['name'])
         self.lbl_name.pack(side='left',padx = 10)
 
         self.update_table_head()     
@@ -358,10 +364,10 @@ class CaptureHead:
 
     def update_table_head(self):
         if self.capture_tab.get_time_column() ==  'full_time':
-            time_column = 'Gesamtzeit'
+            time_column = self.language_dict['total_time']
             lbl_switch = u'\U000025D0'
         else:
-            time_column = 'Einzelzeiten'
+            time_column = self.language_dict['single_times']
             lbl_switch = u'\U000025D1'
         self.lbl_time.configure(text=time_column)
         self.lbl_switch_time.configure(text=lbl_switch)
@@ -406,6 +412,10 @@ class CaptureHead:
         self.correction_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
         self.passed_time_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
         self.name_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
-        self.update()
+
+        self.lbl_correction.configure(text=self.language_dict['correction'])
+        self.lbl_name.configure(text=self.language_dict['name'])
+
+        self.update_table_head()
         return
     

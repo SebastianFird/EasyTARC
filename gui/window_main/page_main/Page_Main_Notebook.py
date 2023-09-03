@@ -93,11 +93,11 @@ class TabManager:
         self.frame_settings.pack(fill='both', expand=True)
 
         # add frames to notebook
-        tab_name_capture = '   ' + ' Erfassung   '
-        tab_name_booking = '   ' + ' Buchen   '
-        tab_name_data = '   ' + ' Erfasste Zeiten   '
-        tab_name_accounts = '   ' + ' Zeitkonten   '
-        tab_name_setup = '   ' + ' Einstellungen   '
+        tab_name_capture = '    ' + self.language_dict['record'] + '   '
+        tab_name_booking = '    ' + self.language_dict['booking'] + '   '
+        tab_name_data = '    ' + self.language_dict['recorded_times'] + '   '
+        tab_name_accounts = '    ' + self.language_dict['time_accounts'] + '   '
+        tab_name_setup = '    ' + self.language_dict['settings'] + '   '
 
         self.notebook.add(self.frame_capture, text= tab_name_capture)
         self.notebook.add(self.frame_booking, text=tab_name_booking)
@@ -168,6 +168,18 @@ class TabManager:
         self.data_tab.refresh()
         self.accounts_tab.refresh()
         self.setup_tab.refresh()
+
+        tab_name_capture = '    ' + self.language_dict['record'] + '   '
+        tab_name_booking = '    ' + self.language_dict['booking'] + '   '
+        tab_name_data = '    ' + self.language_dict['recorded_times'] + '   '
+        tab_name_accounts = '    ' + self.language_dict['time_accounts'] + '   '
+        tab_name_setup = '    ' + self.language_dict['settings'] + '   '
+
+        self.notebook.tab(self.frame_capture, text= tab_name_capture)
+        self.notebook.tab(self.frame_booking, text=tab_name_booking)
+        self.notebook.tab(self.frame_time_data, text=tab_name_data)
+        self.notebook.tab(self.frame_accounts, text=tab_name_accounts)
+        self.notebook.tab(self.frame_settings, text=tab_name_setup)
 
         self.go_to_start()
         return

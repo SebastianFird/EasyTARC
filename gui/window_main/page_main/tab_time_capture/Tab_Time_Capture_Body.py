@@ -140,12 +140,14 @@ class CaptureBody:
         closed_main_account_frame_list = [ele for ele in self.main_account_frame_list if ele.main_account_clock.get_id() == id]
         if closed_main_account_frame_list != []:
             closed_main_account_frame = closed_main_account_frame_list[0]
-            main_account_clock = closed_main_account_frame.main_account_clock
-            main_account_clock.set_status_closed()
-            closed_main_account_frame.pack_forget()
+
+            closed_main_account_frame.close_clocks()
+
+            self.data_manager.close_main_account_clock(closed_main_account_frame.main_account_clock)
             new_main_account_frame_list_without_closed_clock = [ele for ele in self.main_account_frame_list if ele.main_account_clock.get_id() != id]
             self.main_account_frame_list = new_main_account_frame_list_without_closed_clock
-            self.data_manager.close_main_account_clock(main_account_clock)
+            closed_main_account_frame.pack_forget()
+            
             self.arrange_clocks()
             self.create_backup()
             print('closed')
@@ -279,26 +281,26 @@ class CaptureBody:
         self.req_title_bar.configure(background=self.style_dict["selected_color"])
         self.req_title_bar.pack(side='top', fill="x")
 
-        self.req_lbl_name = MyLabel(self.req_title_bar, self.data_manager, text='Backup gefunden')
+        self.req_lbl_name = MyLabel(self.req_title_bar, self.data_manager, text=self.language_dict["backup_found"])
         self.req_lbl_name.configure(background=self.style_dict["selected_color"], foreground=self.style_dict["font_color_3"])
         self.req_lbl_name.pack(side='left')
 
         self.req_btnframe = MyFrame(self.req_container_frame, self.data_manager)
         self.req_btnframe.pack(side="bottom", fill="x")
 
-        self.req_btn_reload_backup = MyButton(self.req_btnframe, self.data_manager, width=40, text='Erfassung wiederherstellen', command=self.reload_backup)
+        self.req_btn_reload_backup = MyButton(self.req_btnframe, self.data_manager, width=40, text=self.language_dict["restore_recording"], command=self.reload_backup)
         self.req_btn_reload_backup.pack(side='top', pady=5, padx=5)
 
-        self.req_btn_save_backup = MyButton(self.req_btnframe, self.data_manager, width=40, text='Abspeichern und neue Erfassung starten', command=self.save_backup)
+        self.req_btn_save_backup = MyButton(self.req_btnframe, self.data_manager, width=40, text=self.language_dict["save_and_start_new_recording"], command=self.save_backup)
         self.req_btn_save_backup.pack(side='top', pady=5, padx=5)
 
-        self.req_btn_forget_backup = MyButton(self.req_btnframe, self.data_manager, width=40, text='Neue Erfassung starten', command=self.forget_backup)
+        self.req_btn_forget_backup = MyButton(self.req_btnframe, self.data_manager, width=40, text=self.language_dict["start_new_recording"], command=self.forget_backup)
         self.req_btn_forget_backup.pack(side='top', pady=5, padx=5)
 
         self.req_bodyframe = MyFrame(self.req_container_frame, self.data_manager)
         self.req_bodyframe.pack(side="top", fill="both")
 
-        self.req_lbl_text = MyLabel(self.req_bodyframe, self.data_manager, text='Die letzte Erfassung wurde zwischengespeichert\n oder nicht korrekt beendet\n',justify="left")
+        self.req_lbl_text = MyLabel(self.req_bodyframe, self.data_manager, text=self.language_dict["backup_info_text"],justify="left")
         self.req_lbl_text.pack(pady=5, padx=5)
         return
         
@@ -316,7 +318,7 @@ class CaptureBody:
     def save_backup(self):
         response = self.data_manager.save_backup_to_db()
         if response == False:
-            messagebox.showerror('Fehlermeldung','Fehlerhaftes Backup identifiziert. Backup wurde gelöscht.\nBitte melden Sie dem Support diesen Fehler.')
+            messagebox.showerror(self.language_dict["error_message"],self.language_dict["backup_error_text"])
 
         self.data_manager.load_clocks_and_start()
         self.data_manager.set_backup_found_false()
@@ -364,6 +366,12 @@ class CaptureBody:
                                   highlightbackground=self.style_dict["selected_color"])
         self.req_title_bar.configure(background=self.style_dict["selected_color"])
         self.req_lbl_name.configure(background=self.style_dict["selected_color"], foreground=self.style_dict["font_color_3"])
+
+        self.req_lbl_name.configure(text=self.language_dict["backup_found"])
+        self.req_btn_reload_backup.configure(text=self.language_dict["restore_recording"])
+        self.req_btn_save_backup.configure(text=self.language_dict["save_and_start_new_recording"])
+        self.req_btn_forget_backup.configure(text=self.language_dict["start_new_recording"])
+        self.req_lbl_text.configure(text=self.language_dict["backup_info_text"])
         return
 
 class GroupFrame((tk.Frame)):

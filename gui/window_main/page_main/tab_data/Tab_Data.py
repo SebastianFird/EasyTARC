@@ -30,43 +30,12 @@ class DataTab(Scroll_Frame):
         self.case_frame_manager = case_frame_manager
 
         self.data_kind = 'default_list'
-        self.clicked_record_dict = None
+        self.clicked_record_frame = None
 
         # run the main frame of this layer
         self.create_main_frame(container)
 
         self.body.case_frame.show_empty_frame()
-
-#################################################################
-    
-    def get_record_dict_list_date_list(self):
-        return(self.record_dict_list_date_list)
-
-#################################################################
-
-    def get_clicked_record_dict(self):
-        return(self.clicked_record_dict)
-    
-    def set_clicked_record_dict(self,record_dict):
-        self.clicked_record_dict = record_dict
-        return
-    
-    def reset_clicked_record_dict(self):
-        self.clicked_record_dict = None
-        return
-
-#################################################################
-
-    def get_data_kind(self):
-        return(self.data_kind)
-
-    def change_data_kind(self,kind):
-        self.data_kind = kind
-        if kind == 'default_list':
-            self.load_data_by_date()
-        else:
-            self.main_frame.after(0,self.body.case_frame.show_empty_frame)
-        return
 
 #################################################################
         
@@ -77,12 +46,6 @@ class DataTab(Scroll_Frame):
 
         self.create_head()
         self.create_body()
-
-    def reload(self):
-        if self.data_kind == 'default_list':
-            self.load_data_by_date()
-        else:
-            self.main_frame.after(0,self.body.case_frame.show_empty_frame)
 
     def refresh(self):
         # configure style and language of main frame
@@ -109,13 +72,67 @@ class DataTab(Scroll_Frame):
     def create_body(self):
         scroll_frame = self.create_scroll_frame(self.main_frame)
         self.body = DataBody(scroll_frame, self.main_app, self.gui, self)
+        self.my_canvas.bind("<Button-1>", self.empty_body_clicked)
         return
+    
+    def reload(self):
+        if self.data_kind == 'default_list':
+            self.load_data_by_date()
+        else:
+            self.main_frame.after(0,self.body.case_frame.show_empty_frame)
+    
+    def refresh_body(self):
+        # configure style and language of main frame head
+        self.refresh_scroll_frame()
+        self.body.refresh()
+        return
+    
+#################################################################
+
+    def get_data_kind(self):
+        return(self.data_kind)
+
+    def change_data_kind(self,kind):
+        self.data_kind = kind
+        if kind == 'default_list':
+            self.load_data_by_date()
+        else:
+            self.main_frame.after(0,self.body.case_frame.show_empty_frame)
+        return
+    
+    def get_record_dict_list_date_list(self):
+        return(self.record_dict_list_date_list)
 
     def load_data_by_date(self):
+        self.clicked_record_frame = None
         self.body.case_frame.show_empty_frame()
         self.record_dict_list_date_list = self.data_manager.get_passed_record_dict_list_date_list()
         self.main_frame.after(500,self.body.case_frame.show_data_by_date)
         return
+
+#################################################################
+
+    def get_clicked_record_frame(self):
+        return(self.clicked_record_frame)
+    
+    def set_clicked_record_frame(self,record_frame):
+        reset_frame = self.clicked_record_frame
+        self.clicked_record_frame = record_frame
+        if reset_frame != None:
+            reset_frame.update()
+        return
+    
+    def reset_clicked_record_frame(self):
+        reset_frame = self.clicked_record_frame
+        self.clicked_record_frame = None
+        if reset_frame != None:
+            reset_frame.update()
+        return
+    
+    def empty_body_clicked(self,e):
+        self.set_clicked_record_frame(None)
+
+#################################################################
     
     def export_all_passed_times(self):
         #tk.Tk().withdraw() # prevents an empty tkinter window from appearing
@@ -124,11 +141,7 @@ class DataTab(Scroll_Frame):
         self.data_manager.export_passed_times_df(folder_path)
         self.gui.enable_main_window()
 
-    def refresh_body(self):
-        # configure style and language of main frame head
-        self.refresh_scroll_frame()
-        self.body.refresh()
-        return
+
 
 
 

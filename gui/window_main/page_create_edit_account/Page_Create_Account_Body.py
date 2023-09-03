@@ -61,7 +61,7 @@ class CreateEditAccountBody:
             self.frame_main_name = MyFrame(self.main_frame,self.data_manager)
             self.frame_main_name.pack(side = "top", padx=10, pady=5,fill='x')
 
-            self.lbl_main_name = MyLabel(self.frame_main_name,self.data_manager,width=15,text='Hauptkonto:')
+            self.lbl_main_name = MyLabel(self.frame_main_name,self.data_manager,width=15,text=self.language_dict['main_account'])
             self.lbl_main_name.pack(side = "left", padx=10)
 
             self.lbl_main_text = MyLabel(self.frame_main_name,self.data_manager,text=self.main_account_dict.get("name"),width=36)
@@ -76,7 +76,7 @@ class CreateEditAccountBody:
         self.frame_name = MyFrame(self.main_frame,self.data_manager)
         self.frame_name.pack(side = "top", padx=10, pady=5,fill='x')
 
-        self.lbl_name = MyLabel(self.frame_name,self.data_manager,width=15,text='Name:')
+        self.lbl_name = MyLabel(self.frame_name,self.data_manager,width=15,text=self.language_dict['name'] + ':')
         self.lbl_name.pack(side = "left", padx=10)
 
         self.account_name = tk.StringVar()
@@ -91,14 +91,41 @@ class CreateEditAccountBody:
         elif self.modus in ['edit_sub']:
             self.account_name.set(self.sub_account_dict.get("name"))
 
+        name_text_A = self.language_dict['create_account_name_text_A']
+        name_text_B = self.language_dict['create_account_name_text_B']
+
         if self.modus in ['new_main','new_order','new_process','edit_main']:
-            self.lbl_name_info.configure(text='Der Name muss einmalig sein. Hier eignet sich eine Kombination\naus Projekt + Auftrag + Vorgang. (Beispiel: BM000001-01 Planung)')
+            self.lbl_name_info.configure(text=name_text_A)
         elif self.modus in ['new_sub','edit_sub']:
-            self.lbl_name_info.configure(text='Der Name eines Unterkontos muss nicht einmalig sein. (Beispiel: M001)')
+            self.lbl_name_info.configure(text=name_text_B)
 
         self.textBox_name.configure(highlightthickness = 1, highlightcolor=self.style_dict["notification_color"],highlightbackground=self.style_dict["notification_color"])
         if self.style_dict['name'] == 'dark':
             self.textBox_name.configure(borderwidth = 0)
+
+        ###################################
+
+        self.frame_description = MyFrame(self.main_frame,self.data_manager)
+        self.frame_description.pack(side = "top", padx=10, pady=5,fill='x')
+
+        self.lbl_description = MyLabel(self.frame_description,self.data_manager,width=15,text= self.language_dict['description'] + ':')
+        self.lbl_description.pack(side = "left", padx=10)
+
+        self.account_description_text = tk.StringVar()
+        self.textBox_description = MyEntry(self.frame_description,self.data_manager, textvariable=self.account_description_text, width=36)
+        self.textBox_description.pack(side = "left", padx=10)
+
+        self.lbl_description_info = MyLabel(self.frame_description,self.data_manager,text=self.language_dict['create_account_description_text'])
+        self.lbl_description_info.pack(side = "left", padx=10)
+
+        if self.modus in ['new_order','new_process','edit_main']:
+            self.account_description_text.set(self.main_account_dict.get("description_text"))
+        elif self.modus in ['edit_sub']:
+            self.account_description_text.set(self.sub_account_dict.get("description_text"))
+
+        self.textBox_description.configure(highlightthickness = 1)
+        if self.style_dict['name'] == 'dark':
+            self.textBox_description.configure(borderwidth = 0)
 
         self.separator_frame_2 = MyFrame(self.main_frame,self.data_manager)
         self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
@@ -106,15 +133,53 @@ class CreateEditAccountBody:
 
         ###################################
 
+        self.frame_group = MyFrame(self.main_frame,self.data_manager)
+        self.frame_group.pack(side = "top", padx=10, pady=5,fill='x')
+
+        self.lbl_group = MyLabel(self.frame_group,self.data_manager,width=15,text= self.language_dict['group'] + ':')
+        self.lbl_group.pack(side = "left", padx=10)
+
+        self.account_group = tk.StringVar()
+        self.group_cbox = ttk.Combobox(self.frame_group, width = 28, textvariable = self.account_group)
+        self.group_cbox['values'] = self.data_manager.get_all_account_groups()
+        self.group_cbox.pack(side="left", padx=10)
+
+        self.lbl_highlight = MyLabel(self.frame_group,self.data_manager,text='  '+u'\U0001F808'+' ')
+        self.lbl_highlight.pack(side = "left")
+
+        group_text = self.language_dict['create_account_group_text']
+
+        self.lbl_group_info = MyLabel(self.frame_group,self.data_manager,text=group_text)
+        self.lbl_group_info.pack(side = "left", padx=10)
+
+        if self.modus in ['new_order','new_process','edit_main','new_sub','edit_sub'] and str(self.main_account_dict.get("group")) != 'default':
+            self.account_group.set(str(self.main_account_dict.get("group")))
+
+        if self.modus in ['new_order','new_process','new_sub','edit_sub']:
+            self.group_cbox.configure(state=tk.DISABLED)
+        else:
+            self.group_cbox.configure(state=tk.NORMAL)
+            self.lbl_highlight.configure(foreground=self.style_dict["selected_color"])
+
+
+        self.separator_frame_4 = MyFrame(self.main_frame,self.data_manager)
+        self.separator_frame_4.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
+        self.separator_frame_4.pack(side = "top",fill='x', pady=10)
+
+        ###################################
+
         self.frame_project = MyFrame(self.main_frame,self.data_manager)
         self.frame_project.pack(side = "top", padx=10, pady=5,fill='x')
 
-        self.lbl_project = MyLabel(self.frame_project,self.data_manager,width=15,text='Projekt-Nr.:')
+        self.lbl_project = MyLabel(self.frame_project,self.data_manager,width=15,text=self.language_dict['project_nbr'] + ':')
         self.lbl_project.pack(side = "left", padx=10)
 
         self.account_project = tk.StringVar()
         self.textBox_project = MyEntry(self.frame_project, self.data_manager, textvariable=self.account_project, width=36)
         self.textBox_project.pack(side="left", padx=10)
+
+        self.lbl_project_info = MyLabel(self.frame_project,self.data_manager,text=self.language_dict['create_account_project_nbr_text'])
+        self.lbl_project_info.pack(side = "left", padx=10)
 
         if self.modus in ['new_order','new_process','edit_main','new_sub','edit_sub']:
             self.account_project.set(str(self.main_account_dict.get("project_nbr")))
@@ -122,7 +187,7 @@ class CreateEditAccountBody:
         if self.modus in ['new_order','new_process','new_sub','edit_sub']:
             self.textBox_project.configure(state=tk.DISABLED)
         else:
-            self.textBox_project.configure(state=tk.NORMAL, highlightthickness = 1, highlightcolor=self.style_dict["notification_color"],highlightbackground=self.style_dict["notification_color"])
+            self.textBox_project.configure(state=tk.NORMAL, highlightthickness = 1)
             if self.style_dict['name'] == 'dark':
                 self.textBox_project.configure(borderwidth = 0)
 
@@ -132,16 +197,17 @@ class CreateEditAccountBody:
         self.frame_order = MyFrame(self.main_frame,self.data_manager)
         self.frame_order.pack(side = "top", padx=10, pady=5,fill='x')
 
-        self.lbl_order = MyLabel(self.frame_order,self.data_manager,width=15,text='Auftrags-Nr.:')
+        self.lbl_order = MyLabel(self.frame_order,self.data_manager,width=15,text=self.language_dict['order_nbr'] + ':')
         self.lbl_order.pack(side = "left", padx=10)
 
         self.account_order = tk.StringVar()
         self.textBox_order = MyEntry(self.frame_order, self.data_manager, textvariable=self.account_order, width=36)
         self.textBox_order.pack(side="left", padx=10)
 
-        self.lbl_order_info = MyLabel(self.frame_order,self.data_manager,text='Ein Projekt kann mehrere Aufträge beinhalten. \nMithilfe der Auftragsnummer werden die Zeitkonten im Tab Erfassung sortiert.')
-        self.lbl_order_info.pack(side = "left", padx=10)
+        order_text = self.language_dict['create_account_order_nbr_text']
 
+        self.lbl_order_info = MyLabel(self.frame_order,self.data_manager,text=order_text)
+        self.lbl_order_info.pack(side = "left", padx=10)
 
         if self.modus in ['new_process','edit_main','new_sub','edit_sub']:
             self.account_order.set(str(self.main_account_dict.get("order_nbr")))
@@ -158,14 +224,16 @@ class CreateEditAccountBody:
         self.frame_process = MyFrame(self.main_frame,self.data_manager)
         self.frame_process.pack(side = "top", padx=10, pady=5,fill='x')
 
-        self.lbl_process = MyLabel(self.frame_process,self.data_manager,width=15,text='Vorgangs-Nr.:')
+        self.lbl_process = MyLabel(self.frame_process,self.data_manager,width=15,text=self.language_dict['process_nbr'] + ':')
         self.lbl_process.pack(side = "left", padx=10)
 
         self.account_process = tk.StringVar()
         self.textBox_process = MyEntry(self.frame_process, self.data_manager, textvariable=self.account_process, width=36)
         self.textBox_process.pack(side="left", padx=10)
 
-        self.lbl_process_info = MyLabel(self.frame_process,self.data_manager,text='Ein Auftrag kann mehrere Vorgänge beinhalten. \nMithilfe der Vorgangsnummer werden die Zeitkonten im Tab Erfassung sortiert.')
+        process_text = self.language_dict['create_account_process_nbr_text']
+
+        self.lbl_process_info = MyLabel(self.frame_process,self.data_manager,text=process_text)
         self.lbl_process_info.pack(side = "left", padx=10)
 
         if self.modus in ['edit_main','new_sub','edit_sub']:
@@ -184,39 +252,10 @@ class CreateEditAccountBody:
 
         ###################################
 
-        self.frame_group = MyFrame(self.main_frame,self.data_manager)
-        self.frame_group.pack(side = "top", padx=10, pady=5,fill='x')
-
-        self.lbl_group = MyLabel(self.frame_group,self.data_manager,width=15,text='Gruppe:')
-        self.lbl_group.pack(side = "left", padx=10)
-
-        self.account_group = tk.StringVar()
-        self.textBox_group = MyEntry(self.frame_group, self.data_manager, textvariable=self.account_group, width=36)
-        self.textBox_group.pack(side="left", padx=10)
-
-        self.lbl_group_info = MyLabel(self.frame_group,self.data_manager,text='Mithilfe der Gruppe werden die Projekte im Tab Erfassung gruppiert dargestellt.')
-        self.lbl_group_info.pack(side = "left", padx=10)
-
-        if self.modus in ['new_order','new_process','edit_main','new_sub','edit_sub'] and str(self.main_account_dict.get("group")) != 'default':
-            self.account_group.set(str(self.main_account_dict.get("group")))
-
-        if self.modus in ['new_order','new_process','new_sub','edit_sub']:
-            self.textBox_group.configure(state=tk.DISABLED)
-        else:
-            self.textBox_group.configure(state=tk.NORMAL, highlightthickness = 1)
-            if self.style_dict['name'] == 'dark':
-                self.textBox_group.configure(borderwidth = 0)
-
-        self.separator_frame_4 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_4.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
-        self.separator_frame_4.pack(side = "top",fill='x', pady=10)
-
-        ###################################
-
         self.frame_autobooking = MyFrame(self.main_frame,self.data_manager)
         self.frame_autobooking.pack(side = "top", padx=10, pady=5,fill='x')
 
-        self.lbl_autobooking = MyLabel(self.frame_autobooking,self.data_manager,width=15,text='Auto-Buchung:')
+        self.lbl_autobooking = MyLabel(self.frame_autobooking,self.data_manager,width=15,text=self.language_dict['auto_booking'] + ':')
         self.lbl_autobooking.pack(side = "left", padx=10)
 
         self.account_autobooking = tk.StringVar()
@@ -227,7 +266,9 @@ class CreateEditAccountBody:
         self.lbl_empty0 = MyLabel(self.frame_autobooking,self.data_manager,text='', width=25)
         self.lbl_empty0.pack(side = "left", padx=10)
 
-        self.lbl_checkBox_info = MyLabel(self.frame_autobooking,self.data_manager,text='Wenn dieses Kästchen aktiviert ist, werden die erfassten Stunden auf diesem \nZeitkonto automatisch als gebucht erfasst. (Beispiel: Der Vorgesetzte bucht \nfür alle Gruppenmitglieder die Stunden für Gruppenabsprachen)')
+        auto_booking_text = self.language_dict['create_account_auto_booking_text']
+
+        self.lbl_checkBox_info = MyLabel(self.frame_autobooking,self.data_manager,text=auto_booking_text)
         self.lbl_checkBox_info.pack(side = "left", padx=10)
 
         if self.modus in ['new_order','new_process','edit_main','new_sub','edit_sub']:
@@ -249,7 +290,7 @@ class CreateEditAccountBody:
         self.frame_response = MyFrame(self.main_frame,self.data_manager)
         self.frame_response.pack(side = "top", padx=10, pady=5,fill='x')
 
-        self.lbl_response = MyLabel(self.frame_response,self.data_manager,width=15,text='Rückmelde-Nr.:')
+        self.lbl_response = MyLabel(self.frame_response,self.data_manager,width=15,text=self.language_dict['booking_nbr'] + ':')
         self.lbl_response.pack(side = "left", padx=10)
 
         self.account_response = tk.StringVar()
@@ -271,7 +312,7 @@ class CreateEditAccountBody:
         self.frame_response_text = MyFrame(self.main_frame,self.data_manager)
         self.frame_response_text.pack(side = "top", padx=10, pady=5,fill='x')
 
-        lbl_response_text = MyLabel(self.frame_response_text,self.data_manager,width=15,text='Rückmeldetext:')
+        lbl_response_text = MyLabel(self.frame_response_text,self.data_manager,width=15,text=self.language_dict['booking_text'] + ':')
         lbl_response_text.pack(side = "left", padx=10)
 
         self.account_response_text = tk.StringVar()
@@ -291,39 +332,14 @@ class CreateEditAccountBody:
 
         ###################################
 
-        self.frame_description = MyFrame(self.main_frame,self.data_manager)
-        self.frame_description.pack(side = "top", padx=10, pady=5,fill='x')
-
-        self.lbl_description = MyLabel(self.frame_description,self.data_manager,width=15,text='Beschreibung:')
-        self.lbl_description.pack(side = "left", padx=10)
-
-        self.account_description_text = tk.StringVar()
-        self.textBox_description = MyEntry(self.frame_description,self.data_manager, textvariable=self.account_description_text, width=36)
-        self.textBox_description.pack(side = "left", padx=10)
-
-        if self.modus in ['new_order','new_process','edit_main']:
-            self.account_description_text.set(self.main_account_dict.get("description_text"))
-        elif self.modus in ['edit_sub']:
-            self.account_description_text.set(self.sub_account_dict.get("description_text"))
-
-        self.textBox_description.configure(highlightthickness = 1)
-        if self.style_dict['name'] == 'dark':
-            self.textBox_description.configure(borderwidth = 0)
-
-        self.separator_frame_5 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_5.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
-        self.separator_frame_5.pack(side = "top",fill='x', pady=10)
-
-        ###################################
-
         self.frame_obligation = MyFrame(self.main_frame,self.data_manager)
         self.frame_obligation.pack(side = "top", padx=10, pady=5,fill='x')
 
-        self.lbl_fill = MyLabel(self.frame_obligation,self.data_manager,width=15,text='Ausfüllbar')
+        self.lbl_fill = MyLabel(self.frame_obligation,self.data_manager,width=15,text=self.language_dict['fillable'])
         self.lbl_fill.configure(foreground=self.style_dict["selected_color"])
         self.lbl_fill.pack(side = "left", padx=10)
 
-        self.lbl_obligation = MyLabel(self.frame_obligation,self.data_manager,width=15,text='Pflichtfeld')
+        self.lbl_obligation = MyLabel(self.frame_obligation,self.data_manager,width=15,text=self.language_dict['mandatory_field'])
         self.lbl_obligation.configure(foreground=self.style_dict["notification_color"])
         self.lbl_obligation.pack(side = "left", padx=10)
 
@@ -331,9 +347,9 @@ class CreateEditAccountBody:
         self.lbl_error_info.pack(side = "top", padx=10, pady=5)
 
         if self.modus in ['edit_main','edit_sub']:
-            btn_text = 'Bearbeitung abschließen'
+            btn_text = self.language_dict['complete_editing']
         else:
-            btn_text = 'Hinzufügen'
+            btn_text = self.language_dict['add']
 
         self.btn_quit = MyButton(self.main_frame,self.data_manager, text=btn_text, command=self.finish, width=30)
         self.btn_quit.pack(side = "top", padx=10, pady=5)

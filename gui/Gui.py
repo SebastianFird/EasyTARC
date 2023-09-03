@@ -54,10 +54,10 @@ class TkErrorCatcher:
                 args = self.subst(*args)
             return self.func(*args)
         except SystemExit as msg:
-            messagebox.showerror('Fehlermeldung','Fehlermeldung','%s.\n\nDas Programm wird beendet.\nBitte melden Sie dem Support diesen Fehler.'%msg)
+            messagebox.showerror('Error Message','%s.\n\nThe programme is terminated. Please report this error to the support.'%msg)
             raise SystemExit(msg)
         except Exception as err:
-            messagebox.showerror('Fehlermeldung','%s.\n\nDas Programm wird beendet.\nBitte melden Sie dem Support diesen Fehler.'%err)
+            messagebox.showerror('Error Message','%s.\n\nThe programme is terminated. Please report this error to the support.'%err)
             raise err
         
 ############################################################
@@ -161,6 +161,9 @@ class Gui_Manager:
         # This function is important for the info windows
         # Without this Function the canvas rutens a windows path error
         self.main_window.case_frame.frames[NotebookFrame].tab_manager.active_tab.activate()
+
+    def reset_main_window_pos(self):
+        self.main_window.reset_window_pos()
     
 ########################################################################################################################
 ########################################################################################################################
@@ -216,6 +219,8 @@ class Gui_Manager:
 
     def reset_mini_work_window_pos(self):
         self.mini_work_window_geo_set = False
+        if self.miniWorkWindow != None:
+            self.miniWorkWindow.reset_window_pos()
 
     def get_mini_work_window_pos(self):
         if self.mini_work_window_geo_set == False:
@@ -241,6 +246,8 @@ class Gui_Manager:
 
     def reset_bar_work_window_pos(self):
         self.bar_work_window_geo_set = False
+        if self.barWorkWindow != None:
+            self.barWorkWindow.reset_window_pos()
 
     def get_bar_work_window_pos(self):
         if self.bar_work_window_geo_set == False:

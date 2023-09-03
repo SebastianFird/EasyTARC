@@ -77,23 +77,23 @@ class CreateEditAccountHead:
         self.main_head_frame.pack(side = "top", fill = "x")
 
 
-        btn_quit = MyButton(self.main_head_frame,self.data_manager, text='Zurück', command=self.create_account_page.back, width=8)
+        btn_quit = MyButton(self.main_head_frame,self.data_manager, text=self.language_dict['back'], command=self.create_account_page.back, width=8)
         btn_quit.pack(side = "left", padx=10, pady=5)
 
         if self.modus == 'new_main':
-            header_text = 'Neues Zeitkonto'
+            header_text = self.language_dict['new_time_account']
         elif self.modus == 'new_order':
-            header_text = 'Neuer Auftrag'
+            header_text = self.language_dict['new_order']
         elif self.modus == 'new_process':
-            header_text = 'Neuer Vorgang'
+            header_text = self.language_dict['new_process']
         elif self.modus == 'new_sub':
-            header_text = 'Neues Unterkonto'
+            header_text = self.language_dict['new_subaccount']
         elif self.modus == 'edit_main':
-            header_text = 'Zeitkonto bearbeiten'
+            header_text = self.language_dict['edit_time_account']
         elif self.modus == 'edit_sub':
-            header_text = 'Unterkonto bearbeiten'
+            header_text = self.language_dict['edit_time_subaccount']
         else:
-            header_text = 'Fehler'
+            header_text = self.language_dict['error']
 
 
         lbl_header = MyLabel(self.main_head_frame,self.data_manager, text=header_text,width=40, background='#FFFF99', anchor='w')

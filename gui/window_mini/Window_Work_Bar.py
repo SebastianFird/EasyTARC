@@ -35,7 +35,7 @@ class BarWorkWindow(WorkWindow):
         self.start_x = None
         self.start_y = None
         
-        if self.gui.get_bar_work_window_pos() == None:
+        if type(self.gui.get_bar_work_window_pos()) != int:
             ws = self.winfo_screenwidth() # width of the screen
             x = (ws/2) 
         else:
@@ -43,7 +43,7 @@ class BarWorkWindow(WorkWindow):
 
         y = 0
 
-        self.wm_geometry("+%d+%d" % (x, y))
+        self.geometry("+%d+%d" % (x, y))
         self.overrideredirect(1)
         self.attributes('-topmost',True)    
 
@@ -55,11 +55,18 @@ class BarWorkWindow(WorkWindow):
         self.x_win = self.x_win - self.start_x
 
     def move_window(self, event):
-        self.geometry('+{0}+{1}'.format(event.x_root + self.x_win,0))
-        self.start_x = event.x_root
+        if type(event.x_root) == int:
+            self.geometry('+{0}+{1}'.format(event.x_root + self.x_win,0))
+            self.start_x = event.x_root
 
     def save_pos(self, event):
         self.gui.set_bar_work_window_pos(self.winfo_x())
+
+    def reset_window_pos(self):
+        ws = self.winfo_screenwidth() # width of the screen
+        x = (ws/2) 
+        y = 0
+        self.geometry("+%d+%d" % (x, y))
 
 ##############################################################################################################################
 
@@ -107,10 +114,12 @@ class BarWorkWindow(WorkWindow):
         self.status_frame.bind('<B1-Motion>', self.move_window)
         self.status_frame.bind('<Button-1>', self.get_pos)
         self.status_frame.bind('<ButtonRelease-1>', self.save_pos)
+        self.status_frame.bind("<Button-3>", self.right_clicked)
 
         self.lbl_emtpy = MyLabelPixel(self.status_frame, self.data_manager)
         self.lbl_emtpy.configure(text = '', background=self.style_dict["titlebar_color"],height=30) # u'\U0001F532'
         self.lbl_emtpy.pack(side='left')
+        self.lbl_emtpy.bind("<Button-3>", self.right_clicked)
 
         self.lbl_name = MyLabel(self.status_frame, self.data_manager)
         self.lbl_name.configure(background=self.style_dict["titlebar_color"],foreground=self.style_dict["font_color"], anchor='w',width=18)
@@ -118,27 +127,32 @@ class BarWorkWindow(WorkWindow):
         self.lbl_name.bind('<B1-Motion>', self.move_window)
         self.lbl_name.bind('<Button-1>', self.get_pos)
         self.lbl_name.bind('<ButtonRelease-1>', self.save_pos)
+        self.lbl_name.bind("<Button-3>", self.right_clicked)
         self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, 50, 30, '')
 
     def auto_update_status_frame(self):
         if self.main_app.get_action_state() == 'disabled':
             background_color = self.style_dict["titlebar_color"]
-            self.lbl_name.configure(text=' Gesperrt')
-            self.lbl_name_ttp.text = ' Gesperrt'
+            self.lbl_name.configure(text=' ' + self.language_dict['locked'])
+            self.lbl_name_ttp.text =' ' + self.language_dict['locked']
 
         elif self.work_clock.get_runninig() == True:
             background_color = self.style_dict["bottom_active_color"]
-            self.lbl_name.configure(text=' ' + self.active_clock.get_full_name())
-            self.lbl_name_ttp.text=' ' + self.active_clock.get_full_name()
+            if self.active_clock.get_id() != 0:
+                clock_name = self.active_clock.get_full_name()
+            else:
+                clock_name = self.language_dict['without_allocation']
+            self.lbl_name.configure(text=' ' + clock_name)
+            self.lbl_name_ttp.text=' ' + clock_name
 
         elif self.pause_clock.get_runninig() == True:
             background_color = self.style_dict["bottom_pause_color"]
-            self.lbl_name.configure(text=' Pause')
-            self.lbl_name_ttp.text=' Pause'
+            self.lbl_name.configure(text=' ' + self.language_dict['break'])
+            self.lbl_name_ttp.text=' ' +self.language_dict['break']
         else:
             background_color = self.style_dict["titlebar_color"]
-            self.lbl_name.configure(text=' Feierabend')
-            self.lbl_name_ttp.text=' Feierabend'
+            self.lbl_name.configure(text=' ' + self.language_dict['closing_time'])
+            self.lbl_name_ttp.text=' ' +self.language_dict['closing_time']
 
         self.status_frame.configure(background=background_color)
         self.lbl_name.configure(background=background_color)
@@ -171,7 +185,7 @@ class BarWorkWindow(WorkWindow):
         self.lbl_separator_1 = MyLabel(self.btn_frame,self.data_manager)
         self.lbl_separator_1.pack(side='left', padx=8, fill='y')
 
-        self.lbl_default = MyLabel(self.btn_frame,self.data_manager,text = 'Ohne Projekt')
+        self.lbl_default = MyLabel(self.btn_frame,self.data_manager,text = self.language_dict['without_allocation'])
         self.lbl_default.pack(side='left', padx=5)
 
         self.lbl_activate_default = MyLabel(self.btn_frame, self.data_manager, image=self.photo_btn_off)
@@ -186,7 +200,7 @@ class BarWorkWindow(WorkWindow):
         self.lbl_separator_2 = MyLabel(self.btn_frame,self.data_manager)
         self.lbl_separator_2.pack(side='left', padx=8, fill='y')
 
-        self.lbl_pause = MyLabel(self.btn_frame,self.data_manager,text = 'Pause')
+        self.lbl_pause = MyLabel(self.btn_frame,self.data_manager,text = self.language_dict['break'])
         self.lbl_pause.pack(side='left', padx=5)
 
         self.lbl_activate_pause = MyLabel(self.btn_frame, self.data_manager, image=self.photo_btn_off)
@@ -212,6 +226,7 @@ class BarWorkWindow(WorkWindow):
         self.title_bar.bind('<B1-Motion>', self.move_window)
         self.title_bar.bind('<Button-1>', self.get_pos)
         self.title_bar.bind('<ButtonRelease-1>', self.save_pos)
+        self.title_bar.bind("<Button-3>", self.right_clicked)
 
         self.close_button = MyLabel(self.title_bar, self.data_manager, text='___')
         self.close_button.configure(background=self.style_dict["titlebar_color"], width = 5)
@@ -220,6 +235,7 @@ class BarWorkWindow(WorkWindow):
         self.on_close_button = False
         self.close_button.bind("<Enter>", self.enter_close)
         self.close_button.bind("<Leave>", self.leave_close)
+        self.close_button.bind("<Button-3>", self.right_clicked)
 
         self.expand_btn = MyLabel(self.title_bar, self.data_manager)
         self.expand_btn.configure(text = u'\U00002302', background=self.style_dict["titlebar_color"], width = 5) # u'\U0001F532'
@@ -228,6 +244,7 @@ class BarWorkWindow(WorkWindow):
         self.on_expand_button = False
         self.expand_btn.bind("<Enter>", self.enter_expand_window)
         self.expand_btn.bind("<Leave>", self.leave_expand_window)
+        self.expand_btn.bind("<Button-3>", self.right_clicked)
 
         self.mini_btn = MyLabel(self.title_bar, self.data_manager)
         self.mini_btn.configure(text = u'\U00002193', background=self.style_dict["titlebar_color"], width = 5) # u'\U0001F881'
@@ -236,6 +253,7 @@ class BarWorkWindow(WorkWindow):
         self.on_mini_btn = False
         self.mini_btn.bind("<Enter>", self.enter_change_to_mini)
         self.mini_btn.bind("<Leave>", self.leave_change_to_mini)
+        self.mini_btn.bind("<Button-3>", self.right_clicked)
 
 
     def auto_update_title_bar(self):

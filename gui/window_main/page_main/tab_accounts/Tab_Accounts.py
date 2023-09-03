@@ -35,31 +35,107 @@ class AccountsTab(Scroll_Frame):
         self.user_db = main_app.data_manager.user_db
         self.gui = gui
 
-        self.clicked_account_dict = None
-        self.last_project_nbr = None
+        self.clicked_account_frame = None
+        self.last_modus = None
+        self.last_search_input = None
 
         # run the main frame of this layer
         self.create_main_frame(container)
 
         #self.body.case_frame.show_empty_frame()
 
+    
 #################################################################
+
+    def create_main_frame(self,container):
+
+        self.main_frame = ttk.Notebook(container)
+        self.main_frame.pack(side = "top", fill = "both", expand = True)
+
+        self.create_head()
+        self.create_body()        
+
+    def refresh(self):
+        # configure style and language of main frame
+        self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
+
+        self.refresh_head()
+        self.refresh_body()
+        return
+
+#################################################################
+
+    def create_head(self):
+        self.head = AccountsHead(self.main_frame, self.main_app, self.gui, self.case_frame_manager, self)
+        return
+        
+    def refresh_head(self):
+        # configure style and language of main frame head
+        self.head.refresh()
+        return
+    
+#################################################################
+
+    def create_body(self):
+        scroll_frame = self.create_scroll_frame(self.main_frame)
+        self.body = AccountsBody(scroll_frame, self.main_app, self.gui, self)
+        self.my_canvas.bind("<Button-1>", self.empty_body_clicked)
+        return
+    
+    def refresh_body(self):
+        # configure style and language of main frame head
+        self.refresh_scroll_frame()
+        self.body.refresh()
+        return
+
+    def reload(self):
+        self.clicked_account_frame = None
+        if self.last_modus != None:
+            self.load_data_by_search(self.last_modus, self.last_search_input)
+
+#################################################################
+            
+    def load_data_by_search(self,modus, search_input):
+        self.last_modus = modus
+        self.last_search_input = search_input
+        self.clicked_account_frame = None
+        self.body.case_frame.show_empty_frame()
+        self.account_dict_list = self.data_manager.get_account_dict_list_by_search(modus, search_input)
+        self.main_frame.after(500,self.body.case_frame.show_data)
+        return
+    
+    def show_empty_frame(self):
+        self.last_modus = None
+        self.clicked_account_frame = None
+        self.body.case_frame.show_empty_frame()
     
     def get_account_dict_list(self):
         return(self.account_dict_list)
-
+    
 #################################################################
 
-    def get_clicked_account_dict(self):
-        return(self.clicked_account_dict)
+    def get_clicked_account_frame(self):
+        return(self.clicked_account_frame)
     
-    def set_clicked_account_dict(self,account_dict):
-        self.clicked_account_dict = account_dict
+    def set_clicked_account_frame(self,account_frame):
+        reset_frame = self.clicked_account_frame
+        self.clicked_account_frame = account_frame
+        if reset_frame != None:
+            reset_frame.update()
         return
     
-    def reset_clicked_account_dict(self):
-        self.clicked_account_dict = None
+    def reset_clicked_account_frame(self):
+        reset_frame = self.clicked_account_frame
+        self.clicked_account_frame = None
+        if reset_frame != None:
+            reset_frame.update()
         return
+    
+    def empty_body_clicked(self,e):
+        self.set_clicked_account_frame(None)
+    
+#################################################################
     
     def check_close_account(self, account_dict):
         response = self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.check_close_main_account_frame(account_dict['account_id'])
@@ -68,13 +144,6 @@ class AccountsTab(Scroll_Frame):
     def close_account(self, account_dict):
         if self.check_close_account(account_dict) == True:
             self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.close_main_account_frame(account_dict['account_id'])
-
-            if account_dict['account_kind'] == 1:
-                sub_account_id_list = self.user_db.get_sub_accounts(account_dict['account_id'])
-                for account_id in sub_account_id_list:
-                    self.user_db.account_set_closed(account_id)
-
-            self.user_db.account_set_closed(account_dict['account_id'])
             self.reload()
         else:
             text = """
@@ -106,75 +175,9 @@ Ein aktives Zeitkonto kann nicht geschlossen werden. Bitte aktiviere erst ein an
 
         if account_dict['account_kind'] == 0:
             main_account_dict = self.data_manager.get_account_dict_by_account_id(account_dict['main_id'])
-            aub_account_dict = account_dict
-            self.case_frame_manager.add_new_account('edit_sub',self,None,main_account_dict,aub_account_dict)
-
-#################################################################
-        
-    def create_main_frame(self,container):
-
-        self.main_frame = ttk.Notebook(container)
-        self.main_frame.pack(side = "top", fill = "both", expand = True)
-
-        self.create_head()
-        self.create_body()
-
-    def reload(self):
-        self.main_frame.after(0,self.body.case_frame.show_empty_frame)
-
-    def refresh(self):
-        # configure style and language of main frame
-        self.style_dict = self.data_manager.get_style_dict()
-        self.language_dict = self.data_manager.get_language_dict()
-
-        self.refresh_head()
-        self.refresh_body()
-        return
-
-#################################################################
-
-    def create_head(self):
-        self.head = AccountsHead(self.main_frame, self.main_app, self.gui, self.case_frame_manager, self)
-        return
-        
-    def refresh_head(self):
-        # configure style and language of main frame head
-        self.head.refresh()
-        return
+            sub_account_dict = account_dict
+            self.case_frame_manager.add_new_account('edit_sub',self,None,main_account_dict,sub_account_dict)
     
-#################################################################
 
-    def create_body(self):
-        scroll_frame = self.create_scroll_frame(self.main_frame)
-        self.body = AccountsBody(scroll_frame, self.main_app, self.gui, self)
-        return
-    
-    def reload(self):
-        if self.last_project_nbr != None:
-            self.load_data_by_project_nbr(self.last_project_nbr)
-
-    def load_data_by_project_nbr(self,project_nbr):
-        self.last_project_nbr = project_nbr
-        self.body.case_frame.show_empty_frame()
-        self.account_dict_list = self.data_manager.get_account_dict_list_by_project_nbr(project_nbr)
-        self.main_frame.after(500,self.body.case_frame.show_data)
-        return
-    
-    def export_all_accounts(self):
-        #tk.Tk().withdraw() # prevents an empty tkinter window from appearing
-        self.gui.disable_main_window()
-        folder_path = filedialog.askdirectory()
-        self.data_manager.export_account_df(folder_path)
-        self.gui.enable_main_window()
-            
-    def show_project_list(self):
-        info_dict = self.data_manager.get_project_name_list_dict()
-        info_window = InfoDictWindow(self.main_app, self.gui, self.main_frame ,info_dict,400,280)
-
-    def refresh_body(self):
-        # configure style and language of main frame head
-        self.refresh_scroll_frame()
-        self.body.refresh()
-        return
 
 

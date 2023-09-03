@@ -20,9 +20,10 @@ from style_classes import MyFrame
 from style_classes import MyLabel
 from style_classes import MyButtonPixel 
 from gui.Window_Additionals import CreateToolTip
+from gui.window_main.page_main.tab_data.Tab_Data_OptionMenu import DataOptionMenu
 
 
-class DataRecordFrame:
+class DataRecordFrame(tk.Frame):
     def __init__(self, container, main_app, gui, data_tab,data_category,record_dict):
          
         self.main_app = main_app
@@ -35,28 +36,29 @@ class DataRecordFrame:
         self.data_category = data_category
         self.record_dict = record_dict
 
+        MyFrame.__init__(self, container, self.data_manager)
+
+        self.option_menu = DataOptionMenu(container,self.main_app,self.gui, self.data_tab)
+
         # run the main frame of this layer
-        self.create_main_frame(container)
+        self.create_main_frame()
 
-    def create_main_frame(self,container):
+    def create_main_frame(self):
 
-        self.main_frame = MyFrame(container,self.data_manager)
-        self.main_frame.pack(side = "top", fill = "x")
-
-        self.lbl_status_name = MyLabel(self.main_frame, self.data_manager,width=15)
+        self.lbl_status_name = MyLabel(self, self.data_manager,width=15)
         self.lbl_status_name.pack(side='right',pady=10,padx=3)
 
-        self.lbl_status = MyLabel(self.main_frame, self.data_manager,width=2)
+        self.lbl_status = MyLabel(self, self.data_manager,width=2)
         self.lbl_status.pack(side='right',padx=3)
 
         if self.record_dict['auto_booking'] == 1 and self.record_dict['account_id'] != 0:
-            self.lbl_status_name.configure(text = 'Auto-Buchung', anchor='w')
+            self.lbl_status_name.configure(text = self.language_dict["auto_booking"], anchor='w')
             self.lbl_status.configure(text = u'\U00002713',foreground=self.style_dict["active_color"])
         elif self.record_dict['booked'] == 1 and self.record_dict['account_id'] != 0:
-            self.lbl_status_name.configure(text = 'Gebucht', anchor='w')
+            self.lbl_status_name.configure(text = self.language_dict["booked"], anchor='w')
             self.lbl_status.configure(text = u'\U00002713',foreground=self.style_dict["active_color"])
         elif self.record_dict['booked'] == 0 and self.record_dict['account_id'] != 0:
-            self.lbl_status_name.configure(text = 'Nicht Gebucht', anchor='w')
+            self.lbl_status_name.configure(text = self.language_dict["not_booked"], anchor='w')
             self.lbl_status.configure(text = u'\U0001F5D9',foreground=self.style_dict["notification_color"])
         else:
             self.lbl_status_name.configure(text = '', anchor='w')
@@ -64,48 +66,61 @@ class DataRecordFrame:
 
         ##########################
 
-        self.lbl_empty0 = MyLabel(self.main_frame, self.data_manager, text='', width=2)
+        self.lbl_empty0 = MyLabel(self, self.data_manager, text='', width=2)
         self.lbl_empty0.pack(side='right',padx=3)
 
-        self.lbl_passed_time = MyLabel(self.main_frame, self.data_manager,width=8,text=str('{:n}'.format(round(self.record_dict['hours'],3))))
+        self.lbl_passed_time = MyLabel(self, self.data_manager,width=8,text=str('{:n}'.format(round(self.record_dict['hours'],3))))
         self.lbl_passed_time.pack(side='right',padx=3)
 
-        self.lbl_empty1 = MyLabel(self.main_frame, self.data_manager, text='', width=2)
+        self.lbl_empty1 = MyLabel(self, self.data_manager, text='', width=2)
         self.lbl_empty1.pack(side='right',padx=3)
 
         ##########################
 
-        self.lbl_empty2 = MyLabel(self.main_frame, self.data_manager, text='', width=2)
+        self.lbl_empty2 = MyLabel(self, self.data_manager, text='', width=2)
         self.lbl_empty2.pack(side='left',padx=3)
 
-        if self.record_dict['account_kind'] == 0:
-            name_text = '     ' + self.record_dict['name'] + '   (Hauptkonto: ' +  self.record_dict['main_name'] +')'
+        if self.record_dict['account_id'] == 0:
+             name_text = self.language_dict["without_allocation"]
+        elif self.record_dict['account_kind'] == 0:
+            name_text = '     ' + self.record_dict['name'] + '   (' + self.language_dict["main_account"] + ': ' +  self.record_dict['main_name'] +')'
         else:
             name_text = self.record_dict['name']
         
-        self.lbl_name = MyLabel(self.main_frame, self.data_manager, text = name_text, anchor='w')
+        self.lbl_name = MyLabel(self, self.data_manager, text = name_text, anchor='w')
         self.lbl_name.pack(side='left',padx=10,pady=10)
 
         if self.record_dict['account_id'] != 0:
-            info_text = 'Name: ' + name_text + '\nProjekt-Nr.: ' + str(self.record_dict['project_nbr']) + '\nAuftrags-Nr.: ' + str(self.record_dict['order_nbr']) + '\nVorgangs-Nr.: ' + str(self.record_dict['process_nbr'])
+            info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project_nbr"] + ': ' + str(self.record_dict['project_nbr']) + '\n' + self.language_dict["order_nbr"] + ': ' + str(self.record_dict['order_nbr']) + '\n' + self.language_dict["process_nbr"] + ': ' +str(self.record_dict['process_nbr'])
         else:
-            info_text = 'Dieses Zeitkonto ist ohne Projekt und nicht buchbar'
+            info_text = self.language_dict["without_allocation"]
         self.account_info_ttp = CreateToolTip(self.lbl_name, self.data_manager, 30, 25, info_text)
 
         ##########################
 
         self.on_clock = False
 
-        self.main_frame.bind("<Enter>", self.enter_record)
-        self.main_frame.bind("<Leave>", self.leave_record)
+        self.bind("<Enter>", self.enter_record)
+        self.bind("<Leave>", self.leave_record)
 
-        self.main_frame.bind("<Button-1>", self.activate_record)
+        self.bind("<Button-1>", self.activate_record)
         self.lbl_status_name.bind("<Button-1>", self.activate_record)
         self.lbl_status.bind("<Button-1>", self.activate_record)
         self.lbl_name.bind("<Button-1>", self.activate_record)
         self.lbl_passed_time.bind("<Button-1>", self.activate_record)
         self.lbl_empty2.bind("<Button-1>", self.activate_record)
         self.lbl_empty0.bind("<Button-1>", self.activate_record)
+        self.lbl_empty1.bind("<Button-1>", self.activate_record)
+
+        self.bind("<Button-3>", self.right_clicked)
+        self.lbl_status_name.bind("<Button-3>", self.right_clicked)
+        self.lbl_status.bind("<Button-3>", self.right_clicked)
+        self.lbl_name.bind("<Button-3>", self.right_clicked)
+        self.lbl_passed_time.bind("<Button-3>", self.right_clicked)
+        self.lbl_empty2.bind("<Button-3>", self.right_clicked)
+        self.lbl_empty0.bind("<Button-3>", self.right_clicked)
+        self.lbl_empty1.bind("<Button-3>", self.right_clicked)
+
         return
     
 ##################################################
@@ -119,23 +134,27 @@ class DataRecordFrame:
         self.update()
 
     def activate_record(self,e=None):
-        if self.data_tab.get_clicked_record_dict() == self.record_dict:
-            self.data_tab.reset_clicked_record_dict()
+        if self.data_tab.get_clicked_record_frame() == self:
+            self.data_tab.reset_clicked_record_frame()
         else:
-            self.data_tab.set_clicked_record_dict(self.record_dict)
-        self.data_category.update()
-        self.data_tab.head.update()
+            self.data_tab.set_clicked_record_frame(self)
         self.update()
 
+    def right_clicked(self,e):
+        if self.main_app.get_action_state() == "normal" or self.main_app.get_action_state() == "endofwork":
+            if self.data_tab.get_clicked_record_frame() != self:
+                self.activate_record(e)
+            self.option_menu.popup(e)
+
     def update(self):
-        if self.data_tab.get_clicked_record_dict() == self.record_dict:
+        if self.data_tab.get_clicked_record_frame() == self:
             background_color = self.style_dict["highlight_color"]
         elif self.on_clock == True:
             background_color = self.style_dict["soft_highlight_color"]
         else:
             background_color = self.style_dict["bg_color"]
 
-        self.main_frame.configure(background=background_color)
+        self.configure(background=background_color)
         self.lbl_status_name.configure(background=background_color)
         self.lbl_status.configure(background=background_color)
         self.lbl_passed_time.configure(background=background_color) 
@@ -155,7 +174,7 @@ class DataRecordFrame:
 
         self.account_info_ttp.refresh()
 
-        self.main_frame.refresh_style()
+        self.option_menu.refresh()
         self.lbl_status_name.refresh_style()
         self.lbl_passed_time.refresh_style()
         self.lbl_status.refresh_style()
@@ -163,6 +182,33 @@ class DataRecordFrame:
         self.lbl_empty0.refresh_style()
         self.lbl_empty1.refresh_style()
         self.lbl_empty2.refresh_style()
-        
 
+        if self.record_dict['auto_booking'] == 1 and self.record_dict['account_id'] != 0:
+            self.lbl_status_name.configure(text = self.language_dict["auto_booking"], anchor='w')
+            self.lbl_status.configure(text = u'\U00002713',foreground=self.style_dict["active_color"])
+        elif self.record_dict['booked'] == 1 and self.record_dict['account_id'] != 0:
+            self.lbl_status_name.configure(text = self.language_dict["booked"], anchor='w')
+            self.lbl_status.configure(text = u'\U00002713',foreground=self.style_dict["active_color"])
+        elif self.record_dict['booked'] == 0 and self.record_dict['account_id'] != 0:
+            self.lbl_status_name.configure(text = self.language_dict["not_booked"], anchor='w')
+            self.lbl_status.configure(text = u'\U0001F5D9',foreground=self.style_dict["notification_color"])
+        else:
+            self.lbl_status_name.configure(text = '', anchor='w')
+            self.lbl_status.configure(text = '')
+
+        if self.record_dict['account_id'] == 0:
+             name_text = self.language_dict["without_allocation"]
+        elif self.record_dict['account_kind'] == 0:
+            name_text = '     ' + self.record_dict['name'] + '   (' + self.language_dict["main_account"] + ': ' +  self.record_dict['main_name'] +')'
+        else:
+            name_text = self.record_dict['name']
+        self.lbl_name.configure(text = name_text)
+
+        if self.record_dict['account_id'] != 0:
+            info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project_nbr"] + ': ' + str(self.record_dict['project_nbr']) + '\n' + self.language_dict["order_nbr"] + ': ' + str(self.record_dict['order_nbr']) + '\n' + self.language_dict["process_nbr"] + ': ' +str(self.record_dict['process_nbr'])
+        else:
+            info_text = self.language_dict["without_allocation"]
+        self.account_info_ttp.text = info_text
+        
+        self.update()
         return

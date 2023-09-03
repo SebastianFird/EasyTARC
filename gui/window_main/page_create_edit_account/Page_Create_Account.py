@@ -117,6 +117,9 @@ class CreateEditAccount(tk.Frame):
         response_nbr = account_response.get()
         default_text = account_text.get()
 
+        if project_nbr == '':
+            project_nbr = 0
+
         if order_nbr == '':
             order_nbr = 0
         
@@ -274,15 +277,6 @@ class CreateEditAccount(tk.Frame):
         else:
             print('err')
             return
-
-        #############################################
-
-        list_nbr_obligation = [project]
-        for nbr_field in list_nbr_obligation:
-            if nbr_field == '':
-                return('Das Feld Projekt-Nr. muss ausgefüllt werden')
-            if  name.isspace() == True:
-                return('Das Feld Projekt-Nr. darf nicht nur Leerzeichen beinhalten.')
             
         #############################################
                 

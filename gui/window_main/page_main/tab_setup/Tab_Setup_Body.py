@@ -37,7 +37,8 @@ class SetupBody:
         self.setup_tab = setup_tab
 
         # special class variables
-        self.styles_overview_dict = self.data_manager.get_styles_overview_dict()
+        self.style_list = self.data_manager.get_style_list()
+        self.language_list = self.data_manager.get_language_list()
 
         # run the main frame of this layer
         self.create_main_frame(container)
@@ -58,7 +59,7 @@ class SetupBody:
         self.head_appearance_frame = MyFrame(self.main_frame,self.data_manager)
         self.head_appearance_frame.pack(side = "top",fill='x')
 
-        self.lbl_category_appearance = MyLabel(self.head_appearance_frame,self.data_manager,text = 'Erscheinung:', anchor = 'w', width=30)
+        self.lbl_category_appearance = MyLabel(self.head_appearance_frame,self.data_manager,text = self.language_dict['appearance'], anchor = 'w', width=30)
         self.lbl_category_appearance.configure(font = Font_tuple)
         self.lbl_category_appearance.pack(side = "left")
 
@@ -67,12 +68,15 @@ class SetupBody:
 
         row_nbr = 0
 
-        self.lbl_style = MyLabel(self.appearance_frame,self.data_manager,text = 'Style:', width=10)
+        self.lbl_style = MyLabel(self.appearance_frame,self.data_manager,text = self.language_dict['style'], width=10)
         self.lbl_style.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         def updt_style_cblist():
-            self.styles_cbox['values'] = keysList = list(self.styles_overview_dict.keys())
-            self.styles_cbox.current(self.data_manager.get_style_dict()["style_id"])
+            style_name = self.style_dict['name']
+            style_list = [style_name] + [ele for ele in self.style_list if ele != style_name]
+            self.styles_cbox['values'] = style_list
+            self.styles_cbox.current(0)
+
         clicked_style = tk.StringVar()
         self.styles_cbox = ttk.Combobox(self.appearance_frame, state="readonly", width = 25, textvariable = clicked_style, postcommand = updt_style_cblist)
         self.styles_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
@@ -80,19 +84,57 @@ class SetupBody:
 
         updt_style_cblist()
 
-        self.btn_set_style = MyButton(self.appearance_frame, self.data_manager, text='Anwenden',width=12,command=lambda:self.set_style(clicked_style.get()))
+        #print(self.language_dict)
+        self.btn_set_style = MyButton(self.appearance_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_style(clicked_style.get()))
         self.btn_set_style.grid(row=row_nbr, column=2, padx=5, pady=5)
 
+        self.separator_frame_0 = MyFrame(self.main_frame,self.data_manager)
+        self.separator_frame_0.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
+        self.separator_frame_0.pack(side = "top",fill='x')
+
         #########################
+
+        self.head_language_frame = MyFrame(self.main_frame,self.data_manager)
+        self.head_language_frame.pack(side = "top",fill='x')
+
+        self.lbl_category_language = MyLabel(self.head_language_frame,self.data_manager,text = self.language_dict['language'], anchor = 'w', width=30)
+        self.lbl_category_language.configure(font = Font_tuple)
+        self.lbl_category_language.pack(side = "left")
+
+        self.language_frame = MyFrame(self.main_frame,self.data_manager)
+        self.language_frame.pack(side = "top", fill = 'x')
+
+        row_nbr = 0
+
+        self.lbl_language = MyLabel(self.language_frame,self.data_manager,text = self.language_dict['language'], width=10)
+        self.lbl_language.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        def updt_language_cblist():
+            language_name = self.language_dict['language_name']
+            language_list = [language_name] + [ele for ele in self.language_list if ele != language_name]
+            self.language_cbox['values'] = language_list
+            self.language_cbox.current(0)
+
+        clicked_language = tk.StringVar()
+        self.language_cbox = ttk.Combobox(self.language_frame, state="readonly", width = 25, textvariable = clicked_language, postcommand = updt_language_cblist)
+        self.language_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.language_cbox.bind('<Button-1>', self.btn_language_cbox_reset)
+
+        updt_language_cblist()
+
+        self.btn_set_language = MyButton(self.language_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_language(clicked_language.get()))
+        self.btn_set_language.grid(row=row_nbr, column=2, padx=5, pady=5)
 
         self.separator_frame_1 = MyFrame(self.main_frame,self.data_manager)
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
         self.separator_frame_1.pack(side = "top",fill='x')
 
+        #########################
+
         self.head_workwindow_frame = MyFrame(self.main_frame,self.data_manager)
         self.head_workwindow_frame.pack(side = "top", fill='x')
 
-        self.lbl_category_work_window = MyLabel(self.head_workwindow_frame,self.data_manager,text = 'Arbeitsfenster:', anchor = 'w', width=30)
+        self.lbl_category_work_window = MyLabel(self.head_workwindow_frame,self.data_manager,text = self.language_dict['working_window'], anchor = 'w', width=30)
         self.lbl_category_work_window.configure(font = Font_tuple)
         self.lbl_category_work_window.pack(side = "left")
 
@@ -102,7 +144,7 @@ class SetupBody:
 
         row_nbr = 0
 
-        self.lbl_work_window = MyLabel(self.workwindow_frame,self.data_manager,text = 'Standard:', width=10)
+        self.lbl_work_window = MyLabel(self.workwindow_frame,self.data_manager,text = self.language_dict['standard'], width=10)
         self.lbl_work_window.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         def updt_ww_cblist():
@@ -118,29 +160,8 @@ class SetupBody:
 
         updt_ww_cblist()
 
-        self.btn_set_work_window = MyButton(self.workwindow_frame, self.data_manager, text='Anwenden',width=12,command=lambda:self.set_work_window(clicked_work_window.get()))
+        self.btn_set_work_window = MyButton(self.workwindow_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_work_window(clicked_work_window.get()))
         self.btn_set_work_window.grid(row=row_nbr, column=2, padx=5, pady=5)
-
-        row_nbr = row_nbr + 1
-
-        self.lbl_ww_pos = MyLabel(self.workwindow_frame,self.data_manager,text = 'Position:', width=10)
-        self.lbl_ww_pos.grid(row=row_nbr, column=0, padx=5, pady=5)
-
-        def updt_ww_pos_cblist():
-            self.ww_pos_cbox['values'] = ['mini_work_window','bar_work_window']
-            if self.data_manager.get_work_window() == 'mini_work_window':
-                self.ww_pos_cbox.current(0)
-            else:
-                self.ww_pos_cbox.current(1)
-        clicked_ww_pos = tk.StringVar()
-        self.ww_pos_cbox = ttk.Combobox(self.workwindow_frame, state="readonly", width = 25, textvariable = clicked_ww_pos, postcommand = updt_ww_pos_cblist)
-        self.ww_pos_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
-        self.ww_pos_cbox.bind('<Button-1>', self.btn_ww_pos_cbox_reset)
-
-        updt_ww_pos_cblist()
-
-        self.btn_reset_ww_pos = MyButton(self.workwindow_frame, self.data_manager, text='Zurücksetzen',width=12,command=lambda:self.reset_ww_pos(clicked_ww_pos.get()))
-        self.btn_reset_ww_pos.grid(row=row_nbr, column=2, padx=5, pady=5)
 
         self.separator_frame_2 = MyFrame(self.main_frame,self.data_manager)
         self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
@@ -151,7 +172,7 @@ class SetupBody:
         self.head_font_frame = MyFrame(self.main_frame,self.data_manager)
         self.head_font_frame.pack(side = "top",fill='x')
 
-        self.lbl_category_font = MyLabel(self.head_font_frame,self.data_manager,text = 'Schrift:', anchor = 'w', width=30)
+        self.lbl_category_font = MyLabel(self.head_font_frame,self.data_manager,text = self.language_dict['font'], anchor = 'w', width=30)
         self.lbl_category_font.configure(font = Font_tuple)
         self.lbl_category_font.pack(side = "left")
 
@@ -160,7 +181,7 @@ class SetupBody:
 
         row_nbr = 0
 
-        self.lbl_font_size = MyLabel(self.font_frame,self.data_manager,text = 'Größe:', width=10)
+        self.lbl_font_size = MyLabel(self.font_frame,self.data_manager,text = self.language_dict['size'], width=10)
         self.lbl_font_size.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         def updt_fs_cblist():
@@ -184,7 +205,7 @@ class SetupBody:
 
         updt_fs_cblist()
 
-        self.btn_set_font_size = MyButton(self.font_frame, self.data_manager, text='Anwenden',width=12,command=lambda:self.set_font_size(clicked_font_size.get()))
+        self.btn_set_font_size = MyButton(self.font_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_font_size(clicked_font_size.get()))
         self.btn_set_font_size.grid(row=row_nbr, column=2, padx=5, pady=5)
 
         #########################
@@ -196,7 +217,7 @@ class SetupBody:
         self.head_db_frame = MyFrame(self.main_frame,self.data_manager)
         self.head_db_frame.pack(side = "top",fill='x')
 
-        self.lbl_category_db = MyLabel(self.head_db_frame,self.data_manager,text = 'Datenbank:', anchor = 'w', width=30)
+        self.lbl_category_db = MyLabel(self.head_db_frame,self.data_manager,text = self.language_dict['database'], anchor = 'w', width=30)
         self.lbl_category_db.configure(font = Font_tuple)
         self.lbl_category_db.pack(side = "left")
 
@@ -205,11 +226,11 @@ class SetupBody:
 
         row_nbr = 0
 
-        self.lbl_export = MyLabel(self.db_frame,self.data_manager,text = 'Export:', width=10)
+        self.lbl_export = MyLabel(self.db_frame,self.data_manager,text = self.language_dict['export'], width=10)
         self.lbl_export.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         def updt_db_export_cblist():
-            self.db_export_cbox['values'] = ['export encrypted copy']
+            self.db_export_cbox['values'] = ['export decrypted copy']
             self.db_export_cbox.current(0)
         clicked_db_export = tk.StringVar()
         self.db_export_cbox = ttk.Combobox(self.db_frame, state="readonly", width = 25, textvariable = clicked_db_export, postcommand = updt_db_export_cblist)
@@ -218,7 +239,7 @@ class SetupBody:
 
         updt_db_export_cblist()
 
-        self.btn_set_db_export = MyButton(self.db_frame, self.data_manager, text='Anwenden',width=12,command=lambda:self.export_database(clicked_db_export.get()))
+        self.btn_set_db_export = MyButton(self.db_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.export_database(clicked_db_export.get()))
         self.btn_set_db_export.grid(row=row_nbr, column=2, padx=5, pady=5)
 
         return
@@ -226,12 +247,11 @@ class SetupBody:
 ###############################
 
     def btn_style_cbox_reset(self,event):
-        self.btn_set_style.configure(text='Anwenden') 
+        self.btn_set_style.configure(text=self.language_dict['apply']) 
         return
     
-    def set_style(self,key):
-        value = self.styles_overview_dict[key]
-        self.data_manager.set_style(value)
+    def set_style(self,style_name):
+        self.data_manager.set_style(style_name)
         self.gui.refresh()
         self.gui.main_window.case_frame.notebook_frame.tab_manager.go_to_setup()
         self.btn_set_style.configure(text=u'\U00002713') 
@@ -239,8 +259,21 @@ class SetupBody:
     
 ###############################
 
+    def btn_language_cbox_reset(self,event):
+        self.btn_set_language.configure(text=self.language_dict['apply']) 
+        return
+    
+    def set_language(self,language_name):
+        self.data_manager.set_language(language_name)
+        self.gui.refresh()
+        self.gui.main_window.case_frame.notebook_frame.tab_manager.go_to_setup()
+        self.btn_set_language.configure(text=u'\U00002713') 
+        return
+    
+###############################
+
     def btn_ww_cbox_reset(self,event):
-        self.btn_set_work_window.configure(text='Anwenden') 
+        self.btn_set_work_window.configure(text=self.language_dict['apply']) 
         return
     
     def set_work_window(self,name):
@@ -249,24 +282,8 @@ class SetupBody:
 
 ###############################
 
-    def btn_ww_pos_cbox_reset(self,event):
-        self.btn_reset_ww_pos.configure(text='Zurücksetzen') 
-        return
-
-    def reset_ww_pos(self,ww_name):
-        if ww_name == 'mini_work_window':
-            self.gui.reset_mini_work_window_pos()
-        elif ww_name == 'bar_work_window':
-            self.gui.reset_bar_work_window_pos()
-        else:
-            return
-        self.btn_reset_ww_pos.configure(text=u'\U00002713') 
-
-###############################
-
-
     def btn_fs_cbox_reset(self,event):
-        self.btn_set_font_size.configure(text='Anwenden') 
+        self.btn_set_font_size.configure(text=self.language_dict['apply']) 
         return
     
     def set_font_size(self,size):
@@ -279,11 +296,11 @@ class SetupBody:
 ###############################
 
     def btn_db_export_cbox_reset(self,event):
-        self.btn_set_db_export.configure(text='Anwenden') 
+        self.btn_set_db_export.configure(text=self.language_dict['apply']) 
         return
     
     def export_database(self,db_export): 
-        if db_export == 'export encrypted copy':
+        if db_export == 'export decrypted copy':
             self.data_manager.user_db.copy_and_save_decrypted_db()
         else:
             return
@@ -303,6 +320,13 @@ class SetupBody:
         self.lbl_category_appearance.refresh_style()
         self.lbl_style.refresh_style()
         self.btn_set_style.refresh_style()
+        self.separator_frame_0.refresh_style()
+
+        self.head_language_frame.refresh_style()
+        self.language_frame.refresh_style()
+        self.lbl_category_language.refresh_style()
+        self.lbl_language.refresh_style()
+        self.btn_set_language.refresh_style()
 
         self.separator_frame_1.refresh_style()
         self.head_workwindow_frame.refresh_style()
@@ -310,8 +334,6 @@ class SetupBody:
         self.lbl_category_work_window.refresh_style()
         self.lbl_work_window.refresh_style()
         self.btn_set_work_window.refresh_style()
-        self.lbl_ww_pos.refresh_style()
-        self.btn_reset_ww_pos.refresh_style()
 
         self.separator_frame_2.refresh_style()
         self.head_font_frame.refresh_style()
@@ -332,12 +354,31 @@ class SetupBody:
         Font_tuple = (font_family, font_size, "bold")
 
         self.lbl_category_appearance.configure(font = Font_tuple)
+        self.lbl_category_language.configure(font = Font_tuple)
         self.lbl_category_work_window.configure(font = Font_tuple)
         self.lbl_category_font.configure(font = Font_tuple)
         self.lbl_category_db.configure(font = Font_tuple)
 
+        self.separator_frame_0.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
         self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
         self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
+
+        #language
+        self.btn_set_style.configure(text=self.language_dict['apply'])
+        self.btn_set_language.configure(text=self.language_dict['apply'])
+        self.btn_set_work_window.configure(text=self.language_dict['apply'])
+        self.btn_set_font_size.configure(text=self.language_dict['apply'])
+        self.btn_set_db_export.configure(text=self.language_dict['apply'])
+        self.lbl_category_appearance.configure(text = self.language_dict['appearance'])
+        self.lbl_style.configure(text = self.language_dict['style'], width=10)
+        self.lbl_category_language.configure(text = self.language_dict['language'])
+        self.lbl_language.configure(text = self.language_dict['language'])
+        self.lbl_export.configure(text = self.language_dict['export'])
+        self.lbl_category_db.configure(text = self.language_dict['database'])
+        self.lbl_font_size.configure(text = self.language_dict['size'])
+        self.lbl_category_font.configure(text = self.language_dict['font'])
+        self.lbl_work_window.configure(text = self.language_dict['standard'])
+        self.lbl_category_work_window.configure(text = self.language_dict['working_window'])
         return
 

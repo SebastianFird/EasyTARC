@@ -52,6 +52,7 @@ class BookingDayFrame:
 
         for record_dict in self.day_record_list:
             record_frame = BookingRecordFrame(self.main_frame, self.main_app, self.gui,self.booking_tab,self.booking_category,record_dict)
+            record_frame.pack(side = "top", fill = "x")
             self.record_frame_list.append(record_frame)
 
         self.fold_out_day_records()
@@ -71,7 +72,7 @@ class BookingDayFrame:
             self.tree_view = False
             self.date_frame.lbl_view_records.configure(text = ' ' + u'\U00002B9E')
             for record_frame in self.record_frame_list:
-                record_frame.main_frame.pack_forget()
+                record_frame.pack_forget()
         return
     
     def fold_out_day_records(self):
@@ -79,7 +80,7 @@ class BookingDayFrame:
             self.tree_view = True
             self.date_frame.lbl_view_records.configure(text = ' ' + u'\U00002B9F')
             for record_frame in self.record_frame_list:
-                record_frame.main_frame.pack(side="top", fill="x")
+                record_frame.pack(side="top", fill="x")
         return
 
     def update(self):
@@ -140,13 +141,13 @@ class BookingDateFrame:
         weekday_nbr = pd_datetime.dayofweek
 
         weekdy_dict = {
-            0:'Montag',
-            1:'Dienstag',
-            2:'Mittwoch',
-            3:'Donnerstag',
-            4:'Freitag',
-            5:'Samstag',
-            6:'Sonntag'
+            0:self.language_dict["monday"],
+            1:self.language_dict["tuesday"],
+            2:self.language_dict["wednesday"],
+            3:self.language_dict["thursday"],
+            4:self.language_dict["friday"],
+            5:self.language_dict["saturday"],
+            6:self.language_dict["sunday"],
         }
         date_info = date_str + '   -   ' + weekdy_dict[weekday_nbr]
         self.lbl_date = MyLabel(self.date_frame,self.data_manager,text = date_info, anchor = 'w', width=30)
@@ -195,4 +196,21 @@ class BookingDateFrame:
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
         self.lbl_date.configure(font = Font_tuple)
         self.lbl_view_records.configure(foreground=self.style_dict["strong_highlight_color"])
+
+        pd_datetime = pd.to_datetime(self.datetime)
+        date_str = pd_datetime.strftime('%d.%m.%Y')
+        weekday_nbr = pd_datetime.dayofweek
+
+        weekdy_dict = {
+            0:self.language_dict["monday"],
+            1:self.language_dict["tuesday"],
+            2:self.language_dict["wednesday"],
+            3:self.language_dict["thursday"],
+            4:self.language_dict["friday"],
+            5:self.language_dict["saturday"],
+            6:self.language_dict["sunday"],
+        }
+        date_info = date_str + '   -   ' + weekdy_dict[weekday_nbr]
+        self.lbl_date.configure(text = date_info)
+
         return

@@ -22,8 +22,9 @@ import os
 import hashlib
 import sys
 import ctypes
-from easytarc_password_container import PasswordContainer
+from easytarc_pw_container import PasswordContainer
 import cProfile
+import subprocess
 
 from tkinter import messagebox
 
@@ -43,32 +44,26 @@ class Programm():
 
     def __init__(self):
 
-        self.version = '1.0.0'
+        self.version = '1.6.1'
+        self.version_date = '03.09.2023'
         self.action_state = "disabled"
         self.local_format = 'de_DE.UTF-8'
 
         self.pw_container = PasswordContainer()
-        self.request_password = self.pw_container.get_request_password()
-        self.license_password = self.pw_container.get_license_password()
-        self.user_db_password = self.pw_container.get_db_user_password()
+        self.request_hash_salt = self.pw_container.get_request_hash_salt()
+        self.license_hash_salt = self.pw_container.get_license_hash_salt()
+        self.data_db_password = self.pw_container.get_db_data_password()
         self.settings_db_password = self.pw_container.get_db_settings_password()
-
-        #text_str = ''
-        #text_str = text_str + self.get_data(2) # NameSamCompatible
-        #text_str = text_str + self.get_data(3) # NameDisplay
-        #self.user_data_str = text_str + self.get_data(8) # NameUserPrincipal
-        #print('2: '+ str(self.get_data(2)))
-        #print('3: ' + str(self.get_data(3)))
-        #print('8: ' + str(self.get_data(8)))
-        #print('os: ' + str(os.getlogin()))
 
         self.user_data_str = str(os.getlogin())
         self.file_path = os.path.dirname(sys.argv[0])
 
-        response = self.login()
+        response_login = self.login()
+        response_only_task = self.check_only_task()
+
         
         # start main
-        if response == True:
+        if response_login == True and response_only_task == True:
             self.start_main()
             self.run_gui()
 
@@ -88,18 +83,21 @@ class Programm():
     
     def get_version(self):
         return(self.version)
+    
+    def get_version_date(self):
+        return(self.version_date)
 
     def get_filepath(self):
         return(self.file_path)
     
+############################################################
+    
     def get_db_user_password(self):
-        return(self.user_db_password)
+        user_db_password = self.data_db_password + self.own_user_license_hash
+        return(user_db_password)
     
     def get_db_settings_password(self):
         return(self.settings_db_password)
-
-    def get_current_user_hash(self):
-        return(self.own_user_license_hash)
     
 ############################################################
 
@@ -128,70 +126,7 @@ class Programm():
         return
 
 ############################################################
-    
-    def create_hash(self,text_str, password):
-        
-        hash_str = text_str + password
 
-        # Using encode(enc)
-        # convert string to byte
-        hash_b = hash_str.encode('utf-8')
-
-        h = hashlib.new('whirlpool')
-        h.update(hash_b)
-
-        return(h.hexdigest())
-    
-    '''
-    def get_data(self, EXTENDED_NAME_FORMAT: int):
-        GetUserNameEx = ctypes.windll.secur32.GetUserNameExW
-        data = EXTENDED_NAME_FORMAT
-
-        size = ctypes.pointer(ctypes.c_ulong(0))
-        GetUserNameEx(data, None, size)
-
-        nameBuffer = ctypes.create_unicode_buffer(size.contents.value)
-        GetUserNameEx(data, nameBuffer, size)
-        return nameBuffer.value
-    '''
-    
-    def create_user_license_request(self):
-
-        hash_res = 'req_' + self.create_hash(self.user_data_str,self.request_password)
-
-        with open("Request_User_License.txt", "w") as file:
-            file.write(hash_res)
-
-############################################################
-        
-    def open_license(self):
-        try:
-            with open('EasyTARC_User_License.txt') as f:
-                self.login_license_hash = f.read()
-                return(True)
-        except FileNotFoundError:
-            # print("No File Found")
-            return(False)
-        
-    def check_user_license(self):
-
-        hash_res = 'req_' + self.create_hash(self.user_data_str,self.request_password)
-        self.own_user_license_hash = self.create_hash(hash_res,self.license_password)
-
-        # print('Check:')
-        # print('License: ' + self.login_license_hash)
-        # print('Own: ' + self.own_user_license_hash)
-
-        if self.login_license_hash == self.own_user_license_hash:
-            return(True)
-        else:
-            self.create_user_license_request()
-            self.root = NewRoot()
-            messagebox.showinfo('No access','Your liezence is not correct. You will find a file named "Request_User_License.txt" in the program folder. Please send it to your administrator.')
-            return(False)
-        
-############################################################
-    
     def login(self):
         license_found = self.open_license()
         if license_found == True:
@@ -205,6 +140,64 @@ class Programm():
             self.root = NewRoot()
             messagebox.showinfo('No access','You will find a file named "Request_User_License.txt" in the program folder. Please send it to your administrator.')
         return(False)
+    
+################################
+    
+    def open_license(self):
+        try:
+            with open('EasyTARC_User_License.txt') as f:
+                self.login_license_hash = f.read()
+                return(True)
+        except FileNotFoundError:
+            # print("No File Found")
+            return(False)
+        
+    def check_user_license(self):
+        hash_res = 'req_' + self.create_hash(self.user_data_str,self.request_hash_salt)
+        self.own_user_license_hash = self.create_hash(hash_res,self.license_hash_salt)
+        if self.login_license_hash == self.own_user_license_hash:
+            return(True)
+        else:
+            self.create_user_license_request()
+            self.root = NewRoot()
+            messagebox.showinfo('No access','Your liezence is not correct. You will find a file named "Request_User_License.txt" in the program folder. Please send it to your administrator.')
+            return(False)
+        
+################################
+        
+    def create_user_license_request(self):
+        hash_res = 'req_' + self.create_hash(self.user_data_str,self.request_hash_salt)
+        with open("Request_User_License.txt", "w") as file:
+            file.write(hash_res)
+
+################################
+
+    def create_hash(self,text_str, password):
+        hash_str = text_str + password
+        hash_b = hash_str.encode('utf-8')
+        h = hashlib.new('whirlpool')
+        h.update(hash_b)
+        return(h.hexdigest())
+
+############################################################
+    
+    def check_only_task(self):
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        process_name='EasyTARC.exe'
+        callall='TASKLIST'
+
+        outputall=subprocess.check_output(callall,startupinfo=startupinfo)
+        outputstringall=str(outputall)
+        if outputstringall.count(process_name) > 2:
+            self.root = NewRoot()
+            messagebox.showinfo('No access','An EasyTARC application is already running.')
+            return(False)
+        else:
+            return(True)
+
+############################################################
+
     
     def fast_exit(self):
         exit()
