@@ -43,6 +43,7 @@ A short excursion into the development:
 
 ![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/e183dc77-8c0c-4cb7-aa41-86dfda06af7d)
 ![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/b2133689-ee91-4670-9454-dfa6e6b293f5)
+
 The development of the app took place for the most part not in this repository, but in a non-public repository. 
 
 
