@@ -117,6 +117,7 @@ class SetupHead:
         text = self.language_dict['release_notes'] + ":"
         text = text + "\n\n" + self.language_dict['release_note_text_1'] 
         text = text + "\n\n" + self.language_dict['release_note_text_2']
+        text = text + "\n\n" + self.language_dict['release_note_text_3']
 
         info_window = InfoWindow(self.main_app, self.gui, self.setup_tab.main_frame ,text,600,400)
         return

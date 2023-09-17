@@ -85,6 +85,8 @@ class SqlSettingDataManager(SqlManager):
             style_name INT,
             language_name INT,
             workwindow TEXT,
+            mini_workwindow_modus TEXT,
+            bar_workwindow_modus TEXT,
             fontsize INT,
             version TEXT
             );
@@ -94,11 +96,13 @@ class SqlSettingDataManager(SqlManager):
         style_name = 'light'
         language_name = 'german'
         work_window = 'mini_work_window'
+        mini_work_window_modus = 'dynamic_view'
+        bar_work_window_modus = 'dynamic_view'
         font_size = 9
         version = self.main_app.get_version()
-        setting_tuple = (setting_id,style_name,language_name,work_window,font_size,version)
+        setting_tuple = (setting_id,style_name,language_name,work_window,mini_work_window_modus,bar_work_window_modus,font_size,version)
         cur = conn.cursor()
-        cur.execute("INSERT INTO settings VALUES(?,?,?,?,?,?);", setting_tuple)
+        cur.execute("INSERT INTO settings VALUES(?,?,?,?,?,?,?,?);", setting_tuple)
         self.save_encrypted_db(conn)
         conn.close()
 
@@ -112,6 +116,8 @@ class SqlSettingDataManager(SqlManager):
         self.save_encrypted_db(conn)
         conn.close()
         return(version)
+    
+######################################
 
     def get_style_name(self):
         conn = self.open_encrypted_db()
@@ -129,6 +135,8 @@ class SqlSettingDataManager(SqlManager):
         self.save_encrypted_db(conn)
         conn.close()
         return()
+
+######################################
     
     def get_language_name(self):
         conn = self.open_encrypted_db()
@@ -147,6 +155,8 @@ class SqlSettingDataManager(SqlManager):
         conn.close()
         return()
     
+######################################
+    
     def get_work_window(self):
         conn = self.open_encrypted_db()
         cur = conn.cursor()
@@ -163,6 +173,46 @@ class SqlSettingDataManager(SqlManager):
         self.save_encrypted_db(conn)
         conn.close()
         return()
+    
+######################################
+    
+    def get_mini_work_window_modus(self):
+        conn = self.open_encrypted_db()
+        cur = conn.cursor()
+        cur.execute("SELECT mini_workwindow_modus FROM settings WHERE settingid = ?", (0,))
+        work_window_modus = cur.fetchone()[0]
+        self.save_encrypted_db(conn)
+        conn.close()
+        return(work_window_modus)
+
+    def set_mini_work_window_modus(self, modus):
+        conn = self.open_encrypted_db()
+        cur = conn.cursor()
+        cur.execute("UPDATE settings SET mini_workwindow_modus = ? WHERE settingid = ?", (modus,0,))
+        self.save_encrypted_db(conn)
+        conn.close()
+        return()
+    
+######################################
+    
+    def get_bar_work_window_modus(self):
+        conn = self.open_encrypted_db()
+        cur = conn.cursor()
+        cur.execute("SELECT bar_workwindow_modus FROM settings WHERE settingid = ?", (0,))
+        work_window_modus = cur.fetchone()[0]
+        self.save_encrypted_db(conn)
+        conn.close()
+        return(work_window_modus)
+
+    def set_bar_work_window_modus(self, modus):
+        conn = self.open_encrypted_db()
+        cur = conn.cursor()
+        cur.execute("UPDATE settings SET bar_workwindow_modus = ? WHERE settingid = ?", (modus,0,))
+        self.save_encrypted_db(conn)
+        conn.close()
+        return()
+    
+######################################
     
     def get_font_size(self):
         conn = self.open_encrypted_db()

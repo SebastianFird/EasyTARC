@@ -433,6 +433,20 @@ class DataManager:
         self.work_window = work_window
         return()
     
+    def set_mini_work_window_modus(self,modus):
+        self.settings_db.set_mini_work_window_modus(modus)
+        return()
+    
+    def get_mini_work_window_modus(self):
+        return(self.settings_db.get_mini_work_window_modus())
+
+    def set_bar_work_window_modus(self,modus):
+        self.settings_db.set_bar_work_window_modus(modus)
+        return()
+    
+    def get_bar_work_window_modus(self):
+        return(self.settings_db.get_bar_work_window_modus())
+
 #################################################################
 
     def get_font_family(self):

@@ -27,7 +27,7 @@ from gui.Window_Additionals import CreateToolTip
 from gui.window_mini.Window_Work import WorkWindow
 
 class MiniWorkWindow(WorkWindow):
-    def __init__(self, main_app, root, gui, *args, **kwargs):
+    def __init__(self, main_app, root, gui, mini_work_window_modus, *args, **kwargs):
         super().__init__(main_app, root, gui)
 
         self.x_win = None
@@ -51,6 +51,11 @@ class MiniWorkWindow(WorkWindow):
         self.geometry("+%d+%d" % (x, y))
         self.overrideredirect(1)
         self.attributes('-topmost',True)
+
+        self.modus = mini_work_window_modus
+        self.btn_frame_displayed = False  
+        self.main_frame_leave = True
+        self.after_func = None
 
         self.run_main_frame()
 
@@ -85,6 +90,8 @@ class MiniWorkWindow(WorkWindow):
         self.main_frame = MyFrame(self, self.data_manager) 
         self.main_frame.configure(background=self.style_dict["titlebar_color"],highlightthickness=1, highlightcolor = self.style_dict["titlebar_color"], highlightbackground=self.style_dict["titlebar_color"])
         self.main_frame.pack(side = "top", fill = "both", expand = True)
+        self.main_frame.bind("<Leave>", self.main_leave)
+        self.main_frame.bind("<Enter>", self.main_enter)
 
         self.main_frame.grid_rowconfigure(0, weight = 1)
         self.main_frame.grid_columnconfigure(0, weight = 1)
@@ -92,6 +99,18 @@ class MiniWorkWindow(WorkWindow):
         self.create_title_bar_frame()
         self.create_btn_frame()
         self.update()
+
+    def main_enter(self,e):
+        self.main_frame_leave = False
+
+    def main_leave(self,e=None):
+        self.main_frame_leave = True
+
+        if self.modus == 'dynamic_view':
+            if self.after_func != None:
+                self.main_frame.after_cancel(self.after_func)
+                self.after_func = None
+            self.after_func = self.main_frame.after(3000,self.hide_btn_frame)
 
     def update(self):
         self.updt_selectable_account_clock_cblist()
@@ -168,6 +187,13 @@ class MiniWorkWindow(WorkWindow):
         self.lbl_name.bind('<ButtonRelease-1>', self.save_pos)
         self.lbl_name.bind("<Button-3>", self.right_clicked)
         self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, 50, 30, '')
+        self.lbl_name.bind("<Enter>", self.name_enter)
+
+    def name_enter(self,e=None):
+        self.main_frame_leave = False
+
+        if self.btn_frame_displayed == False and self.modus == 'dynamic_view':
+            self.show_btn_frame()  
 
     def auto_update_title_bar(self):
         if self.main_app.get_action_state() == 'disabled':
@@ -208,7 +234,7 @@ class MiniWorkWindow(WorkWindow):
 
     def create_btn_frame(self):
         self.btn_frame = MyFrame(self.main_frame,self.data_manager)
-        self.btn_frame.pack(side = "top", fill = "both", expand = True)
+        #self.btn_frame.pack(side = "top", fill = "both", expand = True)
 
         self.btn_frame.grid_rowconfigure(0, weight = 1)
         self.btn_frame.grid_columnconfigure(0, weight = 1)
@@ -249,7 +275,7 @@ class MiniWorkWindow(WorkWindow):
         self.selectable_account_clock_cbox.grid(row=row_nbr, column=0, pady=5)
         self.selectable_account_clock_cbox_ttp = CreateToolTip(self.selectable_account_clock_cbox, self.data_manager, 0, 30, '')
 
-        self.selectable_account_clock_cbox.bind("<<ComboboxSelected>>", self.updt_selectable_account_clock_cblist)
+        self.selectable_account_clock_cbox.bind("<<ComboboxSelected>>", self.cbox_selected)
 
         self.lbl_activate_account_clock = MyLabel(self.btn_frame, self.data_manager, image=self.photo_btn_off)
         self.lbl_activate_account_clock.image = self.photo_btn_off
@@ -260,5 +286,32 @@ class MiniWorkWindow(WorkWindow):
         self.lbl_activate_account_clock.bind("<Button-1>", self.activate_account_clock)
         self.on_activate_account_clock = False
 
+        if self.modus == 'control_view':
+            self.btn_frame.pack(side = "top", fill = "both", expand = True)
+
         self.updt_selectable_account_clock_cblist()
+
+    def cbox_selected(self,e):
+        self.updt_selectable_account_clock_cblist()
+        if self.modus == 'dynamic_view':
+            self.name_enter()
+            self.main_leave()
+
+    def show_btn_frame(self):
+        if self.btn_frame_displayed == False and self.modus != 'info_view':
+            self.btn_frame.pack(side = "top", fill = "both", expand = True)
+            self.btn_frame_displayed = True
+
+    def hide_btn_frame(self):
+        if self.main_frame_leave == True and self.modus != 'control_view':
+            self.btn_frame.pack_forget()
+            self.btn_frame_displayed = False
+
+    def update_btn_frame_modus(self, modus):
+        self.modus = modus
+        if self.modus == 'control_view':
+            self.hide_btn_frame()
+            self.show_btn_frame()
+        elif self.modus == 'info_view':
+            self.hide_btn_frame()
 

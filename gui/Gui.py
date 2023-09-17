@@ -102,6 +102,9 @@ class Gui_Manager:
         self.bar_work_window_x = None
         self.bar_work_window_y = None
 
+        self.mini_work_window_modus = self.data_manager.get_mini_work_window_modus()
+        self.bar_work_window_modus = self.data_manager.get_bar_work_window_modus()
+
         self.run_gui()
 
     def run_gui(self):
@@ -214,8 +217,20 @@ class Gui_Manager:
 ########################################################################################################################
 ########################################################################################################################
 
+    def set_current_work_window_modus(self, modus):
+        if self.miniWorkWindow != None:
+            self.miniWorkWindow.update_btn_frame_modus(modus)
+            self.mini_work_window_modus = modus
+            self.data_manager.set_mini_work_window_modus(modus)
+        if self.barWorkWindow != None:
+            self.barWorkWindow.update_btn_frame_modus(modus)
+            self.bar_work_window_modus = modus
+            self.data_manager.set_bar_work_window_modus(modus)
+
+############################################################
+
     def mini_work_window(self):
-        self.miniWorkWindow = MiniWorkWindow(self.main_app,self.root,self)
+        self.miniWorkWindow = MiniWorkWindow(self.main_app,self.root,self,self.mini_work_window_modus)
 
     def reset_mini_work_window_pos(self):
         self.mini_work_window_geo_set = False
@@ -242,7 +257,7 @@ class Gui_Manager:
 ############################################################
 
     def bar_work_window(self):
-        self.barWorkWindow = BarWorkWindow(self.main_app,self.root,self)
+        self.barWorkWindow = BarWorkWindow(self.main_app,self.root,self,self.bar_work_window_modus)
 
     def reset_bar_work_window_pos(self):
         self.bar_work_window_geo_set = False

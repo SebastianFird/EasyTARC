@@ -27,7 +27,7 @@ from gui.Window_Additionals import CreateToolTip
 from gui.window_mini.Window_Work import WorkWindow
 
 class BarWorkWindow(WorkWindow):
-    def __init__(self, main_app, root, gui, *args, **kwargs):
+    def __init__(self, main_app, root, gui, bar_work_window_modus, *args, **kwargs):
         super().__init__(main_app, root, gui)
 
         self.x_win = None
@@ -45,7 +45,12 @@ class BarWorkWindow(WorkWindow):
 
         self.geometry("+%d+%d" % (x, y))
         self.overrideredirect(1)
-        self.attributes('-topmost',True)    
+        self.attributes('-topmost',True)  
+
+        self.modus = bar_work_window_modus
+        self.btn_frame_displayed = False  
+        self.main_frame_leave = True
+        self.after_func = None
 
         self.run_main_frame()
 
@@ -74,6 +79,8 @@ class BarWorkWindow(WorkWindow):
         self.main_frame = MyFrame(self, self.data_manager) 
         self.main_frame.configure(background=self.style_dict["titlebar_color"],highlightthickness=1, highlightcolor = self.style_dict["titlebar_color"], highlightbackground=self.style_dict["titlebar_color"])
         self.main_frame.pack(side = "top", fill = "both", expand = True)
+        self.main_frame.bind("<Leave>", self.main_leave)
+        self.main_frame.bind("<Enter>", self.main_enter)
 
         self.create_status_frame()
         self.create_btn_frame()
@@ -105,6 +112,18 @@ class BarWorkWindow(WorkWindow):
         self.auto_update_btn_frame()
         self.auto_update_title_bar()
 
+    def main_enter(self,e):
+        self.main_frame_leave = False
+
+    def main_leave(self,e=None):
+        self.main_frame_leave = True
+
+        if self.modus == 'dynamic_view':
+            if self.after_func != None:
+                self.main_frame.after_cancel(self.after_func)
+                self.after_func = None
+            self.after_func = self.main_frame.after(3000,self.hide_btn_frame)
+
 ##############################################################################################################################
 
     def create_status_frame(self):
@@ -115,6 +134,7 @@ class BarWorkWindow(WorkWindow):
         self.status_frame.bind('<Button-1>', self.get_pos)
         self.status_frame.bind('<ButtonRelease-1>', self.save_pos)
         self.status_frame.bind("<Button-3>", self.right_clicked)
+        self.status_frame.bind("<Enter>", self.status_enter)
 
         self.lbl_emtpy = MyLabelPixel(self.status_frame, self.data_manager)
         self.lbl_emtpy.configure(text = '', background=self.style_dict["titlebar_color"],height=30) # u'\U0001F532'
@@ -158,12 +178,18 @@ class BarWorkWindow(WorkWindow):
         self.lbl_name.configure(background=background_color)
         self.lbl_emtpy.configure(background=background_color)
         return
+    
+    def status_enter(self,e=None):
+        self.main_frame_leave = False
+
+        if self.btn_frame_displayed == False and self.modus == 'dynamic_view':
+            self.show_btn_frame()        
 
 ##############################################################################################################################
 
     def create_btn_frame(self):
         self.btn_frame = MyFrame(self.main_frame,self.data_manager)
-        self.btn_frame.pack(side = "left", fill = "both", expand = True)
+        #.btn_frame.pack(side = "left", fill = "both", expand = True)
 
         self.clicked_selectable_account_clock = tk.StringVar()
         
@@ -171,7 +197,7 @@ class BarWorkWindow(WorkWindow):
         self.selectable_account_clock_cbox.pack(side='left', padx=5)
         self.selectable_account_clock_cbox_ttp = CreateToolTip(self.selectable_account_clock_cbox, self.data_manager, 0, 30, '')
 
-        self.selectable_account_clock_cbox.bind("<<ComboboxSelected>>", self.updt_selectable_account_clock_cblist)
+        self.selectable_account_clock_cbox.bind("<<ComboboxSelected>>", self.cbox_selected)
 
         self.lbl_activate_account_clock = MyLabel(self.btn_frame, self.data_manager, image=self.photo_btn_off)
         self.lbl_activate_account_clock.image = self.photo_btn_off
@@ -215,7 +241,16 @@ class BarWorkWindow(WorkWindow):
         self.lbl_separator_3 = MyLabel(self.btn_frame,self.data_manager)
         self.lbl_separator_3.pack(side='left', padx=8, fill='y')
 
+        if self.modus == 'control_view':
+            self.btn_frame.pack(side = "left", fill = "both", expand = True)
+
         self.updt_selectable_account_clock_cblist()
+
+    def cbox_selected(self,e):
+        self.updt_selectable_account_clock_cblist()
+        if self.modus == 'dynamic_view':
+            self.status_enter()
+            self.main_leave()
 
 ##############################################################################################################################
 
@@ -255,6 +290,7 @@ class BarWorkWindow(WorkWindow):
         self.mini_btn.bind("<Leave>", self.leave_change_to_mini)
         self.mini_btn.bind("<Button-3>", self.right_clicked)
 
+##############################################################################################################################
 
     def auto_update_title_bar(self):
         if self.main_app.get_action_state() == 'disabled':
@@ -278,5 +314,25 @@ class BarWorkWindow(WorkWindow):
             self.mini_btn.configure(background=background_color)
         return
     
+    def show_btn_frame(self):
+        if self.btn_frame_displayed == False and self.modus != 'info_view':
+            self.title_bar.pack_forget()
+            self.btn_frame.pack(side = "left", fill = "both", expand = True)
+            self.title_bar.pack(side='left', fill = "both", expand = True)
+            self.btn_frame_displayed = True
 
-##############################################################################################################################
+    def hide_btn_frame(self):
+        if self.main_frame_leave == True and self.modus != 'control_view':
+            self.btn_frame.pack_forget()
+            self.btn_frame_displayed = False
+
+    def update_btn_frame_modus(self, modus):
+        self.modus = modus
+        if self.modus == 'control_view':
+            self.hide_btn_frame()
+            self.show_btn_frame()
+        elif self.modus == 'info_view':
+            self.hide_btn_frame()
+
+
+            

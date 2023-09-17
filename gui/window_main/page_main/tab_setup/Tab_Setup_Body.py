@@ -138,7 +138,6 @@ class SetupBody:
         self.lbl_category_work_window.configure(font = Font_tuple)
         self.lbl_category_work_window.pack(side = "left")
 
-
         self.workwindow_frame = MyFrame(self.main_frame,self.data_manager)
         self.workwindow_frame.pack(side = "top", fill = 'x')
 
@@ -162,6 +161,65 @@ class SetupBody:
 
         self.btn_set_work_window = MyButton(self.workwindow_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_work_window(clicked_work_window.get()))
         self.btn_set_work_window.grid(row=row_nbr, column=2, padx=5, pady=5)
+
+        ########
+
+        self.mini_workwindow_modus_frame = MyFrame(self.main_frame,self.data_manager)
+        self.mini_workwindow_modus_frame.pack(side = "top", fill = 'x')
+
+        row_nbr = 0
+
+        self.lbl_mini_work_window_modus = MyLabel(self.mini_workwindow_modus_frame,self.data_manager,text = self.language_dict['mini_work_window_view'], width=10)
+        self.lbl_mini_work_window_modus.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        def updt_mwwm_cblist():
+            self.mini_work_window_modus_cbox['values'] = ['control_view','dynamic_view','info_view']
+            if self.data_manager.get_mini_work_window_modus() == 'control_view':
+                self.mini_work_window_modus_cbox.current(0)
+            elif self.data_manager.get_mini_work_window_modus() == 'dynamic_view':
+                self.mini_work_window_modus_cbox.current(1)
+            else:
+                self.mini_work_window_modus_cbox.current(2)
+
+        clicked_mini_work_window_modus = tk.StringVar()
+        self.mini_work_window_modus_cbox = ttk.Combobox(self.mini_workwindow_modus_frame, state="readonly", width = 25, textvariable = clicked_mini_work_window_modus, postcommand = updt_mwwm_cblist)
+        self.mini_work_window_modus_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.mini_work_window_modus_cbox.bind('<Button-1>', self.btn_mwwm_cbox_reset)
+
+        updt_mwwm_cblist()
+
+        self.btn_set_mini_work_window_modus = MyButton(self.mini_workwindow_modus_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_mini_work_window_modus(clicked_mini_work_window_modus.get()))
+        self.btn_set_mini_work_window_modus.grid(row=row_nbr, column=2, padx=5, pady=5)
+
+        ########
+
+        self.bar_workwindow_modus_frame = MyFrame(self.main_frame,self.data_manager)
+        self.bar_workwindow_modus_frame.pack(side = "top", fill = 'x')
+
+        row_nbr = 0
+
+        self.lbl_bar_work_window_modus = MyLabel(self.bar_workwindow_modus_frame,self.data_manager,text = self.language_dict['bar_work_window_view'], width=10)
+        self.lbl_bar_work_window_modus.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        def updt_bwwm_cblist():
+            self.bar_work_window_modus_cbox['values'] = ['control_view','dynamic_view','info_view']
+            if self.data_manager.get_bar_work_window_modus() == 'control_view':
+                self.bar_work_window_modus_cbox.current(0)
+            elif self.data_manager.get_bar_work_window_modus() == 'dynamic_view':
+                self.bar_work_window_modus_cbox.current(1)
+            else:
+                self.bar_work_window_modus_cbox.current(2)
+
+        clicked_bar_work_window_modus = tk.StringVar()
+        self.bar_work_window_modus_cbox = ttk.Combobox(self.bar_workwindow_modus_frame, state="readonly", width = 25, textvariable = clicked_bar_work_window_modus, postcommand = updt_bwwm_cblist)
+        self.bar_work_window_modus_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.bar_work_window_modus_cbox.bind('<Button-1>', self.btn_bwwm_cbox_reset)
+
+        updt_bwwm_cblist()
+
+        self.btn_set_bar_work_window_modus = MyButton(self.bar_workwindow_modus_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_bar_work_window_modus(clicked_bar_work_window_modus.get()))
+        self.btn_set_bar_work_window_modus.grid(row=row_nbr, column=2, padx=5, pady=5)
+
 
         self.separator_frame_2 = MyFrame(self.main_frame,self.data_manager)
         self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
@@ -282,6 +340,28 @@ class SetupBody:
 
 ###############################
 
+    def btn_mwwm_cbox_reset(self,event):
+        self.btn_set_mini_work_window_modus.configure(text=self.language_dict['apply']) 
+        return
+    
+    def set_mini_work_window_modus(self,modus):
+        self.gui.mini_work_window_modus = modus
+        self.data_manager.set_mini_work_window_modus(modus)
+        self.btn_set_mini_work_window_modus.configure(text=u'\U00002713') 
+
+###############################
+
+    def btn_bwwm_cbox_reset(self,event):
+        self.btn_set_bar_work_window_modus.configure(text=self.language_dict['apply']) 
+        return
+    
+    def set_bar_work_window_modus(self,modus):
+        self.gui.bar_work_window_modus = modus
+        self.data_manager.set_bar_work_window_modus(modus)
+        self.btn_set_bar_work_window_modus.configure(text=u'\U00002713') 
+
+###############################
+
     def btn_fs_cbox_reset(self,event):
         self.btn_set_font_size.configure(text=self.language_dict['apply']) 
         return
@@ -335,6 +415,14 @@ class SetupBody:
         self.lbl_work_window.refresh_style()
         self.btn_set_work_window.refresh_style()
 
+        self.mini_workwindow_modus_frame.refresh_style()
+        self.lbl_mini_work_window_modus.refresh_style()
+        self.btn_set_mini_work_window_modus.refresh_style()
+
+        self.bar_workwindow_modus_frame.refresh_style()
+        self.lbl_bar_work_window_modus.refresh_style()
+        self.btn_set_bar_work_window_modus.refresh_style()
+
         self.separator_frame_2.refresh_style()
         self.head_font_frame.refresh_style()
         self.font_frame.refresh_style()
@@ -368,6 +456,8 @@ class SetupBody:
         self.btn_set_style.configure(text=self.language_dict['apply'])
         self.btn_set_language.configure(text=self.language_dict['apply'])
         self.btn_set_work_window.configure(text=self.language_dict['apply'])
+        self.btn_set_mini_work_window_modus.configure(text=self.language_dict['apply'])
+        self.btn_set_bar_work_window_modus.configure(text=self.language_dict['apply'])
         self.btn_set_font_size.configure(text=self.language_dict['apply'])
         self.btn_set_db_export.configure(text=self.language_dict['apply'])
         self.lbl_category_appearance.configure(text = self.language_dict['appearance'])
@@ -379,6 +469,8 @@ class SetupBody:
         self.lbl_font_size.configure(text = self.language_dict['size'])
         self.lbl_category_font.configure(text = self.language_dict['font'])
         self.lbl_work_window.configure(text = self.language_dict['standard'])
+        self.lbl_mini_work_window_modus.configure(text = self.language_dict['standard'])
+        self.lbl_bar_work_window_modus.configure(text = self.language_dict['standard'])
         self.lbl_category_work_window.configure(text = self.language_dict['working_window'])
         return
 
