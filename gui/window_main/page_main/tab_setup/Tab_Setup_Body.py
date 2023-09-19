@@ -470,8 +470,8 @@ class SetupBody:
         self.lbl_font_size.configure(text = self.language_dict['size'])
         self.lbl_category_font.configure(text = self.language_dict['font'])
         self.lbl_work_window.configure(text = self.language_dict['standard'])
-        self.lbl_mini_work_window_modus.configure(text = self.language_dict['standard'])
-        self.lbl_bar_work_window_modus.configure(text = self.language_dict['standard'])
+        self.lbl_mini_work_window_modus.configure(text = self.language_dict['mini_work_window_view'])
+        self.lbl_bar_work_window_modus.configure(text = self.language_dict['bar_work_window_view'])
         self.lbl_category_work_window.configure(text = self.language_dict['working_window'])
         return
 
