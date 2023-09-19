@@ -685,7 +685,10 @@ class SqlUserDataManager(SqlManager):
         hours = cur.fetchone()[0]
         self.save_encrypted_db(conn)
         conn.close()
-        return(hours)
+        if hours == None:
+            return(0)
+        else:
+            return(hours)
 
     def get_passed_times_with_accounts(self,year,this_month,last_month,booking_status):
         conn = self.open_encrypted_db()
