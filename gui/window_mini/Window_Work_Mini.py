@@ -59,7 +59,6 @@ class MiniWorkWindow(WorkWindow):
 
         self.run_main_frame()
 
-
     def get_pos(self, event):
         self.x_win = self.winfo_x()
         self.y_win = self.winfo_y()
@@ -146,6 +145,8 @@ class MiniWorkWindow(WorkWindow):
         self.title_bar.bind('<Button-1>', self.get_pos)
         self.title_bar.bind('<ButtonRelease-1>', self.save_pos)
         self.title_bar.bind("<Button-3>", self.right_clicked)
+        self.title_bar.bind("<Double-Button-1>", self.status_double_click)
+        self.title_bar.bind("<Enter>", self.title_bar_enter)
 
         self.close_button = MyLabel(self.title_bar, self.data_manager, text='___')
         self.close_button.configure(background=self.style_dict["titlebar_color"], width = 5)
@@ -178,6 +179,7 @@ class MiniWorkWindow(WorkWindow):
         self.lbl_emtpy.configure(text = '', background=self.style_dict["titlebar_color"],height=30) # u'\U0001F532'
         self.lbl_emtpy.pack(side='right')
         self.lbl_emtpy.bind("<Button-3>", self.right_clicked)
+        self.lbl_emtpy.bind("<Double-Button-1>", self.status_double_click)
 
         self.lbl_name = MyLabel(self.title_bar, self.data_manager)
         self.lbl_name.configure(background=self.style_dict["titlebar_color"],foreground=self.style_dict["font_color"], anchor='w',width=18)
@@ -186,14 +188,16 @@ class MiniWorkWindow(WorkWindow):
         self.lbl_name.bind('<Button-1>', self.get_pos)
         self.lbl_name.bind('<ButtonRelease-1>', self.save_pos)
         self.lbl_name.bind("<Button-3>", self.right_clicked)
+        self.lbl_name.bind("<Double-Button-1>", self.status_double_click)
         self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, 50, 30, '')
-        self.lbl_name.bind("<Enter>", self.name_enter)
 
-    def name_enter(self,e=None):
-        self.main_frame_leave = False
-
+    def title_bar_enter(self,e=None):
         if self.btn_frame_displayed == False and self.modus == 'dynamic_view':
             self.show_btn_frame()  
+
+    def status_double_click(self,e=None):
+        if self.modus != 'dynamic_view':
+            self.switch_view()     
 
     def auto_update_title_bar(self):
         if self.main_app.get_action_state() == 'disabled':
@@ -234,7 +238,6 @@ class MiniWorkWindow(WorkWindow):
 
     def create_btn_frame(self):
         self.btn_frame = MyFrame(self.main_frame,self.data_manager)
-        #self.btn_frame.pack(side = "top", fill = "both", expand = True)
 
         self.btn_frame.grid_rowconfigure(0, weight = 1)
         self.btn_frame.grid_columnconfigure(0, weight = 1)
@@ -298,20 +301,20 @@ class MiniWorkWindow(WorkWindow):
             self.main_leave()
 
     def show_btn_frame(self):
-        if self.btn_frame_displayed == False and self.modus != 'info_view':
+        if self.btn_frame_displayed == False:
             self.btn_frame.pack(side = "top", fill = "both", expand = True)
             self.btn_frame_displayed = True
 
     def hide_btn_frame(self):
-        if self.main_frame_leave == True and self.modus != 'control_view':
+        if self.btn_frame_displayed == True:
             self.btn_frame.pack_forget()
             self.btn_frame_displayed = False
 
-    def update_btn_frame_modus(self, modus):
-        self.modus = modus
-        if self.modus == 'control_view':
+    def switch_view(self):
+        if self.btn_frame_displayed == True:
             self.hide_btn_frame()
+        elif self.btn_frame_displayed == False:
             self.show_btn_frame()
-        elif self.modus == 'info_view':
-            self.hide_btn_frame()
+        else:
+            pass
 

@@ -68,7 +68,7 @@ class SetupBody:
 
         row_nbr = 0
 
-        self.lbl_style = MyLabel(self.appearance_frame,self.data_manager,text = self.language_dict['style'], width=10)
+        self.lbl_style = MyLabel(self.appearance_frame,self.data_manager,text = self.language_dict['style'], width=15)
         self.lbl_style.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         def updt_style_cblist():
@@ -78,7 +78,7 @@ class SetupBody:
             self.styles_cbox.current(0)
 
         clicked_style = tk.StringVar()
-        self.styles_cbox = ttk.Combobox(self.appearance_frame, state="readonly", width = 25, textvariable = clicked_style, postcommand = updt_style_cblist)
+        self.styles_cbox = ttk.Combobox(self.appearance_frame, state="readonly", width = 40, textvariable = clicked_style, postcommand = updt_style_cblist)
         self.styles_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
         self.styles_cbox.bind('<Button-1>', self.btn_style_cbox_reset)
 
@@ -106,7 +106,7 @@ class SetupBody:
 
         row_nbr = 0
 
-        self.lbl_language = MyLabel(self.language_frame,self.data_manager,text = self.language_dict['language'], width=10)
+        self.lbl_language = MyLabel(self.language_frame,self.data_manager,text = self.language_dict['language'], width=15)
         self.lbl_language.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         def updt_language_cblist():
@@ -116,7 +116,7 @@ class SetupBody:
             self.language_cbox.current(0)
 
         clicked_language = tk.StringVar()
-        self.language_cbox = ttk.Combobox(self.language_frame, state="readonly", width = 25, textvariable = clicked_language, postcommand = updt_language_cblist)
+        self.language_cbox = ttk.Combobox(self.language_frame, state="readonly", width = 40, textvariable = clicked_language, postcommand = updt_language_cblist)
         self.language_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
         self.language_cbox.bind('<Button-1>', self.btn_language_cbox_reset)
 
@@ -143,23 +143,24 @@ class SetupBody:
 
         row_nbr = 0
 
-        self.lbl_work_window = MyLabel(self.workwindow_frame,self.data_manager,text = self.language_dict['standard'], width=10)
+        self.lbl_work_window = MyLabel(self.workwindow_frame,self.data_manager,text = self.language_dict['standard'], width=15)
         self.lbl_work_window.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         def updt_ww_cblist():
-            self.work_window_cbox['values'] = ['mini_work_window','bar_work_window']
-            if self.data_manager.get_work_window() == 'mini_work_window':
+            #self.work_window_cbox['values'] = ['mini_work_window','bar_work_window']
+            self.work_window_cbox['values'] = [self.language_dict['mini_work_window'],self.language_dict['bar_work_window']]
+            if self.data_manager.get_work_window() == self.language_dict[self.language_dict['mini_work_window']]:
                 self.work_window_cbox.current(0)
             else:
                 self.work_window_cbox.current(1)
         clicked_work_window = tk.StringVar()
-        self.work_window_cbox = ttk.Combobox(self.workwindow_frame, state="readonly", width = 25, textvariable = clicked_work_window, postcommand = updt_ww_cblist)
+        self.work_window_cbox = ttk.Combobox(self.workwindow_frame, state="readonly", width = 40, textvariable = clicked_work_window, postcommand = updt_ww_cblist)
         self.work_window_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
         self.work_window_cbox.bind('<Button-1>', self.btn_ww_cbox_reset)
 
         updt_ww_cblist()
 
-        self.btn_set_work_window = MyButton(self.workwindow_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_work_window(clicked_work_window.get()))
+        self.btn_set_work_window = MyButton(self.workwindow_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_work_window(self.language_dict[clicked_work_window.get()]))
         self.btn_set_work_window.grid(row=row_nbr, column=2, padx=5, pady=5)
 
         ########
@@ -169,26 +170,26 @@ class SetupBody:
 
         row_nbr = 0
 
-        self.lbl_mini_work_window_modus = MyLabel(self.mini_workwindow_modus_frame,self.data_manager,text = self.language_dict['mini_work_window_view'], width=10)
+        self.lbl_mini_work_window_modus = MyLabel(self.mini_workwindow_modus_frame,self.data_manager,text = self.language_dict['mini_work_window_view'], width=15)
         self.lbl_mini_work_window_modus.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         def updt_mwwm_cblist():
-            self.mini_work_window_modus_cbox['values'] = ['control_view','dynamic_view','info_view']
-            if self.data_manager.get_mini_work_window_modus() == 'control_view':
+            self.mini_work_window_modus_cbox['values'] = [self.language_dict['control_view'],self.language_dict['info_view'],self.language_dict['dynamic_view']]
+            if self.data_manager.get_mini_work_window_modus() == self.language_dict[self.language_dict['control_view']]:
                 self.mini_work_window_modus_cbox.current(0)
-            elif self.data_manager.get_mini_work_window_modus() == 'dynamic_view':
+            elif self.data_manager.get_mini_work_window_modus() == self.language_dict[self.language_dict['info_view']]:
                 self.mini_work_window_modus_cbox.current(1)
             else:
                 self.mini_work_window_modus_cbox.current(2)
 
         clicked_mini_work_window_modus = tk.StringVar()
-        self.mini_work_window_modus_cbox = ttk.Combobox(self.mini_workwindow_modus_frame, state="readonly", width = 25, textvariable = clicked_mini_work_window_modus, postcommand = updt_mwwm_cblist)
+        self.mini_work_window_modus_cbox = ttk.Combobox(self.mini_workwindow_modus_frame, state="readonly", width = 40, textvariable = clicked_mini_work_window_modus, postcommand = updt_mwwm_cblist)
         self.mini_work_window_modus_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
         self.mini_work_window_modus_cbox.bind('<Button-1>', self.btn_mwwm_cbox_reset)
 
         updt_mwwm_cblist()
 
-        self.btn_set_mini_work_window_modus = MyButton(self.mini_workwindow_modus_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_mini_work_window_modus(clicked_mini_work_window_modus.get()))
+        self.btn_set_mini_work_window_modus = MyButton(self.mini_workwindow_modus_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_mini_work_window_modus(self.language_dict[clicked_mini_work_window_modus.get()]))
         self.btn_set_mini_work_window_modus.grid(row=row_nbr, column=2, padx=5, pady=5)
 
         ########
@@ -198,26 +199,26 @@ class SetupBody:
 
         row_nbr = 0
 
-        self.lbl_bar_work_window_modus = MyLabel(self.bar_workwindow_modus_frame,self.data_manager,text = self.language_dict['bar_work_window_view'], width=10)
+        self.lbl_bar_work_window_modus = MyLabel(self.bar_workwindow_modus_frame,self.data_manager,text = self.language_dict['bar_work_window_view'], width=15)
         self.lbl_bar_work_window_modus.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         def updt_bwwm_cblist():
-            self.bar_work_window_modus_cbox['values'] = ['control_view','dynamic_view','info_view']
-            if self.data_manager.get_bar_work_window_modus() == 'control_view':
+            self.bar_work_window_modus_cbox['values'] = [self.language_dict['control_view'],self.language_dict['info_view'],self.language_dict['dynamic_view']]
+            if self.data_manager.get_bar_work_window_modus() == self.language_dict[self.language_dict['control_view']]:
                 self.bar_work_window_modus_cbox.current(0)
-            elif self.data_manager.get_bar_work_window_modus() == 'dynamic_view':
+            elif self.data_manager.get_bar_work_window_modus() == self.language_dict[self.language_dict['info_view']]:
                 self.bar_work_window_modus_cbox.current(1)
             else:
                 self.bar_work_window_modus_cbox.current(2)
 
         clicked_bar_work_window_modus = tk.StringVar()
-        self.bar_work_window_modus_cbox = ttk.Combobox(self.bar_workwindow_modus_frame, state="readonly", width = 25, textvariable = clicked_bar_work_window_modus, postcommand = updt_bwwm_cblist)
+        self.bar_work_window_modus_cbox = ttk.Combobox(self.bar_workwindow_modus_frame, state="readonly", width = 40, textvariable = clicked_bar_work_window_modus, postcommand = updt_bwwm_cblist)
         self.bar_work_window_modus_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
         self.bar_work_window_modus_cbox.bind('<Button-1>', self.btn_bwwm_cbox_reset)
 
         updt_bwwm_cblist()
 
-        self.btn_set_bar_work_window_modus = MyButton(self.bar_workwindow_modus_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_bar_work_window_modus(clicked_bar_work_window_modus.get()))
+        self.btn_set_bar_work_window_modus = MyButton(self.bar_workwindow_modus_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_bar_work_window_modus(self.language_dict[clicked_bar_work_window_modus.get()]))
         self.btn_set_bar_work_window_modus.grid(row=row_nbr, column=2, padx=5, pady=5)
 
 
@@ -239,7 +240,7 @@ class SetupBody:
 
         row_nbr = 0
 
-        self.lbl_font_size = MyLabel(self.font_frame,self.data_manager,text = self.language_dict['size'], width=10)
+        self.lbl_font_size = MyLabel(self.font_frame,self.data_manager,text = self.language_dict['size'], width=15)
         self.lbl_font_size.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         def updt_fs_cblist():
@@ -257,7 +258,7 @@ class SetupBody:
                 self.font_size_cbox.current(3)
 
         clicked_font_size = tk.StringVar()
-        self.font_size_cbox = ttk.Combobox(self.font_frame, state="readonly", width = 25, textvariable = clicked_font_size, postcommand = updt_fs_cblist)
+        self.font_size_cbox = ttk.Combobox(self.font_frame, state="readonly", width = 40, textvariable = clicked_font_size, postcommand = updt_fs_cblist)
         self.font_size_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
         self.font_size_cbox.bind('<Button-1>', self.btn_fs_cbox_reset)
 
@@ -284,14 +285,14 @@ class SetupBody:
 
         row_nbr = 0
 
-        self.lbl_export = MyLabel(self.db_frame,self.data_manager,text = self.language_dict['export'], width=10)
+        self.lbl_export = MyLabel(self.db_frame,self.data_manager,text = self.language_dict['export'], width=15)
         self.lbl_export.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         def updt_db_export_cblist():
             self.db_export_cbox['values'] = ['export decrypted copy']
             self.db_export_cbox.current(0)
         clicked_db_export = tk.StringVar()
-        self.db_export_cbox = ttk.Combobox(self.db_frame, state="readonly", width = 25, textvariable = clicked_db_export, postcommand = updt_db_export_cblist)
+        self.db_export_cbox = ttk.Combobox(self.db_frame, state="readonly", width = 40, textvariable = clicked_db_export, postcommand = updt_db_export_cblist)
         self.db_export_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
         self.db_export_cbox.bind('<Button-1>', self.btn_db_export_cbox_reset)
 
@@ -461,7 +462,7 @@ class SetupBody:
         self.btn_set_font_size.configure(text=self.language_dict['apply'])
         self.btn_set_db_export.configure(text=self.language_dict['apply'])
         self.lbl_category_appearance.configure(text = self.language_dict['appearance'])
-        self.lbl_style.configure(text = self.language_dict['style'], width=10)
+        self.lbl_style.configure(text = self.language_dict['style'])
         self.lbl_category_language.configure(text = self.language_dict['language'])
         self.lbl_language.configure(text = self.language_dict['language'])
         self.lbl_export.configure(text = self.language_dict['export'])

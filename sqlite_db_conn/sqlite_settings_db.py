@@ -96,8 +96,8 @@ class SqlSettingDataManager(SqlManager):
         style_name = 'light'
         language_name = 'german'
         work_window = 'mini_work_window'
-        mini_work_window_modus = 'dynamic_view'
-        bar_work_window_modus = 'dynamic_view'
+        mini_work_window_modus = 'control_view'
+        bar_work_window_modus = 'info_view'
         font_size = 9
         version = self.main_app.get_version()
         setting_tuple = (setting_id,style_name,language_name,work_window,mini_work_window_modus,bar_work_window_modus,font_size,version)

@@ -20,7 +20,6 @@ from tkinter import ttk
 from PIL import ImageTk, Image
 
 from style_classes import MyFrame
-from style_classes import MyButtonPixel
 from style_classes import MyLabel
 from style_classes import MyLabelPixel
 from gui.Window_Additionals import CreateToolTip
@@ -135,11 +134,13 @@ class BarWorkWindow(WorkWindow):
         self.status_frame.bind('<ButtonRelease-1>', self.save_pos)
         self.status_frame.bind("<Button-3>", self.right_clicked)
         self.status_frame.bind("<Enter>", self.status_enter)
+        self.status_frame.bind("<Double-Button-1>", self.status_double_click)
 
         self.lbl_emtpy = MyLabelPixel(self.status_frame, self.data_manager)
         self.lbl_emtpy.configure(text = '', background=self.style_dict["titlebar_color"],height=30) # u'\U0001F532'
         self.lbl_emtpy.pack(side='left')
         self.lbl_emtpy.bind("<Button-3>", self.right_clicked)
+        self.lbl_emtpy.bind("<Double-Button-1>", self.status_double_click)
 
         self.lbl_name = MyLabel(self.status_frame, self.data_manager)
         self.lbl_name.configure(background=self.style_dict["titlebar_color"],foreground=self.style_dict["font_color"], anchor='w',width=18)
@@ -148,6 +149,7 @@ class BarWorkWindow(WorkWindow):
         self.lbl_name.bind('<Button-1>', self.get_pos)
         self.lbl_name.bind('<ButtonRelease-1>', self.save_pos)
         self.lbl_name.bind("<Button-3>", self.right_clicked)
+        self.lbl_name.bind("<Double-Button-1>", self.status_double_click)
         self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, 50, 30, '')
 
     def auto_update_status_frame(self):
@@ -180,16 +182,17 @@ class BarWorkWindow(WorkWindow):
         return
     
     def status_enter(self,e=None):
-        self.main_frame_leave = False
-
         if self.btn_frame_displayed == False and self.modus == 'dynamic_view':
-            self.show_btn_frame()        
+            self.show_btn_frame()     
+
+    def status_double_click(self,e=None):
+        if self.modus != 'dynamic_view':
+            self.switch_view()     
 
 ##############################################################################################################################
 
     def create_btn_frame(self):
         self.btn_frame = MyFrame(self.main_frame,self.data_manager)
-        #.btn_frame.pack(side = "left", fill = "both", expand = True)
 
         self.clicked_selectable_account_clock = tk.StringVar()
         
@@ -315,24 +318,26 @@ class BarWorkWindow(WorkWindow):
         return
     
     def show_btn_frame(self):
-        if self.btn_frame_displayed == False and self.modus != 'info_view':
+        if self.btn_frame_displayed == False:
             self.title_bar.pack_forget()
             self.btn_frame.pack(side = "left", fill = "both", expand = True)
             self.title_bar.pack(side='left', fill = "both", expand = True)
             self.btn_frame_displayed = True
 
     def hide_btn_frame(self):
-        if self.main_frame_leave == True and self.modus != 'control_view':
+        if self.btn_frame_displayed == True:
             self.btn_frame.pack_forget()
             self.btn_frame_displayed = False
 
-    def update_btn_frame_modus(self, modus):
-        self.modus = modus
-        if self.modus == 'control_view':
+    def switch_view(self):
+        if self.btn_frame_displayed == True:
             self.hide_btn_frame()
+        elif self.btn_frame_displayed == False:
             self.show_btn_frame()
-        elif self.modus == 'info_view':
-            self.hide_btn_frame()
+        else:
+            pass
+
+
 
 
             

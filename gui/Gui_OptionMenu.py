@@ -37,9 +37,7 @@ class GuiOptionMenu(tkinter.Listbox):
     def build_options(self):
         self.optionmenu.delete(0, "end")
         self.optionmenu.add_command(label=self.language_dict["reset_all_windows"],command=self.reset_all_windows)
-        self.optionmenu.add_command(label=self.language_dict["modus_control_view"],command=lambda:self.set_modus('control_view'))
-        self.optionmenu.add_command(label=self.language_dict["modus_dynamic_view"],command=lambda:self.set_modus('dynamic_view'))
-        self.optionmenu.add_command(label=self.language_dict["modus_info_view"],command=lambda:self.set_modus('info_view'))
+
 
     def popup(self, event):
         try:
@@ -62,6 +60,3 @@ class GuiOptionMenu(tkinter.Listbox):
         self.gui.reset_main_window_pos()
         return
     
-    def set_modus(self,modus):
-        self.gui.set_current_work_window_modus(modus)
-        return

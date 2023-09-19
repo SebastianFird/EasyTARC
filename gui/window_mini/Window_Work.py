@@ -208,7 +208,7 @@ class WorkWindow(tk.Toplevel):
 
     def enter_close(self,e):
         self.on_close_button = True
-        self.close_button.configure(background=self.style_dict["highlight_color"])
+        self.close_button.configure(background=self.style_dict["header_color_2"])
 
     def leave_close(self,e):
         self.on_close_button = False
@@ -221,7 +221,7 @@ class WorkWindow(tk.Toplevel):
 
     def enter_change_to_mini(self,e):
         self.on_mini_btn = True
-        self.mini_btn.configure(background=self.style_dict["highlight_color"])
+        self.mini_btn.configure(background=self.style_dict["header_color_2"])
 
     def leave_change_to_mini(self,e):
         self.on_mini_btn = False
@@ -234,7 +234,7 @@ class WorkWindow(tk.Toplevel):
 
     def enter_change_to_bar(self,e):
         self.on_bar_btn = True
-        self.bar_btn.configure(background=self.style_dict["highlight_color"])
+        self.bar_btn.configure(background=self.style_dict["header_color_2"])
 
     def leave_change_to_bar(self,e):
         self.on_bar_btn = False
@@ -248,7 +248,7 @@ class WorkWindow(tk.Toplevel):
 
     def enter_expand_window(self,e):
         self.on_expand_button = True
-        self.expand_btn.configure(background=self.style_dict["highlight_color"])
+        self.expand_btn.configure(background=self.style_dict["header_color_2"])
 
     def leave_expand_window(self,e):
         self.on_expand_button = False
