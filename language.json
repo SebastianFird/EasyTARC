@@ -172,7 +172,8 @@
         "dynamic_view" : "Dynamisch",
         "Dynamisch" : "dynamic_view",
         "tips_and_tricks_9" : "Wechseln der Ansicht statischer Arbeitsfenster:\nZum Wechseln von der 'Ansicht Info' zur 'Ansicht Steuerung' und umgekehrt, kannst du einfach einen Doppelklick auf den angezeigten Namen des gerade aktiven Zeitkontos machen.",
-        "release_note_text_4" : " 1.6.3 (19.09.2023)\n - Das neue Verhalten der Arbeitsfenster aus dem letzten Update wurde überarbeitet."
+        "release_note_text_4" : " 1.6.3 (19.09.2023)\n - Das neue Verhalten der Arbeitsfenster aus dem letzten Update wurde überarbeitet.",
+        "booking_reminder_2" : " Hinweis: Erinnerung zum Verbuchen. Du hast viele ungebuchte Stunden."
     },
     "english": 
     {
@@ -284,7 +285,7 @@
         "identification" : "Identification",
         "data_are_stored_temporarily" : "Data are stored temporarily",
         "without_allocation" : "Without allocation",
-        "booking_reminder" : " Note: Reminder to post. The end of the month is in sight.",
+        "booking_reminder" : " Note: Reminder to book. The end of the month is in sight.",
         "locked" : "Locked",
         "end": "End",
         "week" : "Week",
@@ -347,6 +348,7 @@
         "dynamic_view" : "Dynamic",
         "Dynamic" : "dynamic_view",
         "tips_and_tricks_9" : "Switching the view of static work windows:\nTo switch from the 'Info view' to the 'Control view' and vice versa, simply double-click on the name of the currently active time account.",
-        "release_note_text_4" : " 1.6.3 (19.09.2023)\n - The new behaviour of the working windows from the last update has been revised."
+        "release_note_text_4" : " 1.6.3 (19.09.2023)\n - The new behaviour of the working windows from the last update has been revised.",
+        "booking_reminder_2" : " Note: Reminder to book. You have many unbooked hours."
     }
 }

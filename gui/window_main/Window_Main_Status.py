@@ -50,8 +50,10 @@ class MainWindowStatus(tk.Frame):
         self.main_frame = MyFrame(container, self.data_manager) 
         
         self.status_frame()
-        if self.reminder_ckeck() == True:
-            self.reminder_frame()
+        if self.reminder_ckeck() == 'end_of_month':
+            self.reminder_frame(self.language_dict["booking_reminder"])
+        elif self.reminder_ckeck() == 'many_hours':
+            self.reminder_frame(self.language_dict["booking_reminder_2"])
 
         self.main_frame.pack(side='bottom', fill='x')
 
@@ -60,8 +62,10 @@ class MainWindowStatus(tk.Frame):
         self.language_dict = self.data_manager.get_language_dict()
 
         self.refresh_status_frame()
-        if self.reminder_ckeck() == True:
-            self.refresh_reminder_frame()
+        if self.reminder_ckeck() == 'end_of_month':
+            self.refresh_reminder_frame(self.language_dict["booking_reminder"])
+        elif self.reminder_ckeck() == 'many_hours':
+            self.refresh_reminder_frame(self.language_dict["booking_reminder_2"])
 
     def status_frame(self):
 
@@ -250,7 +254,7 @@ class MainWindowStatus(tk.Frame):
         return
     
 
-    def reminder_frame(self):
+    def reminder_frame(self,r_text):
         self.r_frame = MyFrame(self.main_frame, self.data_manager) 
         self.r_frame.configure(background=self.style_dict["selected_color"],highlightthickness=1,highlightbackground=self.style_dict["btn_color"],highlightcolor=self.style_dict["btn_color"])
         self.r_frame.pack(side = "bottom", fill = "x")
@@ -273,13 +277,13 @@ class MainWindowStatus(tk.Frame):
         self.lbl_close_reminder.bind("<Button-1>", close_reminder)
 
 
-        self.lbl_reminder = MyLabel(self.r_frame, self.data_manager, text=self.language_dict["booking_reminder"], anchor='w')
+        self.lbl_reminder = MyLabel(self.r_frame, self.data_manager, text=r_text, anchor='w')
         self.lbl_reminder.configure(background=self.style_dict["selected_color"],foreground=self.style_dict["font_color_3"])
         self.lbl_reminder.pack(side = "left")
 
         return
     
-    def refresh_reminder_frame(self):
+    def refresh_reminder_frame(self,r_text):
         self.r_frame.refresh_style()
         self.lbl_close_reminder.refresh_style()
         self.lbl_reminder.refresh_style()
@@ -288,7 +292,7 @@ class MainWindowStatus(tk.Frame):
         self.lbl_close_reminder.configure(background=self.style_dict["selected_color"],foreground=self.style_dict["font_color_3"])
         self.lbl_reminder.configure(background=self.style_dict["selected_color"],foreground=self.style_dict["font_color_3"])
 
-        self.lbl_reminder.configure(text=self.language_dict["booking_reminder"], anchor='w')
+        self.lbl_reminder.configure(text=r_text, anchor='w')
         return
     
     def backup_saved_on(self):
@@ -319,7 +323,9 @@ class MainWindowStatus(tk.Frame):
 
         if month_day_now >= reminder_day:
             # print('reminder day')
-            return(True)
+            return('end_of_month')
+        elif self.data_manager.check_unbooked_hours() > 12:
+            return('many_hours')
         else:
             return(False)
 

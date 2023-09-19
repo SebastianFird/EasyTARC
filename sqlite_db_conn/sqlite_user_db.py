@@ -677,8 +677,16 @@ class SqlUserDataManager(SqlManager):
         self.save_encrypted_db(conn)
         conn.close()
         return(id_list)
-
     
+    def check_unbooked_hours(self):
+        conn = self.open_encrypted_db()
+        cur = conn.cursor()
+        cur.execute("SELECT SUM(hours) FROM passed_times WHERE booked = ?", (0,))
+        hours = cur.fetchone()[0]
+        self.save_encrypted_db(conn)
+        conn.close()
+        return(hours)
+
     def get_passed_times_with_accounts(self,year,this_month,last_month,booking_status):
         conn = self.open_encrypted_db()
         cur = conn.cursor()

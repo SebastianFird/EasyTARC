@@ -518,6 +518,10 @@ class DataManager:
     
     #################################################################
 
+    def check_unbooked_hours(self):
+        hours = self.user_db.check_unbooked_hours()
+        return(hours)
+
     def get_unbooked_record_dict_list_sum_list(self):
         dt = datetime.now()
         this_month = int(dt.strftime("%m"))
