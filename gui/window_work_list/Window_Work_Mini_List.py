@@ -103,6 +103,7 @@ class MiniWorkWindowList(tk.Toplevel):
             self.expand_frame_displayed == True
             self.show_vertical_frame()
 
+        root.update()
         self.attributes('-alpha', 1.0)
 
 ##############################################################################################################################
