@@ -85,6 +85,7 @@ class SqlSettingDataManager(SqlManager):
             style_name INT,
             language_name INT,
             workwindow TEXT,
+            workwindow_type TEXT,
             mini_workwindow_modus TEXT,
             bar_workwindow_modus TEXT,
             fontsize INT,
@@ -96,13 +97,14 @@ class SqlSettingDataManager(SqlManager):
         style_name = 'light'
         language_name = 'german'
         work_window = 'mini_work_window'
-        mini_work_window_modus = 'control_view'
-        bar_work_window_modus = 'info_view'
+        work_window_type = 'list'
+        mini_work_window_modus = 'dynamic_view'
+        bar_work_window_modus = 'control_view'
         font_size = 9
         version = self.main_app.get_version()
-        setting_tuple = (setting_id,style_name,language_name,work_window,mini_work_window_modus,bar_work_window_modus,font_size,version)
+        setting_tuple = (setting_id,style_name,language_name,work_window,work_window_type,mini_work_window_modus,bar_work_window_modus,font_size,version)
         cur = conn.cursor()
-        cur.execute("INSERT INTO settings VALUES(?,?,?,?,?,?,?,?);", setting_tuple)
+        cur.execute("INSERT INTO settings VALUES(?,?,?,?,?,?,?,?,?);", setting_tuple)
         self.save_encrypted_db(conn)
         conn.close()
 
@@ -170,6 +172,24 @@ class SqlSettingDataManager(SqlManager):
         conn = self.open_encrypted_db()
         cur = conn.cursor()
         cur.execute("UPDATE settings SET workwindow = ? WHERE settingid = ?", (work_window,0,))
+        self.save_encrypted_db(conn)
+        conn.close()
+        return()
+######################################
+    
+    def get_work_window_type(self):
+        conn = self.open_encrypted_db()
+        cur = conn.cursor()
+        cur.execute("SELECT workwindow_type FROM settings WHERE settingid = ?", (0,))
+        work_window_type = cur.fetchone()[0]
+        self.save_encrypted_db(conn)
+        conn.close()
+        return(work_window_type)
+
+    def set_work_window_type(self, ww_type):
+        conn = self.open_encrypted_db()
+        cur = conn.cursor()
+        cur.execute("UPDATE settings SET workwindow_type = ? WHERE settingid = ?", (ww_type,0,))
         self.save_encrypted_db(conn)
         conn.close()
         return()

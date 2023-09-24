@@ -25,8 +25,9 @@ import sys
 from style_classes import Myttk
 from gui.Window_Additionals import ExitSavingWindow
 from gui.window_main.Window_Main import MainWindow
-from gui.window_mini.Window_Work_Mini import MiniWorkWindow
-from gui.window_mini.Window_Work_Bar import BarWorkWindow
+from gui.window_work_cbox.Window_Work_Mini_Cbox import MiniWorkWindowCbox
+from gui.window_work_cbox.Window_Work_Bar_Cbox import BarWorkWindowCbox
+from gui.window_work_list.Window_Work_Mini_List import MiniWorkWindowList
 from gui.window_main.Window_Main_CaseFrame_Manager import NotebookFrame
 
 
@@ -102,8 +103,7 @@ class Gui_Manager:
         self.bar_work_window_x = None
         self.bar_work_window_y = None
 
-        self.mini_work_window_modus = self.data_manager.get_mini_work_window_modus()
-        self.bar_work_window_modus = self.data_manager.get_bar_work_window_modus()
+        self.on_window_switch = False
 
         self.run_gui()
 
@@ -129,24 +129,28 @@ class Gui_Manager:
         return
     
     def unminimise(self):
-        if self.status_main_window == False:
-            self.status_main_window = True
+        if self.status_main_window == False and self.on_window_switch == False:
+            self.on_window_switch = True
             self.main_window.case_frame.frames[NotebookFrame].tab_manager.go_to_start()
+            self.status_main_window = True
             if self.miniWorkWindow != None:
                 self.miniWorkWindow.destroy()
                 self.miniWorkWindow = None
             if self.barWorkWindow != None:
                 self.barWorkWindow.destroy()
                 self.barWorkWindow = None
+            self.on_window_switch = False
 
     def minimise(self):
         if self.status_main_window == True:
             self.status_main_window = False
-            if self.main_app.get_action_state() != 'disabled':
+            if self.main_app.get_action_state() != 'disabled' and self.on_window_switch == False:
+                self.on_window_switch = True
                 if self.data_manager.get_work_window() == 'mini_work_window':
                     self.mini_work_window()
                 elif self.data_manager.get_work_window() == 'bar_work_window':
                     self.bar_work_window()
+                self.on_window_switch = False
 
     def disable_main_window(self):
         self.main_window.attributes('-topmost',False)
@@ -218,7 +222,15 @@ class Gui_Manager:
 ########################################################################################################################
 
     def mini_work_window(self):
-        self.miniWorkWindow = MiniWorkWindow(self.main_app,self.root,self,self.mini_work_window_modus)
+        ww_type = self.data_manager.get_work_window_type() 
+        if ww_type == 'dropdown':
+            self.miniWorkWindow = MiniWorkWindowCbox(self.main_app,self.root,self)
+        elif ww_type == 'list':
+            self.miniWorkWindow = MiniWorkWindowList(self.main_app,self.root,self)
+
+
+        #self.miniWorkWindow = MiniWorkWindow(self.main_app,self.root,self,self.mini_work_window_modus)
+        #self.miniWorkWindow = ListWorkWindow(self.main_app,self.root,self)
 
     def reset_mini_work_window_pos(self):
         self.mini_work_window_geo_set = False
@@ -237,15 +249,18 @@ class Gui_Manager:
         self.mini_work_window_geo_set = True
 
     def mini_work_window_to_bar_work_window(self):
-        self.miniWorkWindow.destroy()
-        self.miniWorkWindow = None
-        self.bar_work_window()
-        return
+        if self.on_window_switch == False:
+            self.on_window_switch = True
+            self.miniWorkWindow.destroy()
+            self.miniWorkWindow = None
+            self.bar_work_window()
+            self.on_window_switch = False
+            return
 
 ############################################################
 
     def bar_work_window(self):
-        self.barWorkWindow = BarWorkWindow(self.main_app,self.root,self,self.bar_work_window_modus)
+        self.barWorkWindow = BarWorkWindowCbox(self.main_app,self.root,self)
 
     def reset_bar_work_window_pos(self):
         self.bar_work_window_geo_set = False
@@ -263,10 +278,13 @@ class Gui_Manager:
         self.bar_work_window_geo_set = True
 
     def bar_work_window_to_mini_work_window(self):
-        self.barWorkWindow.destroy()
-        self.barWorkWindow = None
-        self.mini_work_window()
-        return
+        if self.on_window_switch == False:
+            self.on_window_switch = True
+            self.barWorkWindow.destroy()
+            self.barWorkWindow = None
+            self.mini_work_window()
+            self.on_window_switch = False
+            return
 
 ############################################################
 

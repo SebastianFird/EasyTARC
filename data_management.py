@@ -52,6 +52,7 @@ class DataManager:
         self.default_clock = None
 
         self.main_account_clock_list = []
+        self.work_window_group_main_account_list = []
 
         self.times_saved = False
         self.backup_found = False
@@ -80,6 +81,10 @@ class DataManager:
         self.load_language_dict(language_name)
 
         self.work_window = self.settings_db.get_work_window()
+        self.work_window_type = self.settings_db.get_work_window_type()
+        self.mini_work_window_modus = self.settings_db.get_mini_work_window_modus()
+        self.bar_work_window_modus = self.settings_db.get_bar_work_window_modus()
+
         self.font_family = "Segoe UI"
         self.font_size = self.settings_db.get_font_size()
 
@@ -424,28 +429,52 @@ class DataManager:
         return()
     
 #################################################################
-    
-    def get_work_window(self):
-        return(self.work_window)
-        
+
     def set_work_window(self, work_window):
         self.settings_db.set_work_window(work_window)
         self.work_window = work_window
         return()
     
+    def get_work_window(self):
+        return(self.work_window)
+    
+    ##########
+
+    def set_work_window_type(self, ww_type):
+        self.settings_db.set_work_window_type(ww_type)
+        self.work_window_type = ww_type
+        return()
+    
+    def get_work_window_type(self):
+        return(self.work_window_type)
+    
+    ##########
+    
+    def set_work_window_group_main_account_list(self,work_window_group_main_account_list):
+        self.work_window_group_main_account_list = work_window_group_main_account_list
+
+    def get_work_window_group_main_account_list(self):
+        return(self.work_window_group_main_account_list)
+    
+    ##########
+    
     def set_mini_work_window_modus(self,modus):
         self.settings_db.set_mini_work_window_modus(modus)
+        self.mini_work_window_modus = modus
         return()
     
     def get_mini_work_window_modus(self):
-        return(self.settings_db.get_mini_work_window_modus())
+        return(self.mini_work_window_modus)
+    
+    ##########
 
     def set_bar_work_window_modus(self,modus):
         self.settings_db.set_bar_work_window_modus(modus)
+        self.bar_work_window_modus = modus
         return()
     
     def get_bar_work_window_modus(self):
-        return(self.settings_db.get_bar_work_window_modus())
+        return(self.bar_work_window_modus)
 
 #################################################################
 

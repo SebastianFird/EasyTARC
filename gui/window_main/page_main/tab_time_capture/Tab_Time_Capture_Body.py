@@ -193,6 +193,8 @@ class CaptureBody:
             main_account_frame_list_order = self.main_account_frame_list.copy()
             print('rearrange')
 
+            work_window_group_main_account_list = []
+
             group_list = []
             for main_account_frame in main_account_frame_list_order:
                 group_list.append(str(main_account_frame.main_account_clock.get_group()))
@@ -225,9 +227,13 @@ class CaptureBody:
                 for main_account_frame in pack_group_main_account_frame_list:
                         main_account_frame.pack(side = "top", fill = "x")
 
+                work_window_main_account_list = [ele.main_account_clock for ele in pack_group_main_account_frame_list]
+                work_window_group_main_account_list.append([group,work_window_main_account_list])
+
                 new_main_account_frame_list = new_main_account_frame_list + new_group_main_account_frame_list
 
             self.main_account_frame_list = new_main_account_frame_list
+            self.data_manager.set_work_window_group_main_account_list(work_window_group_main_account_list)
             self.main_app.set_action_state_normal()
             return
 

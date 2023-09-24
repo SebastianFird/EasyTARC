@@ -125,13 +125,15 @@ class MainWindow(tk.Toplevel):
 
     def on_root_iconify(self, event):
         # print('unmap')
-        self.gui.minimise()
-        self.withdraw()
+        if self.gui.on_window_switch == False:
+            self.gui.minimise()
+            self.withdraw()
         
     def on_root_deiconify(self, event):
         # print('map')
-        self.gui.unminimise()
-        self.deiconify()
+        if self.gui.on_window_switch == False:
+            self.gui.unminimise()
+            self.deiconify()
 
     def main_window_leave(self,e):
         if self.highlight_main_window == True:

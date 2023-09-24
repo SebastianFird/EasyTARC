@@ -44,8 +44,8 @@ class Programm():
 
     def __init__(self):
 
-        self.version = '1.6.3'
-        self.version_date = '19.09.2023'
+        self.version = '1.6.4'
+        self.version_date = '24.09.2023'
         self.action_state = "disabled"
         self.local_format = 'de_DE.UTF-8'
 
