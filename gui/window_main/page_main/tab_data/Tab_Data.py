@@ -18,6 +18,7 @@ __author__ = 'Sebastian Feiert'
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
+from tkinter import messagebox
 
 from gui.Scroll_Frame import Scroll_Frame
 from gui.window_main.page_main.tab_data.Tab_Data_Body import DataBody
@@ -138,7 +139,11 @@ class DataTab(Scroll_Frame):
         #tk.Tk().withdraw() # prevents an empty tkinter window from appearing
         self.gui.disable_main_window()
         folder_path = filedialog.askdirectory()
-        self.data_manager.export_passed_times_df(folder_path)
+        if folder_path != '':
+            try:
+                self.data_manager.export_passed_times_df(folder_path)
+            except PermissionError:
+                messagebox.showinfo('Faild','The Excel document could not be exported')
         self.gui.enable_main_window()
 
 

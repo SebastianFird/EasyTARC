@@ -783,24 +783,36 @@ class DataManager:
         account_dict_list = [ele for ele in account_dict_list if ele['account_id'] != 0]
         return(account_dict_list)
     
-    def export_account_df(self, path):
-        df = self.user_db.get_accounts_df()
-        if df.empty:
-            return()
-        df = df.fillna('')
-        df = df.drop(columns=['date_int','bookable','status'])
-        dt = datetime.now()
-        str_today = dt.strftime("%Y") + "_" + dt.strftime("%m") + "_" + dt.strftime("%d")
-        save_str = path + '\EasyTARC_Konten_export_' + str_today + '.xlsx'
-        df.to_excel(save_str, index=False)
-        return()
-    
     def export_passed_times_df(self, path):
+        accounts_df = self.user_db.get_accounts_df()
+
         df = self.user_db.get_passed_times_df()
         if df.empty:
             return()
         df = df.fillna('')
-        df = df.drop(columns=['date_int','bookable','status','datetime','passedid'])
+
+        main_account_list = df['main_id'].tolist()
+        main_account_list = list(set(main_account_list))
+
+        for main_account_id in main_account_list:
+            name = df.loc[accounts_df['accountid'] == main_account_id, 'name'].values[0]
+            df['main_id'] = df['main_id'].replace([main_account_id], '(' + str(name) + ')')
+
+        df['account_kind'] = df['account_kind'].replace([1], 'main')
+        df['account_kind'] = df['account_kind'].replace([0], 'sub')
+        df['booked'] = df['booked'].replace([1], 'ok')
+        df['booked'] = df['booked'].replace([0], 'not booked')
+        df['bookable'] = df['bookable'].replace([1], 'yes')
+        df['bookable'] = df['bookable'].replace([0], 'no')
+        df = df.rename(columns={'main_id': 'main_account','a_group': 'group','accountid': 'id','account_kind': 'kind'})
+
+        df.loc[df["kind"] == 'main', "main_account"] = ""
+
+        df['combined name'] = df['name'] + ' ' + df['main_account']
+
+        df = df.drop(columns=['status'])
+        df = df.rename(columns={'booked': 'status'})
+        df = df[['date','id','name','combined name','main_account','kind','description_text','group','project_nbr','order_nbr','process_nbr','response_nbr','hours','status','bookable']]
         dt = datetime.now()
         str_today = dt.strftime("%Y") + "_" + dt.strftime("%m") + "_" + dt.strftime("%d")
         save_str = path + '\EasyTARC_Zeiten_export_' + str_today + '.xlsx'
