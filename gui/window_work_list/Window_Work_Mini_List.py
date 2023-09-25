@@ -59,7 +59,6 @@ class MiniWorkWindowList(tk.Toplevel):
         self.modus = self.data_manager.get_mini_work_window_modus()
         self.expand_frame_displayed = False  
         self.after_func_leave = None
-        self.after_func_move = None
 
         self.main_account_clock_list = self.data_manager.get_main_account_clock_list()
         self.account_clock_frame_list = []
@@ -71,7 +70,7 @@ class MiniWorkWindowList(tk.Toplevel):
         self.win_vertical_x_pos = None
         self.win_vertical_width = None
         self.win_y_pos = None
-        self.win_y_pos_limit = self.winfo_screenheight()/1.2
+        self.win_y_pos_limit = self.winfo_screenheight()/1.25
         
         self.attributes('-alpha', 0.0)
 
@@ -108,18 +107,17 @@ class MiniWorkWindowList(tk.Toplevel):
 
 ##############################################################################################################################
 
+    def get_pos(self, event):
+        self.win_y_pos = self.winfo_y() - event.y_root
+
     def move_window(self, event):
         if type(event.y_root) == int:
-            if event.y_root < self.win_y_pos_limit:
-                self.win_y_pos = event.y_root
+            if (event.y_root + self.win_y_pos) <= self.win_y_pos_limit:
                 if self.expand_frame_displayed == False:
-                    self.geometry('+{0}+{1}'.format(self.win_vertical_x_pos, self.win_y_pos))
+                    self.geometry('+{0}+{1}'.format(self.win_vertical_x_pos, event.y_root + self.win_y_pos))
                 else:
-                    self.geometry('+{0}+{1}'.format(self.win_expand_x_pos, self.win_y_pos))
-                    if self.after_func_move != None:
-                        self.main_frame.after_cancel(self.after_func_move)
-                        self.after_func_move = None
-                    self.after_func_move = self.main_frame.after(300,self.adjust_expand_frame)
+                    self.geometry('+{0}+{1}'.format(self.win_expand_x_pos, event.y_root + self.win_y_pos))
+
 
     def adjust_expand_frame(self):
         self.expand_frame_displayed = False
@@ -138,7 +136,7 @@ class MiniWorkWindowList(tk.Toplevel):
         if self.expand_frame_displayed == True:
             self.btn_frame.pack_forget()
             self.title_bar.pack_forget()
-            self.geometry('%dx%d+%d+%d' % (self.win_vertical_width,200, self.win_vertical_x_pos, self.win_y_pos))
+            self.geometry('%dx%d+%d+%d' % (self.win_vertical_width,300, self.win_vertical_x_pos, self.win_y_pos))
             self.vertical_frame.pack(side='top', fill = "x")
             self.expand_frame_displayed = False
 
@@ -150,8 +148,11 @@ class MiniWorkWindowList(tk.Toplevel):
             self.modus = 'control_view'
             self.show_expand_frame()
 
-    def save_pos(self, event):        
+    def save_pos(self, event):
+        self.win_y_pos = self.winfo_y()  
         self.gui.set_mini_work_window_pos(self.win_expand_x_pos, self.win_y_pos)
+        if self.expand_frame_displayed == True:
+            self.adjust_expand_frame()
 
     def reset_window_pos(self):
         self.win_y_pos = self.winfo_screenheight()/10
@@ -159,11 +160,7 @@ class MiniWorkWindowList(tk.Toplevel):
             self.geometry("+%d+%d" % (self.win_vertical_x_pos, self.win_y_pos))
         else:
             self.geometry("+%d+%d" % (self.win_expand_x_pos, self.win_y_pos))
-            if self.after_func_move != None:
-                self.main_frame.after_cancel(self.after_func_move)
-                self.after_func_move = None
-            self.expand_frame_displayed = False
-            self.after_func_move = self.main_frame.after(300,self.show_expand_frame)
+            self.adjust_expand_frame()
 
 ##############################################################################################################################
 
@@ -174,6 +171,7 @@ class MiniWorkWindowList(tk.Toplevel):
         self.main_frame.bind("<Leave>", self.main_leave)
         self.main_frame.bind("<Enter>", self.main_enter)
 
+
         self.create_vertical_frame()
         self.create_titlebar_frame()
         self.create_btn_frame()
@@ -181,9 +179,7 @@ class MiniWorkWindowList(tk.Toplevel):
         self.update()
 
     def main_enter(self,e):
-        if self.expand_frame_displayed == False and self.modus == 'dynamic_view':
-            self.show_expand_frame()
-        elif self.expand_frame_displayed == True and self.after_func_leave != None:
+        if self.expand_frame_displayed == True and self.after_func_leave != None:
             self.main_frame.after_cancel(self.after_func_leave)
             self.after_func_leave = None
 
@@ -193,6 +189,11 @@ class MiniWorkWindowList(tk.Toplevel):
                 self.main_frame.after_cancel(self.after_func_leave)
                 self.after_func_leave = None
             self.after_func_leave = self.main_frame.after(3000,self.show_vertical_frame)
+
+    def canvas_enter(self,e):
+        if self.expand_frame_displayed == False and self.modus == 'dynamic_view':
+            self.show_expand_frame()
+
 
     def update(self):
         self.active_clock = self.data_manager.get_active_clock()
@@ -241,10 +242,13 @@ class MiniWorkWindowList(tk.Toplevel):
         self.lbl_emtpy.configure(background=background_color)
         if self.on_close_button == False:
             self.close_button.configure(background=background_color)
+            self.close_button_v.configure(background=background_color)
         if self.on_expand_button == False:
             self.expand_btn.configure(background=background_color)
+            self.expand_btn_v.configure(background=background_color)
         if self.on_bar_btn == False:
             self.bar_btn.configure(background=background_color)  
+            self.bar_btn_v.configure(background=background_color)  
 
         # update account clocks
 
@@ -268,24 +272,55 @@ class MiniWorkWindowList(tk.Toplevel):
     def create_vertical_frame(self):
         self.vertical_frame = MyFrame(self.main_frame,self.data_manager)
         self.vertical_frame.configure(background=self.style_dict["titlebar_color"])
-        self.vertical_frame.bind('<B1-Motion>', self.move_window)
-        self.vertical_frame.bind('<ButtonRelease-1>', self.save_pos)
-        self.vertical_frame.bind("<Button-3>", self.right_clicked)
-        self.vertical_frame.bind("<Double-Button-1>", self.status_double_click)
+
+        self.vertical_btn_frame = MyFrame(self.vertical_frame,self.data_manager)
+        self.vertical_btn_frame.pack(side='top')
+
+        self.bar_btn_v = MyLabelPixel(self.vertical_btn_frame, self.data_manager)
+        self.bar_btn_v.configure(text = u'\U00002191', background=self.style_dict["titlebar_color"], width=30, height=30) # u'\U0001F881'
+        self.bar_btn_v.pack(side='top')
+        self.bar_btn_v.bind('<Button-1>', self.change_to_bar_work_window)
+        self.on_bar_btn_v = False
+        self.bar_btn_v.bind("<Enter>", self.enter_change_to_bar)
+        self.bar_btn_v.bind("<Leave>", self.leave_change_to_bar)
+        self.bar_btn_v.bind("<Button-3>", self.right_clicked)
+
+        self.expand_btn_v = MyLabelPixel(self.vertical_btn_frame, self.data_manager)
+        self.expand_btn_v.configure(text = u'\U00002302', background=self.style_dict["titlebar_color"], width=30, height=30) # u'\U0001F532'
+        self.expand_btn_v.pack(side='top')
+        self.expand_btn_v.bind('<Button-1>', self.expand_to_main_window)
+        self.on_expand_button_v = False
+        self.expand_btn_v.bind("<Enter>", self.enter_expand_window)
+        self.expand_btn_v.bind("<Leave>", self.leave_expand_window)
+        self.expand_btn_v.bind("<Button-3>", self.right_clicked)
+
+        self.close_button_v = MyLabelPixel(self.vertical_btn_frame, self.data_manager, text='___')
+        self.close_button_v.configure(background=self.style_dict["titlebar_color"], width=30, height=30)
+        self.close_button_v.pack(side='top')
+        self.close_button_v.bind('<Button-1>', self.close_window)
+        self.on_close_button_v = False
+        self.close_button_v.bind("<Enter>", self.enter_close)
+        self.close_button_v.bind("<Leave>", self.leave_close)
+        self.close_button_v.bind("<Button-3>", self.right_clicked)
+
+        self.vertical_name_frame = MyFrame(self.vertical_frame,self.data_manager)
+        self.vertical_name_frame.pack(side='top')
         if self.modus != 'dynamic_view':
-            self.vertical_frame_ttp = CreateToolTip(self.vertical_frame, self.data_manager, -50, 0, self.language_dict['double_click'])
+            self.vertical_frame_ttp = CreateToolTip(self.vertical_name_frame, self.data_manager, -50, 100, self.language_dict['double_click'])
 
         font_family = self.data_manager.get_font_family()
         font_size = self.data_manager.get_font_size()
         Font_tuple = (font_family, font_size)
 
-        self.canvas_lbl_name = tk.Canvas(self.vertical_frame, width= self.win_vertical_width, height= 200, bg=self.style_dict["bottom_active_color"], bd=0, highlightthickness=0)
+        self.canvas_lbl_name = tk.Canvas(self.vertical_name_frame, width= self.win_vertical_width, height= 300, bg=self.style_dict["bottom_active_color"], bd=0, highlightthickness=0)
         self.canvas_lbl_name.pack(side='top')
-        self.canvas_text = self.canvas_lbl_name.create_text((15,100),text="Hello", fill=self.style_dict["font_color"], angle=90, font=Font_tuple)
+        self.canvas_text = self.canvas_lbl_name.create_text((15,105),text="Hello", fill=self.style_dict["font_color"], angle=90, font=Font_tuple, justify=tk.LEFT)
         self.canvas_lbl_name.bind("<Button-3>", self.right_clicked)
         self.canvas_lbl_name.bind("<Double-Button-1>", self.status_double_click)
         self.canvas_lbl_name.bind('<B1-Motion>', self.move_window)
+        self.canvas_lbl_name.bind('<Button-1>', self.get_pos)
         self.canvas_lbl_name.bind('<ButtonRelease-1>', self.save_pos)
+        self.canvas_lbl_name.bind("<Enter>", self.canvas_enter)
         
 
 ##############################################################################################################################
@@ -295,10 +330,6 @@ class MiniWorkWindowList(tk.Toplevel):
         self.title_bar = MyFrame(self.main_frame,self.data_manager)
         self.title_bar.configure(background=self.style_dict["titlebar_color"])
         self.title_bar.pack(side='top', fill = "x")
-        self.title_bar.bind('<B1-Motion>', self.move_window)
-        self.title_bar.bind('<ButtonRelease-1>', self.save_pos)
-        self.title_bar.bind("<Button-3>", self.right_clicked)
-        self.title_bar.bind("<Double-Button-1>", self.status_double_click)
 
         self.close_button = MyLabel(self.title_bar, self.data_manager, text='___')
         self.close_button.configure(background=self.style_dict["titlebar_color"], width = 5)
@@ -337,6 +368,7 @@ class MiniWorkWindowList(tk.Toplevel):
         self.lbl_name.configure(background=self.style_dict["titlebar_color"],foreground=self.style_dict["font_color"], anchor='w',width=20)
         self.lbl_name.pack(side='left',fill='x')
         self.lbl_name.bind('<B1-Motion>', self.move_window)
+        self.lbl_name.bind('<Button-1>', self.get_pos)
         self.lbl_name.bind('<ButtonRelease-1>', self.save_pos)
         self.lbl_name.bind("<Button-3>", self.right_clicked)
         self.lbl_name.bind("<Double-Button-1>", self.status_double_click)
@@ -434,6 +466,7 @@ class MiniWorkWindowList(tk.Toplevel):
     def enter_close(self,e):
         self.on_close_button = True
         self.close_button.configure(background=self.style_dict["header_color_2"])
+        self.close_button_v.configure(background=self.style_dict["header_color_2"])
 
     def leave_close(self,e):
         self.on_close_button = False
@@ -447,6 +480,7 @@ class MiniWorkWindowList(tk.Toplevel):
     def enter_change_to_bar(self,e):
         self.on_bar_btn = True
         self.bar_btn.configure(background=self.style_dict["header_color_2"])
+        self.bar_btn_v.configure(background=self.style_dict["header_color_2"])
 
     def leave_change_to_bar(self,e):
         self.on_bar_btn = False
@@ -456,9 +490,6 @@ class MiniWorkWindowList(tk.Toplevel):
         if self.after_func_leave != None:
             self.main_frame.after_cancel(self.after_func_leave)
             self.after_func_leave = None
-        if self.after_func_move != None:
-            self.main_frame.after_cancel(self.after_func_move)
-            self.after_func_move = None
         self.gui.mini_work_window_to_bar_work_window()
 
 #################################################################################
@@ -466,6 +497,7 @@ class MiniWorkWindowList(tk.Toplevel):
     def enter_expand_window(self,e):
         self.on_expand_button = True
         self.expand_btn.configure(background=self.style_dict["header_color_2"])
+        self.expand_btn_v.configure(background=self.style_dict["header_color_2"])
 
     def leave_expand_window(self,e):
         self.on_expand_button = False
@@ -475,9 +507,6 @@ class MiniWorkWindowList(tk.Toplevel):
         if self.after_func_leave != None:
             self.main_frame.after_cancel(self.after_func_leave)
             self.after_func_leave = None
-        if self.after_func_move != None:
-            self.main_frame.after_cancel(self.after_func_move)
-            self.after_func_move = None
         self.gui.unminimise()
         self.root.deiconify()
 

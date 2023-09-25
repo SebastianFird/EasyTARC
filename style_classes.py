@@ -170,15 +170,6 @@ class MyButtonPixel(tk.Button):
         self['disabledforeground'] = self.style_dict["strong_highlight_color"]  
         self['activebackground'] = self.style_dict["strong_highlight_color"]  
 
-        self.bind("<Enter>", self.on_enter)
-        self.bind("<Leave>", self.on_leave)
-
-    def on_enter(self, e):
-            self['background'] = self.style_dict["highlight_color"]
-
-    def on_leave(self, e):
-        self['background'] = self.style_dict["btn_color"]
-
     def refresh_style(self):
         self.style_dict = self.data_manager.get_style_dict()
         self.configure(background=self.style_dict["btn_color"])

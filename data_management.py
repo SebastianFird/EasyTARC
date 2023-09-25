@@ -785,18 +785,28 @@ class DataManager:
     
     def export_passed_times_df(self, path):
         accounts_df = self.user_db.get_accounts_df()
-
         df = self.user_db.get_passed_times_df()
         if df.empty:
             return()
         df = df.fillna('')
 
+        ######
+
         main_account_list = df['main_id'].tolist()
         main_account_list = list(set(main_account_list))
 
+        df['main_account'] = df['main_id']
+        df['main_account_2'] = df['main_id']
+
         for main_account_id in main_account_list:
-            name = df.loc[accounts_df['accountid'] == main_account_id, 'name'].values[0]
-            df['main_id'] = df['main_id'].replace([main_account_id], '(' + str(name) + ')')
+            name = accounts_df.loc[accounts_df['accountid'] == main_account_id, 'name'].values[0]
+            df['main_account'] = df['main_account'].replace([main_account_id],str(name))
+            df['main_account_2'] = df['main_account_2'].replace([main_account_id], '(' + str(name) + ')')
+
+        df.loc[df["account_kind"] == 1, "main_account_2"] = ""
+        df['combined name'] = df['name'] + ' ' + df['main_account_2']
+
+        ######
 
         df['account_kind'] = df['account_kind'].replace([1], 'main')
         df['account_kind'] = df['account_kind'].replace([0], 'sub')
@@ -804,20 +814,43 @@ class DataManager:
         df['booked'] = df['booked'].replace([0], 'not booked')
         df['bookable'] = df['bookable'].replace([1], 'yes')
         df['bookable'] = df['bookable'].replace([0], 'no')
-        df = df.rename(columns={'main_id': 'main_account','a_group': 'group','accountid': 'id','account_kind': 'kind'})
-
-        df.loc[df["kind"] == 'main', "main_account"] = ""
-
-        df['combined name'] = df['name'] + ' ' + df['main_account']
 
         df = df.drop(columns=['status'])
-        df = df.rename(columns={'booked': 'status'})
-        df = df[['date','id','name','combined name','main_account','kind','description_text','group','project_nbr','order_nbr','process_nbr','response_nbr','hours','status','bookable']]
+        df = df.rename(columns={'date': 'date_text','booked': 'status','a_group': 'group','accountid': 'id','account_kind': 'kind'})
+
+        ######
+
+        df['date'] = df['datetime'].dt.date
+        df['month'] = df['datetime'].dt.strftime('%m-%Y')
+        df['weekday'] = df['datetime'].dt.dayofweek
+        df['weekday'] = df['weekday'].replace(0, 'Monday')
+        df['weekday'] = df['weekday'].replace(1, 'Tuesday')
+        df['weekday'] = df['weekday'].replace(2, 'Wednesday')
+        df['weekday'] = df['weekday'].replace(3, 'Thursday')
+        df['weekday'] = df['weekday'].replace(4, 'Friday')
+        df['weekday'] = df['weekday'].replace(5, 'Saturday')
+        df['weekday'] = df['weekday'].replace(6, 'Sunday')
+
+        df = df[['month','date','weekday','date_text','id','name','kind','main_account','combined name','description_text','group','project_nbr','order_nbr','process_nbr','response_nbr','hours','status','bookable']]
         dt = datetime.now()
         str_today = dt.strftime("%Y") + "_" + dt.strftime("%m") + "_" + dt.strftime("%d")
         save_str = path + '\EasyTARC_Zeiten_export_' + str_today + '.xlsx'
-        df.to_excel(save_str, index=False)
-        return()
+
+        df['bookable_2'] = df['bookable']
+        df['bookable_2'] = df['bookable_2'].replace('yes', 'bookable_yes')
+        df['bookable_2'] = df['bookable_2'].replace('no', 'bookable_no')
+
+        df_pivot_1 = pd.pivot_table(df, values = 'hours', index=['month','date','weekday'], columns = 'bookable_2', fill_value=0)
+        df_pivot_1['Sum'] = df_pivot_1['bookable_yes'] + df_pivot_1['bookable_no']
+
+        df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['main_account','name'])
+
+        writer = pd.ExcelWriter(save_str)
+        df.to_excel(writer,'Overview', index=False)
+        df_pivot_1.to_excel(writer,'Pivot_Day')
+        df_pivot_2.to_excel(writer,'Pivot_Accounts')
+        writer.save()
+
     
     def get_all_account_groups(self):
         group_list = self.user_db.get_all_account_groups()
