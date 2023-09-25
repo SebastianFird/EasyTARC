@@ -836,19 +836,19 @@ class DataManager:
         str_today = dt.strftime("%Y") + "_" + dt.strftime("%m") + "_" + dt.strftime("%d")
         save_str = path + '\EasyTARC_Zeiten_export_' + str_today + '.xlsx'
 
+        writer = pd.ExcelWriter(save_str)
+        df.to_excel(writer,'Overview', index=False)
+
         df['bookable_2'] = df['bookable']
         df['bookable_2'] = df['bookable_2'].replace('yes', 'bookable_yes')
         df['bookable_2'] = df['bookable_2'].replace('no', 'bookable_no')
-
         df_pivot_1 = pd.pivot_table(df, values = 'hours', index=['month','date','weekday'], columns = 'bookable_2', fill_value=0)
         df_pivot_1['Sum'] = df_pivot_1['bookable_yes'] + df_pivot_1['bookable_no']
+        df_pivot_1.to_excel(writer,'Pivot_Day')
 
         df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['main_account','name'])
-
-        writer = pd.ExcelWriter(save_str)
-        df.to_excel(writer,'Overview', index=False)
-        df_pivot_1.to_excel(writer,'Pivot_Day')
         df_pivot_2.to_excel(writer,'Pivot_Accounts')
+        
         writer.save()
 
     
