@@ -849,7 +849,7 @@ class DataManager:
         df_pivot_1['Sum'] = df_pivot_1['booked'] + df_pivot_1['not booked']
         df_pivot_1.to_excel(writer,'Pivot_Day')
 
-        df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['main_account','name'], aggfunc='sum' , fill_value=0)
+        df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['project_nbr','order_nbr','process_nbr','main_account','name'], aggfunc='sum' , fill_value=0)
         df_pivot_2.to_excel(writer,'Pivot_Accounts')
         
         writer.save()
