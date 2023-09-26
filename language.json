@@ -146,7 +146,7 @@
         "delete" : "Löschen",
         "edit_delete_info_text" : "Um ein Zeitkonto bearbeiten oder löschen zu können muss dieses Zeitkonto geschlossen sein.",
         "book" : "Buchen",
-        "copied" : "Copied",
+        "copied" : "kopiert",
         "output_times_in_excel" : "Zeiten in Excel ausgeben",
         "not_booked" : "Nicht Gebucht",
         "open_time_accounts" : "Offene Zeitkonten",
@@ -181,7 +181,8 @@
         "mini_work_window_type" : "Fenster Mini: Art    ",
         "double_click" : "Doppelklick",
         "tips_and_tricks_10" : "Häufiges Wechseln zwischen Zeitkonten:\nWenn du viel zwischen unterschiedlichen Zeitkonten wechselt, ist vielleicht das Mini Arbeitsfenster 'Liste' praktisch für dich. Du kannst dieses unter Einstellungen -> 'Fenster Mini Art' einstellen.",
-        "release_note_text_5" : " 1.6.4 (24.09.2023)\n - Bei dem Arbeitsfenster Mini kann nun zwischen der Art 'Liste' und der Art 'Dropdown' gewählt werden. Dabei entspricht die Art 'Dropdown' dem bisherigen Verhalten des Arbeitsfenster Mini und die Art 'Liste' wurde speziell für Personen, die am Tag in sehr vielen Zeitkonten arbeiten, entwickelt."
+        "release_note_text_5" : " 1.6.4 (24.09.2023)\n - Bei dem Arbeitsfenster Mini kann nun zwischen der Art 'Liste' und der Art 'Dropdown' gewählt werden. Dabei entspricht die Art 'Dropdown' dem bisherigen Verhalten des Arbeitsfenster Mini und die Art 'Liste' wurde speziell für Personen, die am Tag in sehr vielen Zeitkonten arbeiten, entwickelt.",
+        "release_note_text_6" : " 1.6.5 (26.09.2023)\n - Überarbeitung des Excel Exports.\n - Anpassung der Arbeitsfensters"
     },
     "english": 
     {
@@ -330,7 +331,7 @@
         "delete" : "Delete",
         "edit_delete_info_text" : "To edit or delete a time account, the time account must be closed.",
         "book" : "Book",
-        "copied" : "Copied",
+        "copied" : "copied",
         "output_times_in_excel" : "Output times in Excel",
         "not_booked" : "Not booked",
         "open_time_accounts" : "Open time accounts",
@@ -365,6 +366,7 @@
         "mini_work_window_type" : "Mini window: type",
         "double_click" : "double-click",
         "tips_and_tricks_10" : "Frequent switching between time accounts:\nIf you switch between different time accounts a lot, the mini work window 'List' might be handy for you. You can set this under Settings -> 'Window Mini Type'.",
-        "release_note_text_5" : " 1.6.4 (24.09.2023)\n -In the Mini work window, it is now possible to choose between the 'List' and the 'Dropdown' type. The 'Dropdown' type corresponds to the previous behaviour of the Mini work window and the 'List' type was developed especially for people who work in many time accounts during the day."
+        "release_note_text_5" : " 1.6.4 (24.09.2023)\n - In the Mini work window, it is now possible to choose between the 'List' and the 'Dropdown' type. The 'Dropdown' type corresponds to the previous behaviour of the Mini work window and the 'List' type was developed especially for people who work in many time accounts during the day.",
+        "release_note_text_6" : " 1.6.5 (26.09.2023)\n - Revision of the Excel export.\n - Work window customization"
     }
 }

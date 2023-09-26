@@ -312,9 +312,9 @@ class MiniWorkWindowList(tk.Toplevel):
         font_size = self.data_manager.get_font_size()
         Font_tuple = (font_family, font_size)
 
-        self.canvas_lbl_name = tk.Canvas(self.vertical_name_frame, width= self.win_vertical_width, height= 300, bg=self.style_dict["bottom_active_color"], bd=0, highlightthickness=0)
+        self.canvas_lbl_name = tk.Canvas(self.vertical_name_frame, width= self.win_vertical_width, height= 200, bg=self.style_dict["bottom_active_color"], bd=0, highlightthickness=0)
         self.canvas_lbl_name.pack(side='top')
-        self.canvas_text = self.canvas_lbl_name.create_text((15,105),text="Hello", fill=self.style_dict["font_color"], angle=90, font=Font_tuple, justify=tk.LEFT)
+        self.canvas_text = self.canvas_lbl_name.create_text((15,180),text="Hello", fill=self.style_dict["font_color"], angle=90, font=Font_tuple,anchor="w")
         self.canvas_lbl_name.bind("<Button-3>", self.right_clicked)
         self.canvas_lbl_name.bind("<Double-Button-1>", self.status_double_click)
         self.canvas_lbl_name.bind('<B1-Motion>', self.move_window)

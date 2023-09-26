@@ -66,6 +66,12 @@ class DataManager:
         self.user_db = SqlUserDataManager(self.main_app)
         self.settings_db = SqlSettingDataManager(self.main_app)
 
+        #####
+        if self.settings_db.new_version == True:
+            self.user_db.account_set_autobooking(0,0)
+            self.user_db.set_booked_accound_time_sum_unbooked(0)
+        #####
+
         with open('style.json',encoding='UTF-8') as json_file:
             self.style_json = json.load(json_file)
 
@@ -810,13 +816,13 @@ class DataManager:
 
         df['account_kind'] = df['account_kind'].replace([1], 'main')
         df['account_kind'] = df['account_kind'].replace([0], 'sub')
-        df['booked'] = df['booked'].replace([1], 'ok')
+        df['booked'] = df['booked'].replace([1], 'booked')
         df['booked'] = df['booked'].replace([0], 'not booked')
         df['bookable'] = df['bookable'].replace([1], 'yes')
         df['bookable'] = df['bookable'].replace([0], 'no')
 
         df = df.drop(columns=['status'])
-        df = df.rename(columns={'date': 'date_text','booked': 'status','a_group': 'group','accountid': 'id','account_kind': 'kind'})
+        df = df.rename(columns={'date': 'date_text','a_group': 'group','accountid': 'id','account_kind': 'kind'})
 
         ######
 
@@ -831,7 +837,7 @@ class DataManager:
         df['weekday'] = df['weekday'].replace(5, 'Saturday')
         df['weekday'] = df['weekday'].replace(6, 'Sunday')
 
-        df = df[['month','date','weekday','date_text','id','name','kind','main_account','combined name','description_text','group','project_nbr','order_nbr','process_nbr','response_nbr','hours','status','bookable']]
+        df = df[['month','date','weekday','date_text','id','name','kind','main_account','combined name','description_text','group','project_nbr','order_nbr','process_nbr','response_nbr','hours','booked','bookable']]
         dt = datetime.now()
         str_today = dt.strftime("%Y") + "_" + dt.strftime("%m") + "_" + dt.strftime("%d")
         save_str = path + '\EasyTARC_Zeiten_export_' + str_today + '.xlsx'
@@ -839,14 +845,11 @@ class DataManager:
         writer = pd.ExcelWriter(save_str)
         df.to_excel(writer,'Overview', index=False)
 
-        df['bookable_2'] = df['bookable']
-        df['bookable_2'] = df['bookable_2'].replace('yes', 'bookable_yes')
-        df['bookable_2'] = df['bookable_2'].replace('no', 'bookable_no')
-        df_pivot_1 = pd.pivot_table(df, values = 'hours', index=['month','date','weekday'], columns = 'bookable_2', fill_value=0)
-        df_pivot_1['Sum'] = df_pivot_1['bookable_yes'] + df_pivot_1['bookable_no']
+        df_pivot_1 = pd.pivot_table(df, values = 'hours', index=['month','date','weekday'], columns = 'booked', aggfunc='sum' , fill_value=0)
+        df_pivot_1['Sum'] = df_pivot_1['booked'] + df_pivot_1['not booked']
         df_pivot_1.to_excel(writer,'Pivot_Day')
 
-        df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['main_account','name'])
+        df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['main_account','name'], aggfunc='sum' , fill_value=0)
         df_pivot_2.to_excel(writer,'Pivot_Accounts')
         
         writer.save()

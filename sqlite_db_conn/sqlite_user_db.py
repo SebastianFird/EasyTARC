@@ -161,7 +161,7 @@ class SqlUserDataManager(SqlManager):
             process_nbr = 0
             response_nbr = 0
             default_text = " - "
-            auto_booking = 1
+            auto_booking = 0
             status = "current"
             group = 'default'
             bookable = 0
@@ -616,7 +616,14 @@ class SqlUserDataManager(SqlManager):
         self.save_encrypted_db(conn)
         conn.close()
         return()
-
+    
+    def account_set_autobooking(self,account_id,auto_booking):
+        conn = self.open_encrypted_db()
+        cur = conn.cursor()
+        cur.execute("UPDATE accounts SET auto_booking = ? WHERE accountid = ?", (auto_booking,account_id,))
+        self.save_encrypted_db(conn)
+        conn.close()
+        return()
 
     #Löschen eines einzelnen Eintrags
     def delete_account_by_id(self, account_id):
@@ -766,6 +773,14 @@ class SqlUserDataManager(SqlManager):
         self.save_encrypted_db(conn)
         conn.close()
         return()
+    
+    def set_booked_accound_time_sum_unbooked(self,account_id):
+        conn = self.open_encrypted_db()
+        cur = conn.cursor()
+        cur.execute("UPDATE passed_times SET booked = ? WHERE accountid = ?", (0,account_id))
+        self.save_encrypted_db(conn)
+        conn.close()
+        return()
 
     def set_unbooked_time_booked(self,passed_id):
         conn = self.open_encrypted_db()
@@ -774,7 +789,7 @@ class SqlUserDataManager(SqlManager):
         self.save_encrypted_db(conn)
         conn.close()
         return()
-
+    
 ################################################
     
     #Löschen eines einzelnen Eintrags

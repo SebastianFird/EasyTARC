@@ -43,6 +43,7 @@ class NewRoot(tk.Tk):
 class SqlSettingDataManager(SqlManager):
     def __init__(self,main_app):
         self.main_app = main_app
+        self.new_version = False
 
         name = 'EasyTARC_Database_Settings'
         self.db_name_enc = name + '_crypted.sql.gz'
@@ -61,6 +62,7 @@ class SqlSettingDataManager(SqlManager):
                     return
                 else:
                     self.remove_and_create_db()
+                    self.new_version = True
                     return
             except:
                 self.remove_and_create_db()
