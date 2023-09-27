@@ -246,14 +246,16 @@ class SetupBody:
         self.separator_frame_3.pack(side = "top",fill='x')
 
         self.head_db_frame = MyFrame(self.main_frame,self.data_manager)
-        self.head_db_frame.pack(side = "top",fill='x')
+        if self.main_app.app_config == 'normal':
+            self.head_db_frame.pack(side = "top",fill='x')
 
         self.lbl_category_db = MyLabel(self.head_db_frame,self.data_manager,text = self.language_dict['database'], anchor = 'w', width=35)
         self.lbl_category_db.configure(font = Font_tuple)
         self.lbl_category_db.pack(side = "left")
 
         self.db_frame = MyFrame(self.main_frame,self.data_manager)
-        self.db_frame.pack(side = "top", fill = 'x')
+        if self.main_app.app_config == 'normal':
+            self.db_frame.pack(side = "top", fill = 'x')
 
         row_nbr = 0
 

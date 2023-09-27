@@ -19,40 +19,16 @@ import tkinter as tk
 from tkinter import ttk
 
 from gui.window_main.page_main.tab_data.Tab_Data_CaseFrame_DateList import DataByDate
-
 from style_classes import MyFrame
+from gui.Gui_CaseFrame_Manager import CaseFrameManager
 
 
-class CaseFrameManagerTD(tk.Frame):
+class CaseFrameManagerTD(CaseFrameManager):
 
     def __init__(self, container, main_app, gui, data_tab):
-         
-        self.main_app = main_app
-        self.gui = gui
-        self.data_manager = self.main_app.get_data_manager()
+        super().__init__(container,main_app, gui)
         self.data_tab = data_tab
 
-        MyFrame.__init__(self, container, self.data_manager)
-
-        self.frames = {} 
-        self.notebook_frame = None
-        
-    def destroy_frames(self,frame):
-        destroy_frame_list = []
-        for page_frame in self.frames:
-            if self.frames[page_frame] != frame and self.frames[page_frame] != Empty_Frame:
-                destroy_frame_list.append(page_frame)
-                
-        for page_frame in destroy_frame_list:
-            self.frames[page_frame].destroy()
-            self.frames.pop(page_frame, None)
-
-    def show_frame(self, cont):
-        frame = self.frames[cont]
-        frame.tkraise()
-        self.destroy_frames(frame)
-        # print(self.frames)
-    
     def show_data_by_date(self):
         frame = DataByDate(self,self.main_app,self.gui,self.data_tab)
 
@@ -66,46 +42,3 @@ class CaseFrameManagerTD(tk.Frame):
         self.show_frame(DataByDate)
         return(frame)
     
-    def show_empty_frame(self):
-        if Empty_Frame not in self.frames:
-            frame = Empty_Frame(self,self.main_app,self.gui,self.data_tab)
-            self.frames[Empty_Frame] = frame
-            frame.pack(side = "top", fill = "both", expand = True)
-        else:
-            frame = self.frames[Empty_Frame]
-        
-        self.show_frame(Empty_Frame)
-        return(frame)
-    
-    def refresh(self):
-        for page_frame in self.frames:
-            self.frames[page_frame].refresh()
-        return
-    
-class Empty_Frame(tk.Frame):
-    def __init__(self, container, main_app, gui, data_tab):
-
-        # get main_app, datamanager, style_dict and language_dict
-        self.main_app = main_app
-        self.data_manager = self.main_app.get_data_manager()
-        self.style_dict = self.data_manager.get_style_dict()
-        self.language_dict = self.data_manager.get_language_dict()
-
-        MyFrame.__init__(self, container,self.data_manager)
-
-        # get gui for additional windows
-        # capture tab for booking tab
-        self.gui = gui
-        self.data_tab = data_tab
-
-        self.main_seperator_frame_list = []
-        self.record_frame_list = []
-
-    def refresh(self):
-        # configure style and language of main frame
-        self.style_dict = self.data_manager.get_style_dict()
-        self.language_dict = self.data_manager.get_language_dict()
-        return
-
-
-

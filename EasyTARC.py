@@ -40,10 +40,12 @@ class NewRoot(tk.Tk):
         entry.focus_set()
         entry.pack_forget()
 
-class Programm():
+class App():
 
     def __init__(self):
 
+        self.app_name = 'EasyTARC_ABC'
+        self.app_config = 'restricted' # 'normal'
         self.version = '1.6.5'
         self.version_date = '26.09.2023'
         self.action_state = "disabled"
@@ -207,7 +209,6 @@ class Programm():
         return
 
 if __name__ == "__main__":
-    app = Programm()
-    #cProfile.run('Programm()')
+    easy_tarc = App()
 
 

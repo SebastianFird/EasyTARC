@@ -24,7 +24,6 @@ from gui.Scroll_Frame import Scroll_Frame
 from gui.window_main.page_main.tab_data.Tab_Data_Body import DataBody
 from gui.window_main.page_main.tab_data.Tab_Data_Head import DataHead
 
-
 class DataTab(Scroll_Frame):
     def __init__(self, container, main_app, gui, case_frame_manager):
         super().__init__(main_app, gui)
@@ -80,7 +79,7 @@ class DataTab(Scroll_Frame):
         if self.data_kind == 'default_list':
             self.load_data_by_date()
         else:
-            self.main_frame.after(0,self.body.case_frame.show_empty_frame)
+            0,self.body.case_frame.show_empty_frame()
     
     def refresh_body(self):
         # configure style and language of main frame head
@@ -98,7 +97,7 @@ class DataTab(Scroll_Frame):
         if kind == 'default_list':
             self.load_data_by_date()
         else:
-            self.main_frame.after(0,self.body.case_frame.show_empty_frame)
+           self.body.case_frame.show_empty_frame()
         return
     
     def get_record_dict_list_date_list(self):
@@ -106,9 +105,10 @@ class DataTab(Scroll_Frame):
 
     def load_data_by_date(self):
         self.clicked_record_frame = None
-        self.body.case_frame.show_empty_frame()
+        self.body.case_frame.show_loading_frame()
+        self.gui.root.update()
         self.record_dict_list_date_list = self.data_manager.get_passed_record_dict_list_date_list()
-        self.main_frame.after(500,self.body.case_frame.show_data_by_date)
+        self.body.case_frame.show_data_by_date()
         return
 
 #################################################################

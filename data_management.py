@@ -560,19 +560,23 @@ class DataManager:
     def get_unbooked_record_dict_list_sum_list(self):
         dt = datetime.now()
         this_month = int(dt.strftime("%m"))
-        this_year = int(dt.strftime("%Y"))
+        year_1 = int(dt.strftime("%Y"))
         if this_month == 1:
-            last_month = this_month
+            last_month = 12
+            year_2 = year_1 - 1
         else:
             last_month = this_month - 1
+            year_2 = year_1
 
         unbooked_record_dict_list_sum_list = []
 
+        two_month_limit = True
         booking_status = 'unbooked'
-        df = self.user_db.get_passed_times_with_accounts(this_year,this_month,last_month,booking_status)
+        df = self.user_db.get_passed_times_with_accounts(two_month_limit,booking_status)
         if df.empty:
             return([])
         df = df.fillna('')
+        #df = df[df['bookable'] == 1]
         main_id_list = df.main_id.values.tolist()
         main_id_list = list(set(main_id_list))
 
@@ -729,17 +733,21 @@ class DataManager:
     def get_unbooked_record_dict_list_date_list(self):
         dt = datetime.now()
         this_month = int(dt.strftime("%m"))
-        this_year = int(dt.strftime("%Y"))
+        year_1 = int(dt.strftime("%Y"))
         if this_month == 1:
-            last_month = this_month
+            last_month = 12
+            year_2 = year_1 - 1
         else:
             last_month = this_month - 1
+            year_2 = year_1
 
+        two_month_limit = True
         booking_status = 'unbooked'
-        df = self.user_db.get_passed_times_with_accounts(this_year,this_month,last_month,booking_status)
+        df = self.user_db.get_passed_times_with_accounts(two_month_limit,booking_status)
         if df.empty:
             return([])
         df = df.fillna('')
+        #df = df[df['bookable'] == 1]
 
         record_dict_list_date_list = self.create_record_dict_list_date_list(df)
         return(record_dict_list_date_list)
@@ -750,16 +758,9 @@ class DataManager:
     #################################################################
 
     def get_passed_record_dict_list_date_list(self):
-        dt = datetime.now()
-        this_month = int(dt.strftime("%m"))
-        this_year = int(dt.strftime("%Y"))
-        if this_month == 1:
-            last_month = this_month
-        else:
-            last_month = this_month - 1
 
-        booking_status = 'all'
-        df = self.user_db.get_passed_times_with_accounts(this_year,this_month,last_month,booking_status)
+        two_month_limit = True
+        df = self.user_db.get_passed_times_with_accounts(two_month_limit)
         if df.empty:
             return([])
         df = df.fillna('')
@@ -791,7 +792,8 @@ class DataManager:
     
     def export_passed_times_df(self, path):
         accounts_df = self.user_db.get_accounts_df()
-        df = self.user_db.get_passed_times_df()
+        two_month_limit = False
+        df = self.user_db.get_passed_times_with_accounts(two_month_limit)
         if df.empty:
             return()
         df = df.fillna('')
@@ -840,10 +842,12 @@ class DataManager:
         df = df[['month','date','weekday','date_text','id','name','kind','main_account','combined name','description_text','group','project_nbr','order_nbr','process_nbr','response_nbr','hours','booked','bookable']]
         dt = datetime.now()
         str_today = dt.strftime("%Y") + "_" + dt.strftime("%m") + "_" + dt.strftime("%d")
-        save_str = path + '\EasyTARC_Zeiten_export_' + str_today + '.xlsx'
+        save_str = path + '\Export_' + self.main_app.app_name + '_' + str_today + '.xlsx'
 
         writer = pd.ExcelWriter(save_str)
-        df.to_excel(writer,'Overview', index=False)
+
+        if self.main_app.app_config == 'normal':
+            df.to_excel(writer,'Overview', index=False)
 
         df_pivot_1 = pd.pivot_table(df, values = 'hours', index=['month','date','weekday'], columns = 'booked', aggfunc='sum' , fill_value=0)
         df_pivot_1['Sum'] = df_pivot_1['booked'] + df_pivot_1['not booked']

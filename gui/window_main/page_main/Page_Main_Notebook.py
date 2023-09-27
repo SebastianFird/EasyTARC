@@ -93,17 +93,17 @@ class TabManager:
         self.frame_settings.pack(fill='both', expand=True)
 
         # add frames to notebook
-        tab_name_capture = '    ' + self.language_dict['record'] + '   '
-        tab_name_booking = '    ' + self.language_dict['booking'] + '   '
-        tab_name_data = '    ' + self.language_dict['recorded_times'] + '   '
-        tab_name_accounts = '    ' + self.language_dict['time_accounts'] + '   '
-        tab_name_setup = '    ' + self.language_dict['settings'] + '   '
+        self.tab_name_capture = '    ' + self.language_dict['record'] + '   '
+        self.tab_name_booking = '    ' + self.language_dict['booking'] + '   '
+        self.tab_name_data = '    ' + self.language_dict['recorded_times'] + '   '
+        self.tab_name_accounts = '    ' + self.language_dict['time_accounts'] + '   '
+        self.tab_name_setup = '    ' + self.language_dict['settings'] + '   '
 
-        self.notebook.add(self.frame_capture, text= tab_name_capture)
-        self.notebook.add(self.frame_booking, text=tab_name_booking)
-        self.notebook.add(self.frame_time_data, text=tab_name_data)
-        self.notebook.add(self.frame_accounts, text=tab_name_accounts)
-        self.notebook.add(self.frame_settings, text=tab_name_setup)
+        self.notebook.add(self.frame_capture, text= self.tab_name_capture)
+        self.notebook.add(self.frame_booking, text=self.tab_name_booking)
+        self.notebook.add(self.frame_time_data, text=self.tab_name_data)
+        self.notebook.add(self.frame_accounts, text=self.tab_name_accounts)
+        self.notebook.add(self.frame_settings, text=self.tab_name_setup)
 
         self.capture_tab = CaptureTab(self.frame_capture, self.main_app, self.gui, self.case_frame_manager)
         self.booking_tab = BookingTab(self.frame_booking, self.main_app, self.gui, self.case_frame_manager)
@@ -111,34 +111,33 @@ class TabManager:
         self.accounts_tab = AccountsTab(self.frame_accounts, self.main_app, self.gui, self.case_frame_manager)
         self.setup_tab = SetupTab(self.frame_settings, self.main_app, self.gui, self.case_frame_manager)
 
-        def on_tab_change(event):
-            tab = event.widget.tab('current')['text']
-            if tab == tab_name_capture:
-                self.capture_tab.activate()
-                self.capture_tab.update()
-                self.active_tab = self.capture_tab
-                
-            elif tab == tab_name_booking:
-                self.booking_tab.activate()
-                self.booking_tab.reload()
-                self.active_tab = self.booking_tab
+        self.notebook.bind('<<NotebookTabChanged>>', self.on_tab_change)
 
-            elif tab == tab_name_data:
-                self.data_tab.activate()
-                self.data_tab.reload()
-                self.active_tab = self.data_tab
+    def on_tab_change(self,event):
+        tab = event.widget.tab('current')['text']
+        if tab == self.tab_name_capture:
+            self.capture_tab.activate()
+            self.capture_tab.update()
+            self.active_tab = self.capture_tab
+            
+        elif tab == self.tab_name_booking:
+            self.booking_tab.activate()
+            self.booking_tab.reload()
+            self.active_tab = self.booking_tab
 
-            elif tab == tab_name_accounts:
-                self.accounts_tab.activate()
-                self.accounts_tab.reload()
-                self.active_tab = self.accounts_tab
+        elif tab == self.tab_name_data:
+            self.data_tab.activate()
+            self.data_tab.reload()
+            self.active_tab = self.data_tab
 
-            elif tab == tab_name_setup:
-                self.setup_tab.activate()
-                self.active_tab = self.setup_tab
-                
+        elif tab == self.tab_name_accounts:
+            self.accounts_tab.activate()
+            self.accounts_tab.reload()
+            self.active_tab = self.accounts_tab
 
-        self.notebook.bind('<<NotebookTabChanged>>', on_tab_change)
+        elif tab == self.tab_name_setup:
+            self.setup_tab.activate()
+            self.active_tab = self.setup_tab
 
     def go_to_start(self):
         self.notebook.select(self.frame_capture)
@@ -169,17 +168,17 @@ class TabManager:
         self.accounts_tab.refresh()
         self.setup_tab.refresh()
 
-        tab_name_capture = '    ' + self.language_dict['record'] + '   '
-        tab_name_booking = '    ' + self.language_dict['booking'] + '   '
-        tab_name_data = '    ' + self.language_dict['recorded_times'] + '   '
-        tab_name_accounts = '    ' + self.language_dict['time_accounts'] + '   '
-        tab_name_setup = '    ' + self.language_dict['settings'] + '   '
+        self.tab_name_capture = '    ' + self.language_dict['record'] + '   '
+        self.tab_name_booking = '    ' + self.language_dict['booking'] + '   '
+        self.tab_name_data = '    ' + self.language_dict['recorded_times'] + '   '
+        self.tab_name_accounts = '    ' + self.language_dict['time_accounts'] + '   '
+        self.tab_name_setup = '    ' + self.language_dict['settings'] + '   '
 
-        self.notebook.tab(self.frame_capture, text= tab_name_capture)
-        self.notebook.tab(self.frame_booking, text=tab_name_booking)
-        self.notebook.tab(self.frame_time_data, text=tab_name_data)
-        self.notebook.tab(self.frame_accounts, text=tab_name_accounts)
-        self.notebook.tab(self.frame_settings, text=tab_name_setup)
+        self.notebook.tab(self.frame_capture, text= self.tab_name_capture)
+        self.notebook.tab(self.frame_booking, text=self.tab_name_booking)
+        self.notebook.tab(self.frame_time_data, text=self.tab_name_data)
+        self.notebook.tab(self.frame_accounts, text=self.tab_name_accounts)
+        self.notebook.tab(self.frame_settings, text=self.tab_name_setup)
 
         self.go_to_start()
         return

@@ -110,7 +110,7 @@ class Gui_Manager:
     def run_gui(self):
         
         self.root = NewRoot()
-        self.root.title('EasyTARC')
+        self.root.title(self.main_app.app_name)
         self.root.iconbitmap("Logo.ico")
 
         self.myttk = Myttk(self.data_manager)

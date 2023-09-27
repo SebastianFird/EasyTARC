@@ -78,7 +78,7 @@ class BookingTab(Scroll_Frame):
         elif self.booking_kind == 'sum':
             self.load_booking_by_sum()
         else:
-            self.main_frame.after(0,self.body.case_frame.show_empty_frame)
+            self.body.case_frame.show_empty_frame()
 
     def refresh_body(self):
         # configure style and language of main frame head
@@ -98,14 +98,15 @@ class BookingTab(Scroll_Frame):
         elif kind == 'sum':
             self.load_booking_by_sum()
         else:
-            self.main_frame.after(0,self.body.case_frame.show_empty_frame)
+            self.body.case_frame.show_empty_frame()
         return
 
     def load_booking_by_sum(self):
         self.clicked_record_frame = None
-        self.body.case_frame.show_empty_frame()
+        self.body.case_frame.show_loading_frame()
+        self.gui.root.update()
         self.unbooked_record_dict_list_sum_list = self.data_manager.get_unbooked_record_dict_list_sum_list()
-        self.main_frame.after(500,self.body.case_frame.show_booking_by_sum)
+        self.body.case_frame.show_booking_by_sum()
         return
 
     def get_unbooked_record_dict_list_sum_list(self):
@@ -113,9 +114,10 @@ class BookingTab(Scroll_Frame):
     
     def load_booking_by_date(self):
         self.clicked_record_frame = None
-        self.body.case_frame.show_empty_frame()
+        self.body.case_frame.show_loading_frame()
+        self.gui.root.update()
         self.unbooked_record_dict_list_date_list = self.data_manager.get_unbooked_record_dict_list_date_list()
-        self.main_frame.after(500,self.body.case_frame.show_booking_by_date)
+        self.body.case_frame.show_booking_by_date()
         return
     
     def get_unbooked_record_dict_list_date_list(self):

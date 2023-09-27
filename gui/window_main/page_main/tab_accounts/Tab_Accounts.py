@@ -100,9 +100,10 @@ class AccountsTab(Scroll_Frame):
         self.last_modus = modus
         self.last_search_input = search_input
         self.clicked_account_frame = None
-        self.body.case_frame.show_empty_frame()
+        self.body.case_frame.show_loading_frame()
+        self.gui.root.update()
         self.account_dict_list = self.data_manager.get_account_dict_list_by_search(modus, search_input)
-        self.main_frame.after(500,self.body.case_frame.show_data)
+        self.body.case_frame.show_data()
         return
     
     def show_empty_frame(self):

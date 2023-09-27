@@ -697,48 +697,29 @@ class SqlUserDataManager(SqlManager):
         else:
             return(hours)
 
-    def get_passed_times_with_accounts(self,year,this_month,last_month,booking_status):
+    def get_passed_times_with_accounts(self,two_month_limit,booking_status=None):
         conn = self.open_encrypted_db()
         cur = conn.cursor()
 
-        if booking_status == 'unbooked':
-            query = cur.execute("SELECT * FROM passed_times INNER JOIN accounts ON passed_times.accountid = accounts.accountid WHERE passed_times.booked = ? and passed_times.year = ? and ( passed_times.month = ? or passed_times.month = ? )", (0,year,this_month,last_month))
-        elif booking_status == 'all':
-            query = cur.execute("SELECT * FROM passed_times INNER JOIN accounts ON passed_times.accountid = accounts.accountid WHERE passed_times.year = ? and ( passed_times.month = ? or passed_times.month = ? )", (year,this_month,last_month))
+        if two_month_limit == True:
+            dt = datetime.datetime.now()
+            this_month = int(dt.strftime("%m"))
+            year_1 = int(dt.strftime("%Y"))
+            if this_month == 1:
+                last_month = 12
+                year_2 = year_1 - 1
+            else:
+                last_month = this_month - 1
+                year_2 = year_1
+
+            if booking_status == 'unbooked':
+                query = cur.execute("SELECT * FROM passed_times INNER JOIN accounts ON passed_times.accountid = accounts.accountid WHERE passed_times.booked = ? and accounts.bookable = ? and (( passed_times.month = ? and passed_times.year = ?) or (passed_times.month = ? and passed_times.year = ?))", (0,1,this_month,year_1,last_month,year_2))
+            else:
+                query = cur.execute("SELECT * FROM passed_times INNER JOIN accounts ON passed_times.accountid = accounts.accountid WHERE (( passed_times.month = ? and passed_times.year = ?) or (passed_times.month = ? and passed_times.year = ?))", (this_month,year_1,last_month,year_2))
         else:
-            query = cur.execute("SELECT * FROM passed_times INNER JOIN accounts ON passed_times.accountid = accounts.accountid WHERE passed_times.year = ? and ( passed_times.month = ? or passed_times.month = ? )", (year,this_month,last_month))
-    
-        cols = [column[0] for column in query.description]
-        df= pd.DataFrame.from_records(data = query.fetchall(), columns = cols)
-        if df.empty:
-            return(df)
-        datetime_0 = df.apply(lambda x: datetime.datetime(int(x['year']), x['month'], x['day'], x['d_hour'], x['d_minute'], x['d_second']),axis=1)
-        date_0 = df.apply(lambda x: datetime.date(int(x['year']), x['month'], x['day']),axis=1)
-        datetime_1 = pd.to_datetime(datetime_0)
-        date_1 = pd.to_datetime(date_0)
-        date_str = date_1.dt.strftime('%d.%m.%Y')
-        date_nbr = date_1.dt.strftime('%Y%m%d').astype(int)
-        df = df.drop(columns=['year', 'month', 'day','d_hour','d_minute','d_second'])
-        df.insert(0, 'datetime', datetime_1)
-        df.insert(0, 'date', date_str)
-        date_int_list = []
-        for x in date_nbr:
-            date_int_list.append(x)
-        # print(date_int_list)
-        df.insert(0,'date_int',date_int_list)
-        df = df.loc[:,~df.columns.duplicated()].copy()
-        df = df.replace(r'^\s*$', np.nan, regex=True)
+            query = cur.execute("SELECT * FROM passed_times INNER JOIN accounts ON passed_times.accountid = accounts.accountid")
 
-        self.save_encrypted_db(conn)
-        conn.close()
-        return(df)
 
-    def get_passed_times_df(self):
-        conn = self.open_encrypted_db()
-        cur = conn.cursor()
-
-        query = cur.execute("SELECT * FROM passed_times INNER JOIN accounts ON passed_times.accountid = accounts.accountid")
-    
         cols = [column[0] for column in query.description]
         df= pd.DataFrame.from_records(data = query.fetchall(), columns = cols)
         if df.empty:
