@@ -37,7 +37,7 @@ class MainWindow(tk.Toplevel):
         self.root = root
         self.root.bind('<FocusIn>', self.on_root_deiconify)
         self.overrideredirect(1)
-        self.geometry('1200x600+250+250')
+        self.geometry('1200x600+100+100')
 
         self.main_app = main_app
         self.data_manager = self.main_app.get_data_manager()
