@@ -85,7 +85,6 @@ class DataHead:
 
         self.btn_records_to_excel = MyButton(self.main_head_frame, self.data_manager, text=self.language_dict["output_times_in_excel"],width=25,command=lambda:self.data_tab.export_all_passed_times())
         self.btn_records_to_excel.pack(side='right',padx = 10,pady=10)
-        self.btn_records_to_excel_ttp = CreateToolTip(self.btn_records_to_excel, self.data_manager, 50, 30, 'test')
 
         self.update_main_head()
         return
@@ -94,7 +93,6 @@ class DataHead:
         return
 
     def refresh_main_head(self):
-        self.btn_records_to_excel_ttp.refresh()
 
         self.main_head_frame.refresh_style()
         self.btn_records_to_excel.refresh_style()

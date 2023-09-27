@@ -138,7 +138,7 @@ class DataTab(Scroll_Frame):
     def export_all_passed_times(self):
         #tk.Tk().withdraw() # prevents an empty tkinter window from appearing
         self.gui.disable_main_window()
-        folder_path = filedialog.askdirectory()
+        folder_path = filedialog.askdirectory(initialdir=self.main_app.get_filepath(),title=self.main_app.app_name)
         if folder_path != '':
             try:
                 self.data_manager.export_passed_times_df(folder_path)

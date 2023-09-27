@@ -850,7 +850,10 @@ class DataManager:
             df.to_excel(writer,'Overview', index=False)
 
         df_pivot_1 = pd.pivot_table(df, values = 'hours', index=['month','date','weekday'], columns = 'booked', aggfunc='sum' , fill_value=0)
-        df_pivot_1['Sum'] = df_pivot_1['booked'] + df_pivot_1['not booked']
+        try:
+            df_pivot_1['Sum'] = df_pivot_1['booked'] + df_pivot_1['not booked']
+        except KeyError:
+            pass
         df_pivot_1.to_excel(writer,'Pivot_Day')
 
         df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['project_nbr','order_nbr','process_nbr','main_account','name'], aggfunc='sum' , fill_value=0)
@@ -869,7 +872,6 @@ class DataManager:
 #################################################################
 
     def update_account(self,account_dict):
-        
         if account_dict['account_kind'] == 1:
             self.user_db.update_main_account(account_dict)
             sub_account_id_list = self.user_db.get_sub_accounts(account_dict['account_id'])
