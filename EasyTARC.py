@@ -44,7 +44,7 @@ class App():
 
     def __init__(self):
 
-        self.app_name = 'EasyTARC_ABC'
+        self.app_name = 'EasyTARC'
         self.app_config = 'restricted' # 'normal'
         self.version = '1.6.5'
         self.version_date = '26.09.2023'
