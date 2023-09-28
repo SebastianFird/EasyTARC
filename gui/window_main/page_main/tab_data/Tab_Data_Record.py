@@ -51,17 +51,17 @@ class DataRecordFrame(tk.Frame):
         self.lbl_status = MyLabel(self, self.data_manager,width=2)
         self.lbl_status.pack(side='right',padx=3)
 
-        if self.record_dict['auto_booking'] == 1 and self.record_dict['account_id'] != 0:
+        if self.record_dict['auto_booking'] == 1 and self.record_dict['bookable'] == 1:
             self.lbl_status_name.configure(text = self.language_dict["auto_booking"], anchor='w')
             self.lbl_status.configure(text = u'\U00002713',foreground=self.style_dict["active_color"])
-        elif self.record_dict['booked'] == 1 and self.record_dict['account_id'] != 0:
+        elif self.record_dict['booked'] == 1 and self.record_dict['bookable'] == 1:
             self.lbl_status_name.configure(text = self.language_dict["booked"], anchor='w')
             self.lbl_status.configure(text = u'\U00002713',foreground=self.style_dict["active_color"])
-        elif self.record_dict['booked'] == 0 and self.record_dict['account_id'] != 0:
+        elif self.record_dict['booked'] == 0 and self.record_dict['bookable'] == 1:
             self.lbl_status_name.configure(text = self.language_dict["not_booked"], anchor='w')
             self.lbl_status.configure(text = u'\U0001F5D9',foreground=self.style_dict["notification_color"])
         else:
-            self.lbl_status_name.configure(text = '', anchor='w')
+            self.lbl_status_name.configure(text = self.language_dict["not_bookable"], anchor='w')
             self.lbl_status.configure(text = '')
 
         ##########################

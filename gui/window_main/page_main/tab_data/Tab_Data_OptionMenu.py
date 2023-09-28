@@ -60,36 +60,46 @@ class DataOptionMenu(tkinter.Listbox):
 
     def show_clock_info(self):
         if self.account_dict['account_kind'] == 1:
-            info_dict = {self.language_dict["type"]:self.language_dict["main_account"],
-                        self.language_dict["name"]:self.account_dict['name'],
-                        self.language_dict["description"]:self.account_dict['description_text']                     
-                        }
+            info_dict = {self.language_dict["type"]:self.language_dict["main_account"]}
         else:
             info_dict = {self.language_dict["type"]:self.language_dict["sub_account"],
-                        self.language_dict["main_account"]:self.account_dict['main_name'],
-                        self.language_dict["name"]:self.account_dict['name'],
-                        self.language_dict["description"]:self.account_dict['description_text']                        
-                        }
-            
-        if self.account_dict['group'] != 'default':
-            info_dict.update({                
-                        self.language_dict["group"]:self.account_dict['group'],              
-                        })
+                        self.language_dict["main_account"]:self.account_dict['main_name']}
+        #############
+        if self.account_dict['account_id'] != 0:
+            info_dict.update({
+                self.language_dict["name"]:self.account_dict['name'],
+                self.language_dict["description"]:self.account_dict['description_text']    
+                })
         else:
-            info_dict.update({                
-                        self.language_dict["group"]:'',              
-                        })
+            info_dict.update({self.language_dict["name"]:self.language_dict["without_allocation"]})
+        #############
+        if self.account_dict['group'] != 'default':
+            info_dict.update({self.language_dict["group"]:self.account_dict['group']})
+        else:
+            info_dict.update({self.language_dict["group"]:''})
+        #############
         if self.account_dict['account_id'] != 0:
             info_dict.update({                
-                        self.language_dict["project"]:self.account_dict['project_nbr'],
-                        self.language_dict["order"]:self.account_dict['order_nbr'],                                
-                        self.language_dict["process"]:self.account_dict['process_nbr'],      
-                        self.language_dict["booking_nbr"]:self.account_dict['response_nbr'],                            
-                        self.language_dict["booking_text"]:self.account_dict['default_text']               
+                        self.language_dict["project"]:self.account_dict['project_nbr'],  
+                        self.language_dict["order"]:self.account_dict['order_nbr'],                              
+                        self.language_dict["process"]:self.account_dict['process_nbr']         
                         })
-            
+        #############
+        if self.account_dict['bookable'] == 1:
+            info_dict.update({self.language_dict["bookable"]:self.language_dict["yes"]}) 
+        else:
+            info_dict.update({self.language_dict["bookable"]:self.language_dict["no"]}) 
+        #############
+        if self.account_dict['bookable'] == 1:
+            info_dict.update({                     
+                        self.language_dict["booking_nbr"]:self.account_dict['response_nbr'],                            
+                        self.language_dict["booking_text"]:self.account_dict['default_text']              
+                        })
+            #########
             if self.account_dict['auto_booking'] == 1:
                 info_dict.update({self.language_dict["auto_booking"]:self.language_dict["yes"]}) 
             else:
                 info_dict.update({self.language_dict["auto_booking"]:self.language_dict["no"]}) 
+        #############
         info_window = InfoDictWindow(self.main_app, self.gui, self.data_tab.main_frame ,info_dict,400,280)
+

@@ -43,11 +43,15 @@ class MiniWorkWindowList(tk.Toplevel):
         image_2 = self.style_dict['photo_btn_highlight']
         image_3 = self.style_dict['photo_btn_off']
         image_4 = self.style_dict['photo_btn_on']
+        image_5 = self.style_dict['photo_btn_not_bookable']
+
 
         self.photo_btn_highlight = ImageTk.PhotoImage(image_2.resize((40, 20), Image.ANTIALIAS))
         self.photo_btn_off = ImageTk.PhotoImage(image_3.resize((40, 20), Image.ANTIALIAS))
         self.photo_btn_pause = ImageTk.PhotoImage(image_1.resize((40, 20), Image.ANTIALIAS))
         self.photo_btn_on = ImageTk.PhotoImage(image_4.resize((40, 20), Image.ANTIALIAS))
+        self.photo_btn_not_bookable = ImageTk.PhotoImage(image_5.resize((40, 20), Image.ANTIALIAS))
+
 
         self.work_clock = self.data_manager.get_work_clock()
         self.pause_clock = self.data_manager.get_pause_clock()
@@ -448,6 +452,7 @@ class MiniWorkWindowList(tk.Toplevel):
             self.pause_clock.start()
             self.lbl_activate_pause.configure(image=self.photo_btn_pause)
             self.lbl_activate_pause.image = self.photo_btn_pause
+            self.set_active_clock_frame(None)
             self.update()    
 
 #################################################################################
@@ -576,11 +581,13 @@ class ClockFrame((tk.Frame)):
         image_2 = self.style_dict['photo_btn_highlight']
         image_3 = self.style_dict['photo_btn_off']
         image_4 = self.style_dict['photo_btn_on']
+        image_5 = self.style_dict['photo_btn_not_bookable']
 
         self.photo_btn_highlight = ImageTk.PhotoImage(image_2.resize((40, 20), Image.ANTIALIAS))
         self.photo_btn_off = ImageTk.PhotoImage(image_3.resize((40, 20), Image.ANTIALIAS))
         self.photo_btn_pause = ImageTk.PhotoImage(image_1.resize((40, 20), Image.ANTIALIAS))
         self.photo_btn_on = ImageTk.PhotoImage(image_4.resize((40, 20), Image.ANTIALIAS))
+        self.photo_btn_not_bookable = ImageTk.PhotoImage(image_5.resize((40, 20), Image.ANTIALIAS))
 
         MyFrame.__init__(self, container, self.data_manager)
 
@@ -638,8 +645,12 @@ class ClockFrame((tk.Frame)):
 
     def update(self):
         if self.clock.get_runninig() == True:
-            self.lbl_activate_account_clock.configure(image=self.photo_btn_on)
-            self.lbl_activate_account_clock.image = self.photo_btn_on
+            if int(self.clock.get_bookable()) == 1:
+                self.lbl_activate_account_clock.configure(image=self.photo_btn_on)
+                self.lbl_activate_account_clock.image = self.photo_btn_on
+            else:
+                self.lbl_activate_account_clock.configure(image=self.photo_btn_not_bookable)
+                self.lbl_activate_account_clock.image = self.photo_btn_not_bookable
         else:
             if self.on_activate_default == True:
                 self.lbl_activate_account_clock.configure(image=self.photo_btn_highlight)

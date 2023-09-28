@@ -405,34 +405,47 @@ class MainAccountClock(AccountClock):
 
     def get_info_dict(self):
         self.language_dict = self.main_app.data_manager.get_language_dict()
-        info_dict = {self.language_dict["type"]:self.language_dict["main_account"],
-                    self.language_dict["name"]:str(self.name),
-                    self.language_dict["description"]:str(self.description_text)                        
-                    }
-        if self.group != 'default':
-            info_dict.update({                
-                        self.language_dict["group"]:str(self.group),              
-                        })
+        #############
+        info_dict = {self.language_dict["type"]:self.language_dict["main_account"]}
+        #############
+        if self.id != 0:
+            info_dict.update({
+                self.language_dict["name"]:str(self.name),
+                self.language_dict["description"]:str(self.description_text)  
+                })
         else:
-            info_dict.update({                
-                        self.language_dict["group"]:'',              
-                        })
+            info_dict.update({self.language_dict["name"]:self.language_dict["without_allocation"]})
+        #############
+        if self.group != 'default':
+            info_dict.update({self.language_dict["group"]:str(self.group)})
+        else:
+            info_dict.update({self.language_dict["group"]:''})
+        #############
         if self.id != 0:
             info_dict.update({                
                         self.language_dict["project"]:str(self.project_nbr),  
                         self.language_dict["order"]:str(self.order_nbr),                              
-                        self.language_dict["process"]:str(self.process_nbr),      
+                        self.language_dict["process"]:str(self.process_nbr)         
+                        })
+        #############
+        if self.bookable == 1:
+            info_dict.update({self.language_dict["bookable"]:self.language_dict["yes"]}) 
+        else:
+            info_dict.update({self.language_dict["bookable"]:self.language_dict["no"]}) 
+        #############
+        if self.bookable == 1:
+            info_dict.update({                     
                         self.language_dict["booking_nbr"]:str(self.response_nbr),                            
                         self.language_dict["booking_text"]:str(self.default_text)               
                         })
-            
+            #########
             if self.auto_booking == 1:
                 info_dict.update({self.language_dict["auto_booking"]:self.language_dict["yes"]}) 
             else:
                 info_dict.update({self.language_dict["auto_booking"]:self.language_dict["no"]}) 
-
+        #############
         info_dict.update({self.language_dict["hours"]:str(self.str_timedelta(self.get_total_time()))}) 
-        
+
         return(info_dict)
 
 class SubAccountClock(AccountClock):
@@ -471,28 +484,35 @@ class SubAccountClock(AccountClock):
                     self.language_dict["name"]:str(self.name),
                     self.language_dict["description"]:str(self.description_text)                        
                     }
+        #############
         if self.group != 'default':
-            info_dict.update({                
-                        self.language_dict["group"]:str(self.group),              
-                        })
+            info_dict.update({self.language_dict["group"]:str(self.group)})
         else:
-            info_dict.update({                
-                        self.language_dict["group"]:'',              
-                        })
+            info_dict.update({self.language_dict["group"]:''})
+        #############
         if self.id != 0:
             info_dict.update({                
-                        self.language_dict["project"]:str(self.project_nbr),
-                        self.language_dict["order"]:str(self.order_nbr),                                
-                        self.language_dict["process"]:str(self.process_nbr),      
+                        self.language_dict["project"]:str(self.project_nbr),  
+                        self.language_dict["order"]:str(self.order_nbr),                              
+                        self.language_dict["process"]:str(self.process_nbr)         
+                        })
+        #############
+        if self.bookable == 1:
+            info_dict.update({self.language_dict["bookable"]:self.language_dict["yes"]}) 
+        else:
+            info_dict.update({self.language_dict["bookable"]:self.language_dict["no"]}) 
+        #############
+        if self.bookable == 1:
+            info_dict.update({                     
                         self.language_dict["booking_nbr"]:str(self.response_nbr),                            
                         self.language_dict["booking_text"]:str(self.default_text)               
                         })
-            
+            #########
             if self.auto_booking == 1:
                 info_dict.update({self.language_dict["auto_booking"]:self.language_dict["yes"]}) 
             else:
                 info_dict.update({self.language_dict["auto_booking"]:self.language_dict["no"]}) 
-
+        #############
         info_dict.update({self.language_dict["hours"]:str(self.str_timedelta(self.get_total_time()))}) 
 
         return(info_dict)

@@ -41,9 +41,12 @@ class ClockFrame(tk.Frame):
         image_1 = self.style_dict['photo_btn_on']
         image_2 = self.style_dict['photo_btn_highlight']
         image_3 = self.style_dict['photo_btn_off']
+        image_12 = self.style_dict['photo_btn_not_bookable']
+
         self.photo_btn_highlight = ImageTk.PhotoImage(image_2.resize((40, 20), Image.ANTIALIAS))
         self.photo_btn_off = ImageTk.PhotoImage(image_3.resize((40, 20), Image.ANTIALIAS))
         self.photo_btn_on = ImageTk.PhotoImage(image_1.resize((40, 20), Image.ANTIALIAS))
+        self.photo_btn_not_bookable  = ImageTk.PhotoImage(image_12.resize((40, 20), Image.ANTIALIAS))
 
         image_4 = self.style_dict['photo_btn_plus_strong_highlight']
         image_5 = self.style_dict['photo_btn_plus_font']
@@ -434,9 +437,13 @@ class ClockFrame(tk.Frame):
 
     def show_state(self):
         if self.clock.get_runninig() == True and self.main_app.get_action_state() == "normal":
-            self.lbl_running_clock.configure(text = u'\U000023F1')
-            self.lbl_activate_clock.configure(image=self.photo_btn_on)
-            self.lbl_activate_clock.image = self.photo_btn_on
+            self.lbl_running_clock.configure(text = u'\U000023F1') 
+            if int(self.clock.get_bookable()) == 1:
+                self.lbl_activate_clock.configure(image=self.photo_btn_on)
+                self.lbl_activate_clock.image = self.photo_btn_on
+            else:
+                self.lbl_activate_clock.configure(image=self.photo_btn_not_bookable)
+                self.lbl_activate_clock.image = self.photo_btn_not_bookable
         else:
             self.lbl_running_clock.configure(text = ' ')
             if self.on_activate == True:

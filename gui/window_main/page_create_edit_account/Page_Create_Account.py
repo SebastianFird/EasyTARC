@@ -91,7 +91,7 @@ class CreateEditAccount(tk.Frame):
     
 #################################################################
 
-    def user_input(self,account_name,account_description_text,account_project,account_order,account_process,account_response,account_text,account_autobooking,group):
+    def user_input(self,account_name,account_description_text,account_project,account_order,account_process,account_response,account_text,account_autobooking,group,bookable):
 
         main_list = ['new_main','new_order','new_process','edit_main']
         sub_list = ['new_sub','edit_sub']
@@ -116,6 +116,7 @@ class CreateEditAccount(tk.Frame):
         auto_booking = account_autobooking.get()
         response_nbr = account_response.get()
         default_text = account_text.get()
+        bookable = bookable.get()
 
         if project_nbr == '':
             project_nbr = 0
@@ -135,23 +136,24 @@ class CreateEditAccount(tk.Frame):
             info = input_checked
             return(info)
         else:
-            self.save(name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id,group)
+            self.save(name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id,group,bookable)
             return(None)
 
-    def save(self,name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id,group):
+    def save(self,name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id,group,bookable):
 
         new_main_list = ['new_main','new_order','new_process']
         edit_main_list = ['edit_main']
         new_sub_list = ['new_sub']
         edit_sub_list = ['edit_sub']
 
+
         if self.modus in new_main_list:
-            account_dict = self.data_manager.create_time_account(name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id,group)
+            account_dict = self.data_manager.create_time_account(name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id,group,bookable)
             main_account_clock = self.data_manager.create_main_account_clock(account_dict)
             self.capture_tab.body.create_main_account_frame(main_account_clock)
             
         elif self.modus in new_sub_list:
-            account_dict = self.data_manager.create_time_account(name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id,group)
+            account_dict = self.data_manager.create_time_account(name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id,group,bookable)
             sub_clock = self.main_account_clock.add_sub_clock(account_dict)
             self.capture_tab.body.add_sub_account_frame(self.main_account_clock,sub_clock)
 
@@ -169,7 +171,7 @@ class CreateEditAccount(tk.Frame):
                             "auto_booking":int(auto_booking),         
                             "status":str(self.main_account_dict['status']),        
                             "group":str(group),                     
-                            "bookable":int(self.main_account_dict['bookable']),    
+                            "bookable":int(bookable),    
                             "a_year":int(self.main_account_dict['a_year']),                 
                             "a_month":int(self.main_account_dict['a_month']),            
                             "a_day":int(self.main_account_dict['a_day'])                       

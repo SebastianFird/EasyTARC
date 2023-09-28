@@ -17,7 +17,7 @@ __author__ = 'Sebastian Feiert'
 
 import tkinter as tk
 from tkinter import ttk
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from gui.Window_Additionals import InfoDictWindow
 from gui.Window_Additionals import CreateToolTip
@@ -93,14 +93,6 @@ class MainWindowStatus(tk.Frame):
         self.lbl_pausetime_name.configure(foreground=self.style_dict["font_color"])
         self.lbl_pausetime_name.pack(side = "right")
 
-        self.lbl_bookingrate = MyLabel(self.s_frame, self.data_manager, width=6, anchor='w')
-        self.lbl_bookingrate.configure(foreground=self.style_dict["font_color"])
-        self.lbl_bookingrate.pack(side = "right")
-
-        self.lbl_bookingrate_name = MyLabel(self.s_frame, self.data_manager, text= self.language_dict["rate"] + ': ', width=6, anchor='e')
-        self.lbl_bookingrate_name.configure(foreground=self.style_dict["font_color"])
-        self.lbl_bookingrate_name.pack(side = "right")
-
         self.lbl_worktime = MyLabel(self.s_frame, self.data_manager, width=8, anchor='w')
         self.lbl_worktime.configure(foreground=self.style_dict["font_color"])
         self.lbl_worktime.pack(side = "right")
@@ -137,7 +129,6 @@ class MainWindowStatus(tk.Frame):
 
         work_clock = self.data_manager.get_work_clock()
         pause_clock = self.data_manager.get_pause_clock()
-        default_clock = self.data_manager.get_default_clock()
 
         work_time = work_clock.str_timedelta(work_clock.get_total_time())
         self.lbl_worktime.configure(text=str(work_time))
@@ -145,46 +136,13 @@ class MainWindowStatus(tk.Frame):
         pausetime = pause_clock.str_timedelta(pause_clock.get_total_time())
         self.lbl_pausetime.configure(text=str(pausetime))
 
-        work_time_q = work_clock.get_total_time()
-        if str(work_time) != '00:00:00':
-            default_time_q = default_clock.get_total_time()
-            bookingrate = (1 - (default_time_q / work_time_q))*100
-        else:
-            bookingrate = 0
-        self.lbl_bookingrate.configure(text=str(round(bookingrate)) + ' %   ')
 
         if self.main_app.get_action_state() == 'disabled':
-            self.s_frame.configure(background=self.style_dict["titlebar_color"])
-            self.lbl_status_text.configure(background=self.style_dict["titlebar_color"])
-            self.lbl_current.configure(background=self.style_dict["titlebar_color"])
-            self.lbl_worktime_name.configure(background=self.style_dict["titlebar_color"])
-            self.lbl_backup.configure(background=self.style_dict["titlebar_color"])
-            self.lbl_worktime.configure(background=self.style_dict["titlebar_color"])
-            self.lbl_bookingrate_name.configure(background=self.style_dict["titlebar_color"])
-            self.lbl_bookingrate.configure(background=self.style_dict["titlebar_color"])
-            self.lbl_pausetime_name.configure(background=self.style_dict["titlebar_color"])
-            self.lbl_pausetime.configure(background=self.style_dict["titlebar_color"])
-            if self.on_info_btn == False:
-                self.lbl_btn_info.configure(background=self.style_dict["titlebar_color"])
-            self.gui.myttk.change_sizegrip_background(self.style_dict["titlebar_color"])
-
+            background_color=self.style_dict["titlebar_color"]
             self.lbl_status_text.configure(text=self.language_dict["locked"])
 
-        elif work_clock.get_runninig() == True:
-            self.s_frame.configure(background=self.style_dict["bottom_active_color"])
-            self.lbl_status_text.configure(background=self.style_dict["bottom_active_color"])
-            self.lbl_current.configure(background=self.style_dict["bottom_active_color"])
-            self.lbl_worktime_name.configure(background=self.style_dict["bottom_active_color"])
-            self.lbl_backup.configure(background=self.style_dict["bottom_active_color"])
-            self.lbl_worktime.configure(background=self.style_dict["bottom_active_color"])
-            self.lbl_bookingrate_name.configure(background=self.style_dict["bottom_active_color"])
-            self.lbl_bookingrate.configure(background=self.style_dict["bottom_active_color"])
-            self.lbl_pausetime_name.configure(background=self.style_dict["bottom_active_color"])
-            self.lbl_pausetime.configure(background=self.style_dict["bottom_active_color"])
-            if self.on_info_btn == False:
-                self.lbl_btn_info.configure(background=self.style_dict["bottom_active_color"])
-            self.gui.myttk.change_sizegrip_background(self.style_dict["bottom_active_color"])
-            
+        elif work_clock.get_runninig() == True:            
+            background_color=self.style_dict["bottom_active_color"]
             self.active_clock = self.data_manager.get_active_clock()
             if self.active_clock.get_id() != 0:
                 self.lbl_status_text.configure(text=self.active_clock.get_full_name())
@@ -192,39 +150,25 @@ class MainWindowStatus(tk.Frame):
                 self.lbl_status_text.configure(text=self.language_dict["without_allocation"])
 
         elif pause_clock.get_runninig() == True:
-            self.s_frame.configure(background=self.style_dict["bottom_pause_color"])
-            self.lbl_status_text.configure(background=self.style_dict["bottom_pause_color"])
-            self.lbl_current.configure(background=self.style_dict["bottom_pause_color"])
-            self.lbl_worktime_name.configure(background=self.style_dict["bottom_pause_color"])
-            self.lbl_backup.configure(background=self.style_dict["bottom_pause_color"])
-            self.lbl_worktime.configure(background=self.style_dict["bottom_pause_color"])
-            self.lbl_bookingrate_name.configure(background=self.style_dict["bottom_pause_color"])
-            self.lbl_bookingrate.configure(background=self.style_dict["bottom_pause_color"])
-            self.lbl_pausetime_name.configure(background=self.style_dict["bottom_pause_color"])
-            self.lbl_pausetime.configure(background=self.style_dict["bottom_pause_color"])
-            if self.on_info_btn == False:
-                self.lbl_btn_info.configure(background=self.style_dict["bottom_pause_color"])
-            self.gui.myttk.change_sizegrip_background(self.style_dict["bottom_pause_color"])
-
+            background_color=self.style_dict["bottom_pause_color"]
             self.lbl_status_text.configure(text=self.language_dict["break"])
-                
 
         else:
-            self.s_frame.configure(background=self.style_dict["titlebar_color"])
-            self.lbl_status_text.configure(background=self.style_dict["titlebar_color"])
-            self.lbl_current.configure(background=self.style_dict["titlebar_color"])
-            self.lbl_worktime_name.configure(background=self.style_dict["titlebar_color"])
-            self.lbl_backup.configure(background=self.style_dict["titlebar_color"])
-            self.lbl_worktime.configure(background=self.style_dict["titlebar_color"])
-            self.lbl_bookingrate_name.configure(background=self.style_dict["titlebar_color"])
-            self.lbl_bookingrate.configure(background=self.style_dict["titlebar_color"])
-            self.lbl_pausetime_name.configure(background=self.style_dict["titlebar_color"])
-            self.lbl_pausetime.configure(background=self.style_dict["titlebar_color"])
-            if self.on_info_btn == False:
-                self.lbl_btn_info.configure(background=self.style_dict["titlebar_color"])
-            self.gui.myttk.change_sizegrip_background(self.style_dict["titlebar_color"])
-
+            background_color=self.style_dict["titlebar_color"]
             self.lbl_status_text.configure(text=self.language_dict["closing_time"]) 
+
+        self.s_frame.configure(background=background_color)
+        self.lbl_status_text.configure(background=background_color)
+        self.lbl_current.configure(background=background_color)
+        self.lbl_worktime_name.configure(background=background_color)
+        self.lbl_backup.configure(background=background_color)
+        self.lbl_worktime.configure(background=background_color)
+        self.lbl_pausetime_name.configure(background=background_color)
+        self.lbl_pausetime.configure(background=background_color)
+        if self.on_info_btn == False:
+            self.lbl_btn_info.configure(background=background_color)
+        self.gui.myttk.change_sizegrip_background(background_color)
+
  
         self.main_frame.after(1000, lambda:self.auto_update_status_frame())
 
@@ -236,8 +180,6 @@ class MainWindowStatus(tk.Frame):
         self.lbl_btn_info.refresh_style()
         self.lbl_pausetime.refresh_style()
         self.lbl_pausetime_name.refresh_style()
-        self.lbl_bookingrate.refresh_style()
-        self.lbl_bookingrate_name.refresh_style()
         self.lbl_worktime.refresh_style()
         self.lbl_worktime_name.refresh_style()
         self.lbl_backup.refresh_style()
@@ -246,7 +188,6 @@ class MainWindowStatus(tk.Frame):
 
         self.lbl_backup_ttp.text = self.language_dict["data_are_stored_temporarily"]
         self.lbl_pausetime_name.configure(text= self.language_dict["break_time"] + ': ')
-        self.lbl_bookingrate_name.configure(text= self.language_dict["rate"] + ': ')
         self.lbl_worktime_name.configure(text=self.language_dict["working_time"] + ': ')
         self.lbl_current.configure(text=self.language_dict["current"] + ': ')
 
@@ -321,11 +262,10 @@ class MainWindowStatus(tk.Frame):
 
         month_day_now = datetime.today().day
 
-        if month_day_now >= reminder_day:
-            # print('reminder day')
-            return('end_of_month')
-        elif self.data_manager.check_unbooked_hours() > 12:
+        if self.data_manager.check_unbooked_hours() > 12:
             return('many_hours')
+        elif month_day_now >= reminder_day:
+            return('end_of_month')
         else:
             return(False)
 
@@ -348,7 +288,22 @@ class MainWindowStatus(tk.Frame):
         if end_timestamp != None:
             info_dict.update({self.language_dict["end"]:str(self.data_manager.end_timestamp) + ' '+ self.language_dict["o_clock"]})
 
+        work_clock = self.data_manager.get_work_clock()
+        work_time = work_clock.str_timedelta(work_clock.get_total_time())
+        work_time_q = work_clock.get_total_time()
+
+        main_account_clock_list = self.data_manager.get_main_account_clock_list()
+        if main_account_clock_list != []:
+            current_main_account_clock_not_bookable_list = [ele for ele in main_account_clock_list if ele.get_account_status() == 'current' and ele.get_bookable() == 0]
+            if current_main_account_clock_not_bookable_list != []:
+                q_not_bookable_time = timedelta(hours = 0)
+                for main_account_clock in current_main_account_clock_not_bookable_list:
+                    q_not_bookable_time = q_not_bookable_time + main_account_clock.get_total_time_sum()
+                if str(work_time) != '00:00:00':
+                    bookingrate = (1 - (q_not_bookable_time / work_time_q))*100 
+                else:
+                    bookingrate = 0
+                info_dict.update({self.language_dict["rate"]:str(round(bookingrate)) + ' %   '})
 
         info_window = InfoDictWindow(self.main_app, self.gui ,self.main_window,info_dict,450,300)
-
         return

@@ -275,6 +275,8 @@ class DataManager:
                                 "hours": backup_dict['hours'],
                                 "booked": backup_dict['booked']
                                 }
+            
+            print(passed_time_dict)
 
             self.user_db.add_passed_times(passed_time_dict)
         self.user_db.delete_backup()
@@ -296,14 +298,14 @@ class DataManager:
         month = int(dt.strftime("%m"))
         year = int(dt.strftime("%Y"))
 
+        passed_id = self.user_db.get_new_passedid()  
+
         for main_clock in current_main_account_clock_list:
 
             clock_list = []
             clock_list.append(main_clock)
             sub_clock_list = main_clock.get_sub_clock_list()
             clock_list = clock_list + sub_clock_list
-
-            passed_id = self.user_db.get_new_passedid()  
 
             for clock in clock_list:
                 duration = clock.get_total_time()
@@ -341,6 +343,7 @@ class DataManager:
 
     def load_image_dicts(self):
         photo_btn_on = Image.open("images/btn_on.png").convert('RGBA')
+        photo_btn_not_bookable = Image.open("images/btn_not_bookable.png").convert('RGBA')
         photo_btn_highlight = Image.open("images/btn_highlight.PNG").convert('RGBA')
         photo_btn_off = Image.open("images/btn_off.png").convert('RGBA')
         photo_btn_pause = Image.open("images/btn_pause.png").convert('RGBA')
@@ -367,6 +370,7 @@ class DataManager:
 
         self.image_general_dict = {
             "photo_btn_on":photo_btn_on,
+            "photo_btn_not_bookable":photo_btn_not_bookable,
             "photo_btn_highlight":photo_btn_highlight,
             "photo_btn_off":photo_btn_off,
             "photo_btn_pause":photo_btn_pause
@@ -515,13 +519,12 @@ class DataManager:
     
 #################################################################
 
-    def create_time_account(self,name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id,group):
+    def create_time_account(self,name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id,group,bookable):
         account_id = self.user_db.get_new_accountid()
         if kind == 1:
             main_id = account_id
 
         status = "current"
-        bookable = 1
 
         dt = datetime.now()
         a_day = int(dt.strftime("%d"))
@@ -600,6 +603,7 @@ class DataManager:
                             "process_nbr":df.loc[(df['accountid'] == account_id)].process_nbr.values.tolist()[0],                 
                             "response_nbr":df.loc[(df['accountid'] == account_id)].response_nbr.values.tolist()[0],              
                             "default_text":df.loc[(df['accountid'] == account_id)].default_text.values.tolist()[0],
+                            "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0],
                             "auto_booking":df.loc[(df['accountid'] == account_id)].auto_booking.values.tolist()[0], 
                             "hours":df.loc[(df['accountid'] == account_id)].hours.sum()                  
                             }

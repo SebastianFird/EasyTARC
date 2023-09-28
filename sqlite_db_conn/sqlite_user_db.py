@@ -276,6 +276,7 @@ class SqlUserDataManager(SqlManager):
         default_text = account_dict['default_text']
         auto_booking = account_dict['auto_booking']
         group = account_dict['group']
+        bookable = account_dict['bookable']
 
         conn = self.open_encrypted_db()
         cur = conn.cursor()
@@ -288,6 +289,7 @@ class SqlUserDataManager(SqlManager):
                     response_nbr = ?,
                     default_text = ?,
                     auto_booking = ?,
+                    bookable = ?,
                     a_group = ? WHERE accountid = ?""",
                     (
                     name,
@@ -298,6 +300,7 @@ class SqlUserDataManager(SqlManager):
                     response_nbr,
                     default_text,
                     auto_booking,
+                    bookable,
                     group,
                     account_id,
                     ))
@@ -313,6 +316,7 @@ class SqlUserDataManager(SqlManager):
         response_nbr = account_dict['response_nbr']
         auto_booking = account_dict['auto_booking']
         group = account_dict['group']
+        bookable = account_dict['bookable']
 
         conn = self.open_encrypted_db()
         cur = conn.cursor()
@@ -322,6 +326,7 @@ class SqlUserDataManager(SqlManager):
                     process_nbr = ?,
                     response_nbr = ?,
                     auto_booking = ?,
+                    bookable = ?,
                     a_group = ? WHERE accountid = ?""",
                     (
                     project_nbr,
@@ -329,6 +334,7 @@ class SqlUserDataManager(SqlManager):
                     process_nbr,
                     response_nbr,
                     auto_booking,
+                    bookable,
                     group,
                     account_id,
                     ))
@@ -688,7 +694,7 @@ class SqlUserDataManager(SqlManager):
     def check_unbooked_hours(self):
         conn = self.open_encrypted_db()
         cur = conn.cursor()
-        cur.execute("SELECT SUM(hours) FROM passed_times WHERE booked = ?", (0,))
+        cur.execute("SELECT SUM(passed_times.hours) FROM passed_times INNER JOIN accounts ON passed_times.accountid = accounts.accountid WHERE passed_times.booked = ? and accounts.bookable = ?", (0,1,))
         hours = cur.fetchone()[0]
         self.save_encrypted_db(conn)
         conn.close()

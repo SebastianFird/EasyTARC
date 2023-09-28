@@ -37,11 +37,14 @@ class WorkWindowCbox(tk.Toplevel):
         image_2 = self.style_dict['photo_btn_highlight']
         image_3 = self.style_dict['photo_btn_off']
         image_4 = self.style_dict['photo_btn_on']
+        image_5 = self.style_dict['photo_btn_not_bookable']
 
         self.photo_btn_highlight = ImageTk.PhotoImage(image_2.resize((40, 20), Image.ANTIALIAS))
         self.photo_btn_off = ImageTk.PhotoImage(image_3.resize((40, 20), Image.ANTIALIAS))
         self.photo_btn_pause = ImageTk.PhotoImage(image_1.resize((40, 20), Image.ANTIALIAS))
         self.photo_btn_on = ImageTk.PhotoImage(image_4.resize((40, 20), Image.ANTIALIAS))
+        self.photo_btn_not_bookable = ImageTk.PhotoImage(image_5.resize((40, 20), Image.ANTIALIAS))
+
 
         self.work_clock = self.data_manager.get_work_clock()
         self.pause_clock = self.data_manager.get_pause_clock()
@@ -87,9 +90,11 @@ class WorkWindowCbox(tk.Toplevel):
     def activate_default(self,e):
         if self.main_app.get_action_state() == "normal":
             self.default_clock.start()
-            self.lbl_activate_default.configure(image=self.photo_btn_on)
-            self.lbl_activate_default.image = self.photo_btn_on
+            self.lbl_activate_default.configure(image=self.photo_btn_not_bookable)
+            self.lbl_activate_default.image = self.photo_btn_not_bookable
             self.update()   
+
+
 
 #################################################################################
 
@@ -116,8 +121,13 @@ class WorkWindowCbox(tk.Toplevel):
                 return
             account_clock = [ele for ele in self.selectable_account_clock_list if ele.get_full_name() == account_clock_full_name][0]
             account_clock.start()
-            self.lbl_activate_default.configure(image=self.photo_btn_on)
-            self.lbl_activate_default.image = self.photo_btn_on
+
+            if int(account_clock.get_bookable()) == 1:
+                self.lbl_activate_default.configure(image=self.photo_btn_on)
+                self.lbl_activate_default.image = self.photo_btn_on
+            else:
+                self.lbl_activate_default.configure(image=self.photo_btn_not_bookable)
+                self.lbl_activate_default.image = self.photo_btn_not_bookable
             self.update()   
 
     def updt_selectable_account_clock_cblist(self,e=None):
@@ -180,8 +190,8 @@ class WorkWindowCbox(tk.Toplevel):
                 self.lbl_activate_pause.image = self.photo_btn_off
 
         if self.default_clock.get_runninig() == True:
-            self.lbl_activate_default.configure(image=self.photo_btn_on)
-            self.lbl_activate_default.image = self.photo_btn_on
+            self.lbl_activate_default.configure(image=self.photo_btn_not_bookable)
+            self.lbl_activate_default.image = self.photo_btn_not_bookable
         else:
             if self.on_activate_default == True:
                 self.lbl_activate_default.configure(image=self.photo_btn_highlight)
@@ -193,8 +203,12 @@ class WorkWindowCbox(tk.Toplevel):
         if self.selectable_account_clock_list != []:
             account_clock = [ele for ele in self.selectable_account_clock_list if ele.get_full_name() == account_clock_full_name][0]
             if account_clock.get_runninig() == True:
-                self.lbl_activate_account_clock.configure(image=self.photo_btn_on)
-                self.lbl_activate_account_clock.image = self.photo_btn_on
+                if int(account_clock.get_bookable()) == 1:
+                    self.lbl_activate_account_clock.configure(image=self.photo_btn_on)
+                    self.lbl_activate_account_clock.image = self.photo_btn_on
+                else:
+                    self.lbl_activate_account_clock.configure(image=self.photo_btn_not_bookable)
+                    self.lbl_activate_account_clock.image = self.photo_btn_not_bookable
             else:
                 if self.on_activate_account_clock == True:
                     self.lbl_activate_account_clock.configure(image=self.photo_btn_highlight)
@@ -204,6 +218,8 @@ class WorkWindowCbox(tk.Toplevel):
                     self.lbl_activate_account_clock.image = self.photo_btn_off
         return
     
+
+
 #################################################################################
 
     def enter_close(self,e):
