@@ -62,9 +62,11 @@ class DataManager:
 #################################################################
         
     def start_data_management(self):
-
-        self.user_db = SqlUserDataManager(self.main_app)
         self.settings_db = SqlSettingDataManager(self.main_app)
+        self.settings_db.set_user_license_hash_current(self.main_app.get_user_license_hash())
+        
+        self.user_db = SqlUserDataManager(self.main_app)
+        self.settings_db.set_user_license_hash_data_db(self.main_app.get_user_license_hash())
 
         #####
         if self.settings_db.new_version == True:

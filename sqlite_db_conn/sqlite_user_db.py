@@ -58,17 +58,17 @@ class SqlUserDataManager(SqlManager):
             try:
                 test_id = self.get_new_accountid()
             except:
-                self.restore_backup()
+                self.request_restoring_backup()
 
     def request_restoring_backup(self):
         self.root = NewRoot()
         full_db_backup_db_name_enc = 'full_db_backup_' + self.db_name_enc
         if os.path.isfile(full_db_backup_db_name_enc) == True:
-            result = messagebox.askquestion("EasyTARC", 'EsayTARC cannot retrieve any data, there is a database error. However, a backup was found, should the backup be used at the next start?', icon='warning')
+            result = messagebox.askquestion("EasyTARC", 'EsayTARC cannot retrieve any data, there is a database error. However, a backup was found, should the backup be used at the next start? Please restart EasyTARC after clicking Yes.')
             if result == 'yes':
                 self.restore_backup()
             else:
-                messagebox.showinfo('EasyTARC',' Please report this error to the support')
+                messagebox.showinfo('EasyTARC','EsayTARC cannot retrieve data, there is a database error. Please contact the admin.')
         else:
             messagebox.showinfo('EasyTARC','EsayTARC cannot retrieve data, there is a database error. Please contact the admin.')
         self.main_app.fast_exit()
@@ -196,41 +196,6 @@ class SqlUserDataManager(SqlManager):
         if test_id == 0:
             new_data_base()
 
-        return()
-######################################
-    
-    def get_work_window(self):
-        conn = self.open_encrypted_db()
-        cur = conn.cursor()
-        cur.execute("SELECT workwindow FROM settings WHERE settingid = ?", (0,))
-        work_window = cur.fetchone()[0]
-        self.save_encrypted_db(conn)
-        conn.close()
-        return(work_window)
-
-    def set_work_window(self, work_window):
-        conn = self.open_encrypted_db()
-        cur = conn.cursor()
-        cur.execute("UPDATE settings SET workwindow = ? WHERE settingid = ?", (work_window,0,))
-        self.save_encrypted_db(conn)
-        conn.close()
-        return()
-    
-    def get_font_size(self):
-        conn = self.open_encrypted_db()
-        cur = conn.cursor()
-        cur.execute("SELECT fontsize FROM settings WHERE settingid = ?", (0,))
-        font_size = cur.fetchone()[0]
-        self.save_encrypted_db(conn)
-        conn.close()
-        return(font_size)
-
-    def set_font_size(self, font_size):
-        conn = self.open_encrypted_db()
-        cur = conn.cursor()
-        cur.execute("UPDATE settings SET fontsize = ? WHERE settingid = ?", (font_size,0,))
-        self.save_encrypted_db(conn)
-        conn.close()
         return()
 
 #####################################

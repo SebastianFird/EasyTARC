@@ -93,9 +93,14 @@ class App():
         return(self.file_path)
     
 ############################################################
+
+    def get_user_license_hash(self):
+        return(self.own_user_license_hash)
+        #return('test')
     
     def get_db_user_password(self):
         user_db_password = self.data_db_password + self.own_user_license_hash
+        #user_db_password = self.data_db_password + 'test'
         return(user_db_password)
     
     def get_db_settings_password(self):
