@@ -95,7 +95,7 @@ class DataCryption(PasswordContainer):
     def get_db_user_password(self,user_license_hash):
         user_db_password = self.data_db_password + user_license_hash
         return(user_db_password)
-    
+
 
 def start():
     root = NewRoot()
@@ -131,6 +131,16 @@ def start():
     text = 'New DB last account:\n' + str(new_user_db.get_account_name_list()[-1])
     print(text)
     messagebox.showinfo('EasyTARC',text)
+
+    path = os.path.abspath(os.getcwd())
+    # renaming the old db in old_db 
+    file_path = path + '\\' + 'EasyTARC_Database_User' + '_crypted.sql.gz'
+    file_path_old = path + '\\old_' + 'EasyTARC_Database_User' + '_crypted.sql.gz'
+    os.rename(file_path, file_path_old)
+
+    # renaming the new_db in db 
+    file_path_new = path + '\\' + 'New_EasyTARC_Database_User'  + '_crypted.sql.gz'
+    os.rename(file_path_new, file_path)
 
 
 
