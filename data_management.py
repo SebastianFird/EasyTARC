@@ -24,6 +24,7 @@ import json
 
 from sqlite_db_conn.sqlite_user_db import SqlUserDataManager
 from sqlite_db_conn.sqlite_settings_db import SqlSettingDataManager
+from sqlite_db_conn.sqlite_code_db import SqlCodeDataManager
 
 from clock import InfoClock
 from clock import MainAccountClock
@@ -62,14 +63,22 @@ class DataManager:
 #################################################################
         
     def start_data_management(self):
-        self.settings_db = SqlSettingDataManager(self.main_app)
-        self.settings_db.set_user_license_hash_current(self.main_app.get_user_license_hash())
-        
+        self.code_db = SqlCodeDataManager(self.main_app)
+        self.code_db.set_user_license_hash_current(self.main_app.get_user_license_hash())
+
         self.user_db = SqlUserDataManager(self.main_app)
-        self.settings_db.set_user_license_hash_data_db(self.main_app.get_user_license_hash())
+        self.code_db.set_user_license_hash_data_db(self.main_app.get_user_license_hash())
+
+        self.settings_db = SqlSettingDataManager(self.main_app)
 
         #####
         if self.settings_db.new_version == True:
+            path = os.path.abspath(os.getcwd())
+            if os.path.isfile('full_db_backup_EasyTARC_Database_User_crypted.sql.gz') == True:
+                os.rename('full_db_backup_EasyTARC_Database_User_crypted.sql.gz', 'EasyTARC_Database_User_backup_crypted.sql.gz')
+            if os.path.isfile('last_full_db_backup_EasyTARC_Database_User_crypted.sql.gz') == True:
+                os.rename('last_full_db_backup_EasyTARC_Database_User_crypted.sql.gz', 'EasyTARC_Database_User_backup_2_crypted.sql.gz')
+
             self.user_db.account_set_autobooking(0,0)
             self.user_db.set_booked_accound_time_sum_unbooked(0)
         #####
@@ -231,12 +240,12 @@ class DataManager:
 
         path = os.path.abspath(os.getcwd())
 
-        if os.path.isfile('full_db_backup_EasyTARC_Database_User_crypted.sql.gz') == True:
-            if os.path.isfile('last_full_db_backup_EasyTARC_Database_User_crypted.sql.gz') == True:
-                os.remove(path+'\\last_full_db_backup_EasyTARC_Database_User_crypted.sql.gz')
-            os.rename('full_db_backup_EasyTARC_Database_User_crypted.sql.gz', 'last_full_db_backup_EasyTARC_Database_User_crypted.sql.gz')
+        if os.path.isfile('EasyTARC_Database_User_backup_crypted.sql.gz') == True:
+            if os.path.isfile('EasyTARC_Database_User_backup_2_crypted.sql.gz') == True:
+                os.remove(path+'\\EasyTARC_Database_User_backup_2_crypted.sql.gz')
+            os.rename('EasyTARC_Database_User_backup_crypted.sql.gz', 'EasyTARC_Database_User_backup_2_crypted.sql.gz')
         
-        shutil.copy(path+'\\EasyTARC_Database_User_crypted.sql.gz', path+'\\full_db_backup_EasyTARC_Database_User_crypted.sql.gz')
+        shutil.copy(path+'\\EasyTARC_Database_User_crypted.sql.gz', path+'\\EasyTARC_Database_User_backup_crypted.sql.gz')
 
         return
 

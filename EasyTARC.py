@@ -25,6 +25,8 @@ import ctypes
 from easytarc_pw_container import PasswordContainer
 import cProfile
 import subprocess
+import getpass
+
 
 from tkinter import messagebox
 
@@ -52,12 +54,19 @@ class App():
         self.local_format = 'de_DE.UTF-8'
 
         self.pw_container = PasswordContainer()
-        self.request_hash_salt = self.pw_container.get_request_hash_salt()
-        self.license_hash_salt = self.pw_container.get_license_hash_salt()
-        self.data_db_password = self.pw_container.get_db_data_password()
+        self.request_hash_complement = self.pw_container.get_request_hash_complement()
+        self.license_hash_complement = self.pw_container.get_license_hash_complement()
+        self.data_db_hash_complement = self.pw_container.get_data_db_hash_complement()
         self.settings_db_password = self.pw_container.get_db_settings_password()
+        self.code_db_password = self.pw_container.get_db_code_password()
 
-        self.user_data_str = str(os.getlogin())
+        #self.user_data_str = str(os.getlogin())
+        self.user_data_str = str(getpass.getuser())
+        #self.user_data_str = 'test'
+
+        #print(self.user_data_str)
+        #print(getpass.getuser())
+        
         self.file_path = os.path.dirname(sys.argv[0])
 
         response_login = self.login()
@@ -96,15 +105,16 @@ class App():
 
     def get_user_license_hash(self):
         return(self.own_user_license_hash)
-        #return('test')
     
     def get_db_user_password(self):
-        user_db_password = self.data_db_password + self.own_user_license_hash
-        #user_db_password = self.data_db_password + 'test'
+        user_db_password = self.data_db_hash_complement + self.own_user_license_hash
         return(user_db_password)
     
     def get_db_settings_password(self):
         return(self.settings_db_password)
+    
+    def get_db_code_password(self):
+        return(self.code_db_password)
     
 ############################################################
 
@@ -160,8 +170,8 @@ class App():
             return(False)
         
     def check_user_license(self):
-        hash_res = 'req_' + self.create_hash(self.user_data_str,self.request_hash_salt)
-        self.own_user_license_hash = self.create_hash(hash_res,self.license_hash_salt)
+        hash_res = 'req_' + self.create_hash(self.user_data_str,self.request_hash_complement)
+        self.own_user_license_hash = self.create_hash(hash_res,self.license_hash_complement)
         if self.login_license_hash == self.own_user_license_hash:
             return(True)
         else:
@@ -173,7 +183,7 @@ class App():
 ################################
         
     def create_user_license_request(self):
-        hash_res = 'req_' + self.create_hash(self.user_data_str,self.request_hash_salt)
+        hash_res = 'req_' + self.create_hash(self.user_data_str,self.request_hash_complement)
         with open("Request_User_License.txt", "w") as file:
             file.write(hash_res)
 

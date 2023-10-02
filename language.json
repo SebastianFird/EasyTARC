@@ -186,7 +186,8 @@
         "loading" : "Laden ...",
         "bookable" : "Buchbar",
         "create_account_bookable_text" : "Wenn Sie möchten, dass das Konto buchbar ist, aktivieren Sie bitte das Kontrollkästchen, \nandernfalls müssen die folgenden Informationen nicht ausgefüllt werden.\nNicht buchbare Konten haben bei der Aktivierung einen lila Button.",
-        "not_bookable": "Nicht buchbar"
+        "not_bookable": "Nicht buchbar",
+        "tips_and_tricks_11" : "Farbe der Aktivierungs-Buttons: \nNicht buchbare Konten haben bei der Aktivierung einen lila Button. \nBuchbare Konten haben bei der Aktivierung einen grünen Button."
     },
     "english": 
     {
@@ -375,6 +376,7 @@
         "loading" : "loading ...",
         "bookable" : "Bookable",
         "create_account_bookable_text" : "If you want the account to be bookable, please check the checkbox, \notherwise the following information does not need to be filled in either.\nNot bookable accounts have a purple button on activation.",
-        "not_bookable": "Not bookable"
+        "not_bookable": "Not bookable",
+        "tips_and_tricks_11" : "Color of activation buttons: \nNot bookable accounts have a purple button on activation.\nBookable accounts have a green button on activation."
     }
 }

@@ -20,23 +20,27 @@ class PasswordContainer:
 
         self.pw_id = 1
         
-        self.request_hash_salt = 'Password_A'
-        self.license_hash_salt = 'Password_B'
-        self.data_db_password = 'Password_C'
+        self.request_hash_complement= 'Password_A'
+        self.license_hash_complement = 'Password_B'
+        self.data_db_hash_complement = 'Password_C'
         self.settings_db_password = 'Password_D'
+        self.code_db_password = 'Password_E'
 
 
-    def get_request_hash_salt(self):
-        return(self.request_hash_salt)
+    def get_request_hash_complement(self):
+        return(self.request_hash_complement)
     
-    def get_license_hash_salt(self):
-        return(self.license_hash_salt)
+    def get_license_hash_complement(self):
+        return(self.license_hash_complement)
     
-    def get_db_data_password(self):
-        return(self.data_db_password)
+    def get_data_db_hash_complement(self):
+        return(self.data_db_hash_complement)
     
     def get_db_settings_password(self):
         return(self.settings_db_password)
+    
+    def get_db_code_password(self):
+        return(self.code_db_password)
     
     def get_passwort_id(self):
         return(self.pw_id)

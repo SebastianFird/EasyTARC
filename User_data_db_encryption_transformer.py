@@ -24,9 +24,42 @@ import sqlite3
 import gzip
 from sqlite_db_conn.sqlite_db import SqlManager
 
+class TkErrorCatcher:
+
+    '''
+    In some cases tkinter will only print the traceback.
+    Enables the program to catch tkinter errors normally
+
+    To use
+    import tkinter
+    tkinter.CallWrapper = TkErrorCatcher
+
+    Inspired from https://stackoverflow.com/questions/35388271/how-to-handle-errors-in-tkinter-mainloop
+    '''
+
+    def __init__(self, func, subst, widget):
+        self.func = func
+        self.subst = subst
+        self.widget = widget
+
+    def __call__(self, *args):
+        try:
+            if self.subst:
+                args = self.subst(*args)
+            return self.func(*args)
+        except SystemExit as msg:
+            messagebox.showerror('Error Message','%s.\n\nThe programme is terminated. Please report this error to the support.'%msg)
+            raise SystemExit(msg)
+        except Exception as err:
+            messagebox.showerror('Error Message','%s.\n\nThe programme is terminated. Please report this error to the support.'%err)
+            raise err
+        
+######################################
+
 class NewRoot(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
+        tk.CallWrapper = TkErrorCatcher
         self.attributes('-alpha', 0.0)
         entry = tk.Button()
         entry.pack()
@@ -35,19 +68,19 @@ class NewRoot(tk.Tk):
 
 ######################################
 
-class SqlSettingDataManager(SqlManager):
-    def __init__(self,main_app,settings_db_password):
+class SqlCodeDataManager(SqlManager):
+    def __init__(self,main_app,code_db_password):
         self.main_app = main_app
-        name = 'EasyTARC_Database_Settings'
+        name = 'EasyTARC_Database_Code'
         self.db_name_enc = name + '_crypted.sql.gz'
-        db_password = str.encode(settings_db_password)
+        db_password = str.encode(code_db_password)
         super().__init__(main_app, name, self.db_name_enc, db_password)
         return
     
     def get_user_license_hash_data_db(self):
         conn = self.open_encrypted_db()
         cur = conn.cursor()
-        cur.execute("SELECT user_license_hash_data_db FROM settings WHERE settingid = ?", (0,))
+        cur.execute("SELECT user_license_hash_data_db FROM code WHERE codeid = ?", (0,))
         user_license_hash_data_db = cur.fetchone()[0]
         self.save_encrypted_db(conn)
         conn.close()
@@ -56,7 +89,7 @@ class SqlSettingDataManager(SqlManager):
     def get_user_license_hash_current(self):
         conn = self.open_encrypted_db()
         cur = conn.cursor()
-        cur.execute("SELECT user_license_hash_current FROM settings WHERE settingid = ?", (0,))
+        cur.execute("SELECT user_license_hash_current FROM code WHERE codeid = ?", (0,))
         user_license_hash_current = cur.fetchone()[0]
         self.save_encrypted_db(conn)
         conn.close()
@@ -93,17 +126,17 @@ class DataCryption(PasswordContainer):
         super().__init__()
 
     def get_db_user_password(self,user_license_hash):
-        user_db_password = self.data_db_password + user_license_hash
+        user_db_password = self.data_db_hash_complement + user_license_hash
         return(user_db_password)
 
 
 def start():
     root = NewRoot()
     data_cryption = DataCryption()
-    settings_db_password = data_cryption.get_db_settings_password()
-    settings_db = SqlSettingDataManager(None,settings_db_password)
-    user_license_hash_data_db = settings_db.get_user_license_hash_data_db()
-    user_license_hash_current = settings_db.get_user_license_hash_current()
+    code_db_password = data_cryption.get_db_code_password()
+    code_db = SqlCodeDataManager(None,code_db_password)
+    user_license_hash_data_db = code_db.get_user_license_hash_data_db()
+    user_license_hash_current = code_db.get_user_license_hash_current()
     text = 'user_license_hash_data_db:\n' + str(user_license_hash_data_db) + '\n\nuser_license_hash_current:\n' + str(user_license_hash_current)
     print(text)
     messagebox.showinfo('EasyTARC',text)
@@ -141,9 +174,6 @@ def start():
     # renaming the new_db in db 
     file_path_new = path + '\\' + 'New_EasyTARC_Database_User'  + '_crypted.sql.gz'
     os.rename(file_path_new, file_path)
-
-
-
 
 if __name__=='__main__':
     start()

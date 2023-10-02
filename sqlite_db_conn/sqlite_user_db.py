@@ -62,7 +62,7 @@ class SqlUserDataManager(SqlManager):
 
     def request_restoring_backup(self):
         self.root = NewRoot()
-        full_db_backup_db_name_enc = 'full_db_backup_' + self.db_name_enc
+        full_db_backup_db_name_enc = 'EasyTARC_Database_User_backup_crypted.sql.gz'
         if os.path.isfile(full_db_backup_db_name_enc) == True:
             result = messagebox.askquestion("EasyTARC", 'EsayTARC cannot retrieve any data, there is a database error. However, a backup was found, should the backup be used at the next start? Please restart EasyTARC after clicking Yes.')
             if result == 'yes':
@@ -80,7 +80,7 @@ class SqlUserDataManager(SqlManager):
         file_path_err = path + '\\error_' + self.db_name_enc
         os.rename(file_path, file_path_err)
         # renaming the backup_db in db 
-        full_db_backup_db_name_enc = 'full_db_backup_' + self.db_name_enc
+        full_db_backup_db_name_enc = 'EasyTARC_Database_User_backup_crypted.sql.gz'
         full_db_backup_path  = path + '\\' + full_db_backup_db_name_enc
         os.rename(full_db_backup_path, file_path)
         return

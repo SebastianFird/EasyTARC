@@ -91,9 +91,7 @@ class SqlSettingDataManager(SqlManager):
             mini_workwindow_modus TEXT,
             bar_workwindow_modus TEXT,
             fontsize INT,
-            version TEXT,
-            user_license_hash_data_db TEXT,
-            user_license_hash_current TEXT
+            version TEXT
             );
             """)
 
@@ -106,30 +104,12 @@ class SqlSettingDataManager(SqlManager):
         bar_work_window_modus = 'control_view'
         font_size = 9
         version = self.main_app.get_version()
-        user_license_hash_data_db = ''
-        user_license_hash_current = ''
 
-        setting_tuple = (setting_id,style_name,language_name,work_window,work_window_type,mini_work_window_modus,bar_work_window_modus,font_size,version,user_license_hash_data_db,user_license_hash_current)
+        setting_tuple = (setting_id,style_name,language_name,work_window,work_window_type,mini_work_window_modus,bar_work_window_modus,font_size,version)
         cur = conn.cursor()
-        cur.execute("INSERT INTO settings VALUES(?,?,?,?,?,?,?,?,?,?,?);", setting_tuple)
+        cur.execute("INSERT INTO settings VALUES(?,?,?,?,?,?,?,?,?);", setting_tuple)
         self.save_encrypted_db(conn)
         conn.close()
-
-    def set_user_license_hash_data_db(self, user_license_hash_data_db):
-        conn = self.open_encrypted_db()
-        cur = conn.cursor()
-        cur.execute("UPDATE settings SET user_license_hash_data_db = ? WHERE settingid = ?", (user_license_hash_data_db,0,))
-        self.save_encrypted_db(conn)
-        conn.close()
-        return()
-    
-    def set_user_license_hash_current(self, user_license_hash_current):
-        conn = self.open_encrypted_db()
-        cur = conn.cursor()
-        cur.execute("UPDATE settings SET user_license_hash_current = ? WHERE settingid = ?", (user_license_hash_current,0,))
-        self.save_encrypted_db(conn)
-        conn.close()
-        return()
 
 ######################################
 

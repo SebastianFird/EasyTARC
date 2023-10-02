@@ -41,9 +41,9 @@ def start():
 
     pw_container = PasswordContainer()
 
-    license_hash_salt = pw_container.get_license_hash_salt()
+    license_hash_complement = pw_container.get_license_hash_complement()
 
-    hash_res = create_hash(request_user_str,license_hash_salt)
+    hash_res = create_hash(request_user_str,license_hash_complement)
 
     create_license(hash_res)
     
