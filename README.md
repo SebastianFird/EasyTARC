@@ -4,7 +4,7 @@ EasyTARC is a local Windows application for keeping track of the time spent on i
 EasyTARC - Easy time accounts recording control - This is my first opensource project. With the help of this project I want to improve my knowledge of the programming language Python and the framework Tkinter, as well as familiarize myself with the development of desktop applications. 
 
 ____________________________________________________________________
-Release 1.6.1:
+Release 1.6.5:
 
 Main-Window:
 ![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/f3e8fee1-83e5-4ea1-a1be-21708ee151d8)
@@ -13,7 +13,8 @@ Here you can see the bar window:
 ![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/cd03b556-370d-4089-9c80-6175bb95a2b6)
 And here is the second work window, the mini window:
 ![grafik](https://github.com/SebastianFird/EasyTARC/assets/137194398/9bc97586-4b5d-44ae-b9c6-1e38269023af)
-
+And if you work in a lot of projects and often switch between them, you can also set this second variant as your mini work window:
+![grafik](https://github.com/SebastianFird/EasyTARC/assets/76477466/3ca9cb0d-811d-49ba-abd8-4dd68e458646)
 
 ____________________________________________________________________
 Installation instructions:
