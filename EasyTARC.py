@@ -64,9 +64,10 @@ class App():
 
         self.code_db = SqlCodeDataManager(self)
         
-        user_data_str = str(os.getlogin())
+        #user_data_str = str(os.getlogin())
+        #user_data_str = 'test'
         user_data_str = str(getpass.getuser())
-
+        
         if self.code_db.get_user_str_case() == 'lower':
             user_data_str = user_data_str.lower()
         else:
