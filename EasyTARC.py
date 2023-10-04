@@ -23,6 +23,7 @@ import hashlib
 import sys
 import ctypes
 from easytarc_pw_container import PasswordContainer
+from sqlite_db_conn.sqlite_code_db import SqlCodeDataManager
 import cProfile
 import subprocess
 import getpass
@@ -49,9 +50,10 @@ class App():
         self.app_name = 'EasyTARC'
         self.app_config = 'restricted' # 'normal'
         self.version = '1.6.5'
-        self.version_date = '26.09.2023'
+        self.version_date = '05.10.2023'
         self.action_state = "disabled"
         self.local_format = 'de_DE.UTF-8'
+        self.file_path = os.path.dirname(sys.argv[0])
 
         self.pw_container = PasswordContainer()
         self.request_hash_complement = self.pw_container.get_request_hash_complement()
@@ -60,23 +62,29 @@ class App():
         self.settings_db_password = self.pw_container.get_db_settings_password()
         self.code_db_password = self.pw_container.get_db_code_password()
 
-        #self.user_data_str = str(os.getlogin())
-        self.user_data_str = str(getpass.getuser())
-        #self.user_data_str = 'test'
-
-        #print(self.user_data_str)
-        #print(getpass.getuser())
+        self.code_db = SqlCodeDataManager(self)
         
-        self.file_path = os.path.dirname(sys.argv[0])
+        user_data_str = str(os.getlogin())
+        user_data_str = str(getpass.getuser())
+
+        if self.code_db.get_user_str_case() == 'lower':
+            user_data_str = user_data_str.lower()
+        else:
+            user_data_str = user_data_str.upper()
+
+        #self.user_data_str = 'test'
+        self.user_data_str = user_data_str
 
         response_login = self.login()
         response_only_task = self.check_only_task()
 
-        
         # start main
         if response_login == True and response_only_task == True:
+            self.code_db.set_user_license_hash_current(self.get_user_license_hash())
             self.start_main()
+            self.code_db.set_user_license_hash_data_db(self.get_user_license_hash())
             self.run_gui()
+            
 
 ############################################################
 

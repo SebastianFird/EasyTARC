@@ -24,7 +24,7 @@ import json
 
 from sqlite_db_conn.sqlite_user_db import SqlUserDataManager
 from sqlite_db_conn.sqlite_settings_db import SqlSettingDataManager
-from sqlite_db_conn.sqlite_code_db import SqlCodeDataManager
+
 
 from clock import InfoClock
 from clock import MainAccountClock
@@ -63,12 +63,8 @@ class DataManager:
 #################################################################
         
     def start_data_management(self):
-        self.code_db = SqlCodeDataManager(self.main_app)
-        self.code_db.set_user_license_hash_current(self.main_app.get_user_license_hash())
 
         self.user_db = SqlUserDataManager(self.main_app)
-        self.code_db.set_user_license_hash_data_db(self.main_app.get_user_license_hash())
-
         self.settings_db = SqlSettingDataManager(self.main_app)
 
         #####

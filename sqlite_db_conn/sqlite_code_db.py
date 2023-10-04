@@ -30,6 +30,7 @@ import datetime
 import tkinter as tk
 from tkinter import messagebox
 from sqlite_db_conn.sqlite_db import SqlManager
+import getpass
 
 class NewRoot(tk.Tk):
     def __init__(self):
@@ -66,17 +67,24 @@ class SqlCodeDataManager(SqlManager):
         cur.execute("""CREATE TABLE IF NOT EXISTS code(
             codeid INT PRIMARY KEY,
             user_license_hash_data_db TEXT,
-            user_license_hash_current TEXT
+            user_license_hash_current TEXT,
+            user_str_case TEXT
             );
             """)
 
         code_id = 0
         user_license_hash_data_db = ''
         user_license_hash_current = ''
+        user_data_str = str(getpass.getuser())
+        if user_data_str.islower() == True:
+            user_str_case = 'lower'
+        else:
+            user_str_case = 'upper'
 
-        code_tuple = (code_id,user_license_hash_data_db,user_license_hash_current)
+        code_tuple = (code_id,user_license_hash_data_db,user_license_hash_current,user_str_case)
         cur = conn.cursor()
-        cur.execute("INSERT INTO code VALUES(?,?,?);", code_tuple)
+        cur.execute("INSERT INTO code VALUES(?,?,?,?);", code_tuple)
+        
         self.save_encrypted_db(conn)
         conn.close()
 
@@ -97,3 +105,12 @@ class SqlCodeDataManager(SqlManager):
         self.save_encrypted_db(conn)
         conn.close()
         return()
+    
+    def get_user_str_case(self):
+        conn = self.open_encrypted_db()
+        cur = conn.cursor()
+        cur.execute("SELECT user_str_case FROM code WHERE codeid = ?", (0,))
+        user_str_case = cur.fetchone()[0]
+        self.save_encrypted_db(conn)
+        conn.close()
+        return(user_str_case)
