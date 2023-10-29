@@ -123,13 +123,13 @@ class MainWindow(tk.Toplevel):
 
 ##################################################
 
-    def on_root_iconify(self, event):
+    def on_root_iconify(self, event=None):
         # print('unmap')
         if self.gui.on_window_switch == False:
-            self.gui.minimise()
             self.withdraw()
-        
-    def on_root_deiconify(self, event):
+            self.gui.minimise()
+            
+    def on_root_deiconify(self, event=None):
         # print('map')
         if self.gui.on_window_switch == False:
             self.gui.unminimise()
@@ -151,7 +151,7 @@ class MainWindow(tk.Toplevel):
         self.x_win = self.x_win - self.start_x
 
     def move_window(self, event):
-        if type(event.x_root) == int and type(event.y_root) == int:
+        if type(event.x_root) == int and type(self.x_win) == int and type(event.y_root) == int and type(self.y_win) == int:
             self.geometry('+{0}+{1}'.format(event.x_root + self.x_win, event.y_root + self.y_win))
             self.start_x = event.x_root
             self.start_y = event.y_root

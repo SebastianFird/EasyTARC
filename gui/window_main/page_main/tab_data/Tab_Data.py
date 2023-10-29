@@ -19,6 +19,8 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
+import subprocess
+import os
 
 from gui.Scroll_Frame import Scroll_Frame
 from gui.window_main.page_main.tab_data.Tab_Data_Body import DataBody
@@ -136,15 +138,29 @@ class DataTab(Scroll_Frame):
 #################################################################
     
     def export_all_passed_times(self):
-        #tk.Tk().withdraw() # prevents an empty tkinter window from appearing
         self.gui.disable_main_window()
-        folder_path = filedialog.askdirectory(initialdir=self.main_app.get_filepath(),title=self.main_app.app_name)
-        if folder_path != '':
-            try:
-                self.data_manager.export_passed_times_df(folder_path)
-            except PermissionError:
-                messagebox.showinfo('Faild','The Excel document could not be exported')
+        export_path = self.main_app.get_filepath() + '/Excel_export'
+
+        if os.path.exists(export_path) == False:
+            try:  
+                os.mkdir(export_path)  
+            except OSError as error:  
+                messagebox.showinfo('Faild','The Export folder can not be created')
+                self.gui.enable_main_window()
+                return
+            
+        try:
+            self.data_manager.export_passed_times_df(export_path)
+            os.startfile(export_path)
+        except PermissionError:
+            messagebox.showinfo('Faild','The Excel document could not be exported')
+            self.gui.enable_main_window()
+            return
+        
         self.gui.enable_main_window()
+    
+
+        
 
 
 

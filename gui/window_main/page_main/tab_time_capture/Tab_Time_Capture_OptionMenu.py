@@ -46,7 +46,7 @@ class CaptureOptionMenu(tkinter.Listbox):
 
         self.optionmenu.add_command(label=self.language_dict["info_about_the_time_account"],command=self.show_clock_info)
 
-        if self.selected_clock.clock_kind == 'main':
+        if self.selected_clock.clock_kind == 'main' and self.selected_clock.get_id() != 0:
             self.optionmenu.add_separator()
             self.optionmenu.add_command(label=self.language_dict["remove"],command=self.unpack_main_clock)
 

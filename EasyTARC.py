@@ -49,8 +49,7 @@ class App():
 
         self.app_name = 'EasyTARC'
         self.app_config = 'restricted' # 'normal'
-        self.version = '1.6.5'
-        self.version_date = '05.10.2023'
+        self.version = '1.6.6'
         self.action_state = "disabled"
         self.local_format = 'de_DE.UTF-8'
         self.file_path = os.path.dirname(sys.argv[0])
@@ -103,9 +102,6 @@ class App():
     
     def get_version(self):
         return(self.version)
-    
-    def get_version_date(self):
-        return(self.version_date)
 
     def get_filepath(self):
         return(self.file_path)

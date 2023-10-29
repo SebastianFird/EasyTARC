@@ -91,8 +91,11 @@ class Scroll_Frame:
         return direction
 
     def _on_mousewheel(self, event):
-        direction = self.enable_scroll(int(-1*(event.delta/120)))
-        self.my_canvas.yview_scroll(direction, "units")
+        try: 
+            direction = self.enable_scroll(int(-1*(event.delta/120)))
+            self.my_canvas.yview_scroll(direction, "units")
+        except tk.TclError as err: 
+            return
         return
 
     '''

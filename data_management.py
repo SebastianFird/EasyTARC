@@ -867,8 +867,11 @@ class DataManager:
             pass
         df_pivot_1.to_excel(writer,'Pivot_Day')
 
-        df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['project_nbr','order_nbr','process_nbr','main_account','name'], aggfunc='sum' , fill_value=0)
-        df_pivot_2.to_excel(writer,'Pivot_Accounts')
+        df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['month','project_nbr','order_nbr','process_nbr','main_account','name'], aggfunc='sum' , fill_value=0)
+        df_pivot_2.to_excel(writer,'Pivot_Accounts_month')
+
+        df_pivot_3 = pd.pivot_table(df, values = 'hours', index=['project_nbr','order_nbr','process_nbr','main_account','name'], aggfunc='sum' , fill_value=0)
+        df_pivot_3.to_excel(writer,'Pivot_Accounts_total')
         
         writer.save()
 

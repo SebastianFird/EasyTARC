@@ -115,7 +115,7 @@ class MiniWorkWindowList(tk.Toplevel):
         self.win_y_pos = self.winfo_y() - event.y_root
 
     def move_window(self, event):
-        if type(event.y_root) == int:
+        if type(event.y_root) == int and type(self.win_y_pos) == int:
             if (event.y_root + self.win_y_pos) <= self.win_y_pos_limit:
                 if self.expand_frame_displayed == False:
                     self.geometry('+{0}+{1}'.format(self.win_vertical_x_pos, event.y_root + self.win_y_pos))
@@ -229,6 +229,11 @@ class MiniWorkWindowList(tk.Toplevel):
             self.lbl_name.configure(text=' ' + clock_name)
             self.canvas_lbl_name.configure(bg=self.style_dict["bottom_active_color"])
             self.canvas_lbl_name.itemconfig(self.canvas_text, text=clock_name)
+
+            if self.modus != 'dynamic_view':
+                self.lbl_name_ttp.text = self.language_dict['double_click'] + '\n' + clock_name
+            else:
+                self.lbl_name_ttp.text = clock_name
 
         elif self.pause_clock.get_runninig() == True:
             background_color = self.style_dict["bottom_pause_color"]
@@ -541,18 +546,15 @@ class GroupFrame((tk.Frame)):
 
     def create_main_frame(self):
 
-        self.main_frame = MyFrame(self,self.data_manager)
-        self.main_frame.pack(side = "top", fill = "x")
-
         font_family = self.data_manager.get_font_family()
         font_size = self.data_manager.get_font_size()
         Font_tuple = (font_family, font_size, "bold")
 
-        self.separator_frame_1 = MyFrame(self.main_frame,self.data_manager)
+        self.separator_frame_1 = MyFrame(self,self.data_manager)
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
         self.separator_frame_1.pack(side = "top",fill='x')
 
-        self.group_frame = MyFrame(self.main_frame,self.data_manager)
+        self.group_frame = MyFrame(self,self.data_manager)
         self.group_frame.pack(side = "top",fill='x')
 
         self.lbl_group = MyLabel(self.group_frame,self.data_manager,text = '     '+str(self.group) + ':', anchor = 'w')
@@ -602,10 +604,7 @@ class ClockFrame((tk.Frame)):
 
     def create_main_frame(self):
 
-        self.main_frame = MyFrame(self,self.data_manager)
-        self.main_frame.pack(side = "top", fill = "x")
-
-        self.lbl_activate_account_clock = MyLabel(self.main_frame, self.data_manager, image=self.photo_btn_off)
+        self.lbl_activate_account_clock = MyLabel(self, self.data_manager, image=self.photo_btn_off)
         self.lbl_activate_account_clock.image = self.photo_btn_off
         self.lbl_activate_account_clock.pack(side = "left", padx=5, pady=5)
 
@@ -616,7 +615,7 @@ class ClockFrame((tk.Frame)):
             if self.clock.get_clock_kind() == 'sub':
                 name = ' ' + u'\U00002B9E' + ' ' + name
 
-        self.lbl_name = MyLabel(self.main_frame,self.data_manager,text = name)
+        self.lbl_name = MyLabel(self,self.data_manager,text = name)
         self.lbl_name.pack(side = "left", padx=5, pady=5)
 
         self.lbl_activate_account_clock.bind("<Enter>", self.account_clock_enter)

@@ -141,34 +141,41 @@ class WorkWindowCbox(tk.Toplevel):
         self.auto_update_btn_frame()
 
     def get_selectable_account_clock_list(self):
-        main_account_clock_list = self.data_manager.get_main_account_clock_list()
-        if main_account_clock_list == []:
-            return(main_account_clock_list)
         
-        current_main_account_clock_list = [ele for ele in main_account_clock_list if ele.get_account_status() == 'current']
+        work_window_group_main_account_list = self.data_manager.get_work_window_group_main_account_list()
         current_account_clock_list = []
-        for current_main_account_clock in current_main_account_clock_list:
-            current_account_clock_list.append(current_main_account_clock)
-            sub_clock_list = current_main_account_clock.get_sub_clock_list()
-            if sub_clock_list != []:
+
+        for group in work_window_group_main_account_list:
+            main_account_list = group[1]
+            pack_main_account_list = [ele for ele in main_account_list if ele.get_account_status() == 'current']
+
+            for main_account_clock in pack_main_account_list:                    
+                current_account_clock_list.append(main_account_clock)
+
+                sub_clock_list = main_account_clock.get_sub_clock_list()
                 sub_clock_list = [ele for ele in sub_clock_list if ele.get_account_status() == 'current']
-                current_account_clock_list = current_account_clock_list + sub_clock_list
+
+                for sub_account_clock in sub_clock_list:
+                    current_account_clock_list.append(sub_account_clock)
 
         active_clock = self.data_manager.get_active_clock()
         last_clock = self.data_manager.get_last_active_clock()
         last_selected_account_clock_full_name = self.clicked_selectable_account_clock.get()
+
         last_selected_account_clock_list = [ele for ele in current_account_clock_list if ele.get_full_name() == last_selected_account_clock_full_name]
         if last_selected_account_clock_list != []:
             last_selected_account_clock = last_selected_account_clock_list[0]
         else:
             last_selected_account_clock = None
 
-        edit_account_clock_list = current_main_account_clock_list = [ele for ele in current_account_clock_list if (ele != active_clock) and (ele != last_clock) and (ele != self.default_clock) and (ele != last_selected_account_clock)]
+        edit_account_clock_list = [ele for ele in current_account_clock_list if (ele != active_clock) and (ele != last_clock) and (ele != self.default_clock) and (ele != last_selected_account_clock)]
 
         if last_clock in current_account_clock_list and last_clock != active_clock and last_clock != self.default_clock and last_clock != last_selected_account_clock:
             edit_account_clock_list = [last_clock] + edit_account_clock_list
+
         if self.pause_clock.get_runninig() == False and self.default_clock.get_runninig() == False and self.main_app.get_action_state() == "normal" and active_clock != last_selected_account_clock:
                 edit_account_clock_list = [active_clock] + edit_account_clock_list
+                
         if last_selected_account_clock != None:
             edit_account_clock_list = [last_selected_account_clock] + edit_account_clock_list
         

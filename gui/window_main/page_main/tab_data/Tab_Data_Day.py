@@ -55,7 +55,7 @@ class DataDayFrame:
             record_frame = DataRecordFrame(self.main_frame, self.main_app, self.gui,self.data_tab,self.data_category,record_dict)
             record_frame.pack(side = "top", fill = "x")
             self.record_frame_list.append(record_frame)
-            if record_dict['booked'] == 0 and record_dict['account_id'] != 0:
+            if record_dict['booked'] == 0 and record_dict['bookable'] != 0:
                 fold_out = True
         if fold_out == True:
             self.fold_out_day_records()

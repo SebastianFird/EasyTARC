@@ -79,10 +79,6 @@ class SetupHead:
         self.lbl_version.configure(background=self.style_dict["header_color"],foreground = self.style_dict["font_color_2"])
         self.lbl_version.pack(side='left',padx = 10,pady=10)
 
-        self.lbl_date = MyLabel(self.main_head_frame, self.data_manager,text=str(self.main_app.get_version_date()))
-        self.lbl_date.configure(background=self.style_dict["header_color"],foreground = self.style_dict["font_color_2"])
-        self.lbl_date.pack(side='left',padx = 10,pady=10)
-
         self.btn_release_notes = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict['release_notes'],width=15,command=self.show_release_notes)
         self.btn_release_notes.pack(side='right',padx = 10,pady=10)
 
@@ -121,15 +117,16 @@ class SetupHead:
         text = text + "\n\n" + self.language_dict['release_note_text_4']
         text = text + "\n\n" + self.language_dict['release_note_text_5']
         text = text + "\n\n" + self.language_dict['release_note_text_6']
+        text = text + "\n\n" + self.language_dict['release_note_text_7']
 
         info_window = InfoWindow(self.main_app, self.gui, self.setup_tab.main_frame ,text,600,400)
         return
     
     def show_directory(self):
-        open_text = 'explorer ,"' + self.main_app.get_filepath() + '"'
+        #open_text = 'explorer ,"' + self.main_app.get_filepath() + '"'
 
         os.startfile(self.main_app.get_filepath())
-        print(open_text)
+        #print(open_text)
         #subprocess.Popen(open_text)
         return
     
@@ -166,11 +163,9 @@ class SetupHead:
         self.btn_tips.refresh_style()
         self.btn_start_up.refresh_style()
         self.lbl_version.refresh_style()
-        self.lbl_date.refresh_style()
         self.btn_directory_ttp.refresh()
 
         self.lbl_version.configure(background=self.style_dict["header_color"],foreground = self.style_dict["font_color_2"])
-        self.lbl_date.configure(background=self.style_dict["header_color"],foreground = self.style_dict["font_color_2"])
         self.main_head_frame.configure(background=self.style_dict["header_color"])
         self.update_main_head()
 

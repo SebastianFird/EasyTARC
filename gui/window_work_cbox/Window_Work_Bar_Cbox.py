@@ -59,7 +59,7 @@ class BarWorkWindowCbox(WorkWindowCbox):
         self.x_win = self.x_win - self.start_x
 
     def move_window(self, event):
-        if type(event.x_root) == int:
+        if type(event.x_root) == int and type(self.x_win) == int : 
             self.geometry('+{0}+{1}'.format(event.x_root + self.x_win,0))
             self.start_x = event.x_root
 
@@ -165,6 +165,11 @@ class BarWorkWindowCbox(WorkWindowCbox):
             else:
                 clock_name = self.language_dict['without_allocation']
             self.lbl_name.configure(text=' ' + clock_name)
+            
+            if self.modus != 'dynamic_view':
+                self.lbl_name_ttp.text = self.language_dict['double_click'] + '\n' + clock_name
+            else:
+                self.lbl_name_ttp.text =  clock_name
 
         elif self.pause_clock.get_runninig() == True:
             background_color = self.style_dict["bottom_pause_color"]
