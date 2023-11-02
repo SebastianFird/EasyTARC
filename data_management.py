@@ -23,8 +23,6 @@ import shutil
 import json
 
 from sqlite_db_conn.sqlite_user_db import SqlUserDataManager
-from sqlite_db_conn.sqlite_settings_db import SqlSettingDataManager
-
 
 from clock import InfoClock
 from clock import MainAccountClock
@@ -38,9 +36,6 @@ class DataManager:
         self.main_app = main_app
 
         self.style_dict = None
-        self.work_window = None
-        self.font_family = None
-        self.font_size = None
 
         self.active_clock = None
         self.last_active_clock = None
@@ -64,19 +59,46 @@ class DataManager:
         
     def start_data_management(self):
 
+        if self.main_app.get_version_update() == True:
+            # update
+            print(self.main_app.get_user_db_name() + self.main_app.get_db_name_ending())
+            if os.path.isfile(self.main_app.get_user_db_name() + self.main_app.get_db_name_ending()) == True and os.path.isfile(self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + self.main_app.get_db_name_ending()) == False:
+                os.rename(self.main_app.get_user_db_name() + self.main_app.get_db_name_ending(), self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + self.main_app.get_db_name_ending())
+                print('1')
+            
+            if os.path.isfile('full_db_backup_'+ self.main_app.get_user_db_name() + self.main_app.get_db_name_ending()) == True and os.path.isfile(self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup' + self.main_app.get_db_name_ending()) == False:
+                os.rename('full_db_backup_'+ self.main_app.get_user_db_name() + self.main_app.get_db_name_ending(), self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup' + self.main_app.get_db_name_ending())
+                print('2')
+
+            if os.path.isfile('last_full_db_backup_'+ self.main_app.get_user_db_name() + self.main_app.get_db_name_ending()) == True and os.path.isfile(self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending()) == False:
+                os.rename('last_full_db_backup_'+ self.main_app.get_user_db_name() + self.main_app.get_db_name_ending(), self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending())
+                print('3')
+
+            if os.path.isfile(self.main_app.get_user_db_name() + '_backup' + self.main_app.get_db_name_ending()) == True and os.path.isfile( self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup' + self.main_app.get_db_name_ending()) == False:
+                os.rename(self.main_app.get_user_db_name() + '_backup' + self.main_app.get_db_name_ending(), self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup' + self.main_app.get_db_name_ending())
+                print('4')
+                
+            if os.path.isfile(self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending()) == True and os.path.isfile(self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending()) == False:
+                os.rename(self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending(),self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending())
+                print('5')
+
+            if os.path.isfile(self.main_app.get_settings_db_name() + self.main_app.get_db_name_ending()) == True:
+                path = os.path.abspath(os.getcwd())
+                os.remove(path+'\\' + self.main_app.get_settings_db_name() + self.main_app.get_db_name_ending())
+                print('6')
+
+            if os.path.isfile(self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending()) == True:
+                path = os.path.abspath(os.getcwd())
+                shutil.copy(path + '\\' + self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending(), path + '\\' + self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_update' + self.main_app.get_db_name_ending())
+
         self.user_db = SqlUserDataManager(self.main_app)
-        self.settings_db = SqlSettingDataManager(self.main_app)
 
-        #####
-        if self.settings_db.new_version == True:
-            path = os.path.abspath(os.getcwd())
-            if os.path.isfile('full_db_backup_EasyTARC_Database_User_crypted.sql.gz') == True:
-                os.rename('full_db_backup_EasyTARC_Database_User_crypted.sql.gz', 'EasyTARC_Database_User_backup_crypted.sql.gz')
-            if os.path.isfile('last_full_db_backup_EasyTARC_Database_User_crypted.sql.gz') == True:
-                os.rename('last_full_db_backup_EasyTARC_Database_User_crypted.sql.gz', 'EasyTARC_Database_User_backup_2_crypted.sql.gz')
-
+        if self.main_app.get_version_update() == True:
+            # update
+            print('update')
             self.user_db.account_set_autobooking(0,0)
             self.user_db.set_booked_accound_time_sum_unbooked(0)
+
         #####
 
         with open('style.json',encoding='UTF-8') as json_file:
@@ -86,20 +108,8 @@ class DataManager:
             self.language_json = json.load(json_file)
 
         self.load_image_dicts()
-
-        style_name = self.settings_db.get_style_name()
-        self.load_style_dict(style_name)
-
-        language_name = self.settings_db.get_language_name()
-        self.load_language_dict(language_name)
-
-        self.work_window = self.settings_db.get_work_window()
-        self.work_window_type = self.settings_db.get_work_window_type()
-        self.mini_work_window_modus = self.settings_db.get_mini_work_window_modus()
-        self.bar_work_window_modus = self.settings_db.get_bar_work_window_modus()
-
-        self.font_family = "Segoe UI"
-        self.font_size = self.settings_db.get_font_size()
+        self.load_style_dict(self.main_app.get_setting('style_name'))
+        self.load_language_dict(self.main_app.get_setting('language_name'))
 
         if self.user_db.get_backup_account_id_list() == []:
             self.backup_found = False
@@ -236,12 +246,12 @@ class DataManager:
 
         path = os.path.abspath(os.getcwd())
 
-        if os.path.isfile('EasyTARC_Database_User_backup_crypted.sql.gz') == True:
-            if os.path.isfile('EasyTARC_Database_User_backup_2_crypted.sql.gz') == True:
-                os.remove(path+'\\EasyTARC_Database_User_backup_2_crypted.sql.gz')
-            os.rename('EasyTARC_Database_User_backup_crypted.sql.gz', 'EasyTARC_Database_User_backup_2_crypted.sql.gz')
+        if os.path.isfile(self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup' + self.main_app.get_db_name_ending()) == True: # self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + self.main_app.get_db_name_ending()
+            if os.path.isfile(self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending()) == True:
+                os.remove(path+'\\' + self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending())
+            os.rename(self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup' + self.main_app.get_db_name_ending(),self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending())
         
-        shutil.copy(path+'\\EasyTARC_Database_User_crypted.sql.gz', path+'\\EasyTARC_Database_User_backup_crypted.sql.gz')
+        shutil.copy(path+'\\'+ self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + self.main_app.get_db_name_ending(), path+'\\' + self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup' + self.main_app.get_db_name_ending())
 
         return
 
@@ -423,11 +433,6 @@ class DataManager:
         style_list = list(self.style_json.keys())
         return(style_list)
     
-    def set_style(self, style_name):
-        self.settings_db.set_style_name(style_name)
-        self.load_style_dict(style_name)
-        return()
-    
 #################################################################
 
     def load_language_dict(self,language_name):
@@ -439,71 +444,14 @@ class DataManager:
     def get_language_list(self):
         language_list = list(self.language_json.keys())
         return(language_list)
-    
-    def set_language(self, language_name):
-        self.settings_db.set_language_name(language_name)
-        self.load_language_dict(language_name)
-        return()
-    
+
 #################################################################
-
-    def set_work_window(self, work_window):
-        self.settings_db.set_work_window(work_window)
-        self.work_window = work_window
-        return()
-    
-    def get_work_window(self):
-        return(self.work_window)
-    
-    ##########
-
-    def set_work_window_type(self, ww_type):
-        self.settings_db.set_work_window_type(ww_type)
-        self.work_window_type = ww_type
-        return()
-    
-    def get_work_window_type(self):
-        return(self.work_window_type)
-    
-    ##########
     
     def set_work_window_group_main_account_list(self,work_window_group_main_account_list):
         self.work_window_group_main_account_list = work_window_group_main_account_list
 
     def get_work_window_group_main_account_list(self):
         return(self.work_window_group_main_account_list)
-    
-    ##########
-    
-    def set_mini_work_window_modus(self,modus):
-        self.settings_db.set_mini_work_window_modus(modus)
-        self.mini_work_window_modus = modus
-        return()
-    
-    def get_mini_work_window_modus(self):
-        return(self.mini_work_window_modus)
-    
-    ##########
-
-    def set_bar_work_window_modus(self,modus):
-        self.settings_db.set_bar_work_window_modus(modus)
-        self.bar_work_window_modus = modus
-        return()
-    
-    def get_bar_work_window_modus(self):
-        return(self.bar_work_window_modus)
-
-#################################################################
-
-    def get_font_family(self):
-        return(self.font_family)
-
-    def get_font_size(self):
-        return(self.font_size)
-
-    def set_font_size(self,size):
-        self.settings_db.set_font_size(size)
-        self.font_size = size
 
 #################################################################
 
@@ -853,11 +801,11 @@ class DataManager:
         df = df[['month','date','weekday','date_text','id','name','kind','main_account','combined name','description_text','group','project_nbr','order_nbr','process_nbr','response_nbr','hours','booked','bookable']]
         dt = datetime.now()
         str_today = dt.strftime("%Y") + "_" + dt.strftime("%m") + "_" + dt.strftime("%d")
-        save_str = path + '\Export_' + self.main_app.app_name + '_' + str_today + '.xlsx'
+        save_str = path + '\Export_' + self.main_app.get_name() + '_' + str_today + '.xlsx'
 
         writer = pd.ExcelWriter(save_str)
 
-        if self.main_app.app_config == 'normal':
+        if self.main_app.get_config() == 'single_user_unencrypted':
             df.to_excel(writer,'Overview', index=False)
 
         df_pivot_1 = pd.pivot_table(df, values = 'hours', index=['month','date','weekday'], columns = 'booked', aggfunc='sum' , fill_value=0)

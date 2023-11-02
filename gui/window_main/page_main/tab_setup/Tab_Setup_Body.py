@@ -47,8 +47,8 @@ class SetupBody:
 
     def create_main_frame(self,container):
 
-        font_family = self.data_manager.get_font_family()
-        font_size = self.data_manager.get_font_size()
+        font_family = self.main_app.get_setting('font_family')
+        font_size = self.main_app.get_setting('font_size')
         Font_tuple = (font_family, font_size, "bold")
 
         self.main_frame = MyFrame(container,self.data_manager)
@@ -68,7 +68,7 @@ class SetupBody:
 
         row_nbr = 0
 
-        self.lbl_style = MyLabel(self.appearance_frame,self.data_manager,text = self.language_dict['style'], width=20)
+        self.lbl_style = MyLabel(self.appearance_frame,self.data_manager,text = '   ' + self.language_dict['style'], anchor = 'w', width=20)
         self.lbl_style.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         clicked_style = tk.StringVar()
@@ -100,7 +100,7 @@ class SetupBody:
 
         row_nbr = 0
 
-        self.lbl_language = MyLabel(self.language_frame,self.data_manager,text = self.language_dict['language'], width=20)
+        self.lbl_language = MyLabel(self.language_frame,self.data_manager,text = '   ' + self.language_dict['language'], anchor = 'w', width=20)
         self.lbl_language.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         clicked_language = tk.StringVar()
@@ -133,7 +133,7 @@ class SetupBody:
 
         row_nbr = 0
 
-        self.lbl_work_window = MyLabel(self.workwindow_frame,self.data_manager,text = self.language_dict['standard'], width=20)
+        self.lbl_work_window = MyLabel(self.workwindow_frame,self.data_manager,text = '   ' + self.language_dict['standard'], anchor = 'w', width=20)
         self.lbl_work_window.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         clicked_work_window = tk.StringVar()
@@ -153,7 +153,7 @@ class SetupBody:
 
         row_nbr = 0
 
-        self.lbl_bar_work_window_modus = MyLabel(self.bar_workwindow_modus_frame,self.data_manager,text = self.language_dict['bar_work_window_view'], width=20)
+        self.lbl_bar_work_window_modus = MyLabel(self.bar_workwindow_modus_frame,self.data_manager,text = '   ' + self.language_dict['bar_work_window_view'], anchor = 'w', width=20)
         self.lbl_bar_work_window_modus.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         clicked_bar_work_window_modus = tk.StringVar()
@@ -173,7 +173,7 @@ class SetupBody:
 
         row_nbr = 0
 
-        self.lbl_mini_work_window_modus = MyLabel(self.mini_workwindow_modus_frame,self.data_manager,text = self.language_dict['mini_work_window_view'], width=20)
+        self.lbl_mini_work_window_modus = MyLabel(self.mini_workwindow_modus_frame,self.data_manager,text = '   ' + self.language_dict['mini_work_window_view'], anchor = 'w', width=20)
         self.lbl_mini_work_window_modus.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         clicked_mini_work_window_modus = tk.StringVar()
@@ -193,7 +193,7 @@ class SetupBody:
 
         row_nbr = 0
 
-        self.lbl_work_window_type = MyLabel(self.workwindow_type_frame,self.data_manager,text = self.language_dict['mini_work_window_type'], width=20)
+        self.lbl_work_window_type = MyLabel(self.workwindow_type_frame,self.data_manager,text = '   ' + self.language_dict['mini_work_window_type'], anchor = 'w', width=20)
         self.lbl_work_window_type.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         clicked_work_window_type = tk.StringVar()
@@ -226,7 +226,7 @@ class SetupBody:
 
         row_nbr = 0
 
-        self.lbl_font_size = MyLabel(self.font_frame,self.data_manager,text = self.language_dict['size'], width=20)
+        self.lbl_font_size = MyLabel(self.font_frame,self.data_manager,text = '   ' + self.language_dict['size'], anchor = 'w', width=20)
         self.lbl_font_size.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         clicked_font_size = tk.StringVar()
@@ -246,7 +246,7 @@ class SetupBody:
         self.separator_frame_3.pack(side = "top",fill='x')
 
         self.head_db_frame = MyFrame(self.main_frame,self.data_manager)
-        if self.main_app.app_config == 'normal':
+        if self.main_app.get_config() == 'single_user_encrypted':
             self.head_db_frame.pack(side = "top",fill='x')
 
         self.lbl_category_db = MyLabel(self.head_db_frame,self.data_manager,text = self.language_dict['database'], anchor = 'w', width=35)
@@ -254,12 +254,12 @@ class SetupBody:
         self.lbl_category_db.pack(side = "left")
 
         self.db_frame = MyFrame(self.main_frame,self.data_manager)
-        if self.main_app.app_config == 'normal':
+        if self.main_app.get_config() == 'single_user_encrypted':
             self.db_frame.pack(side = "top", fill = 'x')
 
         row_nbr = 0
 
-        self.lbl_export = MyLabel(self.db_frame,self.data_manager,text = self.language_dict['export'], width=20)
+        self.lbl_export = MyLabel(self.db_frame,self.data_manager,text = '   ' + self.language_dict['export'], anchor = 'w', width=20)
         self.lbl_export.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         clicked_db_export = tk.StringVar()
@@ -287,7 +287,8 @@ class SetupBody:
         return
     
     def set_style(self,style_name):
-        self.data_manager.set_style(style_name)
+        self.main_app.change_settings('style_name',style_name)
+        self.data_manager.load_style_dict(style_name)
         self.gui.refresh()
         self.gui.main_window.case_frame.notebook_frame.tab_manager.go_to_setup()
         self.btn_set_style.configure(text=u'\U00002713') 
@@ -306,7 +307,8 @@ class SetupBody:
         return
     
     def set_language(self,language_name):
-        self.data_manager.set_language(language_name)
+        self.main_app.change_settings('language_name',language_name)
+        self.data_manager.load_language_dict(language_name)
         self.gui.refresh()
         self.gui.main_window.case_frame.notebook_frame.tab_manager.go_to_setup()
         self.btn_set_language.configure(text=u'\U00002713') 
@@ -316,7 +318,7 @@ class SetupBody:
 
     def updt_ww_cblist(self):
         self.work_window_cbox['values'] = [self.language_dict['mini_work_window'],self.language_dict['bar_work_window']]
-        if self.data_manager.get_work_window() == self.language_dict[self.language_dict['mini_work_window']]:
+        if self.main_app.get_setting('work_window') == self.language_dict[self.language_dict['mini_work_window']]:
             self.work_window_cbox.current(0)
         else:
             self.work_window_cbox.current(1)
@@ -326,16 +328,16 @@ class SetupBody:
         return
     
     def set_work_window(self,name):
-        self.data_manager.set_work_window(name)
+        self.main_app.change_settings('work_window',name)
         self.btn_set_work_window.configure(text=u'\U00002713') 
 
 ###############################
 
     def updt_bwwm_cblist(self):
         self.bar_work_window_modus_cbox['values'] = [self.language_dict['control_view'],self.language_dict['info_view'],self.language_dict['dynamic_view']]
-        if self.data_manager.get_bar_work_window_modus() == self.language_dict[self.language_dict['control_view']]:
+        if self.main_app.get_setting('bar_work_window_modus') == self.language_dict[self.language_dict['control_view']]:
             self.bar_work_window_modus_cbox.current(0)
-        elif self.data_manager.get_bar_work_window_modus() == self.language_dict[self.language_dict['info_view']]:
+        elif self.main_app.get_setting('bar_work_window_modus') == self.language_dict[self.language_dict['info_view']]:
             self.bar_work_window_modus_cbox.current(1)
         else:
             self.bar_work_window_modus_cbox.current(2)
@@ -346,16 +348,16 @@ class SetupBody:
     
     def set_bar_work_window_modus(self,modus):
         self.gui.bar_work_window_modus = modus
-        self.data_manager.set_bar_work_window_modus(modus)
+        self.main_app.change_settings('bar_work_window_modus',modus)
         self.btn_set_bar_work_window_modus.configure(text=u'\U00002713') 
 
 ###############################
 
     def updt_mwwm_cblist(self):
         self.mini_work_window_modus_cbox['values'] = [self.language_dict['control_view'],self.language_dict['info_view'],self.language_dict['dynamic_view']]
-        if self.data_manager.get_mini_work_window_modus() == self.language_dict[self.language_dict['control_view']]:
+        if self.main_app.get_setting('mini_work_window_modus') == self.language_dict[self.language_dict['control_view']]:
             self.mini_work_window_modus_cbox.current(0)
-        elif self.data_manager.get_mini_work_window_modus() == self.language_dict[self.language_dict['info_view']]:
+        elif self.main_app.get_setting('mini_work_window_modus') == self.language_dict[self.language_dict['info_view']]:
             self.mini_work_window_modus_cbox.current(1)
         else:
             self.mini_work_window_modus_cbox.current(2)
@@ -366,14 +368,14 @@ class SetupBody:
     
     def set_mini_work_window_modus(self,modus):
         self.gui.mini_work_window_modus = modus
-        self.data_manager.set_mini_work_window_modus(modus)
+        self.main_app.change_settings('mini_work_window_modus',modus)
         self.btn_set_mini_work_window_modus.configure(text=u'\U00002713') 
 
 ###############################
 
     def updt_wwt_cblist(self):
         self.work_window_type_cbox['values'] = [self.language_dict['dropdown'],self.language_dict['list']]
-        if self.data_manager.get_work_window_type() == self.language_dict[self.language_dict['dropdown']]:
+        if self.main_app.get_setting('work_window_type') == self.language_dict[self.language_dict['dropdown']]:
             self.work_window_type_cbox.current(0)
         else:
             self.work_window_type_cbox.current(1)
@@ -383,31 +385,31 @@ class SetupBody:
         return
     
     def set_work_window_type(self,ww_type):
-        self.data_manager.set_work_window_type(ww_type)
+        self.main_app.change_settings('work_window_type',ww_type)
         self.btn_set_work_window_type.configure(text=u'\U00002713') 
 
 ###############################
 
     def updt_fs_cblist(self):
-        font_size = self.data_manager.get_font_size()
+        font_size = self.main_app.get_setting('font_size')
         self.font_size_cbox['values'] = ['8','9','10','11','12']
-        if font_size == int('8'):
+        if font_size == '8':
             self.font_size_cbox.current(0)
-        elif font_size == int('9'):
+        elif font_size == '9':
             self.font_size_cbox.current(1)
-        elif font_size == int('10'):
+        elif font_size == '10':
             self.font_size_cbox.current(2)
-        elif font_size == int('11'):
+        elif font_size == '11':
             self.font_size_cbox.current(3)
-        elif font_size == int('12'):
-            self.font_size_cbox.current(3)
+        elif font_size == '12':
+            self.font_size_cbox.current(4)
 
     def btn_fs_cbox_reset(self,event):
         self.btn_set_font_size.configure(text=self.language_dict['apply']) 
         return
     
     def set_font_size(self,size):
-        self.data_manager.set_font_size(int(size))
+        self.main_app.change_settings('font_size',size)
         self.gui.myttk.set_defaultFont_size(int(size))
         self.gui.refresh()
         self.gui.main_window.case_frame.notebook_frame.tab_manager.go_to_setup()
@@ -485,8 +487,8 @@ class SetupBody:
         self.lbl_export.refresh_style()
         self.btn_set_db_export.refresh_style()
 
-        font_family = self.data_manager.get_font_family()
-        font_size = self.data_manager.get_font_size()
+        font_family = self.main_app.get_setting('font_family')
+        font_size = self.main_app.get_setting('font_size')
         Font_tuple = (font_family, font_size, "bold")
 
         self.lbl_category_appearance.configure(font = Font_tuple)
@@ -501,6 +503,7 @@ class SetupBody:
         self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
 
         #language
+        self.btn_set_work_window_type.configure(text=self.language_dict['apply'])
         self.btn_set_style.configure(text=self.language_dict['apply'])
         self.btn_set_language.configure(text=self.language_dict['apply'])
         self.btn_set_work_window.configure(text=self.language_dict['apply'])
@@ -509,17 +512,17 @@ class SetupBody:
         self.btn_set_font_size.configure(text=self.language_dict['apply'])
         self.btn_set_db_export.configure(text=self.language_dict['apply'])
         self.lbl_category_appearance.configure(text = self.language_dict['appearance'])
-        self.lbl_style.configure(text = self.language_dict['style'])
+        self.lbl_style.configure(text = '   ' + self.language_dict['style'])
         self.lbl_category_language.configure(text = self.language_dict['language'])
-        self.lbl_language.configure(text = self.language_dict['language'])
-        self.lbl_export.configure(text = self.language_dict['export'])
+        self.lbl_language.configure(text = '   ' + self.language_dict['language'])
+        self.lbl_export.configure(text = '   ' + self.language_dict['export'])
         self.lbl_category_db.configure(text = self.language_dict['database'])
-        self.lbl_font_size.configure(text = self.language_dict['size'])
+        self.lbl_font_size.configure(text = '   ' + self.language_dict['size'])
         self.lbl_category_font.configure(text = self.language_dict['font'])
-        self.lbl_work_window.configure(text = self.language_dict['standard'])
-        self.lbl_work_window_type.configure(text = self.language_dict['mini_work_window_type'])
-        self.lbl_mini_work_window_modus.configure(text = self.language_dict['mini_work_window_view'])
-        self.lbl_bar_work_window_modus.configure(text = self.language_dict['bar_work_window_view'])
+        self.lbl_work_window.configure(text = '   ' + self.language_dict['standard'])
+        self.lbl_work_window_type.configure(text = '   ' + self.language_dict['mini_work_window_type'])
+        self.lbl_mini_work_window_modus.configure(text = '   ' + self.language_dict['mini_work_window_view'])
+        self.lbl_bar_work_window_modus.configure(text = '   ' + self.language_dict['bar_work_window_view'])
         self.lbl_category_work_window.configure(text = self.language_dict['working_window'])
 
         self.updt_bwwm_cblist()

@@ -79,6 +79,10 @@ class SetupHead:
         self.lbl_version.configure(background=self.style_dict["header_color"],foreground = self.style_dict["font_color_2"])
         self.lbl_version.pack(side='left',padx = 10,pady=10)
 
+        self.lbl_config = MyLabel(self.main_head_frame, self.data_manager,text=self.language_dict['configuration'] + ': ' + str(self.main_app.get_config()))
+        self.lbl_config.configure(background=self.style_dict["header_color"],foreground = self.style_dict["font_color_2"])
+        self.lbl_config.pack(side='left',padx = 10,pady=10)
+
         self.btn_release_notes = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict['release_notes'],width=15,command=self.show_release_notes)
         self.btn_release_notes.pack(side='right',padx = 10,pady=10)
 
@@ -118,6 +122,7 @@ class SetupHead:
         text = text + "\n\n" + self.language_dict['release_note_text_5']
         text = text + "\n\n" + self.language_dict['release_note_text_6']
         text = text + "\n\n" + self.language_dict['release_note_text_7']
+        text = text + "\n\n" + self.language_dict['release_note_text_8']
 
         info_window = InfoWindow(self.main_app, self.gui, self.setup_tab.main_frame ,text,600,400)
         return
@@ -163,13 +168,16 @@ class SetupHead:
         self.btn_tips.refresh_style()
         self.btn_start_up.refresh_style()
         self.lbl_version.refresh_style()
+        self.lbl_config.refresh_style()
         self.btn_directory_ttp.refresh()
 
         self.lbl_version.configure(background=self.style_dict["header_color"],foreground = self.style_dict["font_color_2"])
+        self.lbl_config.configure(background=self.style_dict["header_color"],foreground = self.style_dict["font_color_2"])
         self.main_head_frame.configure(background=self.style_dict["header_color"])
         self.update_main_head()
 
         self.lbl_version.configure(text=self.language_dict['version'] + ': ' + self.main_app.get_version())
+        self.lbl_config.configure(text=self.language_dict['configuration'] + ': ' + self.main_app.get_config())
         self.btn_release_notes.configure(text=self.language_dict['release_notes'])
         self.btn_tips.configure(text=self.language_dict['tips_and_tricks'])
         self.btn_start_up.configure(text=self.language_dict['set_up'])

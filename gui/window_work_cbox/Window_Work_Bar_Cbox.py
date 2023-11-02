@@ -46,7 +46,7 @@ class BarWorkWindowCbox(WorkWindowCbox):
         self.overrideredirect(1)
         self.attributes('-topmost',True)  
 
-        self.modus = self.data_manager.get_bar_work_window_modus()
+        self.modus = self.main_app.get_setting('bar_work_window_modus')
         self.btn_frame_displayed = False  
         self.main_frame_leave = True
         self.after_func = None
@@ -150,8 +150,7 @@ class BarWorkWindowCbox(WorkWindowCbox):
         self.lbl_name.bind('<ButtonRelease-1>', self.save_pos)
         self.lbl_name.bind("<Button-3>", self.right_clicked)
         self.lbl_name.bind("<Double-Button-1>", self.status_double_click)
-        if self.modus != 'dynamic_view':
-            self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, 50, 30, self.language_dict['double_click'])
+        self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, 50, 30,'')
 
     def auto_update_status_frame(self):
         if self.main_app.get_action_state() == 'disabled':

@@ -27,6 +27,7 @@ from sqlite_db_conn.sqlite_code_db import SqlCodeDataManager
 import cProfile
 import subprocess
 import getpass
+import json
 
 
 from tkinter import messagebox
@@ -48,42 +49,74 @@ class App():
     def __init__(self):
 
         self.app_name = 'EasyTARC'
-        self.app_config = 'restricted' # 'normal'
-        self.version = '1.6.6'
+        self.app_config = 'single_user_unencrypted' #'multiple_users_encrypted'  'single_user_unencrypted'   #single_user_encrypted' -> not ready
+        self.version = '1.6.7'
+        self.old_version = None
         self.action_state = "disabled"
         self.local_format = 'de_DE.UTF-8'
         self.file_path = os.path.dirname(sys.argv[0])
+        self.version_update = False
 
-        self.pw_container = PasswordContainer()
-        self.request_hash_complement = self.pw_container.get_request_hash_complement()
-        self.license_hash_complement = self.pw_container.get_license_hash_complement()
-        self.data_db_hash_complement = self.pw_container.get_data_db_hash_complement()
-        self.settings_db_password = self.pw_container.get_db_settings_password()
-        self.code_db_password = self.pw_container.get_db_code_password()
+        self.user_db_name = 'EasyTARC_Database_User'
+        self.settings_db_name = 'EasyTARC_Database_Settings'
+        self.code_db_name = 'EasyTARC_Database_Code'
+        self.db_folder_name = 'database'
+        self.db_name_ending_unencrypted = '.db'
+        self.db_name_ending_encrypted = '_crypted.sql.gz'
 
-        self.code_db = SqlCodeDataManager(self)
-        
-        #user_data_str = str(os.getlogin())
-        #user_data_str = 'test'
-        user_data_str = str(getpass.getuser())
-        
-        if self.code_db.get_user_str_case() == 'lower':
-            user_data_str = user_data_str.lower()
-        else:
-            user_data_str = user_data_str.upper()
+        with open('settings.json',encoding='UTF-8') as json_file:
+            self.settings_dict = json.load(json_file)
 
-        #self.user_data_str = 'test'
-        self.user_data_str = user_data_str
+        if self.settings_dict['version'] != self.version:
+            self.version_update = True
+            self.old_version = self.settings_dict['version']
+            self.change_settings('version',self.version)
 
-        response_login = self.login()
-        response_only_task = self.check_only_task()
+            # update
+            print('update')
+            database_path = self.file_path + '\\' + self.db_folder_name
 
-        # start main
-        if response_login == True and response_only_task == True:
-            self.code_db.set_user_license_hash_current(self.get_user_license_hash())
+            if os.path.exists(database_path) == False:
+                try:  
+                    os.mkdir(database_path)  
+                except OSError as error:  
+                    self.root = NewRoot()
+                    messagebox.showinfo('Faild','The database folder can not be created')
+
+            if os.path.isfile(self.code_db_name + self.get_db_name_ending()) == True and os.path.isfile(self.db_folder_name + '\\' + self.code_db_name + self.get_db_name_ending()) == False:
+                os.rename(self.code_db_name + self.get_db_name_ending(), self.db_folder_name + '\\' + self.code_db_name + self.get_db_name_ending())
+
+        if self.app_config == 'single_user_unencrypted':
             self.start_main()
-            self.code_db.set_user_license_hash_data_db(self.get_user_license_hash())
             self.run_gui()
+        else:
+            self.pw_container = PasswordContainer()
+            self.request_hash_complement = self.pw_container.get_request_hash_complement()
+            self.license_hash_complement = self.pw_container.get_license_hash_complement()
+            self.data_db_hash_complement = self.pw_container.get_data_db_hash_complement()
+            self.code_db_password = self.pw_container.get_db_code_password()
+            self.code_db = SqlCodeDataManager(self)
+
+            #user_data_str = str(os.getlogin())
+            #user_data_str = 'test'
+            user_data_str = str(getpass.getuser())
+            
+            if self.code_db.get_user_str_case() == 'lower':
+                user_data_str = user_data_str.lower()
+            else:
+                user_data_str = user_data_str.upper()
+
+            #self.user_data_str = 'test'
+            self.user_data_str = user_data_str
+
+            response_login = self.login()
+            response_only_task = self.check_only_task()
+
+            if response_login == True and response_only_task == True:
+                self.code_db.set_user_license_hash_current(self.get_user_license_hash())
+                self.start_main()
+                self.code_db.set_user_license_hash_data_db(self.get_user_license_hash())
+                self.run_gui()
             
 
 ############################################################
@@ -100,12 +133,55 @@ class App():
     def get_data_manager(self):
         return(self.data_manager)
     
+    def get_config(self):
+        return(self.app_config)
+    
+    def get_name(self):
+        return(self.app_name)
+
     def get_version(self):
         return(self.version)
+    
+    def get_version_update(self):
+        return(self.version_update)
+    
+    def get_old_version(self):
+        return(self.old_version)
 
     def get_filepath(self):
         return(self.file_path)
     
+############################################################
+    
+    def get_code_db_name(self):
+        return(self.code_db_name)
+    
+    def get_user_db_name(self):
+        return(self.user_db_name)
+    
+    def get_settings_db_name(self):
+        return(self.settings_db_name)
+    
+    def get_db_folder_name(self):
+        return(self.db_folder_name)
+    
+    def get_db_name_ending(self):
+        if self.app_config == 'single_user_unencrypted':
+            return(self.db_name_ending_unencrypted) 
+        else:
+            return(self.db_name_ending_encrypted)
+    
+############################################################
+
+    def get_setting(self,key):
+        return(self.settings_dict[key])
+
+    def change_settings(self,key,value):
+        self.settings_dict[key] = value
+        setting_json_file = open('settings.json',"w",encoding='UTF-8')
+        json.dump(self.settings_dict, setting_json_file)
+        setting_json_file.close()
+
 ############################################################
 
     def get_user_license_hash(self):
@@ -114,9 +190,6 @@ class App():
     def get_db_user_password(self):
         user_db_password = self.data_db_hash_complement + self.own_user_license_hash
         return(user_db_password)
-    
-    def get_db_settings_password(self):
-        return(self.settings_db_password)
     
     def get_db_code_password(self):
         return(self.code_db_password)

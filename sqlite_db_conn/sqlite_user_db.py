@@ -45,14 +45,16 @@ class SqlUserDataManager(SqlManager):
     def __init__(self,main_app):
         self.main_app = main_app
 
-        name = 'EasyTARC_Database_User'
-        self.db_name_enc = name + '_crypted.sql.gz'
-        db_user_password = self.main_app.get_db_user_password()
-        db_password = str.encode(db_user_password)
+        name = self.main_app.get_user_db_name()
 
-        super().__init__(main_app, name, self.db_name_enc, db_password)
+        if self.main_app.get_config() == 'single_user_unencrypted':
+            super().__init__(main_app, name)
+        else:
+            db_user_password = self.main_app.get_db_user_password()
+            db_password = str.encode(db_user_password)
+            super().__init__(main_app, name, db_password)
     
-        if os.path.isfile(self.db_name_enc) == False:
+        if os.path.isfile(self.folder_name + '\\' + self.name + self.name_ending) == False:
             self.create_db()
         else:
             try:
@@ -62,7 +64,7 @@ class SqlUserDataManager(SqlManager):
 
     def request_restoring_backup(self):
         self.root = NewRoot()
-        full_db_backup_db_name_enc = 'EasyTARC_Database_User_backup_crypted.sql.gz'
+        full_db_backup_db_name_enc = self.folder_name + '\\' + self.name + '_backup' + self.name_ending 
         if os.path.isfile(full_db_backup_db_name_enc) == True:
             result = messagebox.askquestion("EasyTARC", 'EsayTARC cannot retrieve any data, there is a database error. However, a backup was found, should the backup be used at the next start? Please restart EasyTARC after clicking Yes.')
             if result == 'yes':
@@ -76,12 +78,11 @@ class SqlUserDataManager(SqlManager):
     def restore_backup(self):
         path = os.path.abspath(os.getcwd())
         # renaming the crashed db in error_db 
-        file_path = path + '\\' + self.db_name_enc 
-        file_path_err = path + '\\error_' + self.db_name_enc
+        file_path = path + '\\' + self.folder_name + '\\' + self.name + self.name_ending 
+        file_path_err = path + '\\' + self.folder_name + '\\error_' + self.name + self.name_ending 
         os.rename(file_path, file_path_err)
         # renaming the backup_db in db 
-        full_db_backup_db_name_enc = 'EasyTARC_Database_User_backup_crypted.sql.gz'
-        full_db_backup_path  = path + '\\' + full_db_backup_db_name_enc
+        full_db_backup_path  = path + '\\' + self.folder_name + '\\' + self.name + '_backup' + self.name_ending 
         os.rename(full_db_backup_path, file_path)
         return
 
@@ -89,7 +90,7 @@ class SqlUserDataManager(SqlManager):
 
     def create_db(self):
 
-        conn = sqlite3.connect(':memory:')
+        conn = self.new_db_conn()
 
         cur = conn.cursor()
         cur.execute("""CREATE TABLE IF NOT EXISTS accounts(
@@ -144,8 +145,7 @@ class SqlUserDataManager(SqlManager):
             );
             """)
 
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
 
         test_id = self.get_new_accountid()
 
@@ -222,11 +222,10 @@ class SqlUserDataManager(SqlManager):
         a_day = account_dict['a_day']
 
         account_tuple = (account_id,kind,main_id,name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,status,group,bookable,a_year,a_month,a_day)
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("INSERT INTO accounts VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", account_tuple)
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         success = True
         return(success)
 
@@ -243,7 +242,7 @@ class SqlUserDataManager(SqlManager):
         group = account_dict['group']
         bookable = account_dict['bookable']
 
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("""UPDATE accounts 
                     SET name = ?,
@@ -269,8 +268,7 @@ class SqlUserDataManager(SqlManager):
                     group,
                     account_id,
                     ))
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         success = True
         return(success)
     
@@ -283,7 +281,7 @@ class SqlUserDataManager(SqlManager):
         group = account_dict['group']
         bookable = account_dict['bookable']
 
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("""UPDATE accounts 
                     SET project_nbr = ?,
@@ -303,8 +301,7 @@ class SqlUserDataManager(SqlManager):
                     group,
                     account_id,
                     ))
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         success = True
         return(success)
     
@@ -314,7 +311,7 @@ class SqlUserDataManager(SqlManager):
         description_text = account_dict['description_text']
         default_text = account_dict['default_text']
 
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("""UPDATE accounts 
                     SET name = ?,
@@ -326,20 +323,18 @@ class SqlUserDataManager(SqlManager):
                     default_text,
                     account_id,
                     ))
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         success = True
         return(success)
     
 
     def get_new_accountid(self):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
 
         cur.execute("SELECT MAX(accountid) FROM accounts")
         result = cur.fetchone()
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
 
         if result[0] != None:
             accountid = result[0] + 1
@@ -348,83 +343,75 @@ class SqlUserDataManager(SqlManager):
         return(accountid)
 
     def get_accountid_by_name(self,account_name):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("SELECT accountid FROM accounts WHERE name = ?", (account_name,))
         accountid = cur.fetchone()[0]
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return(accountid)
     
     def get_namedict_by_accountid_list(self,accountid_list):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         name_dict = {}
         for accountid in accountid_list:
             cur.execute("SELECT name FROM accounts WHERE accountid = ?", (str(accountid),))
             name = cur.fetchone()[0]
             name_dict[accountid] = name
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return(name_dict)
 
     def get_account_name_list(self):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         name_list = [name[0] for name in cur.execute("SELECT name FROM accounts")]
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return(name_list)
 
     # Liste aller offenen Zeitkonten ausgeben
     def get_open_accounts(self):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         id_list = [account_id[0] for account_id in cur.execute("SELECT accountid FROM accounts WHERE status = ? or status = ?", ("current","open",))]
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return(id_list)
     
     def get_open_main_accounts(self):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         id_list = [account_id[0] for account_id in cur.execute("SELECT accountid FROM accounts WHERE account_kind = ? and ( status = ? or status = ? )", (1,"current","open",))]
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return(id_list)
 
     # Liste aller Zeitkonten die am Anfang eingeblendet werden sollen
     def get_current_main_accounts(self):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         id_list = [account_id[0] for account_id in cur.execute("SELECT accountid FROM accounts WHERE status = ? and account_kind = ?", ("current",1,))]
         # print(id_list)
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return(id_list)
 
     # Liste aller Zeitkonten die am Anfang eingeblendet werden sollen
     def get_sub_accounts(self,main_account_id):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         id_list = [account_id[0] for account_id in cur.execute("SELECT accountid FROM accounts WHERE main_id = ? and account_kind = ?", (main_account_id,0,))]
         # print(id_list)
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return(id_list)
 
     # Liste aller Zeitkonten die am Anfang eingeblendet werden sollen
     def get_open_and_not_current_accounts(self):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         id_list = [account_id[0] for account_id in cur.execute("SELECT accountid FROM accounts WHERE status = ?", ("open",))]
         # print(id_list)
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return(id_list)
 
     def get_account_details(self,account_id):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("SELECT * FROM accounts WHERE accountid = ?", (account_id,))
         result = cur.fetchall()[0]
@@ -450,8 +437,7 @@ class SqlUserDataManager(SqlManager):
             name_dict = self.get_namedict_by_accountid_list([account_dict['main_id']])
             account_dict.update({'main_name':str(name_dict[account_dict['main_id']])})
         #print(account_dict)
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return(account_dict)
     
     def process_accoubt_dict(self,query):
@@ -476,7 +462,7 @@ class SqlUserDataManager(SqlManager):
     
     def get_accounts_by_search_input(self,modus,search_input):
         print('sql',modus,search_input)
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
 
         if modus == 'open':
@@ -502,12 +488,11 @@ class SqlUserDataManager(SqlManager):
         
         df = self.process_accoubt_dict(query)
 
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return(df)
     
     def get_sub_accounts_by_search_name(self,main_df,id_list):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         for id in id_list:
             query = cur.execute("SELECT * FROM accounts WHERE main_id == ? AND account_kind == ? ", (id,str(0),))
@@ -515,20 +500,18 @@ class SqlUserDataManager(SqlManager):
             df3 = pd.concat([main_df,sub_df])
             main_df = df3.copy()
 
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return(main_df)
     
     def get_all_account_groups(self):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         group_list = [group[0] for group in cur.execute("SELECT a_group FROM accounts")]
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return(group_list)
 
     def get_accounts_df(self):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
 
         query = cur.execute("SELECT * FROM accounts")
@@ -551,58 +534,51 @@ class SqlUserDataManager(SqlManager):
         df = df.loc[:,~df.columns.duplicated()].copy()
         df = df.replace(r'^\s*$', np.nan, regex=True)
 
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return(df)
 
 
     def account_set_open(self,account_id):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("UPDATE accounts SET status = ? WHERE accountid = ?", ("open",account_id,))
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return()
 
     def account_set_current(self,account_id):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("UPDATE accounts SET status = ? WHERE accountid = ?", ("current",account_id,))
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return()
 
     def account_set_closed(self,account_id):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("UPDATE accounts SET status = ? WHERE accountid = ?", ("closed",account_id,))
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return()
     
     def account_set_hidden(self,account_id):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("UPDATE accounts SET status = ? WHERE accountid = ?", ("hidden",account_id,))
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return()
     
     def account_set_autobooking(self,account_id,auto_booking):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("UPDATE accounts SET auto_booking = ? WHERE accountid = ?", (auto_booking,account_id,))
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return()
 
     #Löschen eines einzelnen Eintrags
     def delete_account_by_id(self, account_id):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("DELETE FROM accounts WHERE accountid = ?", (account_id,))
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return()
     
 
@@ -624,21 +600,20 @@ class SqlUserDataManager(SqlManager):
 
         passed_tuple = (passedid,accountid,year,month,day,d_hour,d_minute,d_second,hours,booked)
 
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("INSERT INTO passed_times VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", passed_tuple)
-        self.save_encrypted_db(conn)
+        self.save_and_close_db(conn)
         success = True
         return(success)
 
     def get_new_passedid(self):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
 
         cur.execute("SELECT MAX(passedid) FROM passed_times")
         result = cur.fetchone()
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
 
         if result[0] != None:
             passedid = result[0] + 1
@@ -649,27 +624,25 @@ class SqlUserDataManager(SqlManager):
 ################################################
 
     def get_passed_times_passed_id_list(self):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         id_list = [id[0] for id in cur.execute("SELECT passedid FROM passed_times")]
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return(id_list)
     
     def check_unbooked_hours(self):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("SELECT SUM(passed_times.hours) FROM passed_times INNER JOIN accounts ON passed_times.accountid = accounts.accountid WHERE passed_times.booked = ? and accounts.bookable = ?", (0,1,))
         hours = cur.fetchone()[0]
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         if hours == None:
             return(0)
         else:
             return(hours)
 
     def get_passed_times_with_accounts(self,two_month_limit,booking_status=None):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
 
         if two_month_limit == True:
@@ -712,34 +685,30 @@ class SqlUserDataManager(SqlManager):
         df = df.loc[:,~df.columns.duplicated()].copy()
         df = df.replace(r'^\s*$', np.nan, regex=True)
 
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return(df)
     
 ################################################
     
     def set_unbooked_accound_time_sum_booked(self,account_id):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("UPDATE passed_times SET booked = ? WHERE accountid = ?", (1,account_id))
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return()
     
     def set_booked_accound_time_sum_unbooked(self,account_id):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("UPDATE passed_times SET booked = ? WHERE accountid = ?", (0,account_id))
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return()
 
     def set_unbooked_time_booked(self,passed_id):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("UPDATE passed_times SET booked = ? WHERE passedid = ?", (1,passed_id))
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return()
     
 ################################################
@@ -750,11 +719,10 @@ class SqlUserDataManager(SqlManager):
         return(success)
 
     def delete_passed_time_by_account_id(self, account_id):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("DELETE FROM passed_times WHERE accountid = ?", (account_id,))
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return()
 
 ####################################################################################################################
@@ -775,21 +743,20 @@ class SqlUserDataManager(SqlManager):
 
         backup_tuple = (backupid,passedid,accountid,year,month,day,d_hour,d_minute,d_second,hours,booked)
 
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("INSERT INTO backup_current_times VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", backup_tuple)
-        self.save_encrypted_db(conn)
+        self.save_and_close_db(conn)
         success = True
         return(success)
 
     def get_new_backupid(self):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
 
         cur.execute("SELECT MAX(backupid) FROM backup_current_times")
         result = cur.fetchone()
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
 
         if result[0] != None:
             backupid = result[0] + 1
@@ -798,23 +765,21 @@ class SqlUserDataManager(SqlManager):
         return(backupid)
     
     def get_backup_passed_id_list(self):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         id_list = [id[0] for id in cur.execute("SELECT passedid FROM backup_current_times")]
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return(id_list)
 
     def get_backup_account_id_list(self):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         id_list = [id[0] for id in cur.execute("SELECT accountid FROM backup_current_times")]
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return(id_list)
 
     def get_backup_details_dict(self,account_id):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("SELECT * FROM backup_current_times WHERE accountid = ?", (account_id,))
         res = cur.fetchall()
@@ -833,17 +798,15 @@ class SqlUserDataManager(SqlManager):
                         "hours":result[9],
                         "booked":result[10]
                         }
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return(backup_dict)
 
 
     def delete_backup(self):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute('DELETE FROM backup_current_times;',)
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return()
 
 

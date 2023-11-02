@@ -110,10 +110,10 @@ class Gui_Manager:
     def run_gui(self):
         
         self.root = NewRoot()
-        self.root.title(self.main_app.app_name)
+        self.root.title(self.main_app.get_name())
         self.root.iconbitmap("Logo.ico")
 
-        self.myttk = Myttk(self.data_manager)
+        self.myttk = Myttk(self.main_app)
 
         self.root.option_add("*TCombobox*Font", self.myttk.get_defaultFont())
         self.root.option_add("*TCombobox*Listbox*Font", self.myttk.get_defaultFont())
@@ -146,9 +146,10 @@ class Gui_Manager:
             self.status_main_window = False
             if self.main_app.get_action_state() != 'disabled' and self.on_window_switch == False:
                 self.on_window_switch = True
-                if self.data_manager.get_work_window() == 'mini_work_window':
+                work_window = self.main_app.get_setting('work_window')
+                if work_window == 'mini_work_window':
                     self.mini_work_window()
-                elif self.data_manager.get_work_window() == 'bar_work_window':
+                elif work_window == 'bar_work_window':
                     self.bar_work_window()
                 self.on_window_switch = False
 
@@ -222,7 +223,7 @@ class Gui_Manager:
 ########################################################################################################################
 
     def mini_work_window(self):
-        ww_type = self.data_manager.get_work_window_type() 
+        ww_type = self.main_app.get_setting('work_window_type')
         if ww_type == 'dropdown':
             self.miniWorkWindow = MiniWorkWindowCbox(self.main_app,self.root,self)
         elif ww_type == 'list':

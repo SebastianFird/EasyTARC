@@ -60,7 +60,7 @@ class MiniWorkWindowList(tk.Toplevel):
         self.option_menu = GuiOptionMenu(self,self.main_app,self.gui)
         self.scroll = Scroll_Frame(self.main_app,self.gui)
 
-        self.modus = self.data_manager.get_mini_work_window_modus()
+        self.modus = self.main_app.get_setting('mini_work_window_modus')
         self.expand_frame_displayed = False  
         self.after_func_leave = None
 
@@ -317,8 +317,8 @@ class MiniWorkWindowList(tk.Toplevel):
         if self.modus != 'dynamic_view':
             self.vertical_frame_ttp = CreateToolTip(self.vertical_name_frame, self.data_manager, -50, 100, self.language_dict['double_click'])
 
-        font_family = self.data_manager.get_font_family()
-        font_size = self.data_manager.get_font_size()
+        font_family = self.main_app.get_setting('font_family')
+        font_size = self.main_app.get_setting('font_size')
         Font_tuple = (font_family, font_size)
 
         self.canvas_lbl_name = tk.Canvas(self.vertical_name_frame, width= self.win_vertical_width, height= 200, bg=self.style_dict["bottom_active_color"], bd=0, highlightthickness=0)
@@ -381,8 +381,7 @@ class MiniWorkWindowList(tk.Toplevel):
         self.lbl_name.bind('<ButtonRelease-1>', self.save_pos)
         self.lbl_name.bind("<Button-3>", self.right_clicked)
         self.lbl_name.bind("<Double-Button-1>", self.status_double_click)
-        if self.modus != 'dynamic_view':
-            self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, 50, 30, self.language_dict['double_click'])
+        self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, 50, 30,'')
 
     def create_btn_frame(self):
 
@@ -546,8 +545,8 @@ class GroupFrame((tk.Frame)):
 
     def create_main_frame(self):
 
-        font_family = self.data_manager.get_font_family()
-        font_size = self.data_manager.get_font_size()
+        font_family = self.main_app.get_setting('font_family')
+        font_size = self.main_app.get_setting('font_size')
         Font_tuple = (font_family, font_size, "bold")
 
         self.separator_frame_1 = MyFrame(self,self.data_manager)

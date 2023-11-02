@@ -88,7 +88,7 @@ class MainWindow(tk.Toplevel):
 
         dt = datetime.now()
         str_today = dt.strftime("%d") + "." + dt.strftime("%m") + "." + dt.strftime("%Y") + "  "+ self.language_dict["week"] + str(dt.isocalendar()[1])
-        self.lbl_title = MyLabelPixel(self.title_bar, self.data_manager, text='   ' + self.main_app.app_name + '                     ' + str_today)
+        self.lbl_title = MyLabelPixel(self.title_bar, self.data_manager, text='   ' + self.main_app.get_name() + '                     ' + str_today)
         self.lbl_title.configure(background=self.style_dict["titlebar_color"],height=30)
         self.lbl_title.pack(side='left')
         self.lbl_title.bind('<B1-Motion>', self.move_window)
@@ -255,7 +255,7 @@ class MainWindow(tk.Toplevel):
 
         dt = datetime.now()
         str_today = dt.strftime("%d") + "." + dt.strftime("%m") + "." + dt.strftime("%Y") + "  "+ self.language_dict["week"] + str(dt.isocalendar()[1])
-        self.lbl_title.configure(text='   ' + self.main_app.app_name + '                     ' + str_today)
+        self.lbl_title.configure(text='   ' + self.main_app.get_name() + '                     ' + str_today)
 
         icon_text = self.language_dict["about_EasyTARC"]
         self.about_easytarc_ttp.text = icon_text

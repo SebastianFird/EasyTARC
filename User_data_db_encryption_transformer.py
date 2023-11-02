@@ -78,20 +78,20 @@ class SqlCodeDataManager(SqlManager):
         return
     
     def get_user_license_hash_data_db(self):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("SELECT user_license_hash_data_db FROM code WHERE codeid = ?", (0,))
         user_license_hash_data_db = cur.fetchone()[0]
-        self.save_encrypted_db(conn)
+        self.save_and_close_db(conn)
         conn.close()
         return(user_license_hash_data_db)
     
     def get_user_license_hash_current(self):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("SELECT user_license_hash_current FROM code WHERE codeid = ?", (0,))
         user_license_hash_current = cur.fetchone()[0]
-        self.save_encrypted_db(conn)
+        self.save_and_close_db(conn)
         conn.close()
         return(user_license_hash_current)
 
@@ -105,19 +105,19 @@ class SqlUserDataManager(SqlManager):
 
     def create_db(self):
         conn = sqlite3.connect(':memory:')
-        self.save_encrypted_db(conn)
+        self.save_and_close_db(conn)
         conn.close()
 
     def get_account_name_list(self):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         name_list = [name[0] for name in cur.execute("SELECT name FROM accounts")]
-        self.save_encrypted_db(conn)
+        self.save_and_close_db(conn)
         conn.close()
         return(name_list)
 
     def get_memory_db_conn(self):
-        return(self.open_encrypted_db())
+        return(self.open_db_conn())
 
 ######################################
 
@@ -159,7 +159,7 @@ def start():
     new_memory_db_conn = new_user_db.get_memory_db_conn()
 
     new_memory_db_conn.executescript(query)
-    new_user_db.save_encrypted_db(new_memory_db_conn)
+    new_user_db.save_and_close_db(new_memory_db_conn)
     new_memory_db_conn.close()
     text = 'New DB last account:\n' + str(new_user_db.get_account_name_list()[-1])
     print(text)

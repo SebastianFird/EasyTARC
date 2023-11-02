@@ -23,7 +23,6 @@ class PasswordContainer:
         self.request_hash_complement= 'Password_A'
         self.license_hash_complement = 'Password_B'
         self.data_db_hash_complement = 'Password_C'
-        self.settings_db_password = 'Password_D'
         self.code_db_password = 'Password_E'
 
 
@@ -35,9 +34,6 @@ class PasswordContainer:
     
     def get_data_db_hash_complement(self):
         return(self.data_db_hash_complement)
-    
-    def get_db_settings_password(self):
-        return(self.settings_db_password)
     
     def get_db_code_password(self):
         return(self.code_db_password)

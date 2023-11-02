@@ -20,13 +20,14 @@ __author__ = 'Sebastian Feiert'
 
 
 class Myttk:
-    def __init__(self, data_manager):
-        self.data_manager = data_manager
+    def __init__(self, main_app):
+        self.main_app = main_app
+        self.data_manager = self.main_app.get_data_manager()
         self.style_dict = self.data_manager.get_style_dict()
         self.my_ttk = ttk.Style()
 
         self.defaultFont = tk.font.nametofont("TkDefaultFont")
-        self.defaultFont.configure(family=self.data_manager.get_font_family(),size=self.data_manager.get_font_size())
+        self.defaultFont.configure(family=self.main_app.get_setting('font_family'),size=self.main_app.get_setting('font_size'))
         #self.my_ttk.configure('App.TCombobox', font=self.defaultFont)
 
         self.theme_name_list = []

@@ -78,8 +78,8 @@ class ClockFrame(tk.Frame):
 
         self.option_menu = CaptureOptionMenu(self,self.main_app,self.gui, self.capture_tab)
 
-        font_family = self.data_manager.get_font_family()
-        font_size = self.data_manager.get_font_size()
+        font_family = self.main_app.get_setting('font_family')
+        font_size = self.main_app.get_setting('font_size')
         Font_tuple = (font_family, font_size, "bold")
 
         self.full_time_correction_str = ''

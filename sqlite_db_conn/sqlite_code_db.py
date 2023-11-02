@@ -46,14 +46,16 @@ class SqlCodeDataManager(SqlManager):
         self.main_app = main_app
         self.new_version = False
 
-        name = 'EasyTARC_Database_Code'
-        self.db_name_enc = name + '_crypted.sql.gz'
-        code_db_password = self.main_app.get_db_code_password()
-        db_password = str.encode(code_db_password)
+        name = self.main_app.get_code_db_name() 
 
-        super().__init__(main_app, name, self.db_name_enc, db_password)
+        if self.main_app.get_config() == 'single_user_unencrypted':
+            super().__init__(main_app, name)
+        else:
+            code_db_password = self.main_app.get_db_code_password()
+            db_password = str.encode(code_db_password)
+            super().__init__(main_app, name, db_password)
     
-        if os.path.isfile(self.db_name_enc) == False:
+        if os.path.isfile(self.folder_name + '\\' + self.name + self.name_ending) == False:
             self.create_db()
             return
 
@@ -61,7 +63,7 @@ class SqlCodeDataManager(SqlManager):
 
     def create_db(self):
 
-        conn = sqlite3.connect(':memory:')
+        conn = self.new_db_conn()
 
         cur = conn.cursor()
         cur.execute("""CREATE TABLE IF NOT EXISTS code(
@@ -85,32 +87,28 @@ class SqlCodeDataManager(SqlManager):
         cur = conn.cursor()
         cur.execute("INSERT INTO code VALUES(?,?,?,?);", code_tuple)
         
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
 
 ######################################
 
     def set_user_license_hash_data_db(self, user_license_hash_data_db):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("UPDATE code SET user_license_hash_data_db = ? WHERE codeid = ?", (user_license_hash_data_db,0,))
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return()
     
     def set_user_license_hash_current(self, user_license_hash_current):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("UPDATE code SET user_license_hash_current = ? WHERE codeid = ?", (user_license_hash_current,0,))
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return()
     
     def get_user_str_case(self):
-        conn = self.open_encrypted_db()
+        conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("SELECT user_str_case FROM code WHERE codeid = ?", (0,))
         user_str_case = cur.fetchone()[0]
-        self.save_encrypted_db(conn)
-        conn.close()
+        self.save_and_close_db(conn)
         return(user_str_case)
