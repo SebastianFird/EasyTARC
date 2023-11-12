@@ -76,7 +76,7 @@ class BarWorkWindowCbox(WorkWindowCbox):
 
     def run_main_frame(self):
         self.main_frame = MyFrame(self, self.data_manager) 
-        self.main_frame.configure(background=self.style_dict["titlebar_color"],highlightthickness=1, highlightcolor = self.style_dict["titlebar_color"], highlightbackground=self.style_dict["titlebar_color"])
+        self.main_frame.configure(background=self.style_dict["titlebar_color"])
         self.main_frame.pack(side = "top", fill = "both", expand = True)
         self.main_frame.bind("<Leave>", self.main_leave)
         self.main_frame.bind("<Enter>", self.main_enter)
@@ -96,16 +96,15 @@ class BarWorkWindowCbox(WorkWindowCbox):
         self.last_clock = self.data_manager.get_last_active_clock()
 
         if self.main_app.get_action_state() == 'disabled':
-            self.main_frame.configure(highlightcolor=self.style_dict["titlebar_color"], highlightbackground=self.style_dict["titlebar_color"])
-
+            color = self.style_dict["titlebar_color"]
         elif self.work_clock.get_runninig() == True:
-            self.main_frame.configure(highlightcolor = self.style_dict["bottom_active_color"], highlightbackground=self.style_dict["bottom_active_color"])
-
+            color = self.style_dict["bottom_active_color"]
         elif self.pause_clock.get_runninig() == True:
-            self.main_frame.configure(highlightcolor = self.style_dict["bottom_pause_color"], highlightbackground=self.style_dict["bottom_pause_color"])
-
+            color = self.style_dict["bottom_pause_color"]
         else:
-            self.main_frame.configure(highlightcolor = self.style_dict["titlebar_color"], highlightbackground=self.style_dict["titlebar_color"])
+            color = self.style_dict["titlebar_color"]
+        self.btn_frame.configure(highlightcolor = color, highlightbackground=color)
+        self.status_frame.configure(highlightcolor = color, highlightbackground=color)
         
         self.auto_update_status_frame()
         self.auto_update_btn_frame()
@@ -127,7 +126,7 @@ class BarWorkWindowCbox(WorkWindowCbox):
 
     def create_status_frame(self):
         self.status_frame = MyFrame(self.main_frame,self.data_manager)
-        self.status_frame.configure(background=self.style_dict["titlebar_color"])
+        self.status_frame.configure(background=self.style_dict["titlebar_color"],highlightthickness=1, highlightcolor = self.style_dict["titlebar_color"], highlightbackground=self.style_dict["titlebar_color"])
         self.status_frame.pack(side='left', fill = "x", expand = True)
         self.status_frame.bind('<B1-Motion>', self.move_window)
         self.status_frame.bind('<Button-1>', self.get_pos)
@@ -194,6 +193,7 @@ class BarWorkWindowCbox(WorkWindowCbox):
 
     def create_btn_frame(self):
         self.btn_frame = MyFrame(self.main_frame,self.data_manager)
+        self.btn_frame.configure(highlightthickness=1, highlightcolor = self.style_dict["titlebar_color"], highlightbackground=self.style_dict["titlebar_color"])
 
         self.clicked_selectable_account_clock = tk.StringVar()
         

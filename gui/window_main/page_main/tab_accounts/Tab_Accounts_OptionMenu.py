@@ -44,17 +44,13 @@ class AccountsOptionMenu(tkinter.Listbox):
 
         self.optionmenu.add_command(label=self.language_dict["info_about_the_time_account"],command=self.show_clock_info)
         self.optionmenu.add_separator()
-
+        
+        self.optionmenu.add_command(label=self.language_dict["edit"],command=self.edit_account)
 
         if self.account_dict['status'] == 'closed':
             self.optionmenu.add_command(label=self.language_dict["delete"],command=self.ask_delete_account)
         else:
             self.optionmenu.add_command(label=self.language_dict["delete"],command=self.show_info)
-
-        if self.account_dict['status'] == 'closed':
-            self.optionmenu.add_command(label=self.language_dict["edit"],command=self.edit_account)
-        else:
-            self.optionmenu.add_command(label=self.language_dict["edit"],command=self.show_info)
 
 
     def popup(self, event):

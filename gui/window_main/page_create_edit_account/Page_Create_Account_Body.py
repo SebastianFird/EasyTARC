@@ -127,6 +127,21 @@ class CreateEditAccountBody:
         if self.style_dict['name'] == 'dark':
             self.textBox_description.configure(borderwidth = 0)
 
+        ###################################
+
+        self.frame_clipboard = MyFrame(self.main_frame,self.data_manager)
+        self.frame_clipboard.pack(side = "top", padx=10, pady=5,fill='x')
+
+        self.lbl_clipboard = MyLabel(self.frame_clipboard,self.data_manager,width=15,text= self.language_dict['clipboard'] + ':')
+        self.lbl_clipboard.pack(side = "left", padx=10)
+
+        self.btn_clipboard = MyButton(self.frame_clipboard,self.data_manager, text=self.language_dict['clipboard_paste'], command=self.paste_clipboard, width=30)
+        self.btn_clipboard.pack(side = "left", padx=10, pady=5)
+
+        self.lbl_clipboard_info = MyLabel(self.frame_clipboard,self.data_manager,anchor='w',justify='left')
+        self.lbl_clipboard_info.configure(foreground=self.style_dict["notification_color"])
+        self.lbl_clipboard_info.pack(side = "left", padx=10)
+
         self.separator_frame_2 = MyFrame(self.main_frame,self.data_manager)
         self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
         self.separator_frame_2.pack(side = "top",fill='x', pady=10)
@@ -361,24 +376,57 @@ class CreateEditAccountBody:
         self.frame_obligation = MyFrame(self.main_frame,self.data_manager)
         self.frame_obligation.pack(side = "top", padx=10, pady=5,fill='x')
 
-        self.lbl_fill = MyLabel(self.frame_obligation,self.data_manager,width=15,text=self.language_dict['fillable'])
-        self.lbl_fill.configure(foreground=self.style_dict["selected_color"])
-        self.lbl_fill.pack(side = "left", padx=10)
+        self.lbl_empty2 = MyLabel(self.frame_obligation,self.data_manager,width=15,text='')
+        self.lbl_empty2.pack(side = "left", padx=10)
 
-        self.lbl_obligation = MyLabel(self.frame_obligation,self.data_manager,width=15,text=self.language_dict['mandatory_field'])
+        self.lbl_obligation = MyLabel(self.frame_obligation,self.data_manager,width=12,text=self.language_dict['mandatory_field'])
         self.lbl_obligation.configure(foreground=self.style_dict["notification_color"])
         self.lbl_obligation.pack(side = "left", padx=10)
 
-        self.lbl_error_info = MyLabel(self.main_frame,self.data_manager, width=100)
-        self.lbl_error_info.pack(side = "top", padx=10, pady=5)
+        self.lbl_fill = MyLabel(self.frame_obligation,self.data_manager,width=12,text=self.language_dict['fillable'])
+        self.lbl_fill.configure(foreground=self.style_dict["selected_color"])
+        self.lbl_fill.pack(side = "left", padx=10)
+
+        self.frame_quit = MyFrame(self.main_frame,self.data_manager)
+        self.frame_quit.pack(side = "top", padx=10, pady=5,fill='x')
+
+        lbl_quit_text = MyLabel(self.frame_quit,self.data_manager,width=15,text='')
+        lbl_quit_text.pack(side = "left", padx=10)
 
         if self.modus in ['edit_main','edit_sub']:
             btn_text = self.language_dict['complete_editing']
         else:
             btn_text = self.language_dict['add']
 
-        self.btn_quit = MyButton(self.main_frame,self.data_manager, text=btn_text, command=self.finish, width=30)
-        self.btn_quit.pack(side = "top", padx=10, pady=5)
+        self.btn_quit = MyButton(self.frame_quit,self.data_manager, text=btn_text, command=self.finish, width=30)
+        self.btn_quit.pack(side = "left", padx=10, pady=5)
+
+        self.lbl_error_info = MyLabel(self.frame_quit,self.data_manager,anchor='w',justify='left')
+        self.lbl_error_info.configure(foreground=self.style_dict["notification_color"])
+        self.lbl_error_info.pack(side = "left", padx=10, pady=5)
+        return
+    
+    def paste_clipboard(self):
+        if self.modus in ['new_main','new_order','new_process','edit_main']:
+            account_data = self.create_account_page.clipboard_input(self.gui.root.clipboard_get())
+            if account_data == False:
+                self.lbl_clipboard_info.configure(text = self.language_dict['clipboard_paste_info'])
+                return
+            else:
+                if self.modus in ['new_order','new_process'] and self.account_project.get() != account_data["project_nbr"]:
+                    self.lbl_clipboard_info.configure(text = self.language_dict['clipboard_paste_info_2'])
+                    return
+
+                if self.modus in ['new_process'] and self.account_order.get() != account_data["order_nbr"]:
+                    self.lbl_clipboard_info.configure(text = self.language_dict['clipboard_paste_info_2'])
+                    return
+
+                self.account_project.set(str(account_data["project_nbr"]))
+                self.account_order.set(str(account_data["order_nbr"]))
+                self.account_process.set(str(account_data["process_nbr"]))
+                self.account_response.set(str(account_data["response_nbr"]))
+                self.checkBox_bookable.select()
+                self.lbl_clipboard_info.configure(text ='')
         return
     
     def finish(self):

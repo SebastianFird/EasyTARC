@@ -48,7 +48,7 @@ class CaptureOptionMenu(tkinter.Listbox):
 
         if self.selected_clock.clock_kind == 'main' and self.selected_clock.get_id() != 0:
             self.optionmenu.add_separator()
-            self.optionmenu.add_command(label=self.language_dict["remove"],command=self.unpack_main_clock)
+            self.optionmenu.add_command(label=self.language_dict["hide"],command=self.unpack_main_clock)
 
         self.optionmenu.add_separator()
         self.optionmenu.add_command(label=self.language_dict["reset"],command=self.reset_clock)

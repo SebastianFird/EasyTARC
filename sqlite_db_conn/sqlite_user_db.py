@@ -453,7 +453,6 @@ class SqlUserDataManager(SqlManager):
         date_int_list = []
         for x in date_nbr:
             date_int_list.append(x)
-        # print(date_int_list)
         df.insert(0,'date_int',date_int_list)
         df = df.loc[:,~df.columns.duplicated()].copy()
         df = df.replace(r'^\s*$', np.nan, regex=True)
@@ -529,7 +528,6 @@ class SqlUserDataManager(SqlManager):
         date_int_list = []
         for x in date_nbr:
             date_int_list.append(x)
-        # print(date_int_list)
         df.insert(0,'date_int',date_int_list)
         df = df.loc[:,~df.columns.duplicated()].copy()
         df = df.replace(r'^\s*$', np.nan, regex=True)
@@ -680,7 +678,6 @@ class SqlUserDataManager(SqlManager):
         date_int_list = []
         for x in date_nbr:
             date_int_list.append(x)
-        # print(date_int_list)
         df.insert(0,'date_int',date_int_list)
         df = df.loc[:,~df.columns.duplicated()].copy()
         df = df.replace(r'^\s*$', np.nan, regex=True)
@@ -711,12 +708,31 @@ class SqlUserDataManager(SqlManager):
         self.save_and_close_db(conn)
         return()
     
+    def set_booked_time_unbooked(self,passed_id):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        cur.execute("UPDATE passed_times SET booked = ? WHERE passedid = ?", (0,passed_id))
+        self.save_and_close_db(conn)
+        return()
+    
+################################################
+
+    def update_passed_time_by_passed_id(self,passed_id,hours):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        cur.execute("UPDATE passed_times SET hours = ? WHERE passedid = ?", (hours,passed_id))
+        self.save_and_close_db(conn)
+        return()
+
 ################################################
     
     #Löschen eines einzelnen Eintrags
-    def delete_passed_time(self):
-        success = True
-        return(success)
+    def delete_passed_time_by_passed_id(self, passed_id):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM passed_times WHERE passedid = ?", (passed_id,))
+        self.save_and_close_db(conn)
+        return()
 
     def delete_passed_time_by_account_id(self, account_id):
         conn = self.open_db_conn()

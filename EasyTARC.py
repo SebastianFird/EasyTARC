@@ -49,8 +49,8 @@ class App():
     def __init__(self):
 
         self.app_name = 'EasyTARC'
-        self.app_config = 'single_user_unencrypted' #'multiple_users_encrypted'  'single_user_unencrypted'   #single_user_encrypted' -> not ready
-        self.version = '1.6.7'
+        self.app_config = 'multiple_users_encrypted' #'multiple_users_encrypted'  'single_user_unencrypted'   #single_user_encrypted' -> not ready
+        self.version = '1.6.8'
         self.old_version = None
         self.action_state = "disabled"
         self.local_format = 'de_DE.UTF-8'
@@ -70,7 +70,6 @@ class App():
         if self.settings_dict['version'] != self.version:
             self.version_update = True
             self.old_version = self.settings_dict['version']
-            self.change_settings('version',self.version)
 
             # update
             print('update')
@@ -117,8 +116,7 @@ class App():
                 self.start_main()
                 self.code_db.set_user_license_hash_data_db(self.get_user_license_hash())
                 self.run_gui()
-            
-
+        
 ############################################################
 
     def start_main(self):
@@ -127,6 +125,8 @@ class App():
         return
     
     def run_gui(self):
+        if self.version_update == True:
+            self.change_settings('version',self.version)
         self.gui = Gui_Manager(self)
         return
 

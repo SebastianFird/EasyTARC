@@ -87,6 +87,11 @@ class DataManager:
                 os.remove(path+'\\' + self.main_app.get_settings_db_name() + self.main_app.get_db_name_ending())
                 print('6')
 
+            if os.path.isfile(self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_update' + self.main_app.get_db_name_ending()) == True:
+                path = os.path.abspath(os.getcwd())
+                os.remove(path + '\\' + self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_update' + self.main_app.get_db_name_ending())
+                print('7')
+
             if os.path.isfile(self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending()) == True:
                 path = os.path.abspath(os.getcwd())
                 shutil.copy(path + '\\' + self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending(), path + '\\' + self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_update' + self.main_app.get_db_name_ending())
@@ -267,35 +272,28 @@ class DataManager:
     def load_backup_time(self,account_id):
         backup_dict = self.user_db.get_backup_details_dict(account_id)
         return (backup_dict)
+    
+    def add_passed_time(self, time_dict):
+        passed_id = self.user_db.get_new_passedid()  
+        passed_time_dict = {"passed_id": passed_id,
+                            "account_id": time_dict['account_id'],
+                            "year": time_dict['year'],
+                            "month": time_dict['month'],
+                            "day": time_dict['day'],
+                            "d_hour": time_dict['d_hour'],
+                            "d_minute": time_dict['d_minute'],
+                            "d_second": time_dict['d_second'],
+                            "hours": time_dict['hours'],
+                            "booked": time_dict['booked']
+                            }
+        print(passed_time_dict)
+        self.user_db.add_passed_times(passed_time_dict)
 
     def save_backup_to_db(self):
-        db_passed_id_list = self.user_db.get_passed_times_passed_id_list()
-        backup_passed_id_list = self.user_db.get_backup_passed_id_list()
-
-        for backup_passed_id in backup_passed_id_list:
-            if backup_passed_id in db_passed_id_list:
-                self.user_db.delete_backup()
-                return(False)
-
         account_id_list = self.user_db.get_backup_account_id_list()
         for account_id in account_id_list:
             backup_dict = self.user_db.get_backup_details_dict(account_id)
-
-            passed_time_dict = {"passed_id": backup_dict['passed_id'],
-                                "account_id": backup_dict['account_id'],
-                                "year": backup_dict['year'],
-                                "month": backup_dict['month'],
-                                "day": backup_dict['day'],
-                                "d_hour": backup_dict['d_hour'],
-                                "d_minute": backup_dict['d_minute'],
-                                "d_second": backup_dict['d_second'],
-                                "hours": backup_dict['hours'],
-                                "booked": backup_dict['booked']
-                                }
-            
-            print(passed_time_dict)
-
-            self.user_db.add_passed_times(passed_time_dict)
+            self.add_passed_time(backup_dict)
         self.user_db.delete_backup()
         return(True)
     
@@ -314,8 +312,6 @@ class DataManager:
         day = int(dt.strftime("%d"))
         month = int(dt.strftime("%m"))
         year = int(dt.strftime("%Y"))
-
-        passed_id = self.user_db.get_new_passedid()  
 
         for main_clock in current_main_account_clock_list:
 
@@ -336,7 +332,7 @@ class DataManager:
                     auto_booking = account_dict['auto_booking']
 
                     backup_dict = {"backup_id": backup_id,
-                                        "passed_id": passed_id,
+                                        "passed_id": 0,             #this function is no more used
                                         "account_id": account_id,
                                         "year": year,
                                         "month": month,
@@ -349,7 +345,6 @@ class DataManager:
                                         }
 
                     self.user_db.add_backup(backup_dict)
-                    passed_id = passed_id + 1
                 else:
                     pass
             else:
@@ -470,6 +465,11 @@ class DataManager:
     def close_main_account_clock(self, main_account_clock):
         new_main_account_clock_list_without_closed_clock = [ele for ele in self.main_account_clock_list if ele != main_account_clock]
         self.main_account_clock_list = new_main_account_clock_list_without_closed_clock
+        return
+    
+    def update_clocks(self):
+        for main_account_clock in self.main_account_clock_list:
+            main_account_clock.update_account_dict()
         return
     
 #################################################################
@@ -729,7 +729,7 @@ class DataManager:
 
 #################################################################
 
-    def get_account_dict_list_by_search(self,modus,search_input):
+    def get_account_dict_list_by_search(self,modus,search_input=None):
 
         if modus in ['project_nbr','order_nbr','process_nbr']:
             try:
@@ -857,6 +857,20 @@ class DataManager:
         account_dict = self.user_db.get_account_details(account_id)
         return(account_dict)
 
+
+#################################################################
+
+    def update_record(self,passed_id,time,booked):
+        if booked == 1:
+            self.user_db.set_unbooked_time_booked(passed_id)
+        else:
+            self.user_db.set_booked_time_unbooked(passed_id)
+
+        self.user_db.update_passed_time_by_passed_id(passed_id,time)
+        return
+
+    def delete_record(self,record_dict):
+        self.user_db.delete_passed_time_by_passed_id(record_dict['passed_id'])
 
 #################################################################
 

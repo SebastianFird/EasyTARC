@@ -136,6 +136,16 @@ class DataTab(Scroll_Frame):
         self.set_clicked_record_frame(None)
 
 #################################################################
+
+    def delete_record(self,record_dict):
+        self.data_manager.delete_record(record_dict)
+        self.reload()
+
+    def add_new_record(self):
+        self.case_frame_manager.add_new_record('new_record')
+
+    def edit_record(self,record_dict):
+        self.case_frame_manager.add_new_record('edit_record',record_dict)
     
     def export_all_passed_times(self):
         self.gui.disable_main_window()

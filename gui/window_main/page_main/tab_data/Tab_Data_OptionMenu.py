@@ -16,7 +16,7 @@ limitations under the License.
 __author__ = 'Sebastian Feiert'
 
 import tkinter # Tkinter -> tkinter in Python 3
-from gui.Window_Additionals import InfoDictWindow
+from gui.Window_Additionals import InfoDictWindow, DeleteRecordWarning
 
 
 class DataOptionMenu(tkinter.Listbox):
@@ -37,11 +37,16 @@ class DataOptionMenu(tkinter.Listbox):
         self.refresh()
 
     def build_options(self):
-        self.account_dict = self.data_tab.get_clicked_record_frame().record_dict
+        self.record_dict = self.data_tab.get_clicked_record_frame().record_dict
 
         self.optionmenu.delete(0, "end")
 
         self.optionmenu.add_command(label=self.language_dict["info_about_the_time_account"],command=self.show_clock_info)
+        self.optionmenu.add_separator()
+        
+        self.optionmenu.add_command(label=self.language_dict["edit"],command=self.edit_record)
+        self.optionmenu.add_command(label=self.language_dict["delete"],command=self.ask_delete_record)
+
 
     def popup(self, event):
         try:
@@ -58,45 +63,52 @@ class DataOptionMenu(tkinter.Listbox):
         self.optionmenu.configure(foreground=self.style_dict["font_color"])
         self.optionmenu.configure(activebackground=self.style_dict["highlight_color"])
 
+    def ask_delete_record(self):
+        DeleteRecordWarning(self.main_app,self.gui,self.data_tab.main_frame, self.data_tab,self.record_dict)
+
+    def edit_record(self):
+        self.data_tab.edit_record(self.record_dict)
+        return
+
     def show_clock_info(self):
-        if self.account_dict['account_kind'] == 1:
+        if self.record_dict['account_kind'] == 1:
             info_dict = {self.language_dict["type"]:self.language_dict["main_account"]}
         else:
             info_dict = {self.language_dict["type"]:self.language_dict["sub_account"],
-                        self.language_dict["main_account"]:self.account_dict['main_name']}
+                        self.language_dict["main_account"]:self.record_dict['main_name']}
         #############
-        if self.account_dict['account_id'] != 0:
+        if self.record_dict['account_id'] != 0:
             info_dict.update({
-                self.language_dict["name"]:self.account_dict['name'],
-                self.language_dict["description"]:self.account_dict['description_text']    
+                self.language_dict["name"]:self.record_dict['name'],
+                self.language_dict["description"]:self.record_dict['description_text']    
                 })
         else:
             info_dict.update({self.language_dict["name"]:self.language_dict["without_allocation"]})
         #############
-        if self.account_dict['group'] != 'default':
-            info_dict.update({self.language_dict["group"]:self.account_dict['group']})
+        if self.record_dict['group'] != 'default':
+            info_dict.update({self.language_dict["group"]:self.record_dict['group']})
         else:
             info_dict.update({self.language_dict["group"]:''})
         #############
-        if self.account_dict['account_id'] != 0:
+        if self.record_dict['account_id'] != 0:
             info_dict.update({                
-                        self.language_dict["project"]:self.account_dict['project_nbr'],  
-                        self.language_dict["order"]:self.account_dict['order_nbr'],                              
-                        self.language_dict["process"]:self.account_dict['process_nbr']         
+                        self.language_dict["project"]:self.record_dict['project_nbr'],  
+                        self.language_dict["order"]:self.record_dict['order_nbr'],                              
+                        self.language_dict["process"]:self.record_dict['process_nbr']         
                         })
         #############
-        if self.account_dict['bookable'] == 1:
+        if self.record_dict['bookable'] == 1:
             info_dict.update({self.language_dict["bookable"]:self.language_dict["yes"]}) 
         else:
             info_dict.update({self.language_dict["bookable"]:self.language_dict["no"]}) 
         #############
-        if self.account_dict['bookable'] == 1:
+        if self.record_dict['bookable'] == 1:
             info_dict.update({                     
-                        self.language_dict["booking_nbr"]:self.account_dict['response_nbr'],                            
-                        self.language_dict["booking_text"]:self.account_dict['default_text']              
+                        self.language_dict["booking_nbr"]:self.record_dict['response_nbr'],                            
+                        self.language_dict["booking_text"]:self.record_dict['default_text']              
                         })
             #########
-            if self.account_dict['auto_booking'] == 1:
+            if self.record_dict['auto_booking'] == 1:
                 info_dict.update({self.language_dict["auto_booking"]:self.language_dict["yes"]}) 
             else:
                 info_dict.update({self.language_dict["auto_booking"]:self.language_dict["no"]}) 

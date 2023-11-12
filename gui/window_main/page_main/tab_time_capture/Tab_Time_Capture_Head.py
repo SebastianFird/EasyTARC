@@ -85,40 +85,17 @@ class CaptureHead:
 
 #################################################################
 
-    def updtcblist(self):
-        main_account_clock_list = self.data_manager.get_main_account_clock_list()
-        not_current_main_account_clock_name_list = []
-        for main_account_clock in main_account_clock_list:
-            if main_account_clock.get_account_status() == 'open':
-                not_current_main_account_clock_name_list.append(main_account_clock.get_name())
-
-        self.addable_account_list = [self.language_dict['new_main_account']] + not_current_main_account_clock_name_list
-
-        self.account_cbox['values'] = self.addable_account_list
-        self.account_cbox.current(0)
-
-
     def create_main_head(self):
         self.main_head_frame = MyFrame(self.main_frame,self.data_manager)
         self.main_head_frame.configure(background=self.style_dict["header_color"])
         self.main_head_frame.pack(side = "top", fill = "x")
 
-        clicked = tk.StringVar()
-        self.account_cbox = ttk.Combobox(self.main_head_frame, state="readonly", width = 40, textvariable = clicked, postcommand = self.updtcblist)
+        self.clicked = tk.StringVar()
+        self.account_cbox = ttk.Combobox(self.main_head_frame, state="readonly", width = 40, textvariable = self.clicked, postcommand = self.updtcblist)
+        self.account_cbox.bind("<<ComboboxSelected>>", self.cbox_selected)
         self.account_cbox.pack(side='left',padx = 10,pady=10)
-
-        self.updtcblist()
-        
-        def add_project_clock_by_name(account_name):
-            self.updtcblist()
-            if account_name == self.language_dict['new_main_account']:
-                self.case_frame_manager.add_new_account('new_main',self.capture_tab)
-            else:
-                self.capture_tab.body.pack_main_account_frame_by_name(account_name)
-                self.updtcblist()
-                return
-
-        self.btn_add_clock = MyButton(self.main_head_frame, self.data_manager, text=self.language_dict['add'],width=15,command=lambda:add_project_clock_by_name(clicked.get()))
+    
+        self.btn_add_clock = MyButton(self.main_head_frame, self.data_manager,width=15,command=lambda:self.add_project_clock_by_name(self.clicked.get()))
         self.btn_add_clock.pack(side='left',padx = 10,pady=10)
 
         self.btn_end_of_work = MyButton(self.main_head_frame, self.data_manager, text=u'\U0001F4BE' + '   ' + self.language_dict['closing_time'],width=20,command=self.end_of_work)
@@ -144,8 +121,37 @@ class CaptureHead:
         self.lbl_activate_pause.bind("<Button-1>", self.activate_pause)
         self.on_activate_pause = False
 
+        self.updtcblist()
         self.update_main_head()
         return
+    
+    def cbox_selected(self,e=None):
+        if self.clicked.get() == self.language_dict['new_main_account']:
+            self.btn_add_clock.configure(text=self.language_dict['add'])
+        else:
+            self.btn_add_clock.configure(text=self.language_dict['show'])
+
+    def add_project_clock_by_name(self,account_name):
+        self.updtcblist()
+        if account_name == self.language_dict['new_main_account']:
+            self.case_frame_manager.add_new_account('new_main')
+        else:
+            self.capture_tab.body.pack_main_account_frame_by_name(account_name)
+            self.updtcblist()
+        return
+
+    def updtcblist(self):
+        main_account_clock_list = self.data_manager.get_main_account_clock_list()
+        not_current_main_account_clock_name_list = []
+        for main_account_clock in main_account_clock_list:
+            if main_account_clock.get_account_status() == 'open':
+                not_current_main_account_clock_name_list.append(main_account_clock.get_name())
+
+        self.addable_account_list = [self.language_dict['new_main_account']] + not_current_main_account_clock_name_list
+
+        self.account_cbox['values'] = self.addable_account_list
+        self.account_cbox.current(0)
+        self.cbox_selected()
 
     def pause_enter(self,e):
         self.on_activate_pause = True
@@ -220,7 +226,7 @@ class CaptureHead:
         self.lbl_activate_pause.configure(background=self.style_dict["header_color"])
         self.lbl_empty0.configure(background=self.style_dict["header_color"])
         
-        self.btn_add_clock.configure(text=self.language_dict['add'])
+        self.cbox_selected()
         self.btn_end_of_work.configure(text=u'\U0001F4BE' + '   ' + self.language_dict['closing_time'])
         self.lbl_pause.configure(text=self.language_dict['break'])
 

@@ -170,7 +170,7 @@ class MiniWorkWindowList(tk.Toplevel):
 
     def run_main_frame(self):
         self.main_frame = MyFrame(self, self.data_manager) 
-        self.main_frame.configure(background=self.style_dict["titlebar_color"],highlightthickness=1, highlightcolor = self.style_dict["titlebar_color"], highlightbackground=self.style_dict["titlebar_color"])
+        self.main_frame.configure(background=self.style_dict["titlebar_color"])
         self.main_frame.pack(side = "top", fill = "both", expand = True)
         self.main_frame.bind("<Leave>", self.main_leave)
         self.main_frame.bind("<Enter>", self.main_enter)
@@ -204,13 +204,17 @@ class MiniWorkWindowList(tk.Toplevel):
         self.last_clock = self.data_manager.get_last_active_clock()
 
         if self.main_app.get_action_state() == 'disabled':
-            self.main_frame.configure(highlightcolor=self.style_dict["titlebar_color"], highlightbackground=self.style_dict["titlebar_color"])
+            color = self.style_dict["titlebar_color"]
         elif self.work_clock.get_runninig() == True:
-            self.main_frame.configure(highlightcolor = self.style_dict["bottom_active_color"], highlightbackground=self.style_dict["bottom_active_color"])
+            color = self.style_dict["bottom_active_color"]
         elif self.pause_clock.get_runninig() == True:
-            self.main_frame.configure(highlightcolor = self.style_dict["bottom_pause_color"], highlightbackground=self.style_dict["bottom_pause_color"])
+            color = self.style_dict["bottom_pause_color"]
         else:
-            self.main_frame.configure(highlightcolor = self.style_dict["titlebar_color"], highlightbackground=self.style_dict["titlebar_color"])
+            color = self.style_dict["titlebar_color"]
+
+        self.vertical_name_frame.configure(highlightcolor = color, highlightbackground=color)
+        self.title_bar_name.configure(highlightcolor = color, highlightbackground=color)
+        self.btn_frame.configure(highlightcolor = color, highlightbackground=color)
 
         # update titlebar and vertical frame
 
@@ -313,6 +317,7 @@ class MiniWorkWindowList(tk.Toplevel):
         self.close_button_v.bind("<Button-3>", self.right_clicked)
 
         self.vertical_name_frame = MyFrame(self.vertical_frame,self.data_manager)
+        self.vertical_name_frame.configure(highlightthickness=1, highlightcolor = self.style_dict["titlebar_color"], highlightbackground=self.style_dict["titlebar_color"])
         self.vertical_name_frame.pack(side='top')
         if self.modus != 'dynamic_view':
             self.vertical_frame_ttp = CreateToolTip(self.vertical_name_frame, self.data_manager, -50, 100, self.language_dict['double_click'])
@@ -340,7 +345,11 @@ class MiniWorkWindowList(tk.Toplevel):
         self.title_bar.configure(background=self.style_dict["titlebar_color"])
         self.title_bar.pack(side='top', fill = "x")
 
-        self.close_button = MyLabel(self.title_bar, self.data_manager, text='___')
+        self.title_bar_btn = MyFrame(self.title_bar,self.data_manager)
+        self.title_bar_btn.configure(background=self.style_dict["titlebar_color"])
+        self.title_bar_btn.pack(side='right', fill = "y")
+
+        self.close_button = MyLabel(self.title_bar_btn, self.data_manager, text='___')
         self.close_button.configure(background=self.style_dict["titlebar_color"], width = 5)
         self.close_button.pack(side='right', fill = "y")
         self.close_button.bind('<Button-1>', self.close_window)
@@ -349,7 +358,7 @@ class MiniWorkWindowList(tk.Toplevel):
         self.close_button.bind("<Leave>", self.leave_close)
         self.close_button.bind("<Button-3>", self.right_clicked)
 
-        self.expand_btn = MyLabel(self.title_bar, self.data_manager)
+        self.expand_btn = MyLabel(self.title_bar_btn, self.data_manager)
         self.expand_btn.configure(text = u'\U00002302', background=self.style_dict["titlebar_color"], width = 5) # u'\U0001F532'
         self.expand_btn.pack(side='right', fill = "y")
         self.expand_btn.bind('<Button-1>', self.expand_to_main_window)
@@ -358,7 +367,7 @@ class MiniWorkWindowList(tk.Toplevel):
         self.expand_btn.bind("<Leave>", self.leave_expand_window)
         self.expand_btn.bind("<Button-3>", self.right_clicked)
 
-        self.bar_btn = MyLabel(self.title_bar, self.data_manager)
+        self.bar_btn = MyLabel(self.title_bar_btn, self.data_manager)
         self.bar_btn.configure(text = u'\U00002191', background=self.style_dict["titlebar_color"], width = 5) # u'\U0001F881'
         self.bar_btn.pack(side='right', fill = "y")
         self.bar_btn.bind('<Button-1>', self.change_to_bar_work_window)
@@ -367,15 +376,19 @@ class MiniWorkWindowList(tk.Toplevel):
         self.bar_btn.bind("<Leave>", self.leave_change_to_bar)
         self.bar_btn.bind("<Button-3>", self.right_clicked)
 
-        self.lbl_emtpy = MyLabelPixel(self.title_bar, self.data_manager)
+        self.title_bar_name = MyFrame(self.title_bar,self.data_manager)
+        self.title_bar_name.configure(background=self.style_dict["titlebar_color"],highlightthickness=1, highlightcolor = self.style_dict["titlebar_color"], highlightbackground=self.style_dict["titlebar_color"])
+        self.title_bar_name.pack(side='right', fill = "both")
+
+        self.lbl_emtpy = MyLabelPixel(self.title_bar_name, self.data_manager)
         self.lbl_emtpy.configure(text = '', background=self.style_dict["titlebar_color"],height=30) # u'\U0001F532'
         self.lbl_emtpy.pack(side='right')
         self.lbl_emtpy.bind("<Button-3>", self.right_clicked)
         self.lbl_emtpy.bind("<Double-Button-1>", self.status_double_click)
 
-        self.lbl_name = MyLabel(self.title_bar, self.data_manager)
+        self.lbl_name = MyLabel(self.title_bar_name, self.data_manager)
         self.lbl_name.configure(background=self.style_dict["titlebar_color"],foreground=self.style_dict["font_color"], anchor='w',width=20)
-        self.lbl_name.pack(side='left',fill='x')
+        self.lbl_name.pack(side='left',fill='both')
         self.lbl_name.bind('<B1-Motion>', self.move_window)
         self.lbl_name.bind('<Button-1>', self.get_pos)
         self.lbl_name.bind('<ButtonRelease-1>', self.save_pos)
@@ -386,6 +399,7 @@ class MiniWorkWindowList(tk.Toplevel):
     def create_btn_frame(self):
 
         self.btn_frame = MyFrame(self.main_frame,self.data_manager)
+        self.btn_frame.configure(highlightthickness=1, highlightcolor = self.style_dict["titlebar_color"], highlightbackground=self.style_dict["titlebar_color"])
         self.scroll_frame = self.scroll.create_scroll_frame(self.btn_frame)
 
         self.pause_frame = MyFrame(self.scroll_frame,self.data_manager)

@@ -233,6 +233,7 @@ class CaptureBody:
                 new_main_account_frame_list = new_main_account_frame_list + new_group_main_account_frame_list
 
             self.main_account_frame_list = new_main_account_frame_list
+
             self.data_manager.set_work_window_group_main_account_list(work_window_group_main_account_list)
             self.main_app.set_action_state_normal()
             return

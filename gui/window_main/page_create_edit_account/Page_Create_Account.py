@@ -17,6 +17,7 @@ __author__ = 'Sebastian Feiert'
 
 import tkinter as tk
 import decimal
+import json
 
 from gui.window_main.page_create_edit_account.Page_Create_Account_Head import CreateEditAccountHead
 from gui.window_main.page_create_edit_account.Page_Create_Account_Body import CreateEditAccountBody
@@ -26,14 +27,14 @@ from gui.Window_Additionals import InfoWindow
 from style_classes import MyFrame
 
 class CreateEditAccount(tk.Frame):
-    def __init__(self, case_frame_manager,gui, main_app, modus, capture_tab, main_account_clock, main_account_dict = None, sub_account_dict = None):
+    def __init__(self, case_frame_manager,gui, main_app, modus, main_account_clock, main_account_dict = None, sub_account_dict = None):
 
         self.gui = gui
         self.main_app = main_app
         self.case_frame_manager = case_frame_manager
         self.data_manager = self.main_app.get_data_manager()
-        self.capture_tab = capture_tab
         self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
 
         self.modus = modus
         self.main_account_clock = main_account_clock
@@ -91,6 +92,34 @@ class CreateEditAccount(tk.Frame):
     
 #################################################################
 
+    def clipboard_input(self,clipboard):
+        print(clipboard)
+
+        try:
+            data_json = json.loads(clipboard)
+        except json.decoder.JSONDecodeError:
+            return False
+
+        try:
+            account_data = {
+                "project_nbr":data_json[self.main_app.get_setting("project_nbr_map")],
+                "order_nbr":data_json[self.main_app.get_setting("order_nbr_map")],
+                "process_nbr":data_json[self.main_app.get_setting("process_nbr_map")],
+                "response_nbr":data_json[self.main_app.get_setting("response_nbr_map")]
+            }
+        except KeyError:
+            return False
+        
+        try:
+            float(account_data["project_nbr"])
+            float(account_data["order_nbr"])
+            float(account_data["process_nbr"])
+            float(account_data["response_nbr"])
+        except ValueError:
+            return False
+        return(account_data)
+        
+
     def user_input(self,account_name,account_description_text,account_project,account_order,account_process,account_response,account_text,account_autobooking,group,bookable):
 
         main_list = ['new_main','new_order','new_process','edit_main']
@@ -136,6 +165,11 @@ class CreateEditAccount(tk.Frame):
             info = input_checked
             return(info)
         else:
+            project_nbr = str(project_nbr)
+            order_nbr = str(order_nbr)
+            process_nbr = str(process_nbr)
+            if response_nbr != '':
+                response_nbr = str(response_nbr)
             self.save(name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id,group,bookable)
             return(None)
 
@@ -150,12 +184,12 @@ class CreateEditAccount(tk.Frame):
         if self.modus in new_main_list:
             account_dict = self.data_manager.create_time_account(name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id,group,bookable)
             main_account_clock = self.data_manager.create_main_account_clock(account_dict)
-            self.capture_tab.body.create_main_account_frame(main_account_clock)
+            self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.create_main_account_frame(main_account_clock)
             
         elif self.modus in new_sub_list:
             account_dict = self.data_manager.create_time_account(name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id,group,bookable)
             sub_clock = self.main_account_clock.add_sub_clock(account_dict)
-            self.capture_tab.body.add_sub_account_frame(self.main_account_clock,sub_clock)
+            self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.add_sub_account_frame(self.main_account_clock,sub_clock)
 
         elif self.modus in edit_main_list:
             account_dict = {"account_id":int(self.main_account_dict['account_id']),    
@@ -177,7 +211,9 @@ class CreateEditAccount(tk.Frame):
                             "a_day":int(self.main_account_dict['a_day'])                       
                             }
             self.data_manager.update_account(account_dict)
-            self.capture_tab.reload()
+            self.data_manager.update_clocks()
+            self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.refresh_clock_names()
+            self.gui.main_window.case_frame.notebook_frame.tab_manager.accounts_tab.reload()
         
         elif self.modus in edit_sub_list:
             account_dict = {"account_id":int(self.sub_account_dict['account_id']),    
@@ -199,7 +235,9 @@ class CreateEditAccount(tk.Frame):
                             "a_day":int(self.sub_account_dict['a_day'])                       
                             }
             self.data_manager.update_account(account_dict)
-            self.capture_tab.reload()
+            self.data_manager.update_clocks()
+            self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.refresh_clock_names()
+            self.gui.main_window.case_frame.notebook_frame.tab_manager.accounts_tab.reload()
 
         self.back()
         return
@@ -214,17 +252,17 @@ class CreateEditAccount(tk.Frame):
         sub_list = ['new_sub','edit_sub']
 
         if self.modus in new_main_list:
-            if name == '' or name == 'Zeitkonto'or name == 'Neues Zeitkonto':
-                return('Sie müssen einen gültigen Namen vergeben')
+            if name == '' or name == 'Zeitkonto'or name == 'Neues Hauptkonto' or name == 'Time account' or name == 'New main-account' or name == 'Ohne Zuordnung' or name == 'Without allocation':
+                return(self.language_dict['no_falid_name'])              
             else:
                 pass
 
             if  name.isspace() == True:
-                return('Der Name darf nicht nur Leerzeichen beinhalten')
+                return(self.language_dict['not_only_spaces'])       
 
             try:
                 float(name)
-                return('Der Name darf nicht nur Nummern enthalten.')
+                return(self.language_dict['not_only_numbers'])               
             except ValueError:
                 pass
 
@@ -234,24 +272,24 @@ class CreateEditAccount(tk.Frame):
                 name_list = [ele for ele in name_list if ele != original_name]
 
             if name in name_list:
-                return('Dieser Name existiert bereits.')
+                return(self.language_dict['name_already_exists'])                          
             else:
                 pass
 
         #############################################
 
         elif self.modus in edit_main_list:
-            if name == '' or name == 'Zeitkonto'or name == 'Neues Zeitkonto':
-                return('Sie müssen einen gültigen Namen vergeben')
+            if name == '' or name == 'Zeitkonto'or name == 'Neues Hauptkonto' or name == 'Time account' or name == 'New main-account' or name == 'Ohne Zuordnung' or name == 'Without allocation':
+                return(self.language_dict['no_falid_name'])
             else:
                 pass
 
             if  name.isspace() == True:
-                return('Der Name darf nicht nur Leerzeichen beinhalten')
+                return(self.language_dict['not_only_spaces'])
 
             try:
                 float(name)
-                return('Der Name darf nicht nur Nummern enthalten.')
+                return(self.language_dict['not_only_numbers'])
             except ValueError:
                 pass
 
@@ -260,7 +298,7 @@ class CreateEditAccount(tk.Frame):
             name_list = [ele for ele in name_list if ele != original_name]
 
             if name in name_list:
-                return('Dieser Name existiert bereits.')
+                return(self.language_dict['name_already_exists'])
             else:
                 pass
 
@@ -268,11 +306,11 @@ class CreateEditAccount(tk.Frame):
 
         elif self.modus in sub_list:
             if  name.isspace() == True:
-                return('Der Name darf nicht nur Leerzeichen beinhalten')
+                return(self.language_dict['not_only_spaces'])
 
             try:
                 float(name)
-                return('Der Name darf nicht nur Nummern enthalten.')
+                return(self.language_dict['not_only_numbers'])
             except ValueError:
                 pass
 
@@ -286,9 +324,11 @@ class CreateEditAccount(tk.Frame):
         for nbr_field in list_nbr:
             if nbr_field != '':
                 try:
-                    float(nbr_field)
+                    int(nbr_field)
                 except (ValueError,decimal.InvalidOperation):
-                    return('Bitte eine Zahl bei Nummerfeldern eintragen.')
+                    return(self.language_dict['nbr_for_nbr_fields'])
+                if int(nbr_field) < 0:
+                    return(self.language_dict['nbr_for_nbr_fields'])
         return(True)
 
     def back(self):

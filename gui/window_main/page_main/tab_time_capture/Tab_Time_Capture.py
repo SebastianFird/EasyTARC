@@ -85,6 +85,11 @@ class CaptureTab(Scroll_Frame):
         self.body.refresh()
         return
     
+    def refresh_clock_names(self):
+        self.head.updtcblist()
+        self.body.arrange_clocks()
+        self.body.refresh_clocks()
+    
     def empty_body_clicked(self,e):
         self.set_selected_clock_frame_none()
 
@@ -112,17 +117,17 @@ class CaptureTab(Scroll_Frame):
     def create_sub_account(self):
         selected_clock = self.data_manager.get_selected_clock()
         if selected_clock.clock_kind == 'main' and selected_clock.get_id() != 0:
-            self.case_frame_manager.add_new_account('new_sub',self,selected_clock,selected_clock.get_account_dict())
+            self.case_frame_manager.add_new_account('new_sub',selected_clock,selected_clock.get_account_dict())
 
     def create_order_account(self):
         selected_clock = self.data_manager.get_selected_clock()
         if selected_clock.clock_kind == 'main' and selected_clock.get_id() != 0:
-            self.case_frame_manager.add_new_account('new_order',self,selected_clock,selected_clock.get_account_dict())
+            self.case_frame_manager.add_new_account('new_order',selected_clock,selected_clock.get_account_dict())
 
     def create_process_account(self):
         selected_clock = self.data_manager.get_selected_clock()
         if selected_clock.clock_kind == 'main' and selected_clock.get_id() != 0:
-            self.case_frame_manager.add_new_account('new_process',self,selected_clock,selected_clock.get_account_dict())
+            self.case_frame_manager.add_new_account('new_process',selected_clock,selected_clock.get_account_dict())
 
     def reset_captured_time(self):
         selected_clock = self.data_manager.get_selected_clock()

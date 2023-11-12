@@ -1,0 +1,4 @@
+Please note that these EXE files (EasyTARC and User_License_Creator) are only intended as examples. 
+The encryption contains the example passwords from the code in Github. 
+If you want to use the mulitple_users_encrypted configuration securely, 
+you must change the example passwords in the code and generate the EXE files yourself using pyinstaller, for example.

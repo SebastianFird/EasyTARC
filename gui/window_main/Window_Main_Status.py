@@ -50,7 +50,9 @@ class MainWindowStatus(tk.Frame):
         self.main_frame = MyFrame(container, self.data_manager) 
         
         self.status_frame()
-        if self.reminder_ckeck() == 'end_of_month':
+        if self.main_app.get_version_update() == True:
+            self.reminder_frame(self.language_dict["update_installed"] + " " + str(self.main_app.get_version()))
+        elif self.reminder_ckeck() == 'end_of_month':
             self.reminder_frame(self.language_dict["booking_reminder"])
         elif self.reminder_ckeck() == 'many_hours':
             self.reminder_frame(self.language_dict["booking_reminder_2"])

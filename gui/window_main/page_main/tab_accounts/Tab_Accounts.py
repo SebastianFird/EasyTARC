@@ -172,12 +172,12 @@ Ein aktives Zeitkonto kann nicht geschlossen werden. Bitte aktiviere erst ein an
     def edit_selected_account(self, account_dict):
         if account_dict['account_kind'] == 1:
             main_account_dict = account_dict
-            self.case_frame_manager.add_new_account('edit_main',self,None,main_account_dict)
+            self.case_frame_manager.add_new_account('edit_main',None,main_account_dict)
 
         if account_dict['account_kind'] == 0:
             main_account_dict = self.data_manager.get_account_dict_by_account_id(account_dict['main_id'])
             sub_account_dict = account_dict
-            self.case_frame_manager.add_new_account('edit_sub',self,None,main_account_dict,sub_account_dict)
+            self.case_frame_manager.add_new_account('edit_sub',None,main_account_dict,sub_account_dict)
     
 
 

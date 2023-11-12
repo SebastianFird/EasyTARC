@@ -193,6 +193,20 @@ class AccountClock(Clock):
         if load_backup == True:
             self.load_backup_time()
 
+    def reload_account_dict(self):
+        account_dict = self.user_db.get_account_details(self.id)
+        self.account_dict = account_dict
+        self.name = self.account_dict.get("name")
+        self.description_text = self.account_dict.get("description_text")
+        self.project_nbr = self.account_dict.get("project_nbr")
+        self.order_nbr = self.account_dict.get("order_nbr")
+        self.process_nbr = self.account_dict.get("process_nbr")
+        self.response_nbr = self.account_dict.get("response_nbr")
+        self.default_text = self.account_dict.get("default_text")
+        self.auto_booking = self.account_dict.get("auto_booking")
+        self.group = self.account_dict.get("group")
+        self.bookable = self.account_dict.get("bookable")
+
     def get_account_dict(self):
         return(self.account_dict)
 
@@ -372,6 +386,11 @@ class MainAccountClock(AccountClock):
             account_dict = self.user_db.get_account_details(account_id)
             sub_clock = SubAccountClock(self.main_app,passed_hours, passed_minutes, passed_seconds, added_minutes, account_dict, self,load_backup)
             self.sub_clock_list.append(sub_clock)
+
+    def update_account_dict(self):
+        self.reload_account_dict()
+        for sub_clock in self.sub_clock_list:
+            sub_clock.reload_account_dict()
 
     def get_account_runninig(self):
         account_running = False

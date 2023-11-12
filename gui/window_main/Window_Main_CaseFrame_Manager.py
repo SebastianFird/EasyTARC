@@ -20,6 +20,7 @@ from tkinter import ttk
 
 from gui.window_main.page_main.Page_Main_Notebook import NotebookFrame
 from gui.window_main.page_create_edit_account.Page_Create_Account import CreateEditAccount
+from gui.window_main.page_create_edit_record.Page_Create_Record import CreateEditRecord
 from gui.Gui_CaseFrame_Manager import CaseFrameManager
 from style_classes import MyFrame
 
@@ -44,16 +45,29 @@ class CaseFrameManagerMW(CaseFrameManager):
         self.show_frame(NotebookFrame)
         return(frame)
 
-    def add_new_account(self,modus,capture_tab, main_account_clock = None, main_account_dict=None,sub_account_dict= None):
+    def add_new_account(self,modus, main_account_clock = None, main_account_dict=None,sub_account_dict= None):
         if CreateEditAccount in self.frames:
             self.frames[CreateEditAccount].destroy()
             self.frames.pop(CreateEditAccount, None)
 
-        frame = CreateEditAccount(self,self.gui,self.main_app, modus, capture_tab, main_account_clock, main_account_dict, sub_account_dict)
+        frame = CreateEditAccount(self,self.gui,self.main_app, modus, main_account_clock, main_account_dict, sub_account_dict)
         
         self.frames[CreateEditAccount] = frame
         frame.pack(side = "top", fill = "both", expand = True)
         
         self.show_frame(CreateEditAccount)
+        return(frame)
+    
+    def add_new_record(self,modus, record_dict=None):
+        if CreateEditRecord in self.frames:
+            self.frames[CreateEditRecord].destroy()
+            self.frames.pop(CreateEditRecord, None)
+
+        frame = CreateEditRecord(self,self.gui,self.main_app, modus, record_dict)
+        
+        self.frames[CreateEditRecord] = frame
+        frame.pack(side = "top", fill = "both", expand = True)
+        
+        self.show_frame(CreateEditRecord)
         return(frame)
     
