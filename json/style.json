@@ -1,0 +1,49 @@
+{
+    "light": 
+    {
+        "name": "light",
+        "header_color_blue": "#386c8f",
+        "info_color_light_blue": "#6A9FC2",
+        "font_color": "#000000",
+        "font_color_white": "#ffffff",
+        "font_color_black": "#000000",
+        "background_color_grey": "#f3f6f4",
+        "btn_color_grey": "#cccccc",
+        "frame_hover_color_grey": "#dbdbdb",
+        "selected_color_grey": "#c5c5c5",
+        "btn_hover_color_grey": "#b7b7b7",
+        "highlight_color_grey": "#929292",
+        "caution_color_red": "#ff0000",
+        "highlight_color_green": "#09b509",
+        "highlight_color_yellow": "#edd60e",
+        "recording_color_green": "#4dc94d",
+        "pause_color_orange": "#ffa500",
+        "titlebar_color": "#cccccc",
+        "window_border_color": "#929292"
+    },
+    "dark": 
+    {
+        "name": "dark",
+        "header_color_blue": "#03396c",
+        "info_color_light_blue": "#6A9FC2",
+        "font_color": "#ffffff",
+        "font_color_white": "#ffffff",
+        "font_color_black": "#000000",
+        "background_color_grey": "#1e1e1e",
+        "btn_color_grey": "#383838",
+        "frame_hover_color_grey": "#343434",
+        "selected_color_grey": "#434343",
+        "btn_hover_color_grey": "#4b4b4b",
+        "highlight_color_grey": "#868686",
+        "caution_color_red": "#ff0000",
+        "highlight_color_green": "#09c209",
+        "highlight_color_yellow": "#edd60e",
+        "recording_color_green": "#068206",
+        "pause_color_orange": "#ba7800",
+        "titlebar_color": "#000000",
+        "window_border_color": "#343434"
+    }
+}
+
+
+

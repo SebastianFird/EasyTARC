@@ -23,7 +23,7 @@ from gui.Window_Additionals import CreateToolTip
 from style_classes import MyFrame
 
 class MainAccountFrame(tk.Frame):
-    def __init__(self, container, main_app, gui, main_account_clock, capture_body):
+    def __init__(self, container, main_app, gui, main_account_clock, capture_body, group):
          
         self.main_app = main_app
         self.data_manager = self.main_app.get_data_manager()
@@ -33,6 +33,7 @@ class MainAccountFrame(tk.Frame):
 
         self.main_account_clock = main_account_clock
         self.capture_body = capture_body
+        self.group = group
         self.clock_frame_list = []
         self.sub_clock_frame_list = []
         self.tree_view = False
@@ -65,13 +66,16 @@ class MainAccountFrame(tk.Frame):
         for clock_frame in self.clock_frame_list:
             clock_frame.update()
 
-    def update_clock_frames(self):
-        for clock_frame in self.clock_frame_list:
-            clock_frame.update_frame()
-
     def update_clocks(self):
         for clock_frame in self.clock_frame_list:
             clock_frame.update_clock()
+
+    def update_clock_properties(self):
+        for clock_frame in self.clock_frame_list:
+            clock_frame.update_clock_properties()
+        if self.main_account_clock.get_group() != self.group.get_group_name():
+            self.capture_body.add_main_account_frame(self.main_account_clock.get_group(),self.main_account_clock)
+            self.group.delete_main_account_frame(self.main_account_clock.get_id())
 
     def fold_sub_clocks(self):
         if self.main_account_clock.get_sub_clock_list() != []:
@@ -86,7 +90,7 @@ class MainAccountFrame(tk.Frame):
         if self.main_account_clock.get_sub_clock_list() != []:
             if self.main_account_clock.str_timedelta(self.main_account_clock.get_sub_time_sum()) == "00:00:00":
                 self.tree_view = False
-                self.main_clock_frame.lbl_view_sub_clocks.configure(text = ' ' + u'\U00002B9E')
+                self.main_clock_frame.lbl_view_sub_clocks.configure(text = '  ' + u'\U00002B9E')
                 for sub_clock_frame in self.sub_clock_frame_list:
                     sub_clock_frame.pack_forget()
         return
@@ -94,9 +98,9 @@ class MainAccountFrame(tk.Frame):
     def fold_out_sub_clocks(self):
         if self.main_account_clock.get_sub_clock_list() != []:
             self.tree_view = True
-            self.main_clock_frame.lbl_view_sub_clocks.configure(text = ' ' + u'\U00002B9F')
+            self.main_clock_frame.lbl_view_sub_clocks.configure(text = '  ' + u'\U00002B9F')
             for sub_clock_frame in self.sub_clock_frame_list:
-                if sub_clock_frame.clock.get_account_status() == 'current':
+                if sub_clock_frame.clock.get_account_status() == 'open':
                     sub_clock_frame.pack(side="top", fill="x")
         return
     
@@ -108,7 +112,7 @@ class MainAccountFrame(tk.Frame):
     def show_all_sub_clocks(self):
         if self.main_account_clock.get_sub_clock_list() != []:
             for sub_clock_frame in self.sub_clock_frame_list:
-                sub_clock_frame.clock.set_status_current()
+                sub_clock_frame.clock.set_status_open()
             self.fold_out_sub_clocks()
         return
     

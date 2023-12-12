@@ -41,40 +41,40 @@ class Myttk:
         self.my_ttk.theme_create(name, parent='alt',
                                  settings={'TCombobox':
                                                {'configure':
-                                                    {'selectbackground': self.style_dict["btn_color"],
+                                                    {'selectbackground': self.style_dict["btn_color_grey"],
                                                      'selectforeground': self.style_dict["font_color"],
-                                                     'fieldbackground': self.style_dict["btn_color"],
-                                                     'background': self.style_dict["btn_color"],
+                                                     'fieldbackground': self.style_dict["btn_color_grey"],
+                                                     'background': self.style_dict["btn_color_grey"],
                                                      'foreground': self.style_dict["font_color"],
-                                                     'lightcolor': self.style_dict["btn_color"],
+                                                     'lightcolor': self.style_dict["btn_color_grey"],
                                                      'postoffset': (0, 0, 100, 0)}
                                                 },
                                            'TNotebook':
                                                {'configure':
                                                     {'tabmargins': [2, 5, 2, 0],
-                                                     'background': self.style_dict["bg_color"],
+                                                     'background': self.style_dict["background_color_grey"],
                                                      'borderwidth':'0'}
                                                 },
                                            'TNotebook.Tab':
                                                {'configure':
                                                     {'padding': [5, 1],
-                                                     'background': self.style_dict["btn_color"],
+                                                     'background': self.style_dict["btn_color_grey"],
                                                      'foreground': self.style_dict["font_color"]},
                                                 'map':
-                                                    {'background': [("selected", self.style_dict["header_color"])],
-                                                     'foreground': [("selected", self.style_dict["font_color_2"])],
+                                                    {'background': [("selected", self.style_dict["header_color_blue"])],
+                                                     'foreground': [("selected", self.style_dict["font_color_white"])],
                                                      'expand': [("selected", [1, 1, 1, 0])]}
                                                 },
                                            'TScrollbar':
                                                {'configure':
-                                                    {'troughcolor': self.style_dict["bg_color"],
-                                                     'bordercolor': self.style_dict["bg_color"],
-                                                     'background': self.style_dict["btn_color"]
+                                                    {'troughcolor': self.style_dict["background_color_grey"],
+                                                     'bordercolor': self.style_dict["background_color_grey"],
+                                                     'background': self.style_dict["btn_color_grey"]
                                                      }
                                                 },
                                            'TSizegrip':
                                                {'configure':
-                                                    {'background': self.style_dict["btn_color"]},
+                                                    {'background': self.style_dict["btn_color_grey"]},
                                                 'layout': [('Sizegrip.sizegrip', {'side': 'bottom', 'sticky': 'se'})]}
                                            }
                                  )
@@ -103,27 +103,27 @@ class MyCanvas(tk.Canvas):
         tk.Canvas.__init__(self, master=master, **kw)
         self.data_manager = data_manager
         self.style_dict = self.data_manager.get_style_dict()
-        self['background'] = self.style_dict["bg_color"]
+        self['background'] = self.style_dict["background_color_grey"]
 
     def refresh_style(self):
         self.style_dict = self.data_manager.get_style_dict()
-        self.configure(background=self.style_dict["bg_color"])
+        self.configure(background=self.style_dict["background_color_grey"])
 
 class MyFrame(tk.Frame):
     def __init__(self, master, data_manager, **kw):
         tk.Frame.__init__(self, master=master, **kw)
         self.data_manager = data_manager
         self.style_dict = self.data_manager.get_style_dict()
-        self['background'] = self.style_dict["bg_color"]
-        self['highlightcolor'] = self.style_dict["bg_color"]
-        self['highlightbackground'] = self.style_dict["bg_color"]
+        self['background'] = self.style_dict["background_color_grey"]
+        self['highlightcolor'] = self.style_dict["background_color_grey"]
+        self['highlightbackground'] = self.style_dict["background_color_grey"]
         self['highlightthickness'] = 0
 
     def refresh_style(self):
         self.style_dict = self.data_manager.get_style_dict()
-        self.configure(background=self.style_dict["bg_color"])
-        self.configure(highlightcolor=self.style_dict["bg_color"])
-        self.configure(highlightbackground=self.style_dict["bg_color"])
+        self.configure(background=self.style_dict["background_color_grey"])
+        self.configure(highlightcolor=self.style_dict["background_color_grey"])
+        self.configure(highlightbackground=self.style_dict["background_color_grey"])
 
         #for widget in self.winfo_children():
         #    widget.refresh_style()
@@ -134,26 +134,26 @@ class MyButton(tk.Button):
         self.data_manager = data_manager
         self.style_dict = self.data_manager.get_style_dict()
 
-        self['background'] = self.style_dict["btn_color"]
+        self['background'] = self.style_dict["btn_color_grey"]
         self['foreground'] = self.style_dict["font_color"]
-        self['disabledforeground'] = self.style_dict["strong_highlight_color"]  
-        self['activebackground'] = self.style_dict["strong_highlight_color"]  
+        self['disabledforeground'] = self.style_dict["highlight_color_grey"]  
+        self['activebackground'] = self.style_dict["highlight_color_grey"]  
 
         self.bind("<Enter>", self.on_enter)
         self.bind("<Leave>", self.on_leave)
 
     def on_enter(self, e):
-        self['background'] = self.style_dict["highlight_color"]
+        self['background'] = self.style_dict["btn_hover_color_grey"]
 
     def on_leave(self, e):
-        self['background'] = self.style_dict["btn_color"]
+        self['background'] = self.style_dict["btn_color_grey"]
 
     def refresh_style(self):
         self.style_dict = self.data_manager.get_style_dict()
-        self.configure(background=self.style_dict["btn_color"])
+        self.configure(background=self.style_dict["btn_color_grey"])
         self.configure(foreground=self.style_dict["font_color"])
-        self.configure(disabledforeground=self.style_dict["strong_highlight_color"])
-        self.configure(activebackground=self.style_dict["strong_highlight_color"])
+        self.configure(disabledforeground=self.style_dict["highlight_color_grey"])
+        self.configure(activebackground=self.style_dict["highlight_color_grey"])
 
 
 class MyButtonPixel(tk.Button):
@@ -163,20 +163,20 @@ class MyButtonPixel(tk.Button):
         self.style_dict = self.data_manager.get_style_dict()
         self.pixel = tk.PhotoImage(width=1, height=1)
 
-        self['background'] = self.style_dict["btn_color"]
+        self['background'] = self.style_dict["btn_color_grey"]
         self['foreground'] = self.style_dict["font_color"]
         self['height'] = 18
         self['image'] = self.pixel
         self['compound'] = "center"
-        self['disabledforeground'] = self.style_dict["strong_highlight_color"]  
-        self['activebackground'] = self.style_dict["strong_highlight_color"]  
+        self['disabledforeground'] = self.style_dict["highlight_color_grey"]  
+        self['activebackground'] = self.style_dict["highlight_color_grey"]  
 
     def refresh_style(self):
         self.style_dict = self.data_manager.get_style_dict()
-        self.configure(background=self.style_dict["btn_color"])
+        self.configure(background=self.style_dict["btn_color_grey"])
         self.configure(foreground=self.style_dict["font_color"])
-        self.configure(disabledforeground=self.style_dict["strong_highlight_color"])
-        self.configure(activebackground=self.style_dict["strong_highlight_color"])
+        self.configure(disabledforeground=self.style_dict["highlight_color_grey"])
+        self.configure(activebackground=self.style_dict["highlight_color_grey"])
 
 
 class MyLabel(tk.Label):
@@ -184,12 +184,12 @@ class MyLabel(tk.Label):
         tk.Label.__init__(self, master=master, **kw)
         self.data_manager = data_manager
         self.style_dict = self.data_manager.get_style_dict()
-        self['background'] = self.style_dict["bg_color"]
+        self['background'] = self.style_dict["background_color_grey"]
         self['foreground'] = self.style_dict["font_color"]
 
     def refresh_style(self):
         self.style_dict = self.data_manager.get_style_dict()
-        self.configure(background=self.style_dict["bg_color"])
+        self.configure(background=self.style_dict["background_color_grey"])
         self.configure(foreground=self.style_dict["font_color"])
 
 class MyLabelPixel(tk.Label):
@@ -201,7 +201,7 @@ class MyLabelPixel(tk.Label):
         self.y_pixel = 1
         self.pixel = tk.PhotoImage(width=self.x_pixel, height=self.y_pixel)
 
-        self['background'] = self.style_dict["bg_color"]
+        self['background'] = self.style_dict["background_color_grey"]
         self['foreground'] = self.style_dict["font_color"]
         self['image'] = self.pixel
         self['compound'] = "center"
@@ -210,7 +210,7 @@ class MyLabelPixel(tk.Label):
 
     def refresh_style(self):
         self.style_dict = self.data_manager.get_style_dict()
-        self.configure(background=self.style_dict["bg_color"])
+        self.configure(background=self.style_dict["background_color_grey"])
         self.configure(foreground=self.style_dict["font_color"])
 
     def set_photo_width(self,x_pixel):
@@ -231,12 +231,12 @@ class MyTipLabel(tk.Label):
         tk.Label.__init__(self, master=master, **kw)
         self.data_manager = data_manager
         self.style_dict = self.data_manager.get_style_dict()
-        self['background'] = self.style_dict["bg_color"]
+        self['background'] = self.style_dict["background_color_grey"]
         self['foreground'] = self.style_dict["font_color"]
 
     def refresh_style(self):
         self.style_dict = self.data_manager.get_style_dict()
-        self.configure(background=self.style_dict["bg_color"])
+        self.configure(background=self.style_dict["background_color_grey"])
         self.configure(foreground=self.style_dict["font_color"])
 
 
@@ -245,26 +245,26 @@ class MyEntry(tk.Entry):
         tk.Entry.__init__(self, master=master, **kw)
         self.data_manager = data_manager
         self.style_dict = self.data_manager.get_style_dict()
-        self['background'] = self.style_dict["bg_color"]
+        self['background'] = self.style_dict["background_color_grey"]
         self['foreground'] = self.style_dict["font_color"]
         self['insertbackground']=self.style_dict["font_color"]
-        self['disabledbackground'] = self.style_dict["bg_color"]
+        self['disabledbackground'] = self.style_dict["background_color_grey"]
         self['disabledforeground'] = self.style_dict["font_color"]
 
-        self['highlightcolor'] = self.style_dict["selected_color"]
-        self['highlightbackground'] = self.style_dict["selected_color"]
+        self['highlightcolor'] = self.style_dict["highlight_color_yellow"]
+        self['highlightbackground'] = self.style_dict["highlight_color_yellow"]
         self['highlightthickness'] = 0
 
     def refresh_style(self):
         self.style_dict = self.data_manager.get_style_dict()
-        self.configure(background=self.style_dict["bg_color"])
+        self.configure(background=self.style_dict["background_color_grey"])
         self.configure(foreground=self.style_dict["font_color"])
         self.configure(insertbackground=self.style_dict["font_color"])
-        self.configure(disabledbackground=self.style_dict["bg_color"])
+        self.configure(disabledbackground=self.style_dict["background_color_grey"])
         self.configure(disabledforeground=self.style_dict["font_color"])
 
-        self.configure(highlightcolor=self.style_dict["selected_color"])
-        self.configure(highlightbackground=self.style_dict["selected_color"])
+        self.configure(highlightcolor=self.style_dict["highlight_color_yellow"])
+        self.configure(highlightbackground=self.style_dict["highlight_color_yellow"])
         
 
 class MyText(tk.Text):
@@ -272,12 +272,12 @@ class MyText(tk.Text):
         tk.Text.__init__(self, master=master, **kw)
         self.data_manager = data_manager
         self.style_dict = self.data_manager.get_style_dict()
-        self['background'] = self.style_dict["bg_color"]
+        self['background'] = self.style_dict["background_color_grey"]
         self['foreground'] = self.style_dict["font_color"]
 
     def refresh_style(self):
         self.style_dict = self.data_manager.get_style_dict()
-        self.configure(background=self.style_dict["bg_color"])
+        self.configure(background=self.style_dict["background_color_grey"])
         self.configure(foreground=self.style_dict["font_color"])
 
 
@@ -286,16 +286,16 @@ class MyCheckbutton(tk.Checkbutton):
         tk.Checkbutton.__init__(self, master=master, **kw)
         self.data_manager = data_manager
         self.style_dict = self.data_manager.get_style_dict()
-        self['background'] = self.style_dict["bg_color"]
-        self['selectcolor'] = self.style_dict["bg_color"]
-        self['activebackground'] = self.style_dict["bg_color"]
+        self['background'] = self.style_dict["background_color_grey"]
+        self['selectcolor'] = self.style_dict["background_color_grey"]
+        self['activebackground'] = self.style_dict["background_color_grey"]
         self['foreground'] = self.style_dict["font_color"]
 
     def refresh_style(self):
         self.style_dict = self.data_manager.get_style_dict()
-        self.configure(background=self.style_dict["bg_color"])
-        self.configure(selectcolor=self.style_dict["bg_color"])
-        self.configure(activebackground=self.style_dict["bg_color"])
+        self.configure(background=self.style_dict["background_color_grey"])
+        self.configure(selectcolor=self.style_dict["background_color_grey"])
+        self.configure(activebackground=self.style_dict["background_color_grey"])
         self.configure(foreground=self.style_dict["font_color"])
 
 

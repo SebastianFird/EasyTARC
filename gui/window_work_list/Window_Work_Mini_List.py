@@ -34,7 +34,7 @@ class MiniWorkWindowList(tk.Toplevel):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
 
-        tk.Toplevel.__init__(self,root,highlightthickness=1, highlightcolor = self.style_dict["border_color"], highlightbackground=self.style_dict["border_color"])
+        tk.Toplevel.__init__(self,root,highlightthickness=1, highlightcolor = self.style_dict["window_border_color"], highlightbackground=self.style_dict["window_border_color"])
 
         self.root = root
         self.gui = gui
@@ -74,36 +74,54 @@ class MiniWorkWindowList(tk.Toplevel):
         self.win_vertical_x_pos = None
         self.win_vertical_width = None
         self.win_y_pos = None
-        self.win_y_pos_limit = self.winfo_screenheight()/1.25
+
+        self.pos_moved = False
         
         self.attributes('-alpha', 0.0)
 
-        x_start_pos = 0
-        if self.gui.get_mini_work_window_pos() != None:
-            x, y = self.gui.get_mini_work_window_pos()
-            if y < self.win_y_pos_limit and type(y) == int:
-                self.win_y_pos = y
-            else:
-                self.win_y_pos = self.winfo_screenheight()/10
+        if self.gui.get_mini_work_window_pos() == None:
+            self.x_pos = self.winfo_screenwidth()
+            self.y_pos = self.winfo_screenheight()/10
+            self.win_expand_height = self.winfo_screenheight()/1.5
         else:
-            self.win_y_pos = self.winfo_screenheight()/10
+            x, y = self.gui.get_mini_work_window_pos()
+            if type(x) != int or type(y) != int:
+                self.x_pos = self.winfo_screenwidth()
+                self.y_pos = self.winfo_screenheight()/10
+                self.win_expand_height = self.winfo_screenheight()/1.5
+            else:
+                self.root.update()
+                screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(x,y)
+                self.root.update()        
 
-        self.geometry("+%d+%d" % (x_start_pos, self.win_y_pos))
+                if (screen_root_x <= x) and (x <= screen_width) and (screen_root_y <= y) and (y <= screen_height):
+                    self.x_pos = x
+                    self.y_pos = y
+                    self.win_expand_height = screen_height/1.5
+                else:
+                    self.x_pos = self.winfo_screenwidth()
+                    self.y_pos = self.winfo_screenheight()/10
+                    self.win_expand_height = self.winfo_screenheight()/1.5    
+                       
+        self.geometry("+%d+%d" % (self.x_pos, self.y_pos))
         self.overrideredirect(1)
         self.attributes('-topmost',True)
 
         self.run_main_frame()
+        self.title_bar.pack(side='top', fill = "x")
+        self.update()
         root.update()
-
         self.win_vertical_width = self.winfo_height()
-        self.win_vertical_x_pos = self.winfo_screenwidth() - self.win_vertical_width
         self.win_expand_width = self.winfo_width()
-        self.win_expand_x_pos = self.winfo_screenwidth() - self.win_expand_width
         self.title_bar.pack_forget()
+
+        self.win_vertical_x_pos = self.x_pos - self.win_vertical_width
+        self.win_expand_x_pos = self.x_pos - self.win_expand_width
+        
         self.show_expand_frame()
 
         if self.modus != 'control_view':
-            self.expand_frame_displayed == True
+            self.expand_frame_displayed = True
             self.show_vertical_frame()
 
         root.update()
@@ -116,32 +134,31 @@ class MiniWorkWindowList(tk.Toplevel):
 
     def move_window(self, event):
         if type(event.y_root) == int and type(self.win_y_pos) == int:
-            if (event.y_root + self.win_y_pos) <= self.win_y_pos_limit:
-                if self.expand_frame_displayed == False:
-                    self.geometry('+{0}+{1}'.format(self.win_vertical_x_pos, event.y_root + self.win_y_pos))
-                else:
-                    self.geometry('+{0}+{1}'.format(self.win_expand_x_pos, event.y_root + self.win_y_pos))
-
-
-    def adjust_expand_frame(self):
-        self.expand_frame_displayed = False
-        self.show_expand_frame()
+            if self.expand_frame_displayed == False:
+                self.geometry('+{0}+{1}'.format(self.win_vertical_x_pos, event.y_root + self.win_y_pos))
+            else:
+                self.geometry('+{0}+{1}'.format(self.win_expand_x_pos, event.y_root + self.win_y_pos))
+            self.pos_moved = True
 
     def show_expand_frame(self):
         if self.expand_frame_displayed == False:
             self.vertical_frame.pack_forget()
-            self.window_expand_height = (self.winfo_screenheight()/1.05)  - self.win_y_pos 
-            self.geometry('%dx%d+%d+%d' % (self.win_expand_width,self.window_expand_height, self.win_expand_x_pos, self.win_y_pos))
+            self.btn_frame.pack_forget()
+            self.title_bar.pack_forget()
+            self.geometry('%dx%d+%d+%d' % (self.win_expand_width,self.win_expand_height, self.win_expand_x_pos, self.y_pos))
             self.title_bar.pack(side='top', fill = "x")
             self.btn_frame.pack(side = "top", fill = "both", expand = True)
+            #print('Window Expand Root Pos: ',self.win_expand_x_pos, self.y_pos)
             self.expand_frame_displayed = True
 
     def show_vertical_frame(self):
         if self.expand_frame_displayed == True:
+            self.vertical_frame.pack_forget()
             self.btn_frame.pack_forget()
             self.title_bar.pack_forget()
-            self.geometry('%dx%d+%d+%d' % (self.win_vertical_width,300, self.win_vertical_x_pos, self.win_y_pos))
+            self.geometry('%dx%d+%d+%d' % (self.win_vertical_width,300, self.win_vertical_x_pos, self.y_pos))
             self.vertical_frame.pack(side='top', fill = "x")
+            #print('Window Vertical Root Pos: ',self.win_vertical_x_pos, self.y_pos)
             self.expand_frame_displayed = False
 
     def switch_view(self):
@@ -152,19 +169,39 @@ class MiniWorkWindowList(tk.Toplevel):
             self.modus = 'control_view'
             self.show_expand_frame()
 
-    def save_pos(self, event):
-        self.win_y_pos = self.winfo_y()  
-        self.gui.set_mini_work_window_pos(self.win_expand_x_pos, self.win_y_pos)
-        if self.expand_frame_displayed == True:
-            self.adjust_expand_frame()
+    def save_and_adjust_pos(self, event):
+        if self.pos_moved == True:
+            x=self.win_vertical_x_pos
+            self.y_pos = self.winfo_y()
+            y=self.y_pos
+            #print('\nWindow Root Pos: ',x,y)
+            screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(x,y)
+            if x != (screen_width + screen_root_x):
+                self.x_pos = screen_width + screen_root_x
+                self.win_vertical_x_pos = self.x_pos - self.win_vertical_width
+                self.win_expand_x_pos = self.x_pos - self.win_expand_width
+                self.win_expand_height = screen_height/1.5  
+                self.gui.set_mini_work_window_pos(self.x_pos, self.y_pos)
+
+            if self.expand_frame_displayed == True:
+                self.expand_frame_displayed = False
+                self.show_expand_frame()
+            else:
+                self.expand_frame_displayed = True
+                self.show_vertical_frame()
+
+            self.pos_moved = False
 
     def reset_window_pos(self):
+        self.win_vertical_x_pos = self.winfo_screenwidth() - self.win_vertical_width
+        self.win_expand_x_pos = self.winfo_screenwidth() - self.win_expand_width
         self.win_y_pos = self.winfo_screenheight()/10
-        if self.expand_frame_displayed == False:
-            self.geometry("+%d+%d" % (self.win_vertical_x_pos, self.win_y_pos))
+        if self.expand_frame_displayed == True:
+            self.expand_frame_displayed = False
+            self.show_expand_frame()
         else:
-            self.geometry("+%d+%d" % (self.win_expand_x_pos, self.win_y_pos))
-            self.adjust_expand_frame()
+            self.expand_frame_displayed = True
+            self.show_vertical_frame()
 
 ##############################################################################################################################
 
@@ -179,8 +216,6 @@ class MiniWorkWindowList(tk.Toplevel):
         self.create_vertical_frame()
         self.create_titlebar_frame()
         self.create_btn_frame()
-
-        self.update()
 
     def main_enter(self,e):
         if self.expand_frame_displayed == True and self.after_func_leave != None:
@@ -206,9 +241,9 @@ class MiniWorkWindowList(tk.Toplevel):
         if self.main_app.get_action_state() == 'disabled':
             color = self.style_dict["titlebar_color"]
         elif self.work_clock.get_runninig() == True:
-            color = self.style_dict["bottom_active_color"]
+            color = self.style_dict["recording_color_green"]
         elif self.pause_clock.get_runninig() == True:
-            color = self.style_dict["bottom_pause_color"]
+            color = self.style_dict["pause_color_orange"]
         else:
             color = self.style_dict["titlebar_color"]
 
@@ -225,13 +260,13 @@ class MiniWorkWindowList(tk.Toplevel):
             self.canvas_lbl_name.itemconfig(self.canvas_text, text=self.language_dict['locked'])
 
         elif self.work_clock.get_runninig() == True:
-            background_color = self.style_dict["bottom_active_color"]
+            background_color = self.style_dict["recording_color_green"]
             if self.active_clock.get_id() != 0:
                 clock_name = self.active_clock.get_full_name()
             else:
                 clock_name = self.language_dict['without_allocation']
             self.lbl_name.configure(text=' ' + clock_name)
-            self.canvas_lbl_name.configure(bg=self.style_dict["bottom_active_color"])
+            self.canvas_lbl_name.configure(bg=self.style_dict["recording_color_green"])
             self.canvas_lbl_name.itemconfig(self.canvas_text, text=clock_name)
 
             if self.modus != 'dynamic_view':
@@ -240,9 +275,9 @@ class MiniWorkWindowList(tk.Toplevel):
                 self.lbl_name_ttp.text = clock_name
 
         elif self.pause_clock.get_runninig() == True:
-            background_color = self.style_dict["bottom_pause_color"]
+            background_color = self.style_dict["pause_color_orange"]
             self.lbl_name.configure(text=' ' +self.language_dict['break'])
-            self.canvas_lbl_name.configure(bg=self.style_dict["bottom_pause_color"])
+            self.canvas_lbl_name.configure(bg=self.style_dict["pause_color_orange"])
             self.canvas_lbl_name.itemconfig(self.canvas_text, text=self.language_dict['break'])
         else:
             background_color = self.style_dict["titlebar_color"]
@@ -326,14 +361,14 @@ class MiniWorkWindowList(tk.Toplevel):
         font_size = self.main_app.get_setting('font_size')
         Font_tuple = (font_family, font_size)
 
-        self.canvas_lbl_name = tk.Canvas(self.vertical_name_frame, width= self.win_vertical_width, height= 200, bg=self.style_dict["bottom_active_color"], bd=0, highlightthickness=0)
+        self.canvas_lbl_name = tk.Canvas(self.vertical_name_frame, width= self.win_vertical_width, height= 200, bg=self.style_dict["recording_color_green"], bd=0, highlightthickness=0)
         self.canvas_lbl_name.pack(side='top')
         self.canvas_text = self.canvas_lbl_name.create_text((15,180),text="Hello", fill=self.style_dict["font_color"], angle=90, font=Font_tuple,anchor="w")
         self.canvas_lbl_name.bind("<Button-3>", self.right_clicked)
         self.canvas_lbl_name.bind("<Double-Button-1>", self.status_double_click)
         self.canvas_lbl_name.bind('<B1-Motion>', self.move_window)
         self.canvas_lbl_name.bind('<Button-1>', self.get_pos)
-        self.canvas_lbl_name.bind('<ButtonRelease-1>', self.save_pos)
+        self.canvas_lbl_name.bind('<ButtonRelease-1>', self.save_and_adjust_pos)
         self.canvas_lbl_name.bind("<Enter>", self.canvas_enter)
         
 
@@ -343,13 +378,12 @@ class MiniWorkWindowList(tk.Toplevel):
 
         self.title_bar = MyFrame(self.main_frame,self.data_manager)
         self.title_bar.configure(background=self.style_dict["titlebar_color"])
-        self.title_bar.pack(side='top', fill = "x")
 
         self.title_bar_btn = MyFrame(self.title_bar,self.data_manager)
         self.title_bar_btn.configure(background=self.style_dict["titlebar_color"])
         self.title_bar_btn.pack(side='right', fill = "y")
 
-        self.close_button = MyLabel(self.title_bar_btn, self.data_manager, text='___')
+        self.close_button = MyLabel(self.title_bar_btn, self.data_manager, text='  X  ')
         self.close_button.configure(background=self.style_dict["titlebar_color"], width = 5)
         self.close_button.pack(side='right', fill = "y")
         self.close_button.bind('<Button-1>', self.close_window)
@@ -391,7 +425,7 @@ class MiniWorkWindowList(tk.Toplevel):
         self.lbl_name.pack(side='left',fill='both')
         self.lbl_name.bind('<B1-Motion>', self.move_window)
         self.lbl_name.bind('<Button-1>', self.get_pos)
-        self.lbl_name.bind('<ButtonRelease-1>', self.save_pos)
+        self.lbl_name.bind('<ButtonRelease-1>', self.save_and_adjust_pos)
         self.lbl_name.bind("<Button-3>", self.right_clicked)
         self.lbl_name.bind("<Double-Button-1>", self.status_double_click)
         self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, 50, 30,'')
@@ -418,27 +452,26 @@ class MiniWorkWindowList(tk.Toplevel):
         self.on_activate_pause = False
 
         self.separator_frame_1 = MyFrame(self.scroll_frame,self.data_manager)
-        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
+        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
         self.separator_frame_1.pack(side = "top",fill='x')
 
         work_window_group_main_account_list = self.data_manager.get_work_window_group_main_account_list()
         for group in work_window_group_main_account_list:
             group_name = group[0]
             main_account_list = group[1]
-            pack_main_account_list = [ele for ele in main_account_list if ele.get_account_status() == 'current']
 
-            if group_name != 'default' and pack_main_account_list != []:
+            if group_name != ' - ' and main_account_list != []:
                 group_name_frame = GroupFrame(self.scroll_frame, self.main_app, self.gui, group_name)
                 self.group_name_frame_list.append(group_name_frame)
                 group_name_frame.pack(side = "top", fill = "x")
 
-            for main_account_clock in pack_main_account_list:                    
+            for main_account_clock in main_account_list:                    
                 account_clock_frame = ClockFrame(self.scroll_frame, self.main_app, self.gui,main_account_clock,self)
                 self.account_clock_frame_list.append(account_clock_frame)
                 account_clock_frame.pack(side = "top", fill = "x")
 
                 sub_clock_list = main_account_clock.get_sub_clock_list()
-                sub_clock_list = [ele for ele in sub_clock_list if ele.get_account_status() == 'current']
+                sub_clock_list = [ele for ele in sub_clock_list if ele.get_account_status() == 'open']
                 for sub_account_clock in sub_clock_list:
                     account_clock_frame = ClockFrame(self.scroll_frame, self.main_app, self.gui,sub_account_clock,self)
                     self.account_clock_frame_list.append(account_clock_frame)
@@ -488,8 +521,8 @@ class MiniWorkWindowList(tk.Toplevel):
 
     def enter_close(self,e):
         self.on_close_button = True
-        self.close_button.configure(background=self.style_dict["header_color_2"])
-        self.close_button_v.configure(background=self.style_dict["header_color_2"])
+        self.close_button.configure(background=self.style_dict["caution_color_red"])
+        self.close_button_v.configure(background=self.style_dict["caution_color_red"])
 
     def leave_close(self,e):
         self.on_close_button = False
@@ -502,8 +535,8 @@ class MiniWorkWindowList(tk.Toplevel):
 
     def enter_change_to_bar(self,e):
         self.on_bar_btn = True
-        self.bar_btn.configure(background=self.style_dict["header_color_2"])
-        self.bar_btn_v.configure(background=self.style_dict["header_color_2"])
+        self.bar_btn.configure(background=self.style_dict["highlight_color_grey"])
+        self.bar_btn_v.configure(background=self.style_dict["highlight_color_grey"])
 
     def leave_change_to_bar(self,e):
         self.on_bar_btn = False
@@ -519,8 +552,8 @@ class MiniWorkWindowList(tk.Toplevel):
 
     def enter_expand_window(self,e):
         self.on_expand_button = True
-        self.expand_btn.configure(background=self.style_dict["header_color_2"])
-        self.expand_btn_v.configure(background=self.style_dict["header_color_2"])
+        self.expand_btn.configure(background=self.style_dict["highlight_color_grey"])
+        self.expand_btn_v.configure(background=self.style_dict["highlight_color_grey"])
 
     def leave_expand_window(self,e):
         self.on_expand_button = False
@@ -564,7 +597,7 @@ class GroupFrame((tk.Frame)):
         Font_tuple = (font_family, font_size, "bold")
 
         self.separator_frame_1 = MyFrame(self,self.data_manager)
-        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
+        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
         self.separator_frame_1.pack(side = "top",fill='x')
 
         self.group_frame = MyFrame(self,self.data_manager)

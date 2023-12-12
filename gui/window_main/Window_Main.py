@@ -35,6 +35,7 @@ class MainWindow(tk.Toplevel):
         tk.Toplevel.__init__(self, root)
         self.gui = gui
         self.root = root
+        self.main_window_active = True
         self.root.bind('<FocusIn>', self.on_root_deiconify)
         self.overrideredirect(1)
         self.geometry('1200x600+100+100')
@@ -62,7 +63,7 @@ class MainWindow(tk.Toplevel):
         # Create A Main Frame
         self.main_frame = MyFrame(self, self.data_manager)
         self.main_frame.pack(side = "top", fill = "both",expand = True)
-        self.main_frame.configure(highlightbackground=self.style_dict["border_color"], highlightcolor=self.style_dict["border_color"], highlightthickness=1)
+        self.main_frame.configure(highlightbackground=self.style_dict["window_border_color"], highlightcolor=self.style_dict["window_border_color"], highlightthickness=1)
         self.main_frame.bind("<Leave>", self.main_window_leave)
 
         # make a frame for the title bar
@@ -87,7 +88,7 @@ class MainWindow(tk.Toplevel):
         self.lbl_icon.bind("<Leave>", self.icon_leave)
 
         dt = datetime.now()
-        str_today = dt.strftime("%d") + "." + dt.strftime("%m") + "." + dt.strftime("%Y") + "  "+ self.language_dict["week"] + str(dt.isocalendar()[1])
+        str_today = dt.strftime("%d") + "." + dt.strftime("%m") + "." + dt.strftime("%Y") + "  "+ self.language_dict["week"] + ' ' + str(dt.isocalendar()[1])
         self.lbl_title = MyLabelPixel(self.title_bar, self.data_manager, text='   ' + self.main_app.get_name() + '                     ' + str_today)
         self.lbl_title.configure(background=self.style_dict["titlebar_color"],height=30)
         self.lbl_title.pack(side='left')
@@ -103,13 +104,13 @@ class MainWindow(tk.Toplevel):
         self.close_button.bind("<Enter>", self.enter_close)
         self.close_button.bind("<Leave>", self.leave_close)
 
-        self.minimize_button = MyLabelPixel(self.title_bar, self.data_manager, text='   ___   ')
-        self.minimize_button.configure(background=self.style_dict["titlebar_color"],height=30)
-        self.minimize_button.pack(side='right',padx = 5)
-        self.minimize_button.bind('<Button-1>', self.minimize_window)
-        self.minimize_button.bind("<Button-3>", self.bar_right_clicked)
-        self.minimize_button.bind("<Enter>", self.enter_minimize)
-        self.minimize_button.bind("<Leave>", self.leave_minimize)
+        self.workwindow_button = MyLabelPixel(self.title_bar, self.data_manager, text = '     ' + u'\U0000003E' + '     ') #u'\U000025B7'
+        self.workwindow_button.configure(background=self.style_dict["titlebar_color"],height=30)
+        self.workwindow_button.pack(side='right',padx = 5)
+        self.workwindow_button.bind('<Button-1>', self.show_workwindow)
+        self.workwindow_button.bind("<Button-3>", self.bar_right_clicked)
+        self.workwindow_button.bind("<Enter>", self.enter_workwindow)
+        self.workwindow_button.bind("<Leave>", self.leave_workwindow)
 
         # bind title bar motion to the move window function
 
@@ -128,17 +129,34 @@ class MainWindow(tk.Toplevel):
         if self.gui.on_window_switch == False:
             self.withdraw()
             self.gui.minimise()
-            
+            self.root.update()
+            if self.main_window_active != False:
+                self.main_window_active = False
+
     def on_root_deiconify(self, event=None):
         # print('map')
         if self.gui.on_window_switch == False:
             self.gui.unminimise()
             self.deiconify()
+            self.root.update()
+            if self.main_window_active != True:
+                self.main_window_active = True
+                self.adjust_pos()
+
+    def adjust_pos(self, event=None):
+        x=self.winfo_x()
+        y=self.winfo_y()
+        screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(x,y)
+        if (screen_root_x <= x) and (x <= screen_width) and (screen_root_y <= y) and (y <= screen_height):
+            #print('on screen')
+            pass
+        else:
+            self.reset_window_pos()
 
     def main_window_leave(self,e):
         if self.highlight_main_window == True:
             self.highlight_main_window = False
-            self.main_frame.configure(highlightbackground=self.style_dict["border_color"], highlightcolor=self.style_dict["border_color"], highlightthickness=1)
+            self.main_frame.configure(highlightbackground=self.style_dict["window_border_color"], highlightcolor=self.style_dict["window_border_color"], highlightthickness=1)
 
 ##################################################
 
@@ -174,7 +192,7 @@ class MainWindow(tk.Toplevel):
         self.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
         self.highlight_main_window = True
-        self.main_frame.configure(highlightbackground=self.style_dict["selected_color"], highlightcolor=self.style_dict["selected_color"], highlightthickness=1)
+        self.main_frame.configure(highlightbackground=self.style_dict["highlight_color_yellow"], highlightcolor=self.style_dict["highlight_color_yellow"], highlightthickness=1)
 
 ##################################################
 
@@ -184,7 +202,7 @@ class MainWindow(tk.Toplevel):
 ##################################################
 
     def icon_enter(self,e):
-        self.lbl_icon.configure(background=self.style_dict["highlight_color"])
+        self.lbl_icon.configure(background=self.style_dict["btn_hover_color_grey"])
         self.about_easytarc_ttp.scheduleinfo()
 
     def icon_leave(self,e):
@@ -194,7 +212,7 @@ class MainWindow(tk.Toplevel):
 ##################################################
 
     def enter_close(self,e):
-        self.close_button.configure(background=self.style_dict["notification_color"])
+        self.close_button.configure(background=self.style_dict["caution_color_red"])
 
     def leave_close(self,e):
         self.close_button.configure(background=self.style_dict["titlebar_color"])
@@ -210,14 +228,17 @@ class MainWindow(tk.Toplevel):
 
 ##################################################
 
-    def enter_minimize(self,e):
-        self.minimize_button.configure(background=self.style_dict["highlight_color"])
+    def enter_workwindow(self,e):
+        if self.main_app.get_action_state() != 'disabled':
+            self.workwindow_button.configure(background=self.style_dict["btn_hover_color_grey"])
 
-    def leave_minimize(self,e):
-        self.minimize_button.configure(background=self.style_dict["titlebar_color"])
+    def leave_workwindow(self,e):
+        self.workwindow_button.configure(background=self.style_dict["titlebar_color"])
 
-    def minimize_window(self,event=None):
-        self.root.iconify()
+    def show_workwindow(self,event=None):
+        if self.main_app.get_action_state() != 'disabled':
+            self.gui.switch_to_work_window = True
+            self.root.iconify()
 
 ##################################################
 
@@ -239,16 +260,16 @@ class MainWindow(tk.Toplevel):
         self.lbl_title.refresh_style()
         self.lbl_icon.refresh_style()
         self.close_button.refresh_style()
-        self.minimize_button.refresh_style()
+        self.workwindow_button.refresh_style()
         self.option_menu.refresh()
         self.about_easytarc_ttp.refresh()
 
-        self.main_frame.configure(highlightbackground=self.style_dict["border_color"], highlightcolor=self.style_dict["border_color"], highlightthickness=1)
+        self.main_frame.configure(highlightbackground=self.style_dict["window_border_color"], highlightcolor=self.style_dict["window_border_color"], highlightthickness=1)
         self.title_bar.configure(background=self.style_dict["titlebar_color"],highlightcolor=self.style_dict["titlebar_color"],highlightbackground=self.style_dict["titlebar_color"])
         self.lbl_icon.configure(background=self.style_dict["titlebar_color"])
         self.lbl_title.configure(background=self.style_dict["titlebar_color"])
         self.close_button.configure(background=self.style_dict["titlebar_color"])
-        self.minimize_button.configure(background=self.style_dict["titlebar_color"])
+        self.workwindow_button.configure(background=self.style_dict["titlebar_color"])
 
         self.case_frame.refresh()
         self.bottom_status.refresh()

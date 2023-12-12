@@ -49,12 +49,13 @@ class App():
     def __init__(self):
 
         self.app_name = 'EasyTARC'
-        self.app_config = 'multiple_users_encrypted' #'multiple_users_encrypted'  'single_user_unencrypted'   #single_user_encrypted' -> not ready
-        self.version = '1.6.8'
+        self.app_config = 'single_user_unencrypted' #'multiple_users_encrypted'  'single_user_unencrypted'   #single_user_encrypted' -> not ready
+        self.version = '1.7.0'
         self.old_version = None
         self.action_state = "disabled"
         self.local_format = 'de_DE.UTF-8'
         self.file_path = os.path.dirname(sys.argv[0])
+        self.system_start_time_diff = self.system_start_check()
         self.version_update = False
 
         self.user_db_name = 'EasyTARC_Database_User'
@@ -64,7 +65,7 @@ class App():
         self.db_name_ending_unencrypted = '.db'
         self.db_name_ending_encrypted = '_crypted.sql.gz'
 
-        with open('settings.json',encoding='UTF-8') as json_file:
+        with open('json/settings.json',encoding='UTF-8') as json_file:
             self.settings_dict = json.load(json_file)
 
         if self.settings_dict['version'] != self.version:
@@ -72,18 +73,29 @@ class App():
             self.old_version = self.settings_dict['version']
 
             # update
-            print('update')
-            database_path = self.file_path + '\\' + self.db_folder_name
+            #print('update')
 
+            database_path = self.file_path + '\\' + self.db_folder_name
             if os.path.exists(database_path) == False:
                 try:  
                     os.mkdir(database_path)  
                 except OSError as error:  
                     self.root = NewRoot()
                     messagebox.showinfo('Faild','The database folder can not be created')
-
             if os.path.isfile(self.code_db_name + self.get_db_name_ending()) == True and os.path.isfile(self.db_folder_name + '\\' + self.code_db_name + self.get_db_name_ending()) == False:
                 os.rename(self.code_db_name + self.get_db_name_ending(), self.db_folder_name + '\\' + self.code_db_name + self.get_db_name_ending())
+
+            if os.path.isfile('style.json') == True:
+                path = os.path.abspath(os.getcwd())
+                os.remove(path+'\\' + 'style.json')
+
+            if os.path.isfile('language.json') == True:
+                path = os.path.abspath(os.getcwd())
+                os.remove(path+'\\' + 'language.json')
+
+            if os.path.isfile('settings.json') == True:
+                path = os.path.abspath(os.getcwd())
+                os.remove(path+'\\' + 'settings.json')
 
         if self.app_config == 'single_user_unencrypted':
             self.start_main()
@@ -138,6 +150,9 @@ class App():
     
     def get_name(self):
         return(self.app_name)
+    
+    def get_system_start_time_diff(self):
+        return(self.system_start_time_diff)
 
     def get_version(self):
         return(self.version)
@@ -170,7 +185,7 @@ class App():
             return(self.db_name_ending_unencrypted) 
         else:
             return(self.db_name_ending_encrypted)
-    
+
 ############################################################
 
     def get_setting(self,key):
@@ -178,7 +193,7 @@ class App():
 
     def change_settings(self,key,value):
         self.settings_dict[key] = value
-        setting_json_file = open('settings.json',"w",encoding='UTF-8')
+        setting_json_file = open('json/settings.json',"w",encoding='UTF-8')
         json.dump(self.settings_dict, setting_json_file)
         setting_json_file.close()
 
@@ -293,6 +308,22 @@ class App():
 
 ############################################################
 
+    def system_start_check(self):
+        # inspired by https://www.geeksforgeeks.org/getting-the-time-since-os-startup-using-python/
+        
+    
+        lib = ctypes.windll.kernel32
+        t = lib.GetTickCount64()
+        t = int(str(t)[:-3])
+        
+        mins, sec = divmod(t, 60)
+        hour, mins = divmod(mins, 60)
+        days, hour = divmod(hour, 24)
+        
+        #print(f"{days} days, {hour:02}:{mins:02}:{sec:02}")
+        return(days,hour,mins,sec)
+
+############################################################
     
     def fast_exit(self):
         exit()

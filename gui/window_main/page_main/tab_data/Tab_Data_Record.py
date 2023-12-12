@@ -53,13 +53,13 @@ class DataRecordFrame(tk.Frame):
 
         if self.record_dict['auto_booking'] == 1 and self.record_dict['bookable'] == 1:
             self.lbl_status_name.configure(text = self.language_dict["auto_booking"], anchor='w')
-            self.lbl_status.configure(text = u'\U00002713',foreground=self.style_dict["active_color"])
+            self.lbl_status.configure(text = u'\U00002713',foreground=self.style_dict["highlight_color_green"])
         elif self.record_dict['booked'] == 1 and self.record_dict['bookable'] == 1:
             self.lbl_status_name.configure(text = self.language_dict["booked"], anchor='w')
-            self.lbl_status.configure(text = u'\U00002713',foreground=self.style_dict["active_color"])
+            self.lbl_status.configure(text = u'\U00002713',foreground=self.style_dict["highlight_color_green"])
         elif self.record_dict['booked'] == 0 and self.record_dict['bookable'] == 1:
             self.lbl_status_name.configure(text = self.language_dict["not_booked"], anchor='w')
-            self.lbl_status.configure(text = u'\U0001F5D9',foreground=self.style_dict["notification_color"])
+            self.lbl_status.configure(text = u'\U0001F5D9',foreground=self.style_dict["caution_color_red"])
         else:
             self.lbl_status_name.configure(text = self.language_dict["not_bookable"], anchor='w')
             self.lbl_status.configure(text = '')
@@ -91,7 +91,7 @@ class DataRecordFrame(tk.Frame):
         self.lbl_name.pack(side='left',padx=10,pady=10)
 
         if self.record_dict['account_id'] != 0:
-            info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project_nbr"] + ': ' + str(self.record_dict['project_nbr']) + '\n' + self.language_dict["order_nbr"] + ': ' + str(self.record_dict['order_nbr']) + '\n' + self.language_dict["process_nbr"] + ': ' +str(self.record_dict['process_nbr'])
+            info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project"] + ': ' + str(self.record_dict['project_label']) + '\n' + self.language_dict["order"] + ': ' + str(self.record_dict['order_label']) + '\n' + self.language_dict["process"] + ': ' +str(self.record_dict['process_label'])
         else:
             info_text = self.language_dict["without_allocation"]
         self.account_info_ttp = CreateToolTip(self.lbl_name, self.data_manager, 30, 25, info_text)
@@ -148,11 +148,11 @@ class DataRecordFrame(tk.Frame):
 
     def update(self):
         if self.data_tab.get_clicked_record_frame() == self:
-            background_color = self.style_dict["highlight_color"]
+            background_color = self.style_dict["selected_color_grey"]
         elif self.on_clock == True:
-            background_color = self.style_dict["soft_highlight_color"]
+            background_color = self.style_dict["frame_hover_color_grey"]
         else:
-            background_color = self.style_dict["bg_color"]
+            background_color = self.style_dict["background_color_grey"]
 
         self.configure(background=background_color)
         self.lbl_status_name.configure(background=background_color)
@@ -185,13 +185,13 @@ class DataRecordFrame(tk.Frame):
 
         if self.record_dict['auto_booking'] == 1 and self.record_dict['account_id'] != 0:
             self.lbl_status_name.configure(text = self.language_dict["auto_booking"], anchor='w')
-            self.lbl_status.configure(text = u'\U00002713',foreground=self.style_dict["active_color"])
+            self.lbl_status.configure(text = u'\U00002713',foreground=self.style_dict["highlight_color_green"])
         elif self.record_dict['booked'] == 1 and self.record_dict['account_id'] != 0:
             self.lbl_status_name.configure(text = self.language_dict["booked"], anchor='w')
-            self.lbl_status.configure(text = u'\U00002713',foreground=self.style_dict["active_color"])
+            self.lbl_status.configure(text = u'\U00002713',foreground=self.style_dict["highlight_color_green"])
         elif self.record_dict['booked'] == 0 and self.record_dict['account_id'] != 0:
             self.lbl_status_name.configure(text = self.language_dict["not_booked"], anchor='w')
-            self.lbl_status.configure(text = u'\U0001F5D9',foreground=self.style_dict["notification_color"])
+            self.lbl_status.configure(text = u'\U0001F5D9',foreground=self.style_dict["caution_color_red"])
         else:
             self.lbl_status_name.configure(text = '', anchor='w')
             self.lbl_status.configure(text = '')
@@ -205,7 +205,7 @@ class DataRecordFrame(tk.Frame):
         self.lbl_name.configure(text = name_text)
 
         if self.record_dict['account_id'] != 0:
-            info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project_nbr"] + ': ' + str(self.record_dict['project_nbr']) + '\n' + self.language_dict["order_nbr"] + ': ' + str(self.record_dict['order_nbr']) + '\n' + self.language_dict["process_nbr"] + ': ' +str(self.record_dict['process_nbr'])
+            info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project"] + ': ' + str(self.record_dict['project_label']) + '\n' + self.language_dict["order"] + ': ' + str(self.record_dict['order_label']) + '\n' + self.language_dict["process"] + ': ' +str(self.record_dict['process_label'])
         else:
             info_text = self.language_dict["without_allocation"]
         self.account_info_ttp.text = info_text

@@ -62,6 +62,15 @@ class SqlUserDataManager(SqlManager):
             except:
                 self.request_restoring_backup()
 
+            #try:
+            if self.main_app.get_version_update() == True:
+                if self.check_column_type_accounts_project_nbr() == 'INT':
+                    self.update_1_7_0()
+            #except:
+            #    print('update_failed')
+            #    self.request_restoring_backup()
+####################################################################################################################
+
     def request_restoring_backup(self):
         self.root = NewRoot()
         full_db_backup_db_name_enc = self.folder_name + '\\' + self.name + '_backup' + self.name_ending 
@@ -86,7 +95,7 @@ class SqlUserDataManager(SqlManager):
         os.rename(full_db_backup_path, file_path)
         return
 
-######################################
+####################################################################################################################
 
     def create_db(self):
 
@@ -99,11 +108,11 @@ class SqlUserDataManager(SqlManager):
             main_id INT,
             name TEXT,
             description_text TEXT,
-            project_nbr INT,
-            order_nbr INT,
-            process_nbr INT,
-            response_nbr INT,
-            default_text TEXT,
+            project_label TEXT,
+            order_label TEXT,
+            process_label TEXT,
+            response_code TEXT,
+            response_text TEXT,
             auto_booking INT,
             status TEXT,
             a_group TEXT,
@@ -144,6 +153,16 @@ class SqlUserDataManager(SqlManager):
             booked INT
             );
             """)
+        
+        cur = conn.cursor()
+        cur.execute("""CREATE TABLE IF NOT EXISTS groups(
+            groupid INT PRIMARY KEY,
+            fold_up_groups TEXT
+            );
+            """)
+        
+        cur = conn.cursor()
+        cur.execute("INSERT INTO groups VALUES(?, ?);", (1,''))
 
         self.save_and_close_db(conn)
 
@@ -153,17 +172,17 @@ class SqlUserDataManager(SqlManager):
 
             account_id = 0
             name = 'Without allocation'
-            description_text = ''
+            description_text = ' - '
             kind = 1
             main_id = 0
-            project_nbr = 0
-            order_nbr = 0
-            process_nbr = 0
-            response_nbr = 0
-            default_text = " - "
+            project_label = ' - '
+            order_label = ' - '
+            process_label = ' - '
+            response_code = ' - '
+            response_text = ' - '
             auto_booking = 0
-            status = "current"
-            group = 'default'
+            status = "open"
+            group = ' - '
             bookable = 0
 
             dt = datetime.datetime.now()
@@ -176,11 +195,11 @@ class SqlUserDataManager(SqlManager):
                             "main_id":main_id,
                             "name":name,
                             "description_text":description_text,
-                            "project_nbr":project_nbr,
-                            "order_nbr":order_nbr,
-                            "process_nbr":process_nbr,
-                            "response_nbr":response_nbr,
-                            "default_text":default_text,
+                            "project_label":project_label,
+                            "order_label":order_label,
+                            "process_label":process_label,
+                            "response_code":response_code,
+                            "response_text":response_text,
                             "auto_booking":auto_booking,
                             "status":status,
                             "group":group,
@@ -197,9 +216,133 @@ class SqlUserDataManager(SqlManager):
             new_data_base()
 
         return()
+    
+####################################################################################################################
 
-#####################################
+    def check_column_type_accounts_project_nbr(self):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
 
+        info = cur.execute("PRAGMA table_info('accounts')")
+        columns = [item[0] for item in info.description]
+        df = pd.DataFrame(info, columns=columns)
+        col_type = df.loc[df.name=='project_nbr', 'type'].values[0]
+        self.save_and_close_db(conn)
+        return(col_type)
+        
+    def update_1_7_0(self):
+        print('create new_table_accounts')
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        cur.execute("""CREATE TABLE IF NOT EXISTS new_table_accounts (
+            accountid INT PRIMARY KEY,
+            account_kind INT,
+            main_id INT,
+            name TEXT,
+            description_text TEXT,
+            project_label TEXT,
+            order_label TEXT,
+            process_label TEXT,
+            response_code TEXT,
+            response_text TEXT,
+            auto_booking INT,
+            status TEXT,
+            a_group TEXT,
+            bookable INT,
+            a_year INT,
+            a_month INT,
+            a_day INT
+            );
+            """)
+
+        print('copie_data')
+        cur = conn.cursor()
+        cur.execute("""INSERT INTO new_table_accounts (
+                    accountid ,
+                    account_kind ,
+                    main_id ,
+                    name ,
+                    description_text ,
+                    project_label ,
+                    order_label ,
+                    process_label ,
+                    response_code ,
+                    response_text ,
+                    auto_booking ,
+                    status ,
+                    a_group ,
+                    bookable ,
+                    a_year ,
+                    a_month ,
+                    a_day 
+                    )
+                    SELECT 
+                    accountid ,
+                    account_kind ,
+                    main_id ,
+                    name ,
+                    description_text ,
+                    project_nbr ,
+                    order_nbr ,
+                    process_nbr ,
+                    response_nbr ,
+                    default_text ,
+                    auto_booking ,
+                    status ,
+                    a_group ,
+                    bookable ,
+                    a_year ,
+                    a_month ,
+                    a_day 
+                    FROM accounts;
+                    """)
+        
+
+        print('drop table')
+        cur = conn.cursor()
+        cur.execute("DROP TABLE accounts;")
+
+        print('rename new_table_accounts to accounts')
+        cur = conn.cursor()
+        cur.execute("ALTER TABLE new_table_accounts RENAME TO accounts;")
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE accounts SET project_label = ? WHERE project_label = ?""",(' - ','0',))
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE accounts SET order_label = ? WHERE order_label = ?""",(' - ','0',))
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE accounts SET process_label = ? WHERE process_label = ?""",(' - ','0',))
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE accounts SET response_code = ? WHERE response_code = ?""",(' - ','0',))
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE accounts SET description_text = ? WHERE description_text = ?""",(' - ','',))
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE accounts SET response_text = ? WHERE response_text = ?""",(' - ','',))
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE accounts SET a_group = ? WHERE a_group = ?""",(' - ','default',))
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE accounts SET status = ? WHERE status = ?""",('open','current',))
+
+        cur = conn.cursor()
+        cur.execute("""CREATE TABLE IF NOT EXISTS groups(
+            groupid INT PRIMARY KEY,
+            fold_up_groups TEXT
+            );
+            """)
+        
+        cur = conn.cursor()
+        cur.execute("INSERT INTO groups VALUES(?, ?);", (1,''))
+
+        self.save_and_close_db(conn)
+
+####################################################################################################################
 
     # Hinzufügen eines neuen Zeitkontos
     def add_account(self,account_dict):
@@ -208,11 +351,11 @@ class SqlUserDataManager(SqlManager):
         main_id = account_dict['main_id']
         name = account_dict['name']
         description_text = account_dict['description_text']
-        project_nbr = account_dict['project_nbr']
-        order_nbr = account_dict['order_nbr']
-        process_nbr = account_dict['process_nbr']
-        response_nbr = account_dict['response_nbr']
-        default_text = account_dict['default_text']
+        project_label = account_dict['project_label']
+        order_label = account_dict['order_label']
+        process_label = account_dict['process_label']
+        response_code = account_dict['response_code']
+        response_text = account_dict['response_text']
         auto_booking = account_dict['auto_booking']
         status = account_dict['status']
         group = account_dict['group']
@@ -221,10 +364,25 @@ class SqlUserDataManager(SqlManager):
         a_month = account_dict['a_month']
         a_day = account_dict['a_day']
 
-        account_tuple = (account_id,kind,main_id,name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,status,group,bookable,a_year,a_month,a_day)
+        account_tuple = (account_id,kind,main_id,name,description_text,project_label,order_label,process_label,response_code,response_text,auto_booking,status,group,bookable,a_year,a_month,a_day)
         conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("INSERT INTO accounts VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", account_tuple)
+        self.save_and_close_db(conn)
+        success = True
+        return(success)
+    
+####################################################################################################################
+    
+    def update_main_account_name(self,account_id,name):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        cur.execute("""UPDATE accounts 
+                    SET name = ? WHERE accountid = ?""",
+                    (
+                    name,
+                    account_id,
+                    ))
         self.save_and_close_db(conn)
         success = True
         return(success)
@@ -233,11 +391,11 @@ class SqlUserDataManager(SqlManager):
         account_id = account_dict['account_id']
         name = account_dict['name']
         description_text = account_dict['description_text']
-        project_nbr = account_dict['project_nbr']
-        order_nbr = account_dict['order_nbr']
-        process_nbr = account_dict['process_nbr']
-        response_nbr = account_dict['response_nbr']
-        default_text = account_dict['default_text']
+        project_label = account_dict['project_label']
+        order_label = account_dict['order_label']
+        process_label = account_dict['process_label']
+        response_code = account_dict['response_code']
+        response_text = account_dict['response_text']
         auto_booking = account_dict['auto_booking']
         group = account_dict['group']
         bookable = account_dict['bookable']
@@ -247,22 +405,22 @@ class SqlUserDataManager(SqlManager):
         cur.execute("""UPDATE accounts 
                     SET name = ?,
                     description_text = ?,
-                    project_nbr = ?,
-                    order_nbr = ?,
-                    process_nbr = ?,
-                    response_nbr = ?,
-                    default_text = ?,
+                    project_label = ?,
+                    order_label = ?,
+                    process_label = ?,
+                    response_code = ?,
+                    response_text = ?,
                     auto_booking = ?,
                     bookable = ?,
                     a_group = ? WHERE accountid = ?""",
                     (
                     name,
                     description_text,
-                    project_nbr,
-                    order_nbr,
-                    process_nbr,
-                    response_nbr,
-                    default_text,
+                    project_label,
+                    order_label,
+                    process_label,
+                    response_code,
+                    response_text,
                     auto_booking,
                     bookable,
                     group,
@@ -273,10 +431,10 @@ class SqlUserDataManager(SqlManager):
         return(success)
     
     def update_linked_sub_account(self,account_id,account_dict):
-        project_nbr = account_dict['project_nbr']
-        order_nbr = account_dict['order_nbr']
-        process_nbr = account_dict['process_nbr']
-        response_nbr = account_dict['response_nbr']
+        project_label = account_dict['project_label']
+        order_label = account_dict['order_label']
+        process_label = account_dict['process_label']
+        response_code = account_dict['response_code']
         auto_booking = account_dict['auto_booking']
         group = account_dict['group']
         bookable = account_dict['bookable']
@@ -284,18 +442,18 @@ class SqlUserDataManager(SqlManager):
         conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("""UPDATE accounts 
-                    SET project_nbr = ?,
-                    order_nbr = ?,
-                    process_nbr = ?,
-                    response_nbr = ?,
+                    SET project_label = ?,
+                    order_label = ?,
+                    process_label = ?,
+                    response_code = ?,
                     auto_booking = ?,
                     bookable = ?,
                     a_group = ? WHERE accountid = ?""",
                     (
-                    project_nbr,
-                    order_nbr,
-                    process_nbr,
-                    response_nbr,
+                    project_label,
+                    order_label,
+                    process_label,
+                    response_code,
                     auto_booking,
                     bookable,
                     group,
@@ -309,18 +467,18 @@ class SqlUserDataManager(SqlManager):
         account_id = account_dict['account_id']
         name = account_dict['name']
         description_text = account_dict['description_text']
-        default_text = account_dict['default_text']
+        response_text = account_dict['response_text']
 
         conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("""UPDATE accounts 
                     SET name = ?,
                     description_text = ?,
-                    default_text = ? WHERE accountid = ?""",
+                    response_text = ? WHERE accountid = ?""",
                     (
                     name,
                     description_text,
-                    default_text,
+                    response_text,
                     account_id,
                     ))
         self.save_and_close_db(conn)
@@ -384,15 +542,6 @@ class SqlUserDataManager(SqlManager):
         return(id_list)
 
     # Liste aller Zeitkonten die am Anfang eingeblendet werden sollen
-    def get_current_main_accounts(self):
-        conn = self.open_db_conn()
-        cur = conn.cursor()
-        id_list = [account_id[0] for account_id in cur.execute("SELECT accountid FROM accounts WHERE status = ? and account_kind = ?", ("current",1,))]
-        # print(id_list)
-        self.save_and_close_db(conn)
-        return(id_list)
-
-    # Liste aller Zeitkonten die am Anfang eingeblendet werden sollen
     def get_sub_accounts(self,main_account_id):
         conn = self.open_db_conn()
         cur = conn.cursor()
@@ -420,11 +569,11 @@ class SqlUserDataManager(SqlManager):
                         "main_id":result[2],
                         "name":result[3],
                         "description_text":result[4],
-                        "project_nbr":result[5],
-                        "order_nbr":result[6],
-                        "process_nbr":result[7],
-                        "response_nbr":result[8],
-                        "default_text":result[9],
+                        "project_label":result[5],
+                        "order_label":result[6],
+                        "process_label":result[7],
+                        "response_code":result[8],
+                        "response_text":result[9],
                         "auto_booking":result[10],
                         "status":result[11],
                         "group": result[12],
@@ -440,7 +589,7 @@ class SqlUserDataManager(SqlManager):
         self.save_and_close_db(conn)
         return(account_dict)
     
-    def process_accoubt_dict(self,query):
+    def process_account_dict(self,query):
         cols = [column[0] for column in query.description]
         df= pd.DataFrame.from_records(data = query.fetchall(), columns = cols)
         if df.empty:
@@ -460,7 +609,7 @@ class SqlUserDataManager(SqlManager):
         return(df)
     
     def get_accounts_by_search_input(self,modus,search_input):
-        print('sql',modus,search_input)
+        #print('sql',modus,search_input)
         conn = self.open_db_conn()
         cur = conn.cursor()
 
@@ -468,24 +617,30 @@ class SqlUserDataManager(SqlManager):
             query = cur.execute("SELECT * FROM accounts WHERE status != ?", ('closed',))
         elif modus == 'closed':
             query = cur.execute("SELECT * FROM accounts WHERE status = ?", ('closed',))
+        elif modus == 'bookable':
+            query = cur.execute("SELECT * FROM accounts WHERE bookable = ?", (1,))
+        elif modus == 'not_bookable':
+            query = cur.execute("SELECT * FROM accounts WHERE bookable = ?", (0,))
+        elif modus == 'auto_booking':
+            query = cur.execute("SELECT * FROM accounts WHERE auto_booking = ?", (1,))
         elif modus == 'all':
             query = cur.execute("SELECT * FROM accounts")
         elif modus == 'name':
             query = cur.execute("SELECT * FROM accounts WHERE name LIKE  ?", ('%'+str(search_input)+'%',))
         elif modus == 'a_group' and search_input == '':
-            query = cur.execute("SELECT * FROM accounts WHERE a_group LIKE  ?", ('default',))
+            query = cur.execute("SELECT * FROM accounts WHERE a_group LIKE  ?", (' - ',))
         elif modus == 'a_group':
-            query = cur.execute("SELECT * FROM accounts WHERE a_group LIKE  ? AND a_group != ?", ('%'+str(search_input)+'%','default',))
-        elif modus == 'project_nbr':
-            query = cur.execute("SELECT * FROM accounts WHERE project_nbr LIKE  ?", ('%'+str(search_input)+'%',))
-        elif modus == 'order_nbr':
-            query = cur.execute("SELECT * FROM accounts WHERE order_nbr LIKE  ?", ('%'+str(search_input)+'%',))
-        elif modus == 'process_nbr':
-            query = cur.execute("SELECT * FROM accounts WHERE process_nbr LIKE  ?", ('%'+str(search_input)+'%',))
+            query = cur.execute("SELECT * FROM accounts WHERE a_group LIKE  ? AND a_group != ?", ('%'+str(search_input)+'%',' - ',))
+        elif modus == 'project_label':
+            query = cur.execute("SELECT * FROM accounts WHERE project_label LIKE  ?", ('%'+str(search_input)+'%',))
+        elif modus == 'order_label':
+            query = cur.execute("SELECT * FROM accounts WHERE order_label LIKE  ?", ('%'+str(search_input)+'%',))
+        elif modus == 'process_label':
+            query = cur.execute("SELECT * FROM accounts WHERE process_label LIKE  ?", ('%'+str(search_input)+'%',))
         else:
             return
         
-        df = self.process_accoubt_dict(query)
+        df = self.process_account_dict(query)
 
         self.save_and_close_db(conn)
         return(df)
@@ -495,7 +650,7 @@ class SqlUserDataManager(SqlManager):
         cur = conn.cursor()
         for id in id_list:
             query = cur.execute("SELECT * FROM accounts WHERE main_id == ? AND account_kind == ? ", (id,str(0),))
-            sub_df = self.process_accoubt_dict(query)
+            sub_df = self.process_account_dict(query)
             df3 = pd.concat([main_df,sub_df])
             main_df = df3.copy()
 
@@ -540,13 +695,6 @@ class SqlUserDataManager(SqlManager):
         conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("UPDATE accounts SET status = ? WHERE accountid = ?", ("open",account_id,))
-        self.save_and_close_db(conn)
-        return()
-
-    def account_set_current(self,account_id):
-        conn = self.open_db_conn()
-        cur = conn.cursor()
-        cur.execute("UPDATE accounts SET status = ? WHERE accountid = ?", ("current",account_id,))
         self.save_and_close_db(conn)
         return()
 
@@ -825,4 +973,22 @@ class SqlUserDataManager(SqlManager):
         self.save_and_close_db(conn)
         return()
 
+####################################################################################################################
+
+    def groups_set_fold_up_list(self,fold_up_list):
+        list_str = ','.join(map(str, fold_up_list))
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        cur.execute("UPDATE groups SET fold_up_groups = ? WHERE groupid = ?", (list_str,1,))
+        self.save_and_close_db(conn)
+        return()
+
+    def groups_get_fold_up_list(self):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        cur.execute("SELECT fold_up_groups FROM groups WHERE groupid = ?", (1,))
+        list_str = cur.fetchone()[0]
+        self.save_and_close_db(conn)
+        fold_up_list = list_str.split(",")
+        return(fold_up_list)
 

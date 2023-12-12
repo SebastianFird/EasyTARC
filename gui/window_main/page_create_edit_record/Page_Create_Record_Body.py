@@ -74,9 +74,7 @@ class CreateEditRecordBody:
         self.account_cbox = ttk.Combobox(self.frame_account, width = 75, textvariable = self.account_name)
 
         if self.modus in  ['edit_record']:
-            if self.record_dict['account_id'] == 0:
-                name_list = [self.language_dict["without_allocation"]]
-            elif self.record_dict['account_kind'] == 0:
+            if self.record_dict['account_kind'] == 0:
                 name_list = [self.record_dict['name'] + '   (' + self.language_dict["main_account"] + ': ' +  self.record_dict['main_name'] +')']
             else:
                 name_list = [self.record_dict['name']]
@@ -110,7 +108,7 @@ class CreateEditRecordBody:
             self.account_cbox.configure(state=tk.DISABLED)
         else:
             self.account_cbox.configure(state="readonly")
-            self.lbl_highlight_account.configure(foreground=self.style_dict["selected_color"])
+            self.lbl_highlight_account.configure(foreground=self.style_dict["highlight_color_yellow"])
 
         #################################
 
@@ -166,10 +164,10 @@ class CreateEditRecordBody:
         
         if self.modus in  ['new_record']:
             self.date_cbox.configure(state="readonly")
-            self.lbl_highlight_date.configure(foreground=self.style_dict["selected_color"])
+            self.lbl_highlight_date.configure(foreground=self.style_dict["highlight_color_yellow"])
 
         self.separator_frame_0 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_0.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
+        self.separator_frame_0.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
         self.separator_frame_0.pack(side = "top",fill='x', pady=10)
 
         #################################
@@ -221,7 +219,7 @@ class CreateEditRecordBody:
                 self.status_cbox.configure(state=tk.DISABLED)
             else:
                 self.status_cbox.configure(state="readonly")
-                self.lbl_highlight_status.configure(foreground=self.style_dict["selected_color"])
+                self.lbl_highlight_status.configure(foreground=self.style_dict["highlight_color_yellow"])
                 self.status_cbox['values'] = [self.language_dict["booked"],self.language_dict["not_booked"]]
                 self.lbl_status_info.configure(text=self.language_dict["booked_status_info"])
                 if self.record_dict["booked"] == 1:
@@ -230,11 +228,10 @@ class CreateEditRecordBody:
                     self.status.set(self.language_dict["not_booked"]) 
 
         if self.modus in  ['new_record']:
-            self.status_cbox['values'] = [self.language_dict["booked"],self.language_dict["not_booked"]]
-            self.status.set(self.language_dict["not_booked"])
+            self.cbox_selected()
 
         self.separator_frame_1 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
+        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
         self.separator_frame_1.pack(side = "top",fill='x', pady=10)
 
         self.frame_obligation = MyFrame(self.main_frame,self.data_manager)
@@ -243,18 +240,18 @@ class CreateEditRecordBody:
         self.lbl_empty2 = MyLabel(self.frame_obligation,self.data_manager,width=15,text='')
         self.lbl_empty2.pack(side = "left", padx=10)
 
-        self.lbl_obligation = MyLabel(self.frame_obligation,self.data_manager,width=12,text=self.language_dict['mandatory_field'])
-        self.lbl_obligation.configure(foreground=self.style_dict["notification_color"])
+        self.lbl_obligation = MyLabel(self.frame_obligation,self.data_manager,width=15,text=self.language_dict['mandatory_field'])
+        self.lbl_obligation.configure(foreground=self.style_dict["caution_color_red"])
         self.lbl_obligation.pack(side = "left", padx=10)
 
         self.lbl_fill = MyLabel(self.frame_obligation,self.data_manager,width=12,text=self.language_dict['fillable'])
-        self.lbl_fill.configure(foreground=self.style_dict["selected_color"])
+        self.lbl_fill.configure(foreground=self.style_dict["highlight_color_yellow"])
         self.lbl_fill.pack(side = "left", padx=10)
 
         self.frame_quit = MyFrame(self.main_frame,self.data_manager)
         self.frame_quit.pack(side = "top", padx=10, pady=5,fill='x')
 
-        lbl_quit_text = MyLabel(self.frame_quit,self.data_manager,width=15,text='')
+        lbl_quit_text = MyLabel(self.frame_quit,self.data_manager,width=5,text='')
         lbl_quit_text.pack(side = "left", padx=10)
 
         if self.modus in ['edit_record']:
@@ -262,11 +259,11 @@ class CreateEditRecordBody:
         else:
             btn_text = self.language_dict['add']
 
-        self.btn_quit = MyButton(self.frame_quit,self.data_manager, text=btn_text, command=self.finish, width=30)
+        self.btn_quit = MyButton(self.frame_quit,self.data_manager, text=btn_text, command=self.finish, width=50)
         self.btn_quit.pack(side = "left", padx=10, pady=5)
 
         self.lbl_error_info = MyLabel(self.frame_quit,self.data_manager,anchor='w',justify='left')
-        self.lbl_error_info.configure(foreground=self.style_dict["notification_color"])
+        self.lbl_error_info.configure(foreground=self.style_dict["caution_color_red"])
         self.lbl_error_info.pack(side = "left", padx=10, pady=5)
         return
     
@@ -277,10 +274,12 @@ class CreateEditRecordBody:
             self.status_cbox['values'] = [self.language_dict["not_bookable"]]
             self.status.set(self.language_dict["not_bookable"])
             self.status_cbox.configure(state=tk.DISABLED)
+            self.lbl_highlight_status.configure(foreground=self.style_dict["font_color"])
         else:
             self.status_cbox.configure(state="readonly")
             self.status_cbox['values'] = [self.language_dict["booked"],self.language_dict["not_booked"]]
             self.status.set(self.language_dict["not_booked"])
+            self.lbl_highlight_status.configure(foreground=self.style_dict["highlight_color_yellow"])
             
     def finish(self):
         if self.modus in ['edit_record']:

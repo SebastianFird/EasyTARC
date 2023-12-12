@@ -28,7 +28,7 @@ class WorkWindowCbox(tk.Toplevel):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
 
-        tk.Toplevel.__init__(self,root,highlightthickness=1, highlightcolor = self.style_dict["border_color"], highlightbackground=self.style_dict["border_color"])
+        tk.Toplevel.__init__(self,root,highlightthickness=1, highlightcolor = self.style_dict["window_border_color"], highlightbackground=self.style_dict["window_border_color"])
 
         self.root = root
         self.gui = gui
@@ -147,13 +147,12 @@ class WorkWindowCbox(tk.Toplevel):
 
         for group in work_window_group_main_account_list:
             main_account_list = group[1]
-            pack_main_account_list = [ele for ele in main_account_list if ele.get_account_status() == 'current']
 
-            for main_account_clock in pack_main_account_list:                    
+            for main_account_clock in main_account_list:                    
                 current_account_clock_list.append(main_account_clock)
 
                 sub_clock_list = main_account_clock.get_sub_clock_list()
-                sub_clock_list = [ele for ele in sub_clock_list if ele.get_account_status() == 'current']
+                sub_clock_list = [ele for ele in sub_clock_list if ele.get_account_status() == 'open']
 
                 for sub_account_clock in sub_clock_list:
                     current_account_clock_list.append(sub_account_clock)
@@ -231,7 +230,7 @@ class WorkWindowCbox(tk.Toplevel):
 
     def enter_close(self,e):
         self.on_close_button = True
-        self.close_button.configure(background=self.style_dict["header_color_2"])
+        self.close_button.configure(background=self.style_dict["caution_color_red"])
 
     def leave_close(self,e):
         self.on_close_button = False
@@ -244,7 +243,7 @@ class WorkWindowCbox(tk.Toplevel):
 
     def enter_change_to_mini(self,e):
         self.on_mini_btn = True
-        self.mini_btn.configure(background=self.style_dict["header_color_2"])
+        self.mini_btn.configure(background=self.style_dict["highlight_color_grey"])
 
     def leave_change_to_mini(self,e):
         self.on_mini_btn = False
@@ -257,7 +256,7 @@ class WorkWindowCbox(tk.Toplevel):
 
     def enter_change_to_bar(self,e):
         self.on_bar_btn = True
-        self.bar_btn.configure(background=self.style_dict["header_color_2"])
+        self.bar_btn.configure(background=self.style_dict["highlight_color_grey"])
 
     def leave_change_to_bar(self,e):
         self.on_bar_btn = False
@@ -271,7 +270,7 @@ class WorkWindowCbox(tk.Toplevel):
 
     def enter_expand_window(self,e):
         self.on_expand_button = True
-        self.expand_btn.configure(background=self.style_dict["header_color_2"])
+        self.expand_btn.configure(background=self.style_dict["highlight_color_grey"])
 
     def leave_expand_window(self,e):
         self.on_expand_button = False

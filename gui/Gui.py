@@ -78,6 +78,20 @@ class NewRoot(tk.Tk):
         entry.focus_set()
         entry.pack_forget()
 
+class ScreenSizeWindow(tk.Toplevel):
+    def __init__(self, main_app, root, *args, **kwargs):
+
+        self.main_app = main_app
+        tk.Toplevel.__init__(self,root)
+
+        self.attributes("-alpha", 00)
+        self.update()
+        w=100
+        h=100
+        self.geometry('%dx%d+%d+%d' % (w, h, 0, 0))
+        self.overrideredirect(1)
+        self.update()
+        
 ############################################################
 
 class Gui_Manager:
@@ -104,6 +118,10 @@ class Gui_Manager:
         self.bar_work_window_y = None
 
         self.on_window_switch = False
+        self.switch_to_work_window = False
+
+        self.y_pos_correction = 0
+        self.y_pos_correction = 0
 
         self.run_gui()
 
@@ -117,8 +135,12 @@ class Gui_Manager:
 
         self.root.option_add("*TCombobox*Font", self.myttk.get_defaultFont())
         self.root.option_add("*TCombobox*Listbox*Font", self.myttk.get_defaultFont())
-        self.root.option_add("*TCombobox*Listbox*background", self.style_dict["bg_color"])
+        self.root.option_add("*TCombobox*Listbox*background", self.style_dict["background_color_grey"])
         self.root.option_add("*TCombobox*Listbox*foreground", self.style_dict["font_color"])
+
+        self.screen_size_window = ScreenSizeWindow(self.main_app, self.root)
+        self.check = 0
+        self.check_screen_offset()
 
         self.main_window = MainWindow(self.main_app,self.root,self)
         self.main_window.attributes('-topmost',True)
@@ -127,6 +149,38 @@ class Gui_Manager:
 
         self.main_window.mainloop()
         return
+    
+    def check_screen(self,x,y):
+        # inspired by https://stackoverflow.com/questions/17741928/tkinter-screen-width-and-height-of-secondary-display
+        self.screen_size_window.state('normal')
+        self.screen_size_window.geometry("+%d+%d" % (x, y))
+        self.screen_size_window.update()
+        self.screen_size_window.state('zoomed')
+        screen_height= self.screen_size_window.winfo_height()
+        screen_width= self.screen_size_window.winfo_width()
+        screen_root_x = self.screen_size_window.winfo_x()
+        screen_root_y = self.screen_size_window.winfo_y()
+        self.screen_size_window.state('normal')
+
+        #print('Screen Root Pos: ',screen_root_x,screen_root_y)
+        #print('Screen Size: ',screen_width,screen_height)
+        self.check = self.check + 1
+        #print(self.check)
+
+        return(screen_root_x,screen_root_y,screen_width,screen_height)
+    
+    def check_screen_offset(self):
+        screen_root_x,screen_root_y,screen_width,screen_height = self.check_screen(0,0)
+        if screen_root_x != 0:
+            self.x_pos_correction = 0 + screen_root_x
+        if screen_root_y != 0:
+            self.y_pos_correction = 0 + screen_root_y
+
+    def get_x_pos_correction(self):
+        return(self.x_pos_correction)
+
+    def get_y_pos_correction(self):
+        return(self.y_pos_correction)
     
     def unminimise(self):
         if self.status_main_window == False and self.on_window_switch == False:
@@ -144,7 +198,7 @@ class Gui_Manager:
     def minimise(self):
         if self.status_main_window == True:
             self.status_main_window = False
-            if self.main_app.get_action_state() != 'disabled' and self.on_window_switch == False:
+            if self.main_app.get_action_state() != 'disabled' and self.on_window_switch == False and self.switch_to_work_window == True:
                 self.on_window_switch = True
                 work_window = self.main_app.get_setting('work_window')
                 if work_window == 'mini_work_window':
@@ -192,7 +246,7 @@ class Gui_Manager:
             if process_name in outputstringall:
                 status = 'locked' 
                 if status != self.screen_status:
-                    print("pop up")
+                    #print("pop up")
 
                     if self.miniWorkWindow != None:
                         self.miniWorkWindow.destroy()
@@ -206,7 +260,8 @@ class Gui_Manager:
             else:
                 status = 'unlocked' 
                 if status != self.screen_status:
-                    print("unlocked")
+                    pass
+                    #print("unlocked")
             self.screen_status = status
             time.sleep(1)
 
@@ -272,10 +327,11 @@ class Gui_Manager:
         if self.bar_work_window_geo_set == False:
             return(None)
         else:
-            return(self.bar_work_window_x)
+            return(self.bar_work_window_x,self.bar_work_window_y)
         
-    def set_bar_work_window_pos(self,x):
+    def set_bar_work_window_pos(self,x,y):
         self.bar_work_window_x = x
+        self.bar_work_window_y = y
         self.bar_work_window_geo_set = True
 
     def bar_work_window_to_mini_work_window(self):
@@ -295,7 +351,7 @@ class Gui_Manager:
         self.myttk.refresh_style()
         self.root.option_add("*TCombobox*Font", self.myttk.get_defaultFont())
         self.root.option_add("*TCombobox*Listbox*Font", self.myttk.get_defaultFont())
-        self.root.option_add("*TCombobox*Listbox*background", self.style_dict["bg_color"])     #dont work for main window
+        self.root.option_add("*TCombobox*Listbox*background", self.style_dict["background_color_grey"])     #dont work for main window
         self.root.option_add("*TCombobox*Listbox*foreground", self.style_dict["font_color"])   #dont work for main window
         self.main_window.refresh()
 

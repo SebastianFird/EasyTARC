@@ -36,6 +36,7 @@ class BookingRecordFrame(tk.Frame):
         self.booking_tab = booking_tab
         self.booking_category = booking_category
         self.record_dict = record_dict
+        self.booked_check = False
 
         MyFrame.__init__(self, container, self.data_manager)
 
@@ -58,7 +59,7 @@ class BookingRecordFrame(tk.Frame):
         ###########################
 
         self.btn_copy_response_text = MyLabel(self, self.data_manager, text=u'\U0001F4DD', width=2)
-        self.btn_copy_response_text.configure(foreground=self.style_dict["strong_highlight_color"])
+        self.btn_copy_response_text.configure(foreground=self.style_dict["highlight_color_grey"])
         self.btn_copy_response_text.pack(side='right',padx=3)
         self.btn_copy_response_text_ttp = CreateToolResponse(self.btn_copy_response_text, self.data_manager, 10, 10, self.language_dict["copied"])
         
@@ -68,7 +69,8 @@ class BookingRecordFrame(tk.Frame):
 
         self.textBox_response_text = MyText(self, self.data_manager,width=20,height=1,borderwidth=1)
         self.textBox_response_text.pack(side='right',padx=3)
-        self.textBox_response_text.insert(1.0, str(self.record_dict['default_text']))
+        if str(self.record_dict['response_text']) != ' - ':
+            self.textBox_response_text.insert(1.0, str(self.record_dict['response_text']))
         self.textBox_response_text.configure(state=tk.DISABLED,inactiveselectbackground=self.textBox_response_text.cget("selectbackground"))
 
         self.lbl_empty2 = MyLabel(self, self.data_manager, width=5)
@@ -77,7 +79,7 @@ class BookingRecordFrame(tk.Frame):
         ###########################
 
         self.btn_copy_hours = MyLabel(self, self.data_manager, text=u'\U0001F4DD', width=2)
-        self.btn_copy_hours.configure(foreground=self.style_dict["strong_highlight_color"])
+        self.btn_copy_hours.configure(foreground=self.style_dict["highlight_color_grey"])
         self.btn_copy_hours.pack(side='right',padx=3)
         self.btn_copy_hours_ttp = CreateToolResponse(self.btn_copy_hours, self.data_manager, 10, 10, self.language_dict["copied"])
 
@@ -95,19 +97,20 @@ class BookingRecordFrame(tk.Frame):
         
         ###########################
 
-        self.btn_copy_response_nbr = MyLabel(self, self.data_manager, text=u'\U0001F4DD', width=2)
-        self.btn_copy_response_nbr.configure(foreground=self.style_dict["strong_highlight_color"])
-        self.btn_copy_response_nbr.pack(side='right',padx=3)
-        self.btn_copy_response_nbr_ttp = CreateToolResponse(self.btn_copy_response_nbr, self.data_manager, 10, 10, self.language_dict["copied"])
+        self.btn_copy_response_code = MyLabel(self, self.data_manager, text=u'\U0001F4DD', width=2)
+        self.btn_copy_response_code.configure(foreground=self.style_dict["highlight_color_grey"])
+        self.btn_copy_response_code.pack(side='right',padx=3)
+        self.btn_copy_response_code_ttp = CreateToolResponse(self.btn_copy_response_code, self.data_manager, 10, 10, self.language_dict["copied"])
 
-        self.btn_copy_response_nbr.bind('<Button-1>',self.activate_copy_response_nbr)
-        self.btn_copy_response_nbr.bind("<Enter>", self.enter_copy_response_nbr)
-        self.btn_copy_response_nbr.bind("<Leave>", self.leave_copy_response_nbr)
+        self.btn_copy_response_code.bind('<Button-1>',self.activate_copy_response_code)
+        self.btn_copy_response_code.bind("<Enter>", self.enter_copy_response_code)
+        self.btn_copy_response_code.bind("<Leave>", self.leave_copy_response_code)
 
-        self.textBox_response_nbr = MyText(self, self.data_manager,width=15,height=1,borderwidth=1)
-        self.textBox_response_nbr.pack(side='right',padx=3)
-        self.textBox_response_nbr.insert(1.0, str(self.record_dict['response_nbr']))
-        self.textBox_response_nbr.configure(state=tk.DISABLED,inactiveselectbackground=self.textBox_passed_time.cget("selectbackground"))
+        self.textBox_response_code = MyText(self, self.data_manager,width=15,height=1,borderwidth=1)
+        self.textBox_response_code.pack(side='right',padx=3)
+        if str(self.record_dict['response_code']) != ' - ':
+            self.textBox_response_code.insert(1.0, str(self.record_dict['response_code']))
+        self.textBox_response_code.configure(state=tk.DISABLED,inactiveselectbackground=self.textBox_passed_time.cget("selectbackground"))
 
         self.lbl_empty4 = MyLabel(self, self.data_manager, width=5)
         self.lbl_empty4.pack(side='right',padx=3)
@@ -125,7 +128,7 @@ class BookingRecordFrame(tk.Frame):
         self.lbl_name = MyLabel(self, self.data_manager, text = name_text, anchor='w')
         self.lbl_name.pack(side='left',padx=3)
 
-        info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project_nbr"] + ': ' + str(self.record_dict['project_nbr']) + '\n' + self.language_dict["order_nbr"] + ': ' + str(self.record_dict['order_nbr']) + '\n' + self.language_dict["process_nbr"] + ': ' +str(self.record_dict['process_nbr'])
+        info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project"] + ': ' + str(self.record_dict['project_label']) + '\n' + self.language_dict["order"] + ': ' + str(self.record_dict['order_label']) + '\n' + self.language_dict["process"] + ': ' +str(self.record_dict['process_label'])
         self.account_info_ttp = CreateToolTip(self.lbl_name, self.data_manager, 30, 25, info_text)
 
         self.on_clock = False
@@ -156,12 +159,14 @@ class BookingRecordFrame(tk.Frame):
         self.btn_copy_response_text.configure(foreground=self.style_dict["font_color"])
 
     def leave_copy_response_text(self,e):
-        self.btn_copy_response_text.configure(foreground=self.style_dict["strong_highlight_color"])
+        self.btn_copy_response_text.configure(foreground=self.style_dict["highlight_color_grey"])
 
     def activate_copy_response_text(self,e=None):
         self.gui.main_window.clipboard_clear()
-        self.gui.main_window.clipboard_append(str(self.record_dict['default_text']))
+        self.gui.main_window.clipboard_append(str(self.record_dict['response_text']))
         self.btn_copy_response_text_ttp.showresponse()
+        if self.booking_tab.get_clicked_record_frame() != self:
+            self.activate_record(e)
 
 ##################################################
 
@@ -169,25 +174,29 @@ class BookingRecordFrame(tk.Frame):
         self.btn_copy_hours.configure(foreground=self.style_dict["font_color"])
 
     def leave_copy_hours(self,e):
-        self.btn_copy_hours.configure(foreground=self.style_dict["strong_highlight_color"])
+        self.btn_copy_hours.configure(foreground=self.style_dict["highlight_color_grey"])
 
     def activate_copy_hours(self,e=None):
         self.gui.main_window.clipboard_clear()
         self.gui.main_window.clipboard_append(str('{:n}'.format(round(self.record_dict['hours'],3))))
         self.btn_copy_hours_ttp.showresponse()
+        if self.booking_tab.get_clicked_record_frame() != self:
+            self.activate_record(e)
 
 ##################################################
 
-    def enter_copy_response_nbr(self,e):
-        self.btn_copy_response_nbr.configure(foreground=self.style_dict["font_color"])
+    def enter_copy_response_code(self,e):
+        self.btn_copy_response_code.configure(foreground=self.style_dict["font_color"])
 
-    def leave_copy_response_nbr(self,e):
-        self.btn_copy_response_nbr.configure(foreground=self.style_dict["strong_highlight_color"])
+    def leave_copy_response_code(self,e):
+        self.btn_copy_response_code.configure(foreground=self.style_dict["highlight_color_grey"])
 
-    def activate_copy_response_nbr(self,e=None):
+    def activate_copy_response_code(self,e=None):
         self.gui.main_window.clipboard_clear()
-        self.gui.main_window.clipboard_append(str(self.record_dict['response_nbr']))
-        self.btn_copy_response_nbr_ttp.showresponse()
+        self.gui.main_window.clipboard_append(str(self.record_dict['response_code']))
+        self.btn_copy_response_code_ttp.showresponse()
+        if self.booking_tab.get_clicked_record_frame() != self:
+            self.activate_record(e)
 
 ##################################################
 
@@ -200,10 +209,11 @@ class BookingRecordFrame(tk.Frame):
         self.update()
 
     def activate_record(self,e=None):
-        if self.booking_tab.get_clicked_record_frame() == self:
-            self.booking_tab.reset_clicked_record_frame()
-        else:
-            self.booking_tab.set_clicked_record_frame(self)
+        if self.booked_check == False:
+            if self.booking_tab.get_clicked_record_frame() == self:
+                self.booking_tab.reset_clicked_record_frame()
+            else:
+                self.booking_tab.set_clicked_record_frame(self)
         self.update()
 
     def right_clicked(self,e):
@@ -213,12 +223,14 @@ class BookingRecordFrame(tk.Frame):
             self.option_menu.popup(e)
 
     def update(self):
-        if self.booking_tab.get_clicked_record_frame() == self:
-            background_color = self.style_dict["highlight_color"]
-        elif self.on_clock == True:
-            background_color = self.style_dict["soft_highlight_color"]
+        if self.booking_tab.get_clicked_record_frame() == self and self.booked_check == False:
+            background_color = self.style_dict["selected_color_grey"]
+        elif self.on_clock == True and self.booked_check == False:
+            background_color = self.style_dict["frame_hover_color_grey"]
+        elif self.booked_check == True:
+            background_color = self.style_dict["highlight_color_grey"]
         else:
-            background_color = self.style_dict["bg_color"]
+            background_color = self.style_dict["background_color_grey"]
 
         self.configure(background=background_color)
         self.lbl_name.configure(background=background_color)
@@ -228,7 +240,7 @@ class BookingRecordFrame(tk.Frame):
         self.lbl_empty3.configure(background=background_color)
         self.lbl_empty4.configure(background=background_color)
         self.lbl_empty5.configure(background=background_color)
-        self.btn_copy_response_nbr.configure(background=background_color)
+        self.btn_copy_response_code.configure(background=background_color)
         self.btn_copy_response_text.configure(background=background_color)
         self.btn_copy_hours.configure(background=background_color)
         return
@@ -239,6 +251,10 @@ class BookingRecordFrame(tk.Frame):
         self.booking_category.book_time(self.record_dict)
         self.btn_booking.configure(text=u'\U00002713')
         self.btn_booking.configure(state=tk.DISABLED)
+        self.booked_check = True
+        if self.booking_tab.get_clicked_record_frame() == self:
+            self.booking_tab.reset_clicked_record_frame()
+        self.update()
         return
     
 ##################################################
@@ -259,8 +275,8 @@ class BookingRecordFrame(tk.Frame):
         self.btn_copy_response_text.refresh_style()
         self.btn_copy_hours.refresh_style()
         self.btn_booking.refresh_style()
-        self.textBox_response_nbr.refresh_style()
-        self.btn_copy_response_nbr.refresh_style()
+        self.textBox_response_code.refresh_style()
+        self.btn_copy_response_code.refresh_style()
 
         self.lbl_empty0.refresh_style()
         self.lbl_empty1.refresh_style()
@@ -269,10 +285,14 @@ class BookingRecordFrame(tk.Frame):
         self.lbl_empty4.refresh_style()
         self.lbl_empty5.refresh_style()
 
-        self.btn_booking.configure(text=self.language_dict["booked"])
+        if self.booked_check == True:
+            self.btn_booking.configure(text=u'\U00002713')
+        else:
+            self.btn_booking.configure(text=self.language_dict["booked"])
+
         self.btn_copy_response_text_ttp.text = self.language_dict["copied"]
         self.btn_copy_hours_ttp.text = self.language_dict["copied"]
-        self.btn_copy_response_nbr_ttp.text = self.language_dict["copied"]
+        self.btn_copy_response_code_ttp.text = self.language_dict["copied"]
 
         if self.record_dict['account_kind'] == 0:
             name_text = '     ' + self.record_dict['name'] + '   (' + self.language_dict["main_account"] + ': ' +  self.record_dict['main_name'] +')'
@@ -281,7 +301,7 @@ class BookingRecordFrame(tk.Frame):
 
         self.lbl_name .configure(text = name_text)
 
-        info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project_nbr"] + ': ' + str(self.record_dict['project_nbr']) + '\n' + self.language_dict["order_nbr"] + ': ' + str(self.record_dict['order_nbr']) + '\n' + self.language_dict["process_nbr"] + ': ' +str(self.record_dict['process_nbr'])
+        info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project"] + ': ' + str(self.record_dict['project_label']) + '\n' + self.language_dict["order"] + ': ' + str(self.record_dict['order_label']) + '\n' + self.language_dict["process"] + ': ' +str(self.record_dict['process_label'])
         self.account_info_ttp = CreateToolTip(self.lbl_name, self.data_manager, 30, 25, info_text)
 
         self.update()

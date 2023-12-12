@@ -35,22 +35,28 @@ class MiniWorkWindowCbox(WorkWindowCbox):
         self.start_x = None
         self.start_y = None
 
+        self.attributes("-alpha", 0) 
+
         if self.gui.get_mini_work_window_pos() == None:
-            ws = self.winfo_screenwidth() # width of the screen
-            hs = self.winfo_screenheight() # height of the screen
-            x = (ws/1.2) 
-            y = (hs/1.2) 
+            self.reset_window_pos()
         else:
             x, y = self.gui.get_mini_work_window_pos()
             if type(x) != int or type(y) != int:
-                ws = self.winfo_screenwidth() # width of the screen
-                hs = self.winfo_screenheight() # height of the screen
-                x = (ws/1.2) 
-                y = (hs/1.2) 
+                self.reset_window_pos()
+            else:
+                self.root.update()
+                screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(x,y)
+                self.root.update()
 
-        self.geometry("+%d+%d" % (x, y))
+                if (screen_root_x <= x) and (x <= screen_width) and (screen_root_y <= y) and (y <= screen_height):
+                    self.geometry("+%d+%d" % (x, y))
+                else:
+                    self.reset_window_pos()
+
+        
         self.overrideredirect(1)
         self.attributes('-topmost',True)
+        self.attributes("-alpha", 1) 
 
         self.modus = self.main_app.get_setting('mini_work_window_modus')
         self.btn_frame_displayed = False  
@@ -58,6 +64,8 @@ class MiniWorkWindowCbox(WorkWindowCbox):
         self.after_func = None
 
         self.run_main_frame()
+
+##############################################################################################################################
 
     def get_pos(self, event):
         self.x_win = self.winfo_x()
@@ -123,10 +131,10 @@ class MiniWorkWindowCbox(WorkWindowCbox):
         if self.main_app.get_action_state() == 'disabled':
             color = self.style_dict["titlebar_color"]
         elif self.work_clock.get_runninig() == True:
-            color = self.style_dict["bottom_active_color"]
+            color = self.style_dict["recording_color_green"]
 
         elif self.pause_clock.get_runninig() == True:
-            color = self.style_dict["bottom_pause_color"]
+            color = self.style_dict["pause_color_orange"]
         else:
             color = self.style_dict["titlebar_color"]
         self.title_bar_name.configure(highlightcolor = color, highlightbackground=color)
@@ -152,7 +160,7 @@ class MiniWorkWindowCbox(WorkWindowCbox):
         self.title_bar_btn.configure(background=self.style_dict["titlebar_color"])
         self.title_bar_btn.pack(side='right', fill = "y")
 
-        self.close_button = MyLabel(self.title_bar_btn, self.data_manager, text='___')
+        self.close_button = MyLabel(self.title_bar_btn, self.data_manager, text='  X  ')
         self.close_button.configure(background=self.style_dict["titlebar_color"], width = 5)
         self.close_button.pack(side='right',fill='y',expand=True)
         self.close_button.bind('<Button-1>', self.close_window)
@@ -213,7 +221,7 @@ class MiniWorkWindowCbox(WorkWindowCbox):
             self.lbl_name.configure(text=' ' + self.language_dict['locked'])
 
         elif self.work_clock.get_runninig() == True:
-            background_color = self.style_dict["bottom_active_color"]
+            background_color = self.style_dict["recording_color_green"]
             if self.active_clock.get_id() != 0:
                 clock_name = self.active_clock.get_full_name()
             else:
@@ -226,7 +234,7 @@ class MiniWorkWindowCbox(WorkWindowCbox):
                 self.lbl_name_ttp.text =  clock_name
 
         elif self.pause_clock.get_runninig() == True:
-            background_color = self.style_dict["bottom_pause_color"]
+            background_color = self.style_dict["pause_color_orange"]
             self.lbl_name.configure(text=' ' +self.language_dict['break'])
         else:
             background_color = self.style_dict["titlebar_color"]

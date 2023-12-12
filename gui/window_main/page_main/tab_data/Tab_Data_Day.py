@@ -131,14 +131,14 @@ class DataDateFrame:
         Font_tuple = (font_family, font_size, "bold")
 
         self.separator_frame_1 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
+        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
         self.separator_frame_1.pack(side = "top",fill='x')
 
         self.date_frame = MyFrame(self.main_frame,self.data_manager)
         self.date_frame.pack(side = "top",fill='x')
 
         self.lbl_view_records = MyLabel(self.date_frame, self.data_manager, anchor='w',width = 3, text = '     ')
-        self.lbl_view_records.configure(foreground=self.style_dict["strong_highlight_color"])
+        self.lbl_view_records.configure(foreground=self.style_dict["highlight_color_grey"])
         self.lbl_view_records.pack(side='left')
 
         pd_datetime = pd.to_datetime(self.datetime)
@@ -166,7 +166,7 @@ class DataDateFrame:
 
 
         def leave_view_records(e):
-            self.lbl_view_records.configure(foreground=self.style_dict["strong_highlight_color"])
+            self.lbl_view_records.configure(foreground=self.style_dict["highlight_color_grey"])
 
         self.lbl_view_records.bind("<Enter>", enter_view_records)
         self.lbl_view_records.bind("<Leave>", leave_view_records)
@@ -198,9 +198,9 @@ class DataDateFrame:
         self.lbl_view_records.refresh_style()
         self.lbl_date.refresh_style()
 
-        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"])
+        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
         self.lbl_date.configure(font = Font_tuple)
-        self.lbl_view_records.configure(foreground=self.style_dict["strong_highlight_color"])
+        self.lbl_view_records.configure(foreground=self.style_dict["highlight_color_grey"])
 
         pd_datetime = pd.to_datetime(self.datetime)
         date_str = pd_datetime.strftime('%d.%m.%Y')

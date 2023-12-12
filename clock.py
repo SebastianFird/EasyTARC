@@ -180,11 +180,11 @@ class AccountClock(Clock):
         self.main_id = self.account_dict.get("main_id")
         self.name = self.account_dict.get("name")
         self.description_text = self.account_dict.get("description_text")
-        self.project_nbr = self.account_dict.get("project_nbr")
-        self.order_nbr = self.account_dict.get("order_nbr")
-        self.process_nbr = self.account_dict.get("process_nbr")
-        self.response_nbr = self.account_dict.get("response_nbr")
-        self.default_text = self.account_dict.get("default_text")
+        self.project_label = self.account_dict.get("project_label")
+        self.order_label = self.account_dict.get("order_label")
+        self.process_label = self.account_dict.get("process_label")
+        self.response_code = self.account_dict.get("response_code")
+        self.response_text = self.account_dict.get("response_text")
         self.auto_booking = self.account_dict.get("auto_booking")
         self.account_status = self.account_dict.get("status")
         self.group = self.account_dict.get("group")
@@ -198,11 +198,11 @@ class AccountClock(Clock):
         self.account_dict = account_dict
         self.name = self.account_dict.get("name")
         self.description_text = self.account_dict.get("description_text")
-        self.project_nbr = self.account_dict.get("project_nbr")
-        self.order_nbr = self.account_dict.get("order_nbr")
-        self.process_nbr = self.account_dict.get("process_nbr")
-        self.response_nbr = self.account_dict.get("response_nbr")
-        self.default_text = self.account_dict.get("default_text")
+        self.project_label = self.account_dict.get("project_label")
+        self.order_label = self.account_dict.get("order_label")
+        self.process_label = self.account_dict.get("process_label")
+        self.response_code = self.account_dict.get("response_code")
+        self.response_text = self.account_dict.get("response_text")
         self.auto_booking = self.account_dict.get("auto_booking")
         self.group = self.account_dict.get("group")
         self.bookable = self.account_dict.get("bookable")
@@ -219,20 +219,20 @@ class AccountClock(Clock):
     def get_full_name(self):
         return(self.name)
 
-    def get_project_nbr(self):
-        return(self.project_nbr)
+    def get_project_label(self):
+        return(self.project_label)
 
     def get_auto_booking(self):
         return(self.auto_booking)
     
-    def get_order_nbr(self):
-        return(self.order_nbr)
+    def get_order_label(self):
+        return(self.order_label)
 
-    def get_process_nbr(self):
-        return(self.process_nbr)
+    def get_process_label(self):
+        return(self.process_label)
 
-    def get_response_nbr(self):
-        return(self.response_nbr)
+    def get_response_code(self):
+        return(self.response_code)
     
     def get_account_status(self):
         return(self.account_status)
@@ -245,10 +245,6 @@ class AccountClock(Clock):
     
     def get_bookable(self):
         return(self.bookable)
-    
-    def set_status_current(self):
-        self.user_db.account_set_current(self.id)
-        self.account_status = 'current'
 
     def set_status_open(self):
         self.user_db.account_set_open(self.id)
@@ -428,23 +424,18 @@ class MainAccountClock(AccountClock):
         info_dict = {self.language_dict["type"]:self.language_dict["main_account"]}
         #############
         if self.id != 0:
-            info_dict.update({
-                self.language_dict["name"]:str(self.name),
-                self.language_dict["description"]:str(self.description_text)  
-                })
+            info_dict.update({self.language_dict["name"]:str(self.name)})
         else:
             info_dict.update({self.language_dict["name"]:self.language_dict["without_allocation"]})
         #############
-        if self.group != 'default':
-            info_dict.update({self.language_dict["group"]:str(self.group)})
-        else:
-            info_dict.update({self.language_dict["group"]:''})
+        info_dict.update({self.language_dict["group"]:str(self.group)})
         #############
         if self.id != 0:
             info_dict.update({                
-                        self.language_dict["project"]:str(self.project_nbr),  
-                        self.language_dict["order"]:str(self.order_nbr),                              
-                        self.language_dict["process"]:str(self.process_nbr)         
+                        self.language_dict["project"]:str(self.project_label),  
+                        self.language_dict["order"]:str(self.order_label),                              
+                        self.language_dict["process"]:str(self.process_label),
+                        self.language_dict["description"]:str(self.description_text)           
                         })
         #############
         if self.bookable == 1:
@@ -453,15 +444,15 @@ class MainAccountClock(AccountClock):
             info_dict.update({self.language_dict["bookable"]:self.language_dict["no"]}) 
         #############
         if self.bookable == 1:
-            info_dict.update({                     
-                        self.language_dict["booking_nbr"]:str(self.response_nbr),                            
-                        self.language_dict["booking_text"]:str(self.default_text)               
-                        })
-            #########
             if self.auto_booking == 1:
                 info_dict.update({self.language_dict["auto_booking"]:self.language_dict["yes"]}) 
             else:
                 info_dict.update({self.language_dict["auto_booking"]:self.language_dict["no"]}) 
+            #########
+            info_dict.update({                     
+                        self.language_dict["response_code"]:str(self.response_code),                            
+                        self.language_dict["response_text"]:str(self.response_text)               
+                        })
         #############
         info_dict.update({self.language_dict["hours"]:str(self.str_timedelta(self.get_total_time()))}) 
 
@@ -500,21 +491,18 @@ class SubAccountClock(AccountClock):
         self.language_dict = self.main_app.data_manager.get_language_dict()
         info_dict = {self.language_dict["type"]:self.language_dict["sub_account"],
                     self.language_dict["main_account"]:str(self.main_account_clock.get_name()),
-                    self.language_dict["name"]:str(self.name),
-                    self.language_dict["description"]:str(self.description_text)                        
+                    self.language_dict["name"]:str(self.name)                       
                     }
         #############
-        if self.group != 'default':
-            info_dict.update({self.language_dict["group"]:str(self.group)})
-        else:
-            info_dict.update({self.language_dict["group"]:''})
+        info_dict.update({self.language_dict["group"]:str(self.group)})
         #############
         if self.id != 0:
             info_dict.update({                
-                        self.language_dict["project"]:str(self.project_nbr),  
-                        self.language_dict["order"]:str(self.order_nbr),                              
-                        self.language_dict["process"]:str(self.process_nbr)         
+                        self.language_dict["project"]:str(self.project_label),  
+                        self.language_dict["order"]:str(self.order_label),                              
+                        self.language_dict["process"]:str(self.process_label)         
                         })
+        info_dict.update({self.language_dict["description"]:str(self.description_text) }) 
         #############
         if self.bookable == 1:
             info_dict.update({self.language_dict["bookable"]:self.language_dict["yes"]}) 
@@ -522,15 +510,15 @@ class SubAccountClock(AccountClock):
             info_dict.update({self.language_dict["bookable"]:self.language_dict["no"]}) 
         #############
         if self.bookable == 1:
-            info_dict.update({                     
-                        self.language_dict["booking_nbr"]:str(self.response_nbr),                            
-                        self.language_dict["booking_text"]:str(self.default_text)               
-                        })
-            #########
             if self.auto_booking == 1:
                 info_dict.update({self.language_dict["auto_booking"]:self.language_dict["yes"]}) 
             else:
                 info_dict.update({self.language_dict["auto_booking"]:self.language_dict["no"]}) 
+            #########
+            info_dict.update({                     
+                        self.language_dict["response_code"]:str(self.response_code),                            
+                        self.language_dict["response_text"]:str(self.response_text)               
+                        })
         #############
         info_dict.update({self.language_dict["hours"]:str(self.str_timedelta(self.get_total_time()))}) 
 

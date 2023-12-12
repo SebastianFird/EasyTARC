@@ -50,12 +50,12 @@ class CreateToolTip(object):
 
     def enter(self, event=None):
         if type(self.widget) == MyButton:
-            self.widget.configure(background=self.style_dict["highlight_color"])
+            self.widget.configure(background=self.style_dict["selected_color_grey"])
         self.schedule()
 
     def leave(self, event=None):
         if type(self.widget) == MyButton:
-            self.widget.configure(background=self.style_dict["btn_color"])
+            self.widget.configure(background=self.style_dict["btn_color_grey"])
         self.unschedule()
         self.hidetip()
 
@@ -345,9 +345,7 @@ class CreateToolResponse(object):
         self.language_dict = self.data_manager.get_language_dict()
 
 class CreateInfo(object):
-    """
-    create a tooltip for a given widget
-    """
+
     def __init__(self, widget, data_manager, rel_x, rey_y, text):
 
         self.widget = widget
@@ -429,8 +427,8 @@ class InfoWindow(tk.Toplevel):
         self.wm_overrideredirect(1)
         self.attributes('-topmost',True)
 
-        self.widget_color = self.style_dict["selected_color"]
-        self.title_fcolor = self.style_dict["font_color_3"]
+        self.widget_color = self.style_dict["info_color_light_blue"]
+        self.title_fcolor = self.style_dict["font_color"]
 
         self.scroll = Scroll_Frame(self.main_app,self.gui)
 
@@ -463,7 +461,7 @@ class InfoWindow(tk.Toplevel):
         close_button.bind('<Button-1>', self.close_window)
 
         def on_enter1(e):
-            close_button.configure(background=self.style_dict["notification_color"])
+            close_button.configure(background=self.style_dict["caution_color_red"])
 
         def on_leave1(e):
             close_button.configure(background=self.widget_color)
@@ -479,9 +477,9 @@ class InfoWindow(tk.Toplevel):
 
         def btn_frame():
             btnframe = MyFrame(self.main_frame,self.data_manager)
-            btnframe.configure(background=self.style_dict["btn_color"])
+            btnframe.configure(background=self.style_dict["btn_color_grey"])
 
-            btn_ok = MyButton(btnframe, self.data_manager,width=8,text='Ok',command=self.close_window)
+            btn_ok = MyButton(btnframe, self.data_manager,width=8,text=self.language_dict["ok"],command=self.close_window)
             btn_ok.pack(side = 'right', pady = 5, padx=5)
 
             return(btnframe)
@@ -544,8 +542,8 @@ class InfoDictWindow(tk.Toplevel):
         self.wm_overrideredirect(1)
         self.attributes('-topmost',True)
 
-        self.widget_color = self.style_dict["selected_color"]
-        self.title_fcolor = self.style_dict["font_color_3"]
+        self.widget_color = self.style_dict["info_color_light_blue"]
+        self.title_fcolor = self.style_dict["font_color"]
 
         self.scroll = Scroll_Frame(self.main_app,self.gui)
 
@@ -578,7 +576,7 @@ class InfoDictWindow(tk.Toplevel):
         close_button.bind('<Button-1>', self.close_window)
 
         def on_enter1(e):
-            close_button.configure(background=self.style_dict["notification_color"])
+            close_button.configure(background=self.style_dict["caution_color_red"])
 
         def on_leave1(e):
             close_button.configure(background=self.widget_color)
@@ -594,9 +592,9 @@ class InfoDictWindow(tk.Toplevel):
 
         def btn_frame():
             btnframe = MyFrame(self.main_frame,self.data_manager)
-            btnframe.configure(background=self.style_dict["btn_color"])
+            btnframe.configure(background=self.style_dict["btn_color_grey"])
 
-            btn_ok = MyButton(btnframe, self.data_manager,width=8,text='Ok',command=self.close_window)
+            btn_ok = MyButton(btnframe, self.data_manager,width=8,text=self.language_dict["ok"],command=self.close_window)
             btn_ok.pack(side = 'right', pady = 5, padx=5)
 
             return(btnframe)
@@ -607,6 +605,10 @@ class InfoDictWindow(tk.Toplevel):
         def body_frame():
             bodyframe = MyFrame(self.main_frame,self.data_manager)
             scroll_frame = self.scroll.create_scroll_frame(bodyframe)
+
+            font_family = self.main_app.get_setting('font_family')
+            font_size = self.main_app.get_setting('font_size')
+            Font_tuple = (font_family, font_size, "bold")
 
             row_nbr = 0
 
@@ -621,13 +623,16 @@ class InfoDictWindow(tk.Toplevel):
                 lbl_text_col0 = MyLabel(scroll_frame, self.data_manager, text=key_text + ': ',wraplength=self.w/2, anchor='w')
                 lbl_text_col0.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5)
 
+                if value_text == '#bold':
+                    lbl_text_col0.configure(font = Font_tuple)
+                    value_text = ''
+
                 col_nbr = col_nbr + 1
 
                 lbl_text_col1 = MyLabel(scroll_frame, self.data_manager, text=value_text,wraplength=self.w/2, anchor='w', justify="left")
                 lbl_text_col1.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5)
 
                 row_nbr = row_nbr + 1
-
             return(bodyframe)
 
         bodyframe = body_frame()
@@ -679,8 +684,8 @@ class ExitSavingWindow(tk.Toplevel):
         self.wm_overrideredirect(1)
         self.attributes('-topmost', True)
 
-        self.widget_color = self.style_dict["selected_color"]
-        self.title_fcolor = self.style_dict["font_color_3"]
+        self.widget_color = self.style_dict["highlight_color_yellow"]
+        self.title_fcolor = self.style_dict["font_color_black"]
 
         self.scroll = Scroll_Frame(self.main_app,self.gui)
 
@@ -709,7 +714,7 @@ class ExitSavingWindow(tk.Toplevel):
         close_button.bind('<Button-1>', self.return_window)
 
         def on_enter1(e):
-            close_button.configure(background=self.style_dict["notification_color"])
+            close_button.configure(background=self.style_dict["caution_color_red"])
 
         def on_leave1(e):
             close_button.configure(background=self.widget_color)
@@ -725,7 +730,7 @@ class ExitSavingWindow(tk.Toplevel):
 
         def btn_frame():
             btnframe = MyFrame(self.main_frame,self.data_manager)
-            btnframe.configure(background=self.style_dict["btn_color"])
+            btnframe.configure(background=self.style_dict["btn_color_grey"])
 
             btn_close = MyButton(btnframe, self.data_manager, width=8, text=self.language_dict["no"], command=self.close_window)
             btn_close.pack(side='right', pady=5, padx=5)
@@ -809,8 +814,8 @@ class DeleteRecordWarning(tk.Toplevel):
         self.wm_overrideredirect(1)
         self.attributes('-topmost', True)
 
-        self.widget_color = self.style_dict["selected_color"]
-        self.title_fcolor = self.style_dict["font_color_3"]
+        self.widget_color = self.style_dict["info_color_light_blue"]
+        self.title_fcolor = self.style_dict["font_color"]
 
         self.scroll = Scroll_Frame(self.main_app,self.gui)
 
@@ -839,7 +844,7 @@ class DeleteRecordWarning(tk.Toplevel):
         close_button.bind('<Button-1>', self.return_window)
 
         def on_enter1(e):
-            close_button.configure(background=self.style_dict["notification_color"])
+            close_button.configure(background=self.style_dict["caution_color_red"])
 
         def on_leave1(e):
             close_button.configure(background=self.widget_color)
@@ -855,7 +860,7 @@ class DeleteRecordWarning(tk.Toplevel):
 
         def btn_frame():
             btnframe = MyFrame(self.main_frame,self.data_manager)
-            btnframe.configure(background=self.style_dict["btn_color"])
+            btnframe.configure(background=self.style_dict["btn_color_grey"])
 
             btn_backup = MyButton(btnframe, self.data_manager, width=20, text=self.language_dict["delete_record"], command=self.delete_record)
             btn_backup.pack(side='right', pady=5, padx=5)
@@ -933,8 +938,8 @@ class DeleteAccountWarning(tk.Toplevel):
         self.wm_overrideredirect(1)
         self.attributes('-topmost', True)
 
-        self.widget_color = self.style_dict["selected_color"]
-        self.title_fcolor = self.style_dict["font_color_3"]
+        self.widget_color = self.style_dict["info_color_light_blue"]
+        self.title_fcolor = self.style_dict["font_color"]
 
         self.scroll = Scroll_Frame(self.main_app,self.gui)
 
@@ -963,7 +968,7 @@ class DeleteAccountWarning(tk.Toplevel):
         close_button.bind('<Button-1>', self.return_window)
 
         def on_enter1(e):
-            close_button.configure(background=self.style_dict["notification_color"])
+            close_button.configure(background=self.style_dict["caution_color_red"])
 
         def on_leave1(e):
             close_button.configure(background=self.widget_color)
@@ -979,7 +984,7 @@ class DeleteAccountWarning(tk.Toplevel):
 
         def btn_frame():
             btnframe = MyFrame(self.main_frame,self.data_manager)
-            btnframe.configure(background=self.style_dict["btn_color"])
+            btnframe.configure(background=self.style_dict["btn_color_grey"])
 
             btn_backup = MyButton(btnframe, self.data_manager, width=20, text=self.language_dict["delete_time_account"], command=self.delete_account)
             btn_backup.pack(side='right', pady=5, padx=5)
@@ -1058,8 +1063,8 @@ class CloseAccountWarning(tk.Toplevel):
         self.wm_overrideredirect(1)
         self.attributes('-topmost', True)
 
-        self.widget_color = self.style_dict["selected_color"]
-        self.title_fcolor = self.style_dict["font_color_3"]
+        self.widget_color = self.style_dict["info_color_light_blue"]
+        self.title_fcolor = self.style_dict["font_color"]
 
         self.scroll = Scroll_Frame(self.main_app,self.gui)
 
@@ -1088,7 +1093,7 @@ class CloseAccountWarning(tk.Toplevel):
         close_button.bind('<Button-1>', self.return_window)
 
         def on_enter1(e):
-            close_button.configure(background=self.style_dict["notification_color"])
+            close_button.configure(background=self.style_dict["caution_color_red"])
 
         def on_leave1(e):
             close_button.configure(background=self.widget_color)
@@ -1104,7 +1109,7 @@ class CloseAccountWarning(tk.Toplevel):
 
         def btn_frame():
             btnframe = MyFrame(self.main_frame,self.data_manager)
-            btnframe.configure(background=self.style_dict["btn_color"])
+            btnframe.configure(background=self.style_dict["btn_color_grey"])
 
             btn_backup = MyButton(btnframe, self.data_manager, width=20, text=self.language_dict["close_time_account"], command=self.close_account)
             btn_backup.pack(side='right', pady=5, padx=5)
@@ -1145,6 +1150,155 @@ class CloseAccountWarning(tk.Toplevel):
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
         self.destroy()
+
+    def get_pos(self, event):
+        self.x_win = self.winfo_x()
+        self.y_win = self.winfo_y()
+        self.start_x = event.x_root
+        self.start_y = event.y_root
+        self.y_win = self.y_win - self.start_y
+        self.x_win = self.x_win - self.start_x
+
+    def move_window(self, event):
+        self.geometry('+{0}+{1}'.format(event.x_root + self.x_win, event.y_root + self.y_win))
+        self.start_x = event.x_root
+        self.start_y = event.y_root
+
+
+
+class Endofworkinfo(tk.Toplevel):
+    def __init__(self ,main_app, gui, widget, text_dict, w, h,  *args, **kwargs):
+        tk.Toplevel.__init__(self,widget)
+
+        self.gui = gui
+        self.main_app = main_app
+        self.data_manager = self.main_app.get_data_manager()
+        self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
+        self.widget = widget
+        self.h = h
+        self.w = w
+        self.text_dict = text_dict
+
+        x, y, cx, cy = self.widget.bbox("insert")
+
+        x = x + self.widget.winfo_rootx() + self.widget.winfo_width()/2 - self.w/2
+        y = y + cy + self.widget.winfo_rooty() + self.widget.winfo_height()/2 - self.h/2
+
+        self.gui.disable_main_window()
+
+        self.wm_geometry('%dx%d+%d+%d' % (self.w, self.h, x, y))
+        self.wm_overrideredirect(1)
+        self.attributes('-topmost',True)
+
+        self.widget_color = self.style_dict["highlight_color_yellow"]
+        self.title_fcolor = self.style_dict["font_color_black"]
+
+        self.scroll = Scroll_Frame(self.main_app,self.gui)
+
+
+        self.run_main_frame()
+
+    def run_main_frame(self):
+
+        # Create A Main Frame
+        self.main_frame = MyFrame(self, self.data_manager)
+        self.main_frame.configure(highlightthickness=1, highlightcolor=self.widget_color,
+                            highlightbackground=self.widget_color)
+        self.main_frame.pack(side = "top", fill = "both", expand = True)
+
+        self.main_frame.grid_rowconfigure(0, weight = 1)
+        self.main_frame.grid_columnconfigure(0, weight = 1)
+
+
+        # make a frame for the title bar
+        self.title_bar = MyFrame(self.main_frame,self.data_manager)
+        self.title_bar.configure(background=self.widget_color)
+        self.title_bar.pack(side='top', fill = "x")
+        self.title_bar.bind('<B1-Motion>', self.move_window)
+        self.title_bar.bind('<Button-1>', self.get_pos)
+
+
+        close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
+        close_button.configure(background=self.widget_color,height=30)
+        close_button.pack(side='right')
+        close_button.bind('<Button-1>', self.close_window)
+
+        def on_enter1(e):
+            close_button.configure(background=self.style_dict["caution_color_red"])
+
+        def on_leave1(e):
+            close_button.configure(background=self.widget_color)
+
+        close_button.bind("<Enter>", on_enter1)
+        close_button.bind("<Leave>", on_leave1)
+
+        lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text = '   ' + self.language_dict["recording_closed_saved"])
+        lbl_name.configure(background=self.widget_color,height=30,foreground=self.title_fcolor)
+        lbl_name.pack(side='left')
+        lbl_name.bind('<B1-Motion>', self.move_window)
+        lbl_name.bind('<Button-1>', self.get_pos)
+
+        def btn_frame():
+            btnframe = MyFrame(self.main_frame,self.data_manager)
+            btnframe.configure(background=self.style_dict["btn_color_grey"])
+
+            btn_close_easytarc = MyButton(btnframe, self.data_manager,width=20,text=self.language_dict["close_easytarc"],command=self.close_easytarc)
+            btn_close_easytarc.pack(side = 'right', pady = 5, padx=5)
+
+            btn_ok = MyButton(btnframe, self.data_manager,width=8,text=self.language_dict["ok"],command=self.close_window)
+            btn_ok.pack(side = 'right', pady = 5, padx=5)
+
+            return(btnframe)
+
+        btnframe = btn_frame()
+        btnframe.pack(side = "bottom", fill = "x")
+            
+        def body_frame():
+            bodyframe = MyFrame(self.main_frame,self.data_manager)
+            scroll_frame = self.scroll.create_scroll_frame(bodyframe)
+
+            font_family = self.main_app.get_setting('font_family')
+            font_size = self.main_app.get_setting('font_size')
+            Font_tuple = (font_family, font_size, "bold")
+
+            row_nbr = 0
+
+            for item in self.text_dict.items():
+
+                key, value = item
+                key_text = str(key)
+                value_text = str(value)
+
+                col_nbr = 0
+
+                lbl_text_col0 = MyLabel(scroll_frame, self.data_manager, text=key_text + ': ',wraplength=self.w/2, anchor='w')
+                lbl_text_col0.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5)
+
+                if value_text == '#bold':
+                    lbl_text_col0.configure(font = Font_tuple)
+                    value_text = ''
+
+                col_nbr = col_nbr + 1
+
+                lbl_text_col1 = MyLabel(scroll_frame, self.data_manager, text=value_text,wraplength=self.w/2, anchor='w', justify="left")
+                lbl_text_col1.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5)
+
+                row_nbr = row_nbr + 1
+
+            return(bodyframe)
+
+        bodyframe = body_frame()
+        bodyframe.pack(side = "top", fill = "both", expand = True)
+
+    def close_window(self,*event):
+        self.gui.enable_main_window()
+        self.gui.activate_current_tab()
+        self.destroy()
+
+    def close_easytarc(self,*event):
+        self.gui.root.quit()
+        return
 
     def get_pos(self, event):
         self.x_win = self.winfo_x()

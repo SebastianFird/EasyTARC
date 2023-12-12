@@ -18,6 +18,7 @@ __author__ = 'Sebastian Feiert'
 import tkinter # Tkinter -> tkinter in Python 3
 from gui.Window_Additionals import InfoWindow
 from gui.Window_Additionals import InfoDictWindow
+from gui.Window_Additionals import  CloseAccountWarning
 
 
 class CaptureOptionMenu(tkinter.Listbox):
@@ -43,15 +44,14 @@ class CaptureOptionMenu(tkinter.Listbox):
         self.optionmenu.delete(0, "end")
 
         #self.optionmenu.add_command(label="Info zum Menü",command=self.show_info)
-
+        
         self.optionmenu.add_command(label=self.language_dict["info_about_the_time_account"],command=self.show_clock_info)
 
-        if self.selected_clock.clock_kind == 'main' and self.selected_clock.get_id() != 0:
+        if self.selected_clock.get_id() != 0:
             self.optionmenu.add_separator()
-            self.optionmenu.add_command(label=self.language_dict["hide"],command=self.unpack_main_clock)
-
-        self.optionmenu.add_separator()
-        self.optionmenu.add_command(label=self.language_dict["reset"],command=self.reset_clock)
+            self.optionmenu.add_command(label=self.language_dict["edit_time_account"],command=self.edit_account)
+            if self.selected_clock.clock_kind == 'main':
+                self.optionmenu.add_command(label=self.language_dict["close_time_account"],command=self.close_account) 
 
         if self.selected_clock.clock_kind == 'main' and self.selected_clock.get_id() != 0:
             self.optionmenu.add_separator()
@@ -67,6 +67,9 @@ class CaptureOptionMenu(tkinter.Listbox):
             self.optionmenu.add_separator()
             self.optionmenu.add_command(label=self.language_dict["show_alsubaccounts"],command=self.pack_all_sub_account)
 
+        self.optionmenu.add_separator()
+        self.optionmenu.add_command(label=self.language_dict["reset_time"],command=self.reset_clock)
+
 
     def popup(self, event):
         try:
@@ -79,9 +82,9 @@ class CaptureOptionMenu(tkinter.Listbox):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
 
-        self.optionmenu.configure(background=self.style_dict["bg_color"])
+        self.optionmenu.configure(background=self.style_dict["background_color_grey"])
         self.optionmenu.configure(foreground=self.style_dict["font_color"])
-        self.optionmenu.configure(activebackground=self.style_dict["highlight_color"])
+        self.optionmenu.configure(activebackground=self.style_dict["selected_color_grey"])
 
     def show_clock_info(self):
         info_dict = self.selected_clock.get_info_dict()
@@ -105,14 +108,6 @@ class CaptureOptionMenu(tkinter.Listbox):
 
             info_window = InfoWindow(self.main_app, self.gui, self.capture_tab.main_frame ,text,400,180)
 
-    def unpack_main_clock(self):
-        if self.selected_clock.get_id() != 0 and ((self.selected_clock.get_runninig() == False and self.selected_clock.get_total_time().seconds == 0) or (self.main_app.get_action_state() == "endofwork")):
-            self.capture_tab.unpack_main_clock()
-        else:
-            text = '\n' + self.language_dict["record_info_text_2"] + '\n'
-
-            info_window = InfoWindow(self.main_app, self.gui, self.capture_tab.main_frame ,text,400,180)
-
     def unpack_sub_clock(self):
         if self.selected_clock.get_id() != 0 and ((self.selected_clock.get_runninig() == False and self.selected_clock.get_total_time().seconds == 0) or (self.main_app.get_action_state() == "endofwork")):
             self.capture_tab.unpack_sub_clock(self.clock_frame)
@@ -128,6 +123,17 @@ class CaptureOptionMenu(tkinter.Listbox):
             text = '\n' + self.language_dict["record_info_text_4"] + '\n'
 
             info_window = InfoWindow(self.main_app, self.gui, self.capture_tab.main_frame ,text,400,180)
+
+    def close_account(self):
+        account_tab = self.gui.main_window.case_frame.notebook_frame.tab_manager.accounts_tab
+        account_dict = self.selected_clock.get_account_dict()
+        CloseAccountWarning(self.main_app,self.gui,self.capture_tab.main_frame, account_tab,account_dict)
+        return
+
+    def edit_account(self):
+        account_tab = self.gui.main_window.case_frame.notebook_frame.tab_manager.accounts_tab
+        account_dict = self.selected_clock.get_account_dict()
+        account_tab.edit_selected_account(account_dict)
 
 
 

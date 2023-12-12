@@ -50,9 +50,9 @@ class GuiOptionMenu(tkinter.Listbox):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
 
-        self.optionmenu.configure(background=self.style_dict["bg_color"])
+        self.optionmenu.configure(background=self.style_dict["background_color_grey"])
         self.optionmenu.configure(foreground=self.style_dict["font_color"])
-        self.optionmenu.configure(activebackground=self.style_dict["highlight_color"])
+        self.optionmenu.configure(activebackground=self.style_dict["selected_color_grey"])
 
     def reset_all_windows(self):
         self.gui.reset_mini_work_window_pos()

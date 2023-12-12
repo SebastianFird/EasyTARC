@@ -138,14 +138,14 @@ def start():
     user_license_hash_data_db = code_db.get_user_license_hash_data_db()
     user_license_hash_current = code_db.get_user_license_hash_current()
     text = 'user_license_hash_data_db:\n' + str(user_license_hash_data_db) + '\n\nuser_license_hash_current:\n' + str(user_license_hash_current)
-    print(text)
+    #print(text)
     messagebox.showinfo('EasyTARC',text)
 
     name = 'EasyTARC_Database_User'
     old_db_user_password = data_cryption.get_db_user_password(user_license_hash_data_db)
     old_user_db = SqlUserDataManager(None,name,old_db_user_password)
     text = 'Old DB last account:\n' + str(old_user_db.get_account_name_list()[-1])
-    print(text)
+    #print(text)
     messagebox.showinfo('EasyTARC',text)
     old_memory_db_conn = old_user_db.get_memory_db_conn()
 
@@ -162,7 +162,7 @@ def start():
     new_user_db.save_and_close_db(new_memory_db_conn)
     new_memory_db_conn.close()
     text = 'New DB last account:\n' + str(new_user_db.get_account_name_list()[-1])
-    print(text)
+    #print(text)
     messagebox.showinfo('EasyTARC',text)
 
     path = os.path.abspath(os.getcwd())

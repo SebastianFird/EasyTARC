@@ -73,7 +73,7 @@ class CreateEditAccountHead:
 
     def create_main_head(self):
         self.main_head_frame = MyFrame(self.main_frame,self.data_manager)
-        self.main_head_frame.configure(background=self.style_dict["header_color"])
+        self.main_head_frame.configure(background=self.style_dict["header_color_blue"])
         self.main_head_frame.pack(side = "top", fill = "x")
 
 
@@ -97,7 +97,7 @@ class CreateEditAccountHead:
 
 
         lbl_header = MyLabel(self.main_head_frame,self.data_manager, text=header_text,width=40, background='#FFFF99', anchor='w')
-        lbl_header.configure(background=self.style_dict["header_color"],foreground=self.style_dict["font_color_2"])
+        lbl_header.configure(background=self.style_dict["header_color_blue"],foreground=self.style_dict["font_color_white"])
         lbl_header.pack(side = "left", padx=10, pady=5)
 
         self.update_main_head()
@@ -109,7 +109,7 @@ class CreateEditAccountHead:
     def refresh_main_head(self):
         self.main_head_frame.refresh_style()
 
-        self.main_head_frame.configure(background=self.style_dict["header_color"])
+        self.main_head_frame.configure(background=self.style_dict["header_color_blue"])
 
         self.update_main_head()
         return

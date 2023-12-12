@@ -85,10 +85,8 @@ class CaptureTab(Scroll_Frame):
         self.body.refresh()
         return
     
-    def refresh_clock_names(self):
-        self.head.updtcblist()
-        self.body.arrange_clocks()
-        self.body.refresh_clocks()
+    def update_clock_properties(self):
+        self.body.update_clock_properties()
     
     def empty_body_clicked(self,e):
         self.set_selected_clock_frame_none()
@@ -132,14 +130,7 @@ class CaptureTab(Scroll_Frame):
     def reset_captured_time(self):
         selected_clock = self.data_manager.get_selected_clock()
         selected_clock.reset_time()
-        #self.body.update_main_account_clocks()
         self.update_selected_clock_frame()
-
-    def unpack_main_clock(self):
-        selected_clock = self.data_manager.get_selected_clock()
-        self.body.unpack_main_account_frame(selected_clock)
-        self.set_selected_clock_frame_none()
-        return
     
     def unpack_sub_clock(self, clock_frame):
         clock_frame.main_account_frame.hide_sub_clock(clock_frame)

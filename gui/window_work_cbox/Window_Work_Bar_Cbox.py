@@ -33,25 +33,41 @@ class BarWorkWindowCbox(WorkWindowCbox):
         self.y_win = None
         self.start_x = None
         self.start_y = None
+
+        self.attributes("-alpha", 0) 
         
-        if type(self.gui.get_bar_work_window_pos()) != int:
-            ws = self.winfo_screenwidth() # width of the screen
-            x = (ws/2) 
+        if self.gui.get_bar_work_window_pos() == None:
+            self.reset_window_pos()
         else:
-            x = self.gui.get_bar_work_window_pos()
+            x, y = self.gui.get_bar_work_window_pos()
+            if type(x) != int or type(y) != int:
+                self.reset_window_pos()   
+            else:
+                self.root.update()
+                screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(x,y)
+                self.root.update()
 
-        y = 0
+                if (screen_root_x <= x) and (x <= screen_width) and (screen_root_y <= y) and (y <= screen_height):
+                    self.geometry("+%d+%d" % (x, y))
+                    self.y_pos_pinned = y
+                else:
+                    self.reset_window_pos()
 
-        self.geometry("+%d+%d" % (x, y))
+        
         self.overrideredirect(1)
-        self.attributes('-topmost',True)  
+        self.attributes('-topmost',True) 
+        self.attributes("-alpha", 1) 
 
         self.modus = self.main_app.get_setting('bar_work_window_modus')
         self.btn_frame_displayed = False  
         self.main_frame_leave = True
         self.after_func = None
 
+        self.pos_moved = False
+
         self.run_main_frame()
+
+##############################################################################################################################
 
     def get_pos(self, event):
         self.x_win = self.winfo_x()
@@ -59,18 +75,31 @@ class BarWorkWindowCbox(WorkWindowCbox):
         self.x_win = self.x_win - self.start_x
 
     def move_window(self, event):
-        if type(event.x_root) == int and type(self.x_win) == int : 
-            self.geometry('+{0}+{1}'.format(event.x_root + self.x_win,0))
+        if type(event.x_root) == int and type(self.x_win) == int and type(self.y_pos_pinned) == int : 
+            self.geometry('+{0}+{1}'.format(event.x_root + self.x_win,self.y_pos_pinned))
             self.start_x = event.x_root
+            self.pos_moved = True
 
-    def save_pos(self, event):
-        self.gui.set_bar_work_window_pos(self.winfo_x())
+    def save_and_adjust_pos(self, event):
+        if self.pos_moved == True:
+            x=self.winfo_x()
+            y=self.winfo_y()
+            screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(x,y)
+            #print('Window Root Pos: ',x,y)
+
+            if y != screen_root_y-self.gui.get_y_pos_correction():
+                y = screen_root_y-self.gui.get_y_pos_correction()
+                self.geometry("+%d+%d" % (x, y))
+                self.y_pos_pinned = y
+            self.gui.set_bar_work_window_pos(x,y)
+            self.pos_moved = False
 
     def reset_window_pos(self):
         ws = self.winfo_screenwidth() # width of the screen
         x = (ws/2) 
         y = 0
         self.geometry("+%d+%d" % (x, y))
+        self.y_pos_pinned = 0
 
 ##############################################################################################################################
 
@@ -98,9 +127,9 @@ class BarWorkWindowCbox(WorkWindowCbox):
         if self.main_app.get_action_state() == 'disabled':
             color = self.style_dict["titlebar_color"]
         elif self.work_clock.get_runninig() == True:
-            color = self.style_dict["bottom_active_color"]
+            color = self.style_dict["recording_color_green"]
         elif self.pause_clock.get_runninig() == True:
-            color = self.style_dict["bottom_pause_color"]
+            color = self.style_dict["pause_color_orange"]
         else:
             color = self.style_dict["titlebar_color"]
         self.btn_frame.configure(highlightcolor = color, highlightbackground=color)
@@ -130,7 +159,7 @@ class BarWorkWindowCbox(WorkWindowCbox):
         self.status_frame.pack(side='left', fill = "x", expand = True)
         self.status_frame.bind('<B1-Motion>', self.move_window)
         self.status_frame.bind('<Button-1>', self.get_pos)
-        self.status_frame.bind('<ButtonRelease-1>', self.save_pos)
+        self.status_frame.bind('<ButtonRelease-1>', self.save_and_adjust_pos)
         self.status_frame.bind("<Button-3>", self.right_clicked)
         self.status_frame.bind("<Enter>", self.status_enter)
         self.status_frame.bind("<Double-Button-1>", self.status_double_click)
@@ -146,7 +175,7 @@ class BarWorkWindowCbox(WorkWindowCbox):
         self.lbl_name.pack(side='left', fill='y')
         self.lbl_name.bind('<B1-Motion>', self.move_window)
         self.lbl_name.bind('<Button-1>', self.get_pos)
-        self.lbl_name.bind('<ButtonRelease-1>', self.save_pos)
+        self.lbl_name.bind('<ButtonRelease-1>', self.save_and_adjust_pos)
         self.lbl_name.bind("<Button-3>", self.right_clicked)
         self.lbl_name.bind("<Double-Button-1>", self.status_double_click)
         self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, 50, 30,'')
@@ -157,7 +186,7 @@ class BarWorkWindowCbox(WorkWindowCbox):
             self.lbl_name.configure(text=' ' + self.language_dict['locked'])
 
         elif self.work_clock.get_runninig() == True:
-            background_color = self.style_dict["bottom_active_color"]
+            background_color = self.style_dict["recording_color_green"]
             if self.active_clock.get_id() != 0:
                 clock_name = self.active_clock.get_full_name()
             else:
@@ -170,7 +199,7 @@ class BarWorkWindowCbox(WorkWindowCbox):
                 self.lbl_name_ttp.text =  clock_name
 
         elif self.pause_clock.get_runninig() == True:
-            background_color = self.style_dict["bottom_pause_color"]
+            background_color = self.style_dict["pause_color_orange"]
             self.lbl_name.configure(text=' ' + self.language_dict['break'])
         else:
             background_color = self.style_dict["titlebar_color"]
@@ -264,10 +293,10 @@ class BarWorkWindowCbox(WorkWindowCbox):
         self.title_bar.pack(side='left', fill = "both", expand = True)
         self.title_bar.bind('<B1-Motion>', self.move_window)
         self.title_bar.bind('<Button-1>', self.get_pos)
-        self.title_bar.bind('<ButtonRelease-1>', self.save_pos)
+        self.title_bar.bind('<ButtonRelease-1>', self.save_and_adjust_pos)
         self.title_bar.bind("<Button-3>", self.right_clicked)
 
-        self.close_button = MyLabel(self.title_bar, self.data_manager, text='___')
+        self.close_button = MyLabel(self.title_bar, self.data_manager, text='  X  ')
         self.close_button.configure(background=self.style_dict["titlebar_color"], width = 5)
         self.close_button.pack(side='right',fill='y',expand=True)
         self.close_button.bind('<Button-1>', self.close_window)
@@ -301,10 +330,10 @@ class BarWorkWindowCbox(WorkWindowCbox):
             background_color = self.style_dict["titlebar_color"]
 
         elif self.work_clock.get_runninig() == True:
-            background_color = self.style_dict["bottom_active_color"]
+            background_color = self.style_dict["recording_color_green"]
 
         elif self.pause_clock.get_runninig() == True:
-            background_color = self.style_dict["bottom_pause_color"]
+            background_color = self.style_dict["pause_color_orange"]
 
         else:
             background_color = self.style_dict["titlebar_color"]

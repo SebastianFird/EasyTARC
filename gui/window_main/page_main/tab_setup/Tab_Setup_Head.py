@@ -72,15 +72,15 @@ class SetupHead:
 
     def create_main_head(self):
         self.main_head_frame = MyFrame(self.main_frame,self.data_manager)
-        self.main_head_frame.configure(background=self.style_dict["header_color"])
+        self.main_head_frame.configure(background=self.style_dict["header_color_blue"])
         self.main_head_frame.pack(side = "top", fill = "x")
 
         self.lbl_version = MyLabel(self.main_head_frame, self.data_manager,text=self.language_dict['version'] + ': ' + str(self.main_app.get_version()))
-        self.lbl_version.configure(background=self.style_dict["header_color"],foreground = self.style_dict["font_color_2"])
+        self.lbl_version.configure(background=self.style_dict["header_color_blue"],foreground = self.style_dict["font_color_white"])
         self.lbl_version.pack(side='left',padx = 10,pady=10)
 
         self.lbl_config = MyLabel(self.main_head_frame, self.data_manager,text=self.language_dict['configuration'] + ': ' + str(self.main_app.get_config()))
-        self.lbl_config.configure(background=self.style_dict["header_color"],foreground = self.style_dict["font_color_2"])
+        self.lbl_config.configure(background=self.style_dict["header_color_blue"],foreground = self.style_dict["font_color_white"])
         self.lbl_config.pack(side='left',padx = 10,pady=10)
 
         self.btn_release_notes = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict['release_notes'],width=15,command=self.show_release_notes)
@@ -106,11 +106,11 @@ class SetupHead:
         return
     
     def directory_enter(self,e):
-        self.btn_directory.configure(background=self.style_dict["highlight_color"])
+        self.btn_directory.configure(background=self.style_dict["selected_color_grey"])
         self.btn_directory_ttp.scheduleinfo()
 
     def directory_leave(self,e):
-        self.btn_directory.configure(background=self.style_dict["btn_color"])
+        self.btn_directory.configure(background=self.style_dict["btn_color_grey"])
         self.btn_directory_ttp.hideinfo()
 
     def show_release_notes(self):
@@ -124,6 +124,7 @@ class SetupHead:
         text = text + "\n\n" + self.language_dict['release_note_text_7']
         text = text + "\n\n" + self.language_dict['release_note_text_8']
         text = text + "\n\n" + self.language_dict['release_note_text_9']
+        text = text + "\n\n" + self.language_dict['release_note_text_10']
 
         info_window = InfoWindow(self.main_app, self.gui, self.setup_tab.main_frame ,text,600,400)
         return
@@ -172,9 +173,9 @@ class SetupHead:
         self.lbl_config.refresh_style()
         self.btn_directory_ttp.refresh()
 
-        self.lbl_version.configure(background=self.style_dict["header_color"],foreground = self.style_dict["font_color_2"])
-        self.lbl_config.configure(background=self.style_dict["header_color"],foreground = self.style_dict["font_color_2"])
-        self.main_head_frame.configure(background=self.style_dict["header_color"])
+        self.lbl_version.configure(background=self.style_dict["header_color_blue"],foreground = self.style_dict["font_color_white"])
+        self.lbl_config.configure(background=self.style_dict["header_color_blue"],foreground = self.style_dict["font_color_white"])
+        self.main_head_frame.configure(background=self.style_dict["header_color_blue"])
         self.update_main_head()
 
         self.lbl_version.configure(text=self.language_dict['version'] + ': ' + self.main_app.get_version())

@@ -93,7 +93,7 @@ class CreateEditAccount(tk.Frame):
 #################################################################
 
     def clipboard_input(self,clipboard):
-        print(clipboard)
+        #print(clipboard)
 
         try:
             data_json = json.loads(clipboard)
@@ -102,21 +102,14 @@ class CreateEditAccount(tk.Frame):
 
         try:
             account_data = {
-                "project_nbr":data_json[self.main_app.get_setting("project_nbr_map")],
-                "order_nbr":data_json[self.main_app.get_setting("order_nbr_map")],
-                "process_nbr":data_json[self.main_app.get_setting("process_nbr_map")],
-                "response_nbr":data_json[self.main_app.get_setting("response_nbr_map")]
+                "project_label":data_json[self.main_app.get_setting("project_label_map")],
+                "order_label":data_json[self.main_app.get_setting("order_label_map")],
+                "process_label":data_json[self.main_app.get_setting("process_label_map")],
+                "response_code":data_json[self.main_app.get_setting("response_code_map")]
             }
         except KeyError:
             return False
-        
-        try:
-            float(account_data["project_nbr"])
-            float(account_data["order_nbr"])
-            float(account_data["process_nbr"])
-            float(account_data["response_nbr"])
-        except ValueError:
-            return False
+    
         return(account_data)
         
 
@@ -136,44 +129,51 @@ class CreateEditAccount(tk.Frame):
             print('err')
             return
 
-        project_nbr = account_project.get()
-        order_nbr = account_order.get()
-        process_nbr = account_process.get()
+        project_label = account_project.get()
+        order_label = account_order.get()
+        process_label = account_process.get()
         group = group.get()
         name = account_name.get()
         description_text = account_description_text.get()
         auto_booking = account_autobooking.get()
-        response_nbr = account_response.get()
-        default_text = account_text.get()
-        bookable = bookable.get()
+        response_code = account_response.get()
+        response_text = account_text.get()
+        if bookable == True:
+            bookable = 1
+        else:
+            bookable = 0
 
-        if project_nbr == '':
-            project_nbr = 0
+        if project_label == '' or group.isspace() == True:
+            project_label = ' - '
 
-        if order_nbr == '':
-            order_nbr = 0
+        if order_label == '' or group.isspace() == True:
+            order_label = ' - '
         
-        if process_nbr == '':
-            process_nbr = 0
+        if process_label == '' or group.isspace() == True:
+            process_label = ' - '
 
         if group == '' or group.isspace() == True:
-            group = 'default'
+            group = ' - '
 
-        input_checked = self.check_new_account_input(name,project_nbr,order_nbr,process_nbr,response_nbr)
+        if description_text == '' or description_text.isspace() == True:
+            description_text = ' - '
+
+        if response_code == '' or response_code.isspace() == True:
+            response_code = ' - '
+
+        if response_text == '' or response_text.isspace() == True:
+            response_text = ' - '
+
+        input_checked = self.check_new_account_input(name,[group],[name,project_label,order_label,process_label,group,description_text,response_code,response_text])
 
         if input_checked != True:
             info = input_checked
             return(info)
         else:
-            project_nbr = str(project_nbr)
-            order_nbr = str(order_nbr)
-            process_nbr = str(process_nbr)
-            if response_nbr != '':
-                response_nbr = str(response_nbr)
-            self.save(name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id,group,bookable)
+            self.save(name,description_text,project_label,order_label,process_label,response_code,response_text,auto_booking,kind,main_id,group,bookable)
             return(None)
 
-    def save(self,name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id,group,bookable):
+    def save(self,name,description_text,project_label,order_label,process_label,response_code,response_text,auto_booking,kind,main_id,group,bookable):
 
         new_main_list = ['new_main','new_order','new_process']
         edit_main_list = ['edit_main']
@@ -182,14 +182,14 @@ class CreateEditAccount(tk.Frame):
 
 
         if self.modus in new_main_list:
-            account_dict = self.data_manager.create_time_account(name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id,group,bookable)
+            account_dict = self.data_manager.create_time_account(name,description_text,project_label,order_label,process_label,response_code,response_text,auto_booking,kind,main_id,group,bookable)
             main_account_clock = self.data_manager.create_main_account_clock(account_dict)
-            self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.create_main_account_frame(main_account_clock)
+            self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.add_main_account_frame(group,main_account_clock)
             
         elif self.modus in new_sub_list:
-            account_dict = self.data_manager.create_time_account(name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id,group,bookable)
+            account_dict = self.data_manager.create_time_account(name,description_text,project_label,order_label,process_label,response_code,response_text,auto_booking,kind,main_id,group,bookable)
             sub_clock = self.main_account_clock.add_sub_clock(account_dict)
-            self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.add_sub_account_frame(self.main_account_clock,sub_clock)
+            self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.add_sub_account_frame(group,int(main_id),sub_clock)
 
         elif self.modus in edit_main_list:
             account_dict = {"account_id":int(self.main_account_dict['account_id']),    
@@ -197,11 +197,11 @@ class CreateEditAccount(tk.Frame):
                             "main_id":int(self.main_account_dict['main_id']),          
                             "name":str(name),                            
                             "description_text":str(description_text), 
-                            "project_nbr":str(project_nbr),            
-                            "order_nbr":str(order_nbr),          
-                            "process_nbr":str(process_nbr),            
-                            "response_nbr":str(response_nbr),     
-                            "default_text":str(default_text),      
+                            "project_label":str(project_label),            
+                            "order_label":str(order_label),          
+                            "process_label":str(process_label),            
+                            "response_code":str(response_code),     
+                            "response_text":str(response_text),      
                             "auto_booking":int(auto_booking),         
                             "status":str(self.main_account_dict['status']),        
                             "group":str(group),                     
@@ -212,7 +212,7 @@ class CreateEditAccount(tk.Frame):
                             }
             self.data_manager.update_account(account_dict)
             self.data_manager.update_clocks()
-            self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.refresh_clock_names()
+            self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.update_clock_properties()
             self.gui.main_window.case_frame.notebook_frame.tab_manager.accounts_tab.reload()
         
         elif self.modus in edit_sub_list:
@@ -221,11 +221,11 @@ class CreateEditAccount(tk.Frame):
                             "main_id":int(self.sub_account_dict['main_id']),          
                             "name":str(name),                            
                             "description_text":str(description_text), 
-                            "project_nbr":str(self.sub_account_dict['project_nbr']),            
-                            "order_nbr":str(self.sub_account_dict['order_nbr']),          
-                            "process_nbr":str(self.sub_account_dict['process_nbr']),            
-                            "response_nbr":str(self.sub_account_dict['response_nbr']),     
-                            "default_text":str(default_text),      
+                            "project_label":str(self.sub_account_dict['project_label']),            
+                            "order_label":str(self.sub_account_dict['order_label']),          
+                            "process_label":str(self.sub_account_dict['process_label']),            
+                            "response_code":str(self.sub_account_dict['response_code']),     
+                            "response_text":str(response_text),      
                             "auto_booking":int(self.sub_account_dict['auto_booking']),         
                             "status":str(self.sub_account_dict['status']),        
                             "group":str(self.sub_account_dict['group']),                     
@@ -236,7 +236,7 @@ class CreateEditAccount(tk.Frame):
                             }
             self.data_manager.update_account(account_dict)
             self.data_manager.update_clocks()
-            self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.refresh_clock_names()
+            self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.update_clock_properties()
             self.gui.main_window.case_frame.notebook_frame.tab_manager.accounts_tab.reload()
 
         self.back()
@@ -245,7 +245,7 @@ class CreateEditAccount(tk.Frame):
 
 ###################################################
 
-    def check_new_account_input(self,name,project,order,process,response):
+    def check_new_account_input(self,name,comma_list,hashtag_list):
 
         new_main_list = ['new_main','new_order','new_process']
         edit_main_list = ['edit_main']
@@ -317,18 +317,15 @@ class CreateEditAccount(tk.Frame):
         else:
             print('err')
             return
-            
-        #############################################
-                
-        list_nbr = [project,order,process,response]
-        for nbr_field in list_nbr:
-            if nbr_field != '':
-                try:
-                    int(nbr_field)
-                except (ValueError,decimal.InvalidOperation):
-                    return(self.language_dict['nbr_for_nbr_fields'])
-                if int(nbr_field) < 0:
-                    return(self.language_dict['nbr_for_nbr_fields'])
+        
+        for text in comma_list:
+            if ',' in text:
+                return(self.language_dict['not_allowed_characters']) 
+
+        for text in hashtag_list:
+            if '#' in text:
+                return(self.language_dict['not_allowed_characters']) 
+
         return(True)
 
     def back(self):

@@ -38,6 +38,8 @@ class ClockFrame(tk.Frame):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
 
+        self.frame_deleted = False
+
         image_1 = self.style_dict['photo_btn_on']
         image_2 = self.style_dict['photo_btn_highlight']
         image_3 = self.style_dict['photo_btn_off']
@@ -90,8 +92,8 @@ class ClockFrame(tk.Frame):
         self.lbl_empty0.configure(height=35)
         self.lbl_empty0.pack(side = "left")
 
-        self.lbl_view_sub_clocks = MyLabel(self, self.data_manager, anchor='w',width = 2, text = '  ')
-        self.lbl_view_sub_clocks.configure(foreground=self.style_dict["strong_highlight_color"])
+        self.lbl_view_sub_clocks = MyLabel(self, self.data_manager, anchor='w',width = 2, text = ' ')
+        self.lbl_view_sub_clocks.configure(foreground=self.style_dict["highlight_color_grey"])
         self.lbl_view_sub_clocks.pack(side='left')
 
         self.lbl_view_sub_clocks.bind("<Enter>", self.enter_view_sub)
@@ -191,7 +193,7 @@ class ClockFrame(tk.Frame):
 
         if self.clock.get_id() != 0:
             name_text =  self.clock.get_name()
-            info_text = self.language_dict["name"] + ': ' + str(self.clock.get_name()) + '\n' + self.language_dict["project_nbr"]  + ': ' + str(self.clock.get_project_nbr()) + '\n' + self.language_dict["order_nbr"] + ': ' + str(self.clock.get_order_nbr()) + '\n' + self.language_dict["process_nbr"] + ': ' + str(self.clock.get_process_nbr())
+            info_text = self.language_dict["name"] + ': ' + str(self.clock.get_name()) + '\n' + self.language_dict["project"]  + ': ' + str(self.clock.get_project_label()) + '\n' + self.language_dict["order"] + ': ' + str(self.clock.get_order_label()) + '\n' + self.language_dict["process"] + ': ' + str(self.clock.get_process_label())
         else:
             name_text = self.language_dict["without_allocation"]
             info_text = self.language_dict["without_allocation"]
@@ -277,7 +279,7 @@ class ClockFrame(tk.Frame):
             self.lbl_view_sub_clocks.configure(foreground=self.style_dict["font_color"])
 
     def leave_view_sub(self,e):
-        self.lbl_view_sub_clocks.configure(foreground=self.style_dict["strong_highlight_color"])
+        self.lbl_view_sub_clocks.configure(foreground=self.style_dict["highlight_color_grey"])
 
     def clocked_view_sub(self,e):
         self.main_account_frame.fold_sub_clocks()
@@ -465,7 +467,7 @@ class ClockFrame(tk.Frame):
         total_time = self.clock.str_timedelta(self.clock.get_total_time())
         self.lbl_total_time.configure(text = total_time)
 
-        if self.clock.get_runninig() == True and self.main_app.get_action_state() == "normal":
+        if self.clock.get_runninig() == True and self.main_app.get_action_state() == "normal" and self.frame_deleted == False:
             self.after(1000, lambda:self.auto_clock())
         else:
             self.show_state()
@@ -478,11 +480,11 @@ class ClockFrame(tk.Frame):
 
     def update_frame(self):
         if self.data_manager.get_selected_clock() == self.clock:
-            background_color = self.style_dict["highlight_color"]
+            background_color = self.style_dict["selected_color_grey"]
         elif self.on_clock_frame == True:
-            background_color = self.style_dict["soft_highlight_color"]
+            background_color = self.style_dict["frame_hover_color_grey"]
         else:
-            background_color = self.style_dict["bg_color"]
+            background_color = self.style_dict["background_color_grey"]
             self.on_clock_frame = False
 
         self.configure(background=background_color)
@@ -511,6 +513,12 @@ class ClockFrame(tk.Frame):
         return()
 
 ################################################################################################################################
+
+    def update_clock_properties(self):
+        self.refresh()
+
+################################################################################################################################
+
 
     def refresh(self):
         self.style_dict = self.data_manager.get_style_dict()
@@ -542,7 +550,7 @@ class ClockFrame(tk.Frame):
 
         self.lbl_name.refresh_style()
 
-        self.lbl_view_sub_clocks.configure(foreground=self.style_dict["strong_highlight_color"])
+        self.lbl_view_sub_clocks.configure(foreground=self.style_dict["highlight_color_grey"])
 
         image_4 = self.style_dict['photo_btn_plus_strong_highlight']
         image_5 = self.style_dict['photo_btn_plus_font']
@@ -566,7 +574,7 @@ class ClockFrame(tk.Frame):
 
         if self.clock.get_id() != 0:
             name_text =  self.clock.get_name()
-            info_text = self.language_dict["name"] + ': ' + str(self.clock.get_name()) + '\n' + self.language_dict["project_nbr"] + ': ' + str(self.clock.get_project_nbr()) + '\n' + self.language_dict["order_nbr"] + ': ' + str(self.clock.get_order_nbr()) + '\n' + self.language_dict["process_nbr"] + ': ' + str(self.clock.get_process_nbr())
+            info_text = self.language_dict["name"] + ': ' + str(self.clock.get_name()) + '\n' + self.language_dict["project"] + ': ' + str(self.clock.get_project_label()) + '\n' + self.language_dict["order"] + ': ' + str(self.clock.get_order_label()) + '\n' + self.language_dict["process"] + ': ' + str(self.clock.get_process_label())
         else:
             name_text = self.language_dict["without_allocation"]
             info_text = self.language_dict["without_allocation"]

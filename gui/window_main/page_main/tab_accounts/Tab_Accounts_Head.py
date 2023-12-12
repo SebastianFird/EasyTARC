@@ -76,7 +76,7 @@ class AccountsHead:
 
     def create_main_head(self):
         self.main_head_frame = MyFrame(self.main_frame,self.data_manager)
-        self.main_head_frame.configure(background=self.style_dict["header_color"])
+        self.main_head_frame.configure(background=self.style_dict["header_color_blue"])
         self.main_head_frame.pack(side = "top", fill = "x")
 
         clicked_search = tk.StringVar()
@@ -113,7 +113,7 @@ class AccountsHead:
             self.textBox_search_var.configure(state=tk.NORMAL)
     
     def updt_search_cblist(self):
-        self.search_cbox['values'] = [self.language_dict["name"],self.language_dict["group"],self.language_dict["project_nbr"],self.language_dict["order_nbr"],self.language_dict["process_nbr"],self.language_dict["open"],self.language_dict["closed"],self.language_dict["all"]]
+        self.search_cbox['values'] = [self.language_dict["name"],self.language_dict["group"],self.language_dict["project"],self.language_dict["order"],self.language_dict["process"],self.language_dict["open"],self.language_dict["closed"],self.language_dict["bookable"],self.language_dict["not_bookable"],self.language_dict["auto_booking"],self.language_dict["all"]]
         self.search_cbox.current(0)
 
     def hit_enter_textBox(self,event=None):
@@ -125,16 +125,16 @@ class AccountsHead:
             modus = 'a_group'
             search_input = self.search_var.get()
 
-        elif self.search_cbox.get() == self.language_dict["project_nbr"]:
-            modus = 'project_nbr'
+        elif self.search_cbox.get() == self.language_dict["project"]:
+            modus = 'project_label'
             search_input = self.search_var.get()
 
-        elif self.search_cbox.get() == self.language_dict["order_nbr"]:
-            modus = 'order_nbr'
+        elif self.search_cbox.get() == self.language_dict["order"]:
+            modus = 'order_label'
             search_input = self.search_var.get()
 
-        elif self.search_cbox.get() == self.language_dict["process_nbr"]:
-            modus = 'process_nbr'
+        elif self.search_cbox.get() == self.language_dict["process"]:
+            modus = 'process_label'
             search_input = self.search_var.get()
 
         elif self.search_cbox.get() == self.language_dict["open"]:
@@ -145,6 +145,18 @@ class AccountsHead:
             modus = 'closed'
             search_input = None
 
+        elif self.search_cbox.get() == self.language_dict["bookable"]:
+            modus = 'bookable'
+            search_input = None
+
+        elif self.search_cbox.get() == self.language_dict["not_bookable"]:
+            modus = 'not_bookable'
+            search_input = None
+
+        elif self.search_cbox.get() == self.language_dict["auto_booking"]:
+            modus = 'auto_booking'
+            search_input = None
+
         elif self.search_cbox.get() == self.language_dict["all"]:
             modus = 'all'
             search_input = None
@@ -152,7 +164,7 @@ class AccountsHead:
         else:
             return
 
-        if search_input == '':
+        if search_input == '' and modus != 'a_group':
             self.accounts_tab.show_empty_frame()
         else:
             self.accounts_tab.load_data_by_search(modus,search_input)
@@ -167,7 +179,7 @@ class AccountsHead:
         self.main_head_frame.refresh_style()
         self.textBox_search_var.refresh_style()
         self.btn_search.refresh_style()
-        self.main_head_frame.configure(background=self.style_dict["header_color"])
+        self.main_head_frame.configure(background=self.style_dict["header_color_blue"])
 
         self.btn_search.configure(text=self.language_dict["search"])
 
@@ -179,22 +191,22 @@ class AccountsHead:
     def create_table_head(self):
 
         self.table_head_frame = MyFrame(self.main_frame,self.data_manager)
-        self.table_head_frame.configure(background=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
+        self.table_head_frame.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.table_head_frame.pack(side = "top", fill = "x")
 
         self.separator_frame_0 = MyFrame(self.table_head_frame,self.data_manager)
-        self.separator_frame_0.configure(background=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
+        self.separator_frame_0.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.separator_frame_0.pack(side = "right")
 
         self.lbl_empty0 = MyLabelPixel(self.separator_frame_0, self.data_manager)
         self.lbl_empty0.set_photo_width(10)
-        self.lbl_empty0.configure(background=self.style_dict["highlight_color"])
+        self.lbl_empty0.configure(background=self.style_dict["selected_color_grey"])
         self.lbl_empty0.pack(side='right')
 
         ################
 
         self.action_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.action_frame.configure(background=self.style_dict["bg_color"],highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
+        self.action_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.action_frame.pack(side = "right")
 
         self.action_invisible_frame = MyFrame(self.action_frame,self.data_manager)
@@ -220,7 +232,7 @@ class AccountsHead:
         ################
 
         self.status_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.status_frame.configure(background=self.style_dict["bg_color"],highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
+        self.status_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.status_frame.pack(side = "right")
 
         self.status_invisible_frame = MyFrame(self.status_frame,self.data_manager)
@@ -243,7 +255,7 @@ class AccountsHead:
         ################
 
         self.process_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.process_frame.configure(background=self.style_dict["bg_color"],highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
+        self.process_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.process_frame.pack(side = "right")
 
         self.process_invisible_frame = MyFrame(self.process_frame,self.data_manager)
@@ -263,7 +275,7 @@ class AccountsHead:
         ################
 
         self.order_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.order_frame.configure(background=self.style_dict["bg_color"],highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
+        self.order_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.order_frame.pack(side = "right")
 
         self.order_invisible_frame = MyFrame(self.order_frame,self.data_manager)
@@ -283,7 +295,7 @@ class AccountsHead:
         ################
 
         self.project_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.project_frame.configure(background=self.style_dict["bg_color"],highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
+        self.project_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.project_frame.pack(side = "right")
 
         self.project_invisible_frame = MyFrame(self.project_frame,self.data_manager)
@@ -302,7 +314,7 @@ class AccountsHead:
         ################
 
         self.name_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.name_frame.configure(background=self.style_dict["bg_color"],highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
+        self.name_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.name_frame.pack(side = "left",fill='x',expand=True)
 
         self.name_invisible_frame = MyFrame(self.name_frame,self.data_manager)
@@ -370,16 +382,16 @@ class AccountsHead:
         self.lbl_empty7.refresh_style()
         self.lbl_empty8.refresh_style()
  
-        self.table_head_frame.configure(background=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
-        self.separator_frame_0.configure(background=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
-        self.lbl_empty0.configure(background=self.style_dict["highlight_color"])
+        self.table_head_frame.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.separator_frame_0.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.lbl_empty0.configure(background=self.style_dict["selected_color_grey"])
 
-        self.action_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
-        self.status_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
-        self.process_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
-        self.order_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
-        self.project_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
-        self.name_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
+        self.action_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.status_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.process_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.order_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.project_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.name_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
 
         self.lbl_action_name.configure(text=self.language_dict["action"])
         self.lbl_status_name.configure(text=self.language_dict["status"])

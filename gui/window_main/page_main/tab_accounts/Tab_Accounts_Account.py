@@ -72,13 +72,13 @@ class AccountFrame(tk.Frame):
         self.lbl_status = MyLabel(self, self.data_manager,text = status_text, width=15)
         self.lbl_status.pack(side='right',padx=3)
 
-        self.lbl_process = MyLabel(self, self.data_manager,text = self.account_dict['process_nbr'], width=15)
+        self.lbl_process = MyLabel(self, self.data_manager,text = self.account_dict['process_label'], width=15)
         self.lbl_process.pack(side='right',padx=3)
 
-        self.lbl_order = MyLabel(self, self.data_manager,text = self.account_dict['order_nbr'], width=15)
+        self.lbl_order = MyLabel(self, self.data_manager,text = self.account_dict['order_label'], width=15)
         self.lbl_order.pack(side='right',padx=3)
 
-        self.lbl_project = MyLabel(self, self.data_manager,text = self.account_dict['project_nbr'], width=15)
+        self.lbl_project = MyLabel(self, self.data_manager,text = self.account_dict['project_label'], width=15)
         self.lbl_project.pack(side='right',padx=3)
 
         self.lbl_empty2 = MyLabel(self, self.data_manager, width=2)
@@ -141,11 +141,11 @@ class AccountFrame(tk.Frame):
 
     def update(self):
         if self.accounts_tab.get_clicked_account_frame() == self:
-            background_color = self.style_dict["highlight_color"]
+            background_color = self.style_dict["selected_color_grey"]
         elif self.on_account == True:
-            background_color = self.style_dict["soft_highlight_color"]
+            background_color = self.style_dict["frame_hover_color_grey"]
         else:
-            background_color = self.style_dict["bg_color"]
+            background_color = self.style_dict["background_color_grey"]
 
         self.configure(background=background_color)
         self.lbl_empty0.configure(background=background_color)

@@ -19,8 +19,10 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import tkinter.font as tkfont
 from PIL import ImageTk, Image
+from datetime import datetime, timedelta
 
 from gui.Window_Additionals import CreateToolTip
+from gui.Window_Additionals import Endofworkinfo
 
 from style_classes import MyLabelPixel
 from style_classes import MyFrame
@@ -87,15 +89,10 @@ class CaptureHead:
 
     def create_main_head(self):
         self.main_head_frame = MyFrame(self.main_frame,self.data_manager)
-        self.main_head_frame.configure(background=self.style_dict["header_color"])
+        self.main_head_frame.configure(background=self.style_dict["header_color_blue"])
         self.main_head_frame.pack(side = "top", fill = "x")
-
-        self.clicked = tk.StringVar()
-        self.account_cbox = ttk.Combobox(self.main_head_frame, state="readonly", width = 40, textvariable = self.clicked, postcommand = self.updtcblist)
-        self.account_cbox.bind("<<ComboboxSelected>>", self.cbox_selected)
-        self.account_cbox.pack(side='left',padx = 10,pady=10)
     
-        self.btn_add_clock = MyButton(self.main_head_frame, self.data_manager,width=15,command=lambda:self.add_project_clock_by_name(self.clicked.get()))
+        self.btn_add_clock = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict['new_main_account'],width=25,command=lambda:self.add_new_main_account())
         self.btn_add_clock.pack(side='left',padx = 10,pady=10)
 
         self.btn_end_of_work = MyButton(self.main_head_frame, self.data_manager, text=u'\U0001F4BE' + '   ' + self.language_dict['closing_time'],width=20,command=self.end_of_work)
@@ -103,17 +100,17 @@ class CaptureHead:
         self.btn_end_of_work_ttp = CreateToolTip(self.btn_end_of_work, self.data_manager, 50, 30, '')
 
         self.lbl_empty0 = MyLabel(self.main_head_frame, self.data_manager, width=1)
-        self.lbl_empty0.configure(background=self.style_dict["header_color"])
+        self.lbl_empty0.configure(background=self.style_dict["header_color_blue"])
         self.lbl_empty0.pack(side='right',padx=10)
 
         self.pause_clock = self.data_manager.get_pause_clock()
         self.lbl_pause = MyLabel(self.main_head_frame, self.data_manager, text=self.language_dict['break'],width=5)
-        self.lbl_pause.configure(background=self.style_dict["header_color"],foreground=self.style_dict["font_color_2"])
+        self.lbl_pause.configure(background=self.style_dict["header_color_blue"],foreground=self.style_dict["font_color_white"])
         self.lbl_pause.pack(side='right')
 
         self.lbl_activate_pause = MyLabel(self.main_head_frame, self.data_manager, image=self.photo_btn_off)
         self.lbl_activate_pause.image = self.photo_btn_off
-        self.lbl_activate_pause.configure(background=self.style_dict["header_color"])
+        self.lbl_activate_pause.configure(background=self.style_dict["header_color_blue"])
         self.lbl_activate_pause.pack(side='right')
 
         self.lbl_activate_pause.bind("<Enter>", self.pause_enter)
@@ -121,37 +118,13 @@ class CaptureHead:
         self.lbl_activate_pause.bind("<Button-1>", self.activate_pause)
         self.on_activate_pause = False
 
-        self.updtcblist()
         self.update_main_head()
         return
     
-    def cbox_selected(self,e=None):
-        if self.clicked.get() == self.language_dict['new_main_account']:
-            self.btn_add_clock.configure(text=self.language_dict['add'])
-        else:
-            self.btn_add_clock.configure(text=self.language_dict['show'])
 
-    def add_project_clock_by_name(self,account_name):
-        self.updtcblist()
-        if account_name == self.language_dict['new_main_account']:
-            self.case_frame_manager.add_new_account('new_main')
-        else:
-            self.capture_tab.body.pack_main_account_frame_by_name(account_name)
-            self.updtcblist()
+    def add_new_main_account(self):
+        self.case_frame_manager.add_new_account('new_main')
         return
-
-    def updtcblist(self):
-        main_account_clock_list = self.data_manager.get_main_account_clock_list()
-        not_current_main_account_clock_name_list = []
-        for main_account_clock in main_account_clock_list:
-            if main_account_clock.get_account_status() == 'open':
-                not_current_main_account_clock_name_list.append(main_account_clock.get_name())
-
-        self.addable_account_list = [self.language_dict['new_main_account']] + not_current_main_account_clock_name_list
-
-        self.account_cbox['values'] = self.addable_account_list
-        self.account_cbox.current(0)
-        self.cbox_selected()
 
     def pause_enter(self,e):
         self.on_activate_pause = True
@@ -188,29 +161,77 @@ class CaptureHead:
         if self.main_app.get_action_state() == "disabled" or self.main_app.get_action_state() == "arrange_clocks":
             self.btn_end_of_work.configure(state=tk.DISABLED)
             self.btn_end_of_work_ttp.text = ''
-            self.account_cbox.configure(state=tk.DISABLED)
             self.btn_add_clock.configure(state=tk.DISABLED)
         elif self.main_app.get_action_state() == "endofwork":
             self.btn_end_of_work.configure(state=tk.DISABLED)
             self.btn_end_of_work_ttp.text = self.language_dict["the_recording_is_finished"]
-            self.account_cbox.configure(state="readonly")
             self.btn_add_clock.configure(state=tk.NORMAL)
         else:
             self.btn_end_of_work.configure(state=tk.NORMAL)
             self.btn_end_of_work_ttp.text = ''
-            self.account_cbox.configure(state="readonly")
             self.btn_add_clock.configure(state=tk.NORMAL)
-            self.updtcblist()
 
     def end_of_work(self):
         self.main_app.set_action_state_end_of_work()
         self.update()
         self.capture_tab.body.update()
-        main_account_clock_list = []
-        main_account_frame_list = self.capture_tab.body.main_account_frame_list
-        for main_account_frame in main_account_frame_list:
-            main_account_clock_list.append(main_account_frame.main_account_clock)
-        self.data_manager.set_end_of_work(main_account_clock_list)
+        fold_up_list = self.capture_tab.body.get_fold_up_list()
+        self.data_manager.set_end_of_work(fold_up_list)
+        self.info_end_of_work()
+
+    def info_end_of_work(self,event=None):
+        if self.main_app.get_action_state() == 'disabled':
+            return
+
+        info_dict = {self.language_dict["session_data"]:"#bold"}
+
+        info_dict.update({self.language_dict["easytarc_execution"]:str(self.data_manager.start_timestamp) + ' ' + self.language_dict["o_clock"]})
+
+        days,hour,mins,sec = self.main_app.get_system_start_time_diff()
+        if mins > 5 and days == 0:
+            self.system_start_time_diff_str = f"{hour:02}:{mins:02}:{sec:02}"
+            info_dict.update({self.language_dict["diff_system_start"]:self.system_start_time_diff_str})
+
+        pause_clock = self.data_manager.get_pause_clock()
+        pause_shift_list_list = pause_clock.get_time_str_list_list()
+        if pause_shift_list_list != []:
+            pause_counter = 1
+            for pause_shift in pause_shift_list_list:
+                pause_text =  pause_shift[0] + ' '+ self.language_dict["o_clock"] + ' ' + self.language_dict["to"] +' ' + pause_shift[1] + ' '+ self.language_dict["o_clock"] + '\n(' + self.language_dict["duration"] + ': ' + pause_shift[2] + ')'
+                info_dict.update({self.language_dict["break"] + ' ' + str(pause_counter):pause_text})
+                pause_counter = pause_counter + 1
+
+        end_timestamp = self.data_manager.end_timestamp
+        if end_timestamp != None:
+            info_dict.update({self.language_dict["closing_time"]:str(self.data_manager.end_timestamp) + ' '+ self.language_dict["o_clock"]})
+
+        work_clock = self.data_manager.get_work_clock()
+        work_time = work_clock.str_timedelta(work_clock.get_total_time())
+        work_time_q = work_clock.get_total_time()
+
+        main_account_clock_list = self.data_manager.get_main_account_clock_list()
+        if main_account_clock_list != []:
+            activated_main_account_clock_list = [ele for ele in main_account_clock_list if ele.str_timedelta(ele.get_total_time_sum()) != '00:00:00']
+            if activated_main_account_clock_list != []:
+                info_dict.update({self.language_dict["record"]:'#bold'})
+                for main_account_clock in activated_main_account_clock_list:
+                    info_dict.update({main_account_clock.get_name():main_account_clock.str_timedelta(main_account_clock.get_total_time_sum())})
+
+            activated_main_account_clock_not_bookable_list = [ele for ele in activated_main_account_clock_list if ele.get_bookable() == 0]
+            if activated_main_account_clock_not_bookable_list != []:
+                q_not_bookable_time = timedelta(hours = 0)
+                for main_account_clock in activated_main_account_clock_not_bookable_list:
+                    q_not_bookable_time = q_not_bookable_time + main_account_clock.get_total_time_sum()
+                if str(work_time) != '00:00:00':
+                    bookingrate = (1 - (q_not_bookable_time / work_time_q))*100 
+                else:
+                    bookingrate = 0
+                info_dict.update({self.language_dict["analysis"]:'#bold'})
+                info_dict.update({self.language_dict["rate"]:str(round(bookingrate)) + ' %   '})
+
+        info_window = Endofworkinfo(self.main_app, self.gui ,self.gui.main_window,info_dict,450,300)
+        return
+    
 
     def refresh_main_head(self):
         self.btn_end_of_work_ttp.refresh()
@@ -221,17 +242,16 @@ class CaptureHead:
         self.lbl_pause.refresh_style()
         self.lbl_empty0.refresh_style()
 
-        self.main_head_frame.configure(background=self.style_dict["header_color"])
-        self.lbl_pause.configure(background=self.style_dict["header_color"],foreground=self.style_dict["font_color_2"])
-        self.lbl_activate_pause.configure(background=self.style_dict["header_color"])
-        self.lbl_empty0.configure(background=self.style_dict["header_color"])
+        self.main_head_frame.configure(background=self.style_dict["header_color_blue"])
+        self.lbl_pause.configure(background=self.style_dict["header_color_blue"],foreground=self.style_dict["font_color_white"])
+        self.lbl_activate_pause.configure(background=self.style_dict["header_color_blue"])
+        self.lbl_empty0.configure(background=self.style_dict["header_color_blue"])
         
-        self.cbox_selected()
+        self.btn_add_clock.configure(text=self.language_dict['new_main_account'])
         self.btn_end_of_work.configure(text=u'\U0001F4BE' + '   ' + self.language_dict['closing_time'])
         self.lbl_pause.configure(text=self.language_dict['break'])
 
         self.update_main_head()
-        self.updtcblist()
         return
 
 #################################################################
@@ -239,23 +259,23 @@ class CaptureHead:
     def create_table_head(self):
 
         self.table_head_frame = MyFrame(self.main_frame,self.data_manager)
-        self.table_head_frame.configure(background=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
+        self.table_head_frame.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.table_head_frame.pack(side = "top", fill = "x")
 
         self.separator_frame_0 = MyFrame(self.table_head_frame,self.data_manager)
-        self.separator_frame_0.configure(background=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
+        self.separator_frame_0.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.separator_frame_0.pack(side = "right")
 
         self.empty0 = MyLabelPixel(self.separator_frame_0, self.data_manager)
         self.empty0.set_photo_width(10)
-        self.empty0.configure(background=self.style_dict["highlight_color"])
+        self.empty0.configure(background=self.style_dict["selected_color_grey"])
         self.empty0.pack(side='right')
 
 
         ################
 
         self.correction_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.correction_frame.configure(background=self.style_dict["bg_color"],highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
+        self.correction_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.correction_frame.pack(side = "right")
 
         self.correction_invisible_frame = MyFrame(self.correction_frame,self.data_manager)
@@ -295,7 +315,7 @@ class CaptureHead:
         ################
 
         self.passed_time_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.passed_time_frame.configure(background=self.style_dict["bg_color"],highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
+        self.passed_time_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.passed_time_frame.pack(side = "right")
 
         self.passed_time_invisible_frame = MyFrame(self.passed_time_frame,self.data_manager)
@@ -317,7 +337,7 @@ class CaptureHead:
             lbl_switch = u'\U000025D1'
 
         self.lbl_switch_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=lbl_switch,width=3)
-        self.lbl_switch_time.configure(foreground=self.style_dict["strong_highlight_color"])
+        self.lbl_switch_time.configure(foreground=self.style_dict["highlight_color_grey"])
         self.on_switch_time = False
         self.lbl_switch_time.bind("<Enter>", self.btn_switch_time_enter)
         self.lbl_switch_time.bind("<Leave>", self.btn_switch_time_leave)
@@ -333,7 +353,7 @@ class CaptureHead:
         ################
 
         self.name_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.name_frame.configure(background=self.style_dict["bg_color"],highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
+        self.name_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.name_frame.pack(side = "left",fill='x',expand=True)
 
         self.name_invisible_frame = MyFrame(self.name_frame,self.data_manager)
@@ -360,7 +380,7 @@ class CaptureHead:
 
     def btn_switch_time_leave(self,e):
         self.on_switch_time = False
-        self.lbl_switch_time.configure(foreground=self.style_dict["strong_highlight_color"])
+        self.lbl_switch_time.configure(foreground=self.style_dict["highlight_color_grey"])
         self.update_table_head()
 
     def activate_btn_switch_time(self,e):
@@ -381,7 +401,7 @@ class CaptureHead:
         if self.on_switch_time == True:
             self.lbl_switch_time.configure(foreground=self.style_dict["font_color"])
         else:
-            self.lbl_switch_time.configure(foreground=self.style_dict["strong_highlight_color"])
+            self.lbl_switch_time.configure(foreground=self.style_dict["highlight_color_grey"])
         return
     
     def refresh_table_head(self):
@@ -411,13 +431,13 @@ class CaptureHead:
         self.name_visible_frame.refresh_style()
         self.lbl_name.refresh_style()
 
-        self.table_head_frame.configure(background=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
-        self.separator_frame_0.configure(background=self.style_dict["highlight_color"],highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
-        self.empty0.configure(background=self.style_dict["highlight_color"])
+        self.table_head_frame.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.separator_frame_0.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.empty0.configure(background=self.style_dict["selected_color_grey"])
 
-        self.correction_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
-        self.passed_time_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
-        self.name_frame.configure(highlightbackground=self.style_dict["highlight_color"],highlightcolor=self.style_dict["highlight_color"],highlightthickness=1)
+        self.correction_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.passed_time_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.name_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
 
         self.lbl_correction.configure(text=self.language_dict['correction'])
         self.lbl_name.configure(text=self.language_dict['name'])

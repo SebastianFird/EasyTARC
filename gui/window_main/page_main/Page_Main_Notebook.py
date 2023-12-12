@@ -80,11 +80,11 @@ class TabManager:
         self.frame_accounts = MyFrame(self.notebook,self.data_manager)
         self.frame_settings  = MyFrame(self.notebook,self.data_manager)
 
-        self.frame_capture.configure(background=self.style_dict["header_color"])
-        self.frame_booking.configure(background=self.style_dict["header_color"])
-        self.frame_time_data.configure(background=self.style_dict["header_color"])
-        self.frame_accounts.configure(background=self.style_dict["header_color"])
-        self.frame_settings.configure(background=self.style_dict["header_color"])
+        self.frame_capture.configure(background=self.style_dict["header_color_blue"])
+        self.frame_booking.configure(background=self.style_dict["header_color_blue"])
+        self.frame_time_data.configure(background=self.style_dict["header_color_blue"])
+        self.frame_accounts.configure(background=self.style_dict["header_color_blue"])
+        self.frame_settings.configure(background=self.style_dict["header_color_blue"])
 
         self.frame_capture.pack(fill='both', expand=True)
         self.frame_booking.pack(fill='both', expand=True)
@@ -156,11 +156,11 @@ class TabManager:
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
 
-        self.frame_capture.configure(background=self.style_dict["header_color"])
-        self.frame_booking.configure(background=self.style_dict["header_color"])
-        self.frame_time_data.configure(background=self.style_dict["header_color"])
-        self.frame_accounts.configure(background=self.style_dict["header_color"])
-        self.frame_settings.configure(background=self.style_dict["header_color"])
+        self.frame_capture.configure(background=self.style_dict["header_color_blue"])
+        self.frame_booking.configure(background=self.style_dict["header_color_blue"])
+        self.frame_time_data.configure(background=self.style_dict["header_color_blue"])
+        self.frame_accounts.configure(background=self.style_dict["header_color_blue"])
+        self.frame_settings.configure(background=self.style_dict["header_color_blue"])
 
         self.capture_tab.refresh()
         self.booking_tab.refresh()

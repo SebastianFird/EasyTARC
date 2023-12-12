@@ -59,9 +59,9 @@ class DataOptionMenu(tkinter.Listbox):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
 
-        self.optionmenu.configure(background=self.style_dict["bg_color"])
+        self.optionmenu.configure(background=self.style_dict["background_color_grey"])
         self.optionmenu.configure(foreground=self.style_dict["font_color"])
-        self.optionmenu.configure(activebackground=self.style_dict["highlight_color"])
+        self.optionmenu.configure(activebackground=self.style_dict["selected_color_grey"])
 
     def ask_delete_record(self):
         DeleteRecordWarning(self.main_app,self.gui,self.data_tab.main_frame, self.data_tab,self.record_dict)
@@ -78,23 +78,18 @@ class DataOptionMenu(tkinter.Listbox):
                         self.language_dict["main_account"]:self.record_dict['main_name']}
         #############
         if self.record_dict['account_id'] != 0:
-            info_dict.update({
-                self.language_dict["name"]:self.record_dict['name'],
-                self.language_dict["description"]:self.record_dict['description_text']    
-                })
+            info_dict.update({self.language_dict["name"]:self.record_dict['name']})
         else:
             info_dict.update({self.language_dict["name"]:self.language_dict["without_allocation"]})
         #############
-        if self.record_dict['group'] != 'default':
-            info_dict.update({self.language_dict["group"]:self.record_dict['group']})
-        else:
-            info_dict.update({self.language_dict["group"]:''})
+        info_dict.update({self.language_dict["group"]:self.record_dict['group']})
         #############
         if self.record_dict['account_id'] != 0:
             info_dict.update({                
-                        self.language_dict["project"]:self.record_dict['project_nbr'],  
-                        self.language_dict["order"]:self.record_dict['order_nbr'],                              
-                        self.language_dict["process"]:self.record_dict['process_nbr']         
+                        self.language_dict["project"]:self.record_dict['project_label'],  
+                        self.language_dict["order"]:self.record_dict['order_label'],                              
+                        self.language_dict["process"]:self.record_dict['process_label'],
+                        self.language_dict["description"]:self.record_dict['description_text']           
                         })
         #############
         if self.record_dict['bookable'] == 1:
@@ -103,15 +98,15 @@ class DataOptionMenu(tkinter.Listbox):
             info_dict.update({self.language_dict["bookable"]:self.language_dict["no"]}) 
         #############
         if self.record_dict['bookable'] == 1:
-            info_dict.update({                     
-                        self.language_dict["booking_nbr"]:self.record_dict['response_nbr'],                            
-                        self.language_dict["booking_text"]:self.record_dict['default_text']              
-                        })
-            #########
             if self.record_dict['auto_booking'] == 1:
                 info_dict.update({self.language_dict["auto_booking"]:self.language_dict["yes"]}) 
             else:
                 info_dict.update({self.language_dict["auto_booking"]:self.language_dict["no"]}) 
+            #########
+            info_dict.update({                     
+                        self.language_dict["response_code"]:self.record_dict['response_code'],                            
+                        self.language_dict["response_text"]:self.record_dict['response_text']              
+                        })
         #############
         info_window = InfoDictWindow(self.main_app, self.gui, self.data_tab.main_frame ,info_dict,400,280)
 

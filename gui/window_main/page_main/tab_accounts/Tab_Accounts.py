@@ -102,7 +102,8 @@ class AccountsTab(Scroll_Frame):
         self.clicked_account_frame = None
         self.body.case_frame.show_loading_frame()
         self.gui.root.update()
-        self.account_dict_list = self.data_manager.get_account_dict_list_by_search(modus, search_input)
+        account_dict_list = self.data_manager.get_account_dict_list_by_search(modus, search_input)
+        self.account_dict_list = [ele for ele in account_dict_list if ele['account_id'] != 0]
         self.body.case_frame.show_data()
         return
     
@@ -139,12 +140,12 @@ class AccountsTab(Scroll_Frame):
 #################################################################
     
     def check_close_account(self, account_dict):
-        response = self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.check_close_main_account_frame(account_dict['account_id'])
+        response = self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.check_close_main_account_frame(account_dict['group'],account_dict['account_id'])
         return(response)
     
     def close_account(self, account_dict):
         if self.check_close_account(account_dict) == True:
-            self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.close_main_account_frame(account_dict['account_id'])
+            self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.close_main_account_frame(account_dict['group'],account_dict['account_id'])
             self.reload()
         else:
             text = """
@@ -154,14 +155,14 @@ Ein aktives Zeitkonto kann nicht geschlossen werden. Bitte aktiviere erst ein an
         return
         
     def open_account(self, account_dict):
-        self.user_db.account_set_current(account_dict['account_id'])
+        self.user_db.account_set_open(account_dict['account_id'])
         if account_dict['account_kind'] == 1:
             sub_account_id_list = self.user_db.get_sub_accounts(account_dict['account_id'])
             for account_id in sub_account_id_list:
-                self.user_db.account_set_current(account_id)
+                self.user_db.account_set_open(account_id)
 
         main_account_clock = self.data_manager.load_main_account_clock(account_dict['account_id'])
-        self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.create_main_account_frame(main_account_clock)
+        self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.add_main_account_frame(account_dict['group'],main_account_clock)
         self.reload()
         return
 

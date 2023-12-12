@@ -64,33 +64,33 @@ class DataManager:
             print(self.main_app.get_user_db_name() + self.main_app.get_db_name_ending())
             if os.path.isfile(self.main_app.get_user_db_name() + self.main_app.get_db_name_ending()) == True and os.path.isfile(self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + self.main_app.get_db_name_ending()) == False:
                 os.rename(self.main_app.get_user_db_name() + self.main_app.get_db_name_ending(), self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + self.main_app.get_db_name_ending())
-                print('1')
+                #print('1')
             
             if os.path.isfile('full_db_backup_'+ self.main_app.get_user_db_name() + self.main_app.get_db_name_ending()) == True and os.path.isfile(self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup' + self.main_app.get_db_name_ending()) == False:
                 os.rename('full_db_backup_'+ self.main_app.get_user_db_name() + self.main_app.get_db_name_ending(), self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup' + self.main_app.get_db_name_ending())
-                print('2')
+                #print('2')
 
             if os.path.isfile('last_full_db_backup_'+ self.main_app.get_user_db_name() + self.main_app.get_db_name_ending()) == True and os.path.isfile(self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending()) == False:
                 os.rename('last_full_db_backup_'+ self.main_app.get_user_db_name() + self.main_app.get_db_name_ending(), self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending())
-                print('3')
+                #print('3')
 
             if os.path.isfile(self.main_app.get_user_db_name() + '_backup' + self.main_app.get_db_name_ending()) == True and os.path.isfile( self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup' + self.main_app.get_db_name_ending()) == False:
                 os.rename(self.main_app.get_user_db_name() + '_backup' + self.main_app.get_db_name_ending(), self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup' + self.main_app.get_db_name_ending())
-                print('4')
+                #print('4')
                 
             if os.path.isfile(self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending()) == True and os.path.isfile(self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending()) == False:
                 os.rename(self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending(),self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending())
-                print('5')
+                #print('5')
 
             if os.path.isfile(self.main_app.get_settings_db_name() + self.main_app.get_db_name_ending()) == True:
                 path = os.path.abspath(os.getcwd())
                 os.remove(path+'\\' + self.main_app.get_settings_db_name() + self.main_app.get_db_name_ending())
-                print('6')
+                #print('6')
 
             if os.path.isfile(self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_update' + self.main_app.get_db_name_ending()) == True:
                 path = os.path.abspath(os.getcwd())
                 os.remove(path + '\\' + self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_update' + self.main_app.get_db_name_ending())
-                print('7')
+                #print('7')
 
             if os.path.isfile(self.main_app.get_db_folder_name() + '\\' + self.main_app.get_user_db_name() + '_backup_2' + self.main_app.get_db_name_ending()) == True:
                 path = os.path.abspath(os.getcwd())
@@ -100,16 +100,16 @@ class DataManager:
 
         if self.main_app.get_version_update() == True:
             # update
-            print('update')
+            #print('update')
             self.user_db.account_set_autobooking(0,0)
             self.user_db.set_booked_accound_time_sum_unbooked(0)
 
         #####
 
-        with open('style.json',encoding='UTF-8') as json_file:
+        with open('json/style.json',encoding='UTF-8') as json_file:
             self.style_json = json.load(json_file)
 
-        with open('language.json',encoding='UTF-8') as json_file:
+        with open('json/language.json',encoding='UTF-8') as json_file:
             self.language_json = json.load(json_file)
 
         self.load_image_dicts()
@@ -129,9 +129,9 @@ class DataManager:
 #################################################################
 
     def load_clocks_and_start(self, load_back_up=False):
-        self.current_main_account_id_list = self.user_db.get_open_main_accounts()
+        self.open_main_account_id_list = self.user_db.get_open_main_accounts()
 
-        for account_id in self.current_main_account_id_list:
+        for account_id in self.open_main_account_id_list:
             account_dict = self.user_db.get_account_details(account_id)
             account_clock = self.create_main_account_clock(account_dict,load_back_up)
             if account_clock.get_id() == 0:
@@ -148,7 +148,31 @@ class DataManager:
         account_dict = self.user_db.get_account_details(account_id)
         account_clock = self.create_main_account_clock(account_dict,load_back_up)
         return(account_clock)
+    
 
+#################################################################
+
+    def create_main_account_clock(self,account_dict,load_back_up=False):
+        passed_hours = 0
+        passed_minutes = 0
+        passed_seconds = 0
+        added_minutes = 0
+        account_clock = MainAccountClock(self.main_app, passed_hours, passed_minutes, passed_seconds, added_minutes, account_dict,load_back_up)
+        self.main_account_clock_list.append(account_clock)
+        return(account_clock)
+
+    def get_main_account_clock_list(self):
+        return(self.main_account_clock_list)
+    
+    def close_main_account_clock(self, main_account_clock):
+        new_main_account_clock_list_without_closed_clock = [ele for ele in self.main_account_clock_list if ele != main_account_clock]
+        self.main_account_clock_list = new_main_account_clock_list_without_closed_clock
+        return
+    
+    def update_clocks(self):
+        for main_account_clock in self.main_account_clock_list:
+            main_account_clock.update_account_dict()
+        return
     
 #################################################################
     
@@ -185,6 +209,12 @@ class DataManager:
     
 #################################################################
 
+    def get_fold_up_groups_list(self):
+        fold_up_list = self.user_db.groups_get_fold_up_list()
+        return(fold_up_list)
+
+#################################################################
+
     def get_pause_clock(self):
         return(self.pause_clock)
 
@@ -194,7 +224,7 @@ class DataManager:
     def get_default_clock(self):
         return(self.default_clock)
     
-    def set_end_of_work(self, current_main_account_clock_list):
+    def set_end_of_work(self,fold_up_list):
 
         self.work_clock.stop()
         self.pause_clock.stop()
@@ -210,7 +240,7 @@ class DataManager:
         month = int(dt.strftime("%m"))
         year = int(dt.strftime("%Y"))
 
-        for main_clock in current_main_account_clock_list:
+        for main_clock in self.main_account_clock_list:
 
             clock_list = []
             clock_list.append(main_clock)
@@ -247,6 +277,7 @@ class DataManager:
             else:
                 pass
         self.user_db.delete_backup()
+        self.user_db.groups_set_fold_up_list(fold_up_list)
         self.times_saved = True
 
         path = os.path.abspath(os.getcwd())
@@ -286,7 +317,7 @@ class DataManager:
                             "hours": time_dict['hours'],
                             "booked": time_dict['booked']
                             }
-        print(passed_time_dict)
+        #print(passed_time_dict)
         self.user_db.add_passed_times(passed_time_dict)
 
     def save_backup_to_db(self):
@@ -297,7 +328,7 @@ class DataManager:
         self.user_db.delete_backup()
         return(True)
     
-    def capture_backup(self, current_main_account_clock_list):
+    def capture_backup(self,fold_up_list):
 
         self.user_db.delete_backup()
         if self.times_saved == True:
@@ -313,7 +344,7 @@ class DataManager:
         month = int(dt.strftime("%m"))
         year = int(dt.strftime("%Y"))
 
-        for main_clock in current_main_account_clock_list:
+        for main_clock in self.main_account_clock_list:
 
             clock_list = []
             clock_list.append(main_clock)
@@ -345,6 +376,7 @@ class DataManager:
                                         }
 
                     self.user_db.add_backup(backup_dict)
+                    self.user_db.groups_set_fold_up_list(fold_up_list)
                 else:
                     pass
             else:
@@ -433,6 +465,8 @@ class DataManager:
     def load_language_dict(self,language_name):
         self.language_dict = self.language_json[language_name]
 
+        self.user_db.update_main_account_name(0,self.language_dict['without_allocation'])
+
     def get_language_dict(self):
         return(self.language_dict)
     
@@ -447,39 +481,15 @@ class DataManager:
 
     def get_work_window_group_main_account_list(self):
         return(self.work_window_group_main_account_list)
-
-#################################################################
-
-    def create_main_account_clock(self,account_dict,load_back_up=False):
-        passed_hours = 0
-        passed_minutes = 0
-        passed_seconds = 0
-        added_minutes = 0
-        account_clock = MainAccountClock(self.main_app, passed_hours, passed_minutes, passed_seconds, added_minutes, account_dict,load_back_up)
-        self.main_account_clock_list.append(account_clock)
-        return(account_clock)
-
-    def get_main_account_clock_list(self):
-        return(self.main_account_clock_list)
-    
-    def close_main_account_clock(self, main_account_clock):
-        new_main_account_clock_list_without_closed_clock = [ele for ele in self.main_account_clock_list if ele != main_account_clock]
-        self.main_account_clock_list = new_main_account_clock_list_without_closed_clock
-        return
-    
-    def update_clocks(self):
-        for main_account_clock in self.main_account_clock_list:
-            main_account_clock.update_account_dict()
-        return
     
 #################################################################
 
-    def create_time_account(self,name,description_text,project_nbr,order_nbr,process_nbr,response_nbr,default_text,auto_booking,kind,main_id,group,bookable):
+    def create_time_account(self,name,description_text,project_label,order_label,process_label,response_code,response_text,auto_booking,kind,main_id,group,bookable):
         account_id = self.user_db.get_new_accountid()
         if kind == 1:
             main_id = account_id
 
-        status = "current"
+        status = "open"
 
         dt = datetime.now()
         a_day = int(dt.strftime("%d"))
@@ -491,13 +501,13 @@ class DataManager:
                         "main_id":int(main_id),                      # if sub account the id of the main-account else the main id
                         "name":str(name),                            # name of the account
                         "description_text":str(description_text),    # description of the account
-                        "project_nbr":str(project_nbr),              # project nbr
-                        "order_nbr":str(order_nbr),                  # order nbr
-                        "process_nbr":str(process_nbr),              # process nbr
-                        "response_nbr":str(response_nbr),            # response or booking nbr
-                        "default_text":str(default_text),            # booking default text
+                        "project_label":str(project_label),          # project label
+                        "order_label":str(order_label),              # order label
+                        "process_label":str(process_label),          # process label
+                        "response_code":str(response_code),            # response code
+                        "response_text":str(response_text),            # booking default text
                         "auto_booking":int(auto_booking),            # autobooking on -> 1, off -> 0; if on the system dont show the account for booking
-                        "status":str(status),                        # open -> the account can capture time, closed -> the account cant capture time, current -> the account is open and is displayed
+                        "status":str(status),                        # open -> the account can capture time, closed -> the account cant capture time
                         "group":str(group),                            # default -> default group, group on the display
                         "bookable":int(bookable),                    # 1 -> part of the booking time, 0 -> part of the non booking time
                         "a_year":int(a_year),                        # year of creation
@@ -542,9 +552,9 @@ class DataManager:
 
         for main_id in main_id_list:
             account_id_list = df.loc[(df['main_id'] == main_id)].accountid.values.tolist()
+            account_id_list = list(set(account_id_list))
             account_id_list.sort()
             account_id_list_2 = account_id_list.copy()
-            account_id_list_2 = list(set(account_id_list_2))
             for account_id in account_id_list_2:
                 record_dict = {"account_id":account_id,               
                             "account_kind":df.loc[(df['accountid'] == account_id)].account_kind.values.tolist()[0],                    
@@ -553,11 +563,11 @@ class DataManager:
                             "name":df.loc[(df['accountid'] == account_id)].name.values.tolist()[0],  
                             "group":df.loc[(df['accountid'] == account_id)].a_group.values.tolist()[0],                              
                             "description_text":df.loc[(df['accountid'] == account_id)].description_text.values.tolist()[0],      
-                            "project_nbr":df.loc[(df['accountid'] == account_id)].project_nbr.values.tolist()[0], 
-                            "order_nbr":df.loc[(df['accountid'] == account_id)].order_nbr.values.tolist()[0],              
-                            "process_nbr":df.loc[(df['accountid'] == account_id)].process_nbr.values.tolist()[0],                 
-                            "response_nbr":df.loc[(df['accountid'] == account_id)].response_nbr.values.tolist()[0],              
-                            "default_text":df.loc[(df['accountid'] == account_id)].default_text.values.tolist()[0],
+                            "project_label":df.loc[(df['accountid'] == account_id)].project_label.values.tolist()[0], 
+                            "order_label":df.loc[(df['accountid'] == account_id)].order_label.values.tolist()[0],              
+                            "process_label":df.loc[(df['accountid'] == account_id)].process_label.values.tolist()[0],                 
+                            "response_code":df.loc[(df['accountid'] == account_id)].response_code.values.tolist()[0],              
+                            "response_text":df.loc[(df['accountid'] == account_id)].response_text.values.tolist()[0],
                             "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0],
                             "auto_booking":df.loc[(df['accountid'] == account_id)].auto_booking.values.tolist()[0], 
                             "hours":df.loc[(df['accountid'] == account_id)].hours.sum()                  
@@ -613,11 +623,11 @@ class DataManager:
                                        "name":df.loc[(df['accountid'] == account_id)].name.values.tolist()[0], 
                                        "group":df.loc[(df['accountid'] == account_id)].a_group.values.tolist()[0], 
                                        "description_text":df.loc[(df['accountid'] == account_id)].description_text.values.tolist()[0],  
-                                       "project_nbr":df.loc[(df['accountid'] == account_id)].project_nbr.values.tolist()[0], 
-                                       "order_nbr":df.loc[(df['accountid'] == account_id)].order_nbr.values.tolist()[0],  
-                                       "process_nbr":df.loc[(df['accountid'] == account_id)].process_nbr.values.tolist()[0],  
-                                       "response_nbr":df.loc[(df['accountid'] == account_id)].response_nbr.values.tolist()[0],   
-                                       "default_text":df.loc[(df['accountid'] == account_id)].default_text.values.tolist()[0], 
+                                       "project_label":df.loc[(df['accountid'] == account_id)].project_label.values.tolist()[0], 
+                                       "order_label":df.loc[(df['accountid'] == account_id)].order_label.values.tolist()[0],  
+                                       "process_label":df.loc[(df['accountid'] == account_id)].process_label.values.tolist()[0],  
+                                       "response_code":df.loc[(df['accountid'] == account_id)].response_code.values.tolist()[0],   
+                                       "response_text":df.loc[(df['accountid'] == account_id)].response_text.values.tolist()[0], 
                                        "auto_booking":df.loc[(df['accountid'] == account_id)].auto_booking.values.tolist()[0], 
                                        "status":df.loc[(df['accountid'] == account_id)].status.values.tolist()[0],
                                        "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0], 
@@ -641,25 +651,25 @@ class DataManager:
 
         main_name_dict = self.user_db.get_namedict_by_accountid_list(main_id_list)
 
-        order_nbr_list = df.order_nbr.values.tolist()
-        order_nbr_list = list(set(order_nbr_list))
-        order_nbr_list.sort()
-        order_nbr_list_2 = order_nbr_list.copy()
-        for order_nbr in order_nbr_list_2:
+        order_label_list = df.order_label.values.tolist()
+        order_label_list = list(set(order_label_list))
+        order_label_list.sort()
+        order_label_list_2 = order_label_list.copy()
+        for order_label in order_label_list_2:
                 
-            process_nbr_list = df.loc[(df['order_nbr'] == order_nbr)].process_nbr.values.tolist()
-            process_nbr_list = list(set(process_nbr_list))
-            process_nbr_list.sort()
-            process_nbr_list_2 = process_nbr_list.copy()
-            for process_nbr in process_nbr_list_2:
+            process_label_list = df.loc[(df['order_label'] == order_label)].process_label.values.tolist()
+            process_label_list = list(set(process_label_list))
+            process_label_list.sort()
+            process_label_list_2 = process_label_list.copy()
+            for process_label in process_label_list_2:
 
-                main_id_list = df.loc[(df['order_nbr'] == order_nbr) & (df['process_nbr'] == process_nbr)].main_id.values.tolist()
+                main_id_list = df.loc[(df['order_label'] == order_label) & (df['process_label'] == process_label)].main_id.values.tolist()
                 main_id_list = list(set(main_id_list))
                 main_id_list.sort()
                 main_id_list_2 = main_id_list.copy()
                 for main_id in main_id_list_2:
 
-                    account_id_list = df.loc[(df['order_nbr'] == order_nbr) & (df['process_nbr'] == process_nbr) & (df['main_id'] == main_id)].accountid.values.tolist()
+                    account_id_list = df.loc[(df['order_label'] == order_label) & (df['process_label'] == process_label) & (df['main_id'] == main_id)].accountid.values.tolist()
                     account_id_list = list(set(account_id_list))
                     account_id_list.sort()
                     account_id_list_2 = account_id_list.copy()
@@ -672,11 +682,11 @@ class DataManager:
                                         "name":df.loc[(df['accountid'] == account_id)].name.values.tolist()[0], 
                                         "group":df.loc[(df['accountid'] == account_id)].a_group.values.tolist()[0], 
                                         "description_text":df.loc[(df['accountid'] == account_id)].description_text.values.tolist()[0],  
-                                        "project_nbr":df.loc[(df['accountid'] == account_id)].project_nbr.values.tolist()[0], 
-                                        "order_nbr":df.loc[(df['accountid'] == account_id)].order_nbr.values.tolist()[0],  
-                                        "process_nbr":df.loc[(df['accountid'] == account_id)].process_nbr.values.tolist()[0],  
-                                        "response_nbr":df.loc[(df['accountid'] == account_id)].response_nbr.values.tolist()[0],   
-                                        "default_text":df.loc[(df['accountid'] == account_id)].default_text.values.tolist()[0], 
+                                        "project_label":df.loc[(df['accountid'] == account_id)].project_label.values.tolist()[0], 
+                                        "order_label":df.loc[(df['accountid'] == account_id)].order_label.values.tolist()[0],  
+                                        "process_label":df.loc[(df['accountid'] == account_id)].process_label.values.tolist()[0],  
+                                        "response_code":df.loc[(df['accountid'] == account_id)].response_code.values.tolist()[0],   
+                                        "response_text":df.loc[(df['accountid'] == account_id)].response_text.values.tolist()[0], 
                                         "auto_booking":df.loc[(df['accountid'] == account_id)].auto_booking.values.tolist()[0], 
                                         "status":df.loc[(df['accountid'] == account_id)].status.values.tolist()[0],
                                         "a_year":df.loc[(df['accountid'] == account_id)].a_year.values.tolist()[0],
@@ -729,13 +739,7 @@ class DataManager:
 
 #################################################################
 
-    def get_account_dict_list_by_search(self,modus,search_input=None):
-
-        if modus in ['project_nbr','order_nbr','process_nbr']:
-            try:
-                float(search_input)
-            except (ValueError,decimal.InvalidOperation):
-                return([])
+    def get_account_dict_list_by_search(self,modus,search_input=''):
 
         df = self.user_db.get_accounts_by_search_input(modus,search_input)
         if df.empty:
@@ -746,7 +750,6 @@ class DataManager:
         df = df.fillna('')
 
         account_dict_list = self.create_account_dict_list(df)
-        account_dict_list = [ele for ele in account_dict_list if ele['account_id'] != 0]
         return(account_dict_list)
     
     def export_passed_times_df(self, path):
@@ -798,7 +801,7 @@ class DataManager:
         df['weekday'] = df['weekday'].replace(5, 'Saturday')
         df['weekday'] = df['weekday'].replace(6, 'Sunday')
 
-        df = df[['month','date','weekday','date_text','id','name','kind','main_account','combined name','description_text','group','project_nbr','order_nbr','process_nbr','response_nbr','hours','booked','bookable']]
+        df = df[['month','date','weekday','date_text','id','name','kind','main_account','combined name','description_text','group','project_label','order_label','process_label','response_code','hours','booked','bookable']]
         dt = datetime.now()
         str_today = dt.strftime("%Y") + "_" + dt.strftime("%m") + "_" + dt.strftime("%d")
         save_str = path + '\Export_' + self.main_app.get_name() + '_' + str_today + '.xlsx'
@@ -815,18 +818,17 @@ class DataManager:
             pass
         df_pivot_1.to_excel(writer,'Pivot_Day')
 
-        df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['month','project_nbr','order_nbr','process_nbr','main_account','name'], aggfunc='sum' , fill_value=0)
+        df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['month','project_label','order_label','process_label','main_account','name'], aggfunc='sum' , fill_value=0)
         df_pivot_2.to_excel(writer,'Pivot_Accounts_month')
 
-        df_pivot_3 = pd.pivot_table(df, values = 'hours', index=['project_nbr','order_nbr','process_nbr','main_account','name'], aggfunc='sum' , fill_value=0)
+        df_pivot_3 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','name'], aggfunc='sum' , fill_value=0)
         df_pivot_3.to_excel(writer,'Pivot_Accounts_total')
         
         writer.save()
-
     
     def get_all_account_groups(self):
         group_list = self.user_db.get_all_account_groups()
-        group_list = [ele for ele in group_list if ele != 'default']
+        group_list = [ele for ele in group_list if ele != ' - ']
         group_list = list(set(group_list))
         return(group_list)
 
