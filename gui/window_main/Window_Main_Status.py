@@ -342,6 +342,7 @@ class MainWindowReminder(tk.Frame):
         self.lbl_reminder = MyLabel(self.main_frame, self.data_manager, text=self.language_dict[self.dict_entry] + '  ' + self.text, anchor='w')
         self.lbl_reminder.configure(background=self.style_dict["highlight_color_yellow"],foreground=self.style_dict["font_color_black"])
         self.lbl_reminder.pack(side = "left")
+        self.lbl_reminder_ttp = CreateToolTip(self.lbl_reminder, self.data_manager, 5, 30, self.language_dict[self.dict_entry] + '  ' + self.text)
 
 
     def refresh(self):
@@ -351,9 +352,10 @@ class MainWindowReminder(tk.Frame):
         self.main_frame.refresh_style()
         self.lbl_close_reminder.refresh_style()
         self.lbl_reminder.refresh_style()
+        self.lbl_reminder_ttp.refresh()
 
         self.main_frame.configure(background=self.style_dict["highlight_color_yellow"],highlightthickness=1,highlightbackground=self.style_dict["btn_color_grey"],highlightcolor=self.style_dict["btn_color_grey"])
         self.lbl_close_reminder.configure(background=self.style_dict["highlight_color_yellow"],foreground=self.style_dict["font_color_black"])
         self.lbl_reminder.configure(background=self.style_dict["highlight_color_yellow"],foreground=self.style_dict["font_color_black"])
-
         self.lbl_reminder.configure(text=self.language_dict[self.dict_entry] + '  ' + self.text, anchor='w')
+        self.lbl_reminder_ttp.text = self.language_dict[self.dict_entry] + '  ' + self.text
