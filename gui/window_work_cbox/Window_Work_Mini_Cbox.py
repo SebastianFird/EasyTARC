@@ -48,7 +48,7 @@ class MiniWorkWindowCbox(WorkWindowCbox):
                 screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(x,y)
                 self.root.update()
 
-                if (screen_root_x <= x) and (x <= screen_width) and (screen_root_y <= y) and (y <= screen_height):
+                if (screen_root_x <= x) and (x <= screen_root_x + screen_width) and (screen_root_y <= y) and (y <= screen_root_y + screen_height):
                     self.geometry("+%d+%d" % (x, y))
                 else:
                     self.reset_window_pos()
@@ -83,6 +83,7 @@ class MiniWorkWindowCbox(WorkWindowCbox):
 
     def save_pos(self, event):
         self.gui.set_mini_work_window_pos(self.winfo_x(),self.winfo_y())
+        print(self.winfo_x(),self.winfo_y())
 
     def reset_window_pos(self):
         ws = self.winfo_screenwidth() # width of the screen

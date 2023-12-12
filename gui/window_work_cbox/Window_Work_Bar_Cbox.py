@@ -47,9 +47,9 @@ class BarWorkWindowCbox(WorkWindowCbox):
                 screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(x,y)
                 self.root.update()
 
-                if (screen_root_x <= x) and (x <= screen_width) and (screen_root_y <= y) and (y <= screen_height):
-                    self.geometry("+%d+%d" % (x, y))
-                    self.y_pos_pinned = y
+                if (screen_root_x <= x) and (x <= screen_width + screen_root_x) and ((screen_root_y -self.gui.get_y_pos_correction()) <= y) and (y <= screen_height + screen_root_y):
+                    self.geometry("+%d+%d" % (x, screen_root_y))
+                    self.y_pos_pinned = screen_root_y
                 else:
                     self.reset_window_pos()
 

@@ -147,7 +147,7 @@ class MainWindow(tk.Toplevel):
         x=self.winfo_x()
         y=self.winfo_y()
         screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(x,y)
-        if (screen_root_x <= x) and (x <= screen_width) and (screen_root_y <= y) and (y <= screen_height):
+        if (screen_root_x <= x) and (x <= screen_root_x + screen_width) and (screen_root_y <= y) and (y <= screen_root_y + screen_height):
             #print('on screen')
             pass
         else:

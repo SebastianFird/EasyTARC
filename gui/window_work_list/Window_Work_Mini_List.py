@@ -94,8 +94,8 @@ class MiniWorkWindowList(tk.Toplevel):
                 screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(x,y)
                 self.root.update()        
 
-                if (screen_root_x <= x) and (x <= screen_width) and (screen_root_y <= y) and (y <= screen_height):
-                    self.x_pos = x
+                if (screen_root_x <= x) and (x <= screen_root_x + screen_width) and (screen_root_y <= y) and (y <= screen_height + screen_root_y):
+                    self.x_pos = screen_root_x + screen_width
                     self.y_pos = y
                     self.win_expand_height = screen_height/1.5
                 else:
