@@ -218,7 +218,12 @@
         "system_start":"EasyTARC wurde größer 5 Min nach dem Systemstart ausgeführt. Diese Info kann hilfreich für eine Korrektur der Erfassung sein. Abweichung:",
         "session_data":"Session-Daten",
         "diff_system_start": "Abweichung vom\nSystemstart",
-        "release_note_text_10" : " 1.7.0 (12.12.2023)\n - Bug fix im Tab Erfasste Zeiten. \n - Verhaltensweise der Fenster bei der Nutzung eines zweiten Bildschirms.\n - Überarbeitung der Datenbankstruktur.\n - Info Fenster zum Beenden von EasyTARC.\n - Einblenden und Ausblenden von Gruppen.\n - Hinweis zum Systemstart."
+        "release_note_text_10" : " 1.7.0 (12.12.2023)\n - Bug fix im Tab Erfasste Zeiten. \n - Verhaltensweise der Fenster bei der Nutzung eines zweiten Bildschirms.\n - Überarbeitung der Datenbankstruktur.\n - Info Fenster zum Beenden von EasyTARC.\n - Einblenden und Ausblenden von Gruppen.\n - Hinweis zum Systemstart.",
+        "time_account_report":"Zeitkontenbericht",
+        "time_sum":"Zeitsumme",
+        "with_sub_accounts":"Mit Unterkonten",
+        "without_sub_accounts":"Ohne Unterkonten",
+        "release_note_text_11" : " 1.7.1 (13.12.2023)\n - Bug fix."
     },
     "english": 
     {
@@ -358,7 +363,7 @@
         "exit_window_text" : "The recorded times have not yet been saved. Would you like to temporarily save the times already recorded?",
         "delete_time_account" : "Delete time account",
         "delete_time_account_text" : "Do you really want to delete this time account? All time recorded on this time account will also be deleted.",
-        "close_time_account" : "Close Time Account",
+        "close_time_account" : "Close time account",
         "close_time_account_text_1" : "Do you really want to close this time account? If you have already recorded time on this account in today's session, it will be lost when you close it.",
         "close_time_account_text_2" : "Do you really want to close this time account?",
         "delete" : "Delete",
@@ -439,6 +444,11 @@
         "system_start":"EasyTARC was executed more than 5 minutes after system start. This information can be helpful for correcting the recording. Deviation:",
         "session_data": "Session data",
         "diff_system_start": "Deviation from\nsystem start",
-        "release_note_text_10" : " 1.7.0 (12.12.2023)\n - Bug fix in tab recording times. \n - Behavior of the windows when using a second screen.\n - Revision of the database structure.\n - Info window for exiting EasyTARC.\n - Show and hide groups.\n - Note on system startup."
+        "release_note_text_10" : " 1.7.0 (12.12.2023)\n - Bug fix in tab recording times. \n - Behavior of the windows when using a second screen.\n - Revision of the database structure.\n - Info window for exiting EasyTARC.\n - Show and hide groups.\n - Note on system startup.",
+        "time_account_report":"Time account report",
+        "time_sum":"Time sum",
+        "with_sub_accounts":"With sub-accounts",
+        "without_sub_accounts":"Without sub-accounts",
+        "release_note_text_11" : " 1.7.1 (13.12.2023)\n - Bug fix."
     }
 }

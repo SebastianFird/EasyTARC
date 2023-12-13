@@ -62,13 +62,13 @@ class SqlUserDataManager(SqlManager):
             except:
                 self.request_restoring_backup()
 
-            #try:
-            if self.main_app.get_version_update() == True:
-                if self.check_column_type_accounts_project_nbr() == 'INT':
-                    self.update_1_7_0()
-            #except:
-            #    print('update_failed')
-            #    self.request_restoring_backup()
+            try:
+                if self.main_app.get_version_update() == True:
+                    if self.check_column_type_accounts_project_nbr() == 'INT':
+                        self.update_1_7_0()
+            except:
+                print('update_failed')
+
 ####################################################################################################################
 
     def request_restoring_backup(self):
@@ -657,10 +657,10 @@ class SqlUserDataManager(SqlManager):
         self.save_and_close_db(conn)
         return(main_df)
     
-    def get_all_account_groups(self):
+    def get_all_active_account_groups(self):
         conn = self.open_db_conn()
         cur = conn.cursor()
-        group_list = [group[0] for group in cur.execute("SELECT a_group FROM accounts")]
+        group_list = [group[0] for group in cur.execute("SELECT a_group FROM accounts WHERE status != ?", ('closed',))]
         self.save_and_close_db(conn)
         return(group_list)
 

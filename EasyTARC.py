@@ -50,7 +50,7 @@ class App():
 
         self.app_name = 'EasyTARC'
         self.app_config = 'single_user_unencrypted' #'multiple_users_encrypted'  'single_user_unencrypted'   #single_user_encrypted' -> not ready
-        self.version = '1.7.0'
+        self.version = '1.7.1'
         self.old_version = None
         self.action_state = "disabled"
         self.local_format = 'de_DE.UTF-8'

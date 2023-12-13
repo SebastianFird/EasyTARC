@@ -19,6 +19,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from gui.Scroll_Frame import Scroll_Frame
+from gui.Window_Additionals import CreateToolTip
 
 from style_classes import MyFrame
 from style_classes import MyLabel
@@ -59,7 +60,7 @@ class CreateEditAccountBody:
 
         if self.modus == 'new_sub' or self.modus == 'edit_sub':
             self.frame_main_name = MyFrame(self.main_frame,self.data_manager)
-            self.frame_main_name.pack(side = "top", padx=10, pady=5,fill='x')
+            self.frame_main_name.pack(side = "top", padx=10, pady=4,fill='x')
 
             self.lbl_main_name = MyLabel(self.frame_main_name,self.data_manager,width=15,text=self.language_dict['main_account'])
             self.lbl_main_name.pack(side = "left", padx=10)
@@ -69,12 +70,12 @@ class CreateEditAccountBody:
 
             self.separator_frame_0 = MyFrame(self.main_frame,self.data_manager)
             self.separator_frame_0.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-            self.separator_frame_0.pack(side = "top",fill='x', pady=10)
+            self.separator_frame_0.pack(side = "top",fill='x', pady=5)
 
         ###################################
 
         self.frame_name = MyFrame(self.main_frame,self.data_manager)
-        self.frame_name.pack(side = "top", padx=10, pady=5,fill='x')
+        self.frame_name.pack(side = "top", padx=10, pady=4,fill='x')
 
         self.lbl_name = MyLabel(self.frame_name,self.data_manager,width=15,text=self.language_dict['name'] + ':')
         self.lbl_name.pack(side = "left", padx=10)
@@ -106,21 +107,22 @@ class CreateEditAccountBody:
         ###################################
 
         self.frame_group = MyFrame(self.main_frame,self.data_manager)
-        self.frame_group.pack(side = "top", padx=10, pady=5,fill='x')
+        self.frame_group.pack(side = "top", padx=10, pady=4,fill='x')
 
-        self.lbl_group = MyLabel(self.frame_group,self.data_manager,width=15,text= self.language_dict['group'] + ':')
+        self.lbl_group = MyLabel(self.frame_group,self.data_manager,width=15,text=self.language_dict['group'] + ':')
         self.lbl_group.pack(side = "left", padx=10)
 
         self.account_group = tk.StringVar()
         self.group_cbox = ttk.Combobox(self.frame_group, width = 25, textvariable = self.account_group)
-        self.group_cbox['values'] = self.data_manager.get_all_account_groups()
+        self.group_cbox['values'] = self.data_manager.get_all_active_account_groups()
         self.group_cbox.pack(side="left", padx=10)
 
         self.lbl_highlight = MyLabel(self.frame_group,self.data_manager,text='  '+u'\U0001F808'+' ')
         self.lbl_highlight.pack(side = "left")
 
-        self.lbl_group_info = MyLabel(self.frame_group,self.data_manager,text=self.language_dict['create_account_group_text'],anchor='w',justify='left')
+        self.lbl_group_info = MyLabel(self.frame_group,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=25)
         self.lbl_group_info.pack(side = "left", padx=10)
+        self.lbl_group_ttp = CreateToolTip(self.lbl_group_info, self.data_manager, -350, 30, self.language_dict["create_account_group_text"])
 
         if self.modus in ['new_order','new_process','edit_main','new_sub','edit_sub'] and str(self.main_account_dict.get("group")) != ' - ':
             self.account_group.set(str(self.main_account_dict.get("group")))
@@ -133,18 +135,18 @@ class CreateEditAccountBody:
 
         self.separator_frame_2 = MyFrame(self.main_frame,self.data_manager)
         self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_2.pack(side = "top",fill='x', pady=10)
+        self.separator_frame_2.pack(side = "top",fill='x', pady=5)
 
         ###################################
 
         self.frame_clipboard = MyFrame(self.main_frame,self.data_manager)
-        self.frame_clipboard.pack(side = "top", padx=10, pady=5,fill='x')
+        self.frame_clipboard.pack(side = "top", padx=10, pady=4,fill='x')
 
         self.lbl_clipboard = MyLabel(self.frame_clipboard,self.data_manager,width=15,text= self.language_dict['clipboard'] + ':')
         self.lbl_clipboard.pack(side = "left", padx=10)
 
         self.btn_clipboard = MyButton(self.frame_clipboard,self.data_manager, text=self.language_dict['clipboard_paste'], command=self.paste_clipboard, width=26)
-        self.btn_clipboard.pack(side = "left", padx=10, pady=5)
+        self.btn_clipboard.pack(side = "left", padx=10, pady=4)
 
         self.lbl_clipboard_info = MyLabel(self.frame_clipboard,self.data_manager,anchor='w',justify='left')
         self.lbl_clipboard_info.configure(foreground=self.style_dict["caution_color_red"])
@@ -152,12 +154,12 @@ class CreateEditAccountBody:
 
         self.separator_frame_4 = MyFrame(self.main_frame,self.data_manager)
         self.separator_frame_4.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_4.pack(side = "top",fill='x', pady=10)
+        self.separator_frame_4.pack(side = "top",fill='x', pady=5)
 
         ###################################
 
         self.frame_project = MyFrame(self.main_frame,self.data_manager)
-        self.frame_project.pack(side = "top", padx=10, pady=5,fill='x')
+        self.frame_project.pack(side = "top", padx=10, pady=4,fill='x')
 
         self.lbl_project = MyLabel(self.frame_project,self.data_manager,width=15,text=self.language_dict["project"] + ':')
         self.lbl_project.pack(side = "left", padx=10)
@@ -166,8 +168,9 @@ class CreateEditAccountBody:
         self.textBox_project = MyEntry(self.frame_project, self.data_manager, textvariable=self.account_project, width=36)
         self.textBox_project.pack(side="left", padx=10)
 
-        self.lbl_project_info = MyLabel(self.frame_project,self.data_manager,text=self.language_dict['create_account_project_label_text'],anchor='w',justify='left')
+        self.lbl_project_info = MyLabel(self.frame_project,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=25)
         self.lbl_project_info.pack(side = "left", padx=10)
+        self.lbl_project_ttp = CreateToolTip(self.lbl_project_info, self.data_manager, -350, 30, self.language_dict["create_account_project_label_text"])
 
         if self.modus in ['new_order','new_process','edit_main','new_sub','edit_sub'] and str(self.main_account_dict.get("project_label")) != ' - ':
             self.account_project.set(str(self.main_account_dict.get("project_label")))
@@ -183,7 +186,7 @@ class CreateEditAccountBody:
         ###################################
 
         self.frame_order = MyFrame(self.main_frame,self.data_manager)
-        self.frame_order.pack(side = "top", padx=10, pady=5,fill='x')
+        self.frame_order.pack(side = "top", padx=10, pady=4,fill='x')
 
         self.lbl_order = MyLabel(self.frame_order,self.data_manager,width=15,text=self.language_dict["order"] + ':')
         self.lbl_order.pack(side = "left", padx=10)
@@ -192,8 +195,9 @@ class CreateEditAccountBody:
         self.textBox_order = MyEntry(self.frame_order, self.data_manager, textvariable=self.account_order, width=36)
         self.textBox_order.pack(side="left", padx=10)
 
-        self.lbl_order_info = MyLabel(self.frame_order,self.data_manager,text=self.language_dict['create_account_order_label_text'],anchor='w',justify='left')
+        self.lbl_order_info = MyLabel(self.frame_order,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=25)
         self.lbl_order_info.pack(side = "left", padx=10)
+        self.lbl_order_ttp = CreateToolTip(self.lbl_order_info, self.data_manager, -350, 30, self.language_dict["create_account_order_label_text"])
 
         if self.modus in ['new_process','edit_main','new_sub','edit_sub'] and str(self.main_account_dict.get("order_label")) != ' - ':
             self.account_order.set(str(self.main_account_dict.get("order_label")))
@@ -208,7 +212,7 @@ class CreateEditAccountBody:
         ###################################
 
         self.frame_process = MyFrame(self.main_frame,self.data_manager)
-        self.frame_process.pack(side = "top", padx=10, pady=5,fill='x')
+        self.frame_process.pack(side = "top", padx=10, pady=4,fill='x')
 
         self.lbl_process = MyLabel(self.frame_process,self.data_manager,width=15,text=self.language_dict["process"] + ':')
         self.lbl_process.pack(side = "left", padx=10)
@@ -217,8 +221,9 @@ class CreateEditAccountBody:
         self.textBox_process = MyEntry(self.frame_process, self.data_manager, textvariable=self.account_process, width=36)
         self.textBox_process.pack(side="left", padx=10)
 
-        self.lbl_process_info = MyLabel(self.frame_process,self.data_manager,text=self.language_dict['create_account_process_label_text'],anchor='w',justify='left')
+        self.lbl_process_info = MyLabel(self.frame_process,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=25)
         self.lbl_process_info.pack(side = "left", padx=10)
+        self.lbl_process_ttp = CreateToolTip(self.lbl_process_info, self.data_manager, -350, 30, self.language_dict["create_account_process_label_text"])
 
         if self.modus in ['edit_main','new_sub','edit_sub'] and str(self.main_account_dict.get("process_label")) != ' - ':
             self.account_process.set(str(self.main_account_dict.get("process_label")))
@@ -231,17 +236,18 @@ class CreateEditAccountBody:
                 self.textBox_process.configure(borderwidth = 0)
 
         self.frame_description = MyFrame(self.main_frame,self.data_manager)
-        self.frame_description.pack(side = "top", padx=10, pady=5,fill='x')
+        self.frame_description.pack(side = "top", padx=10, pady=4,fill='x')
 
-        self.lbl_description = MyLabel(self.frame_description,self.data_manager,width=15,text= self.language_dict['description'] + ':')
+        self.lbl_description = MyLabel(self.frame_description,self.data_manager,width=15,text=self.language_dict['description'] + ':')
         self.lbl_description.pack(side = "left", padx=10)
 
         self.account_description_text = tk.StringVar()
         self.textBox_description = MyEntry(self.frame_description,self.data_manager, textvariable=self.account_description_text, width=36)
         self.textBox_description.pack(side = "left", padx=10)
 
-        self.lbl_description_info = MyLabel(self.frame_description,self.data_manager,text=self.language_dict['create_account_description_text'],anchor='w',justify='left')
+        self.lbl_description_info = MyLabel(self.frame_description,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=25)
         self.lbl_description_info.pack(side = "left", padx=10)
+        self.lbl_description_ttp = CreateToolTip(self.lbl_description_info, self.data_manager, -350, 30, self.language_dict["create_account_description_text"])
 
         if self.modus in ['new_order','new_process','edit_main'] and str(self.main_account_dict.get("description_text")) != ' - ':
             self.account_description_text.set(self.main_account_dict.get("description_text"))
@@ -256,7 +262,7 @@ class CreateEditAccountBody:
 
         self.separator_frame_1 = MyFrame(self.main_frame,self.data_manager)
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_1.pack(side = "top",fill='x', pady=10)
+        self.separator_frame_1.pack(side = "top",fill='x', pady=5)
 
         ###################################
 
@@ -268,50 +274,37 @@ class CreateEditAccountBody:
         elif self.modus in ['new_main']:
             self.account_bookable = 0
 
-        ###############
+        ###################################
 
-        self.frame_bookable = MyFrame(self.main_frame,self.data_manager)
-        self.frame_bookable.pack(side = "top", padx=10, pady=5,fill='x')
-
-        self.frame_bookable_left = MyFrame(self.frame_bookable,self.data_manager)
-        self.frame_bookable_left.pack(side = "left", fill='x')
-
-        ###############
-
-        self.frame_bookable_state = MyFrame(self.frame_bookable_left,self.data_manager)
+        self.frame_bookable_state = MyFrame(self.main_frame,self.data_manager)
         self.frame_bookable_state.pack(side = "top",fill='x')
 
         self.lbl_bookable = MyLabel(self.frame_bookable_state,self.data_manager,width=15,text=self.language_dict['bookable'] + ':')
         self.lbl_bookable.pack(side = "left", padx=10)
+        
 
         self.lbl_bookable_state = MyLabel(self.frame_bookable_state,self.data_manager,width=25)
         self.lbl_bookable_state.pack(side = "left", padx=10)
 
-        ###############
+        self.lbl_bookable_info = MyLabel(self.frame_bookable_state,self.data_manager,text='       ' + u'\U00002139',anchor='w',justify='left',width=25)
+        self.lbl_bookable_info.pack(side = "left", padx=10)
+        self.lbl_bookable_ttp = CreateToolTip(self.lbl_bookable_info, self.data_manager, -350, 30, self.language_dict["create_account_bookable_text"])
 
-        self.frame_bookable_btn = MyFrame(self.frame_bookable_left,self.data_manager)
+        ###################################
+
+        self.frame_bookable_btn = MyFrame(self.main_frame,self.data_manager)
         self.frame_bookable_btn.pack(side = "top",fill='x')
 
         self.lbl_booking = MyLabel(self.frame_bookable_btn,self.data_manager,width=15,text=self.language_dict['switch_to'] + ':')
         self.lbl_booking.pack(side = "left", padx=10)
 
         self.btn_bookable = MyButton(self.frame_bookable_btn,self.data_manager, command=self.toggle_bookable, width=26)
-        self.btn_bookable.pack(side = "left", padx=10, pady=5)
+        self.btn_bookable.pack(side = "left", padx=10, pady=4)
 
-
-        ###############
-
-        self.frame_bookable_right = MyFrame(self.frame_bookable,self.data_manager)
-        self.frame_bookable_right.pack(side = "left", fill='x')
-
-        self.lbl_checkBox_bookable_info = MyLabel(self.frame_bookable_right,self.data_manager,text=self.language_dict['create_account_bookable_text'],anchor='w',justify='left')
-        self.lbl_checkBox_bookable_info.pack(side = "left", padx=10)
-
-        ###############
-
+        ###################################
 
         self.frame_autobooking = MyFrame(self.main_frame,self.data_manager)
-        self.frame_autobooking.pack(side = "top", padx=10, pady=5,fill='x')
+        self.frame_autobooking.pack(side = "top", padx=10, pady=4,fill='x')
 
         self.lbl_autobooking = MyLabel(self.frame_autobooking,self.data_manager,width=15,text=self.language_dict['auto_booking'] + ':')
         self.lbl_autobooking.pack(side = "left", padx=10)
@@ -324,8 +317,9 @@ class CreateEditAccountBody:
         self.lbl_empty1 = MyLabel(self.frame_autobooking,self.data_manager,text='', width=21)
         self.lbl_empty1.pack(side = "left", padx=10)
 
-        self.lbl_checkBox_auto_booking_info = MyLabel(self.frame_autobooking,self.data_manager,text=self.language_dict['create_account_auto_booking_text'],anchor='w',justify='left')
+        self.lbl_checkBox_auto_booking_info = MyLabel(self.frame_autobooking,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=25)
         self.lbl_checkBox_auto_booking_info.pack(side = "left", padx=10)
+        self.lbl_autobooking_ttp = CreateToolTip(self.lbl_checkBox_auto_booking_info, self.data_manager, -350, 30, self.language_dict["create_account_auto_booking_text"])
 
         if self.modus in ['new_order','new_process','edit_main','new_sub','edit_sub']:
             if self.main_account_dict.get("auto_booking") == 0:
@@ -339,7 +333,7 @@ class CreateEditAccountBody:
         ###############
 
         self.frame_response = MyFrame(self.main_frame,self.data_manager)
-        self.frame_response.pack(side = "top", padx=10, pady=5,fill='x')
+        self.frame_response.pack(side = "top", padx=10, pady=4,fill='x')
 
         self.lbl_response = MyLabel(self.frame_response,self.data_manager,width=15,text=self.language_dict['response_code'] + ':')
         self.lbl_response.pack(side = "left", padx=10)
@@ -354,7 +348,7 @@ class CreateEditAccountBody:
         ###############
 
         self.frame_response_text = MyFrame(self.main_frame,self.data_manager)
-        self.frame_response_text.pack(side = "top", padx=10, pady=5,fill='x')
+        self.frame_response_text.pack(side = "top", padx=10, pady=4,fill='x')
 
         lbl_response_text = MyLabel(self.frame_response_text,self.data_manager,width=15,text=self.language_dict['response_text'] + ':')
         lbl_response_text.pack(side = "left", padx=10)
@@ -368,7 +362,7 @@ class CreateEditAccountBody:
 
         self.separator_frame_3 = MyFrame(self.main_frame,self.data_manager)
         self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_3.pack(side = "top",fill='x', pady=10)
+        self.separator_frame_3.pack(side = "top",fill='x', pady=5)
 
         ###############
 
@@ -377,7 +371,7 @@ class CreateEditAccountBody:
         ###################################
 
         self.frame_obligation = MyFrame(self.main_frame,self.data_manager)
-        self.frame_obligation.pack(side = "top", padx=10, pady=5,fill='x')
+        self.frame_obligation.pack(side = "top", padx=10, pady=4,fill='x')
 
         self.lbl_empty2 = MyLabel(self.frame_obligation,self.data_manager,width=15,text='')
         self.lbl_empty2.pack(side = "left", padx=10)
@@ -391,7 +385,7 @@ class CreateEditAccountBody:
         self.lbl_fill.pack(side = "left", padx=10)
 
         self.frame_quit = MyFrame(self.main_frame,self.data_manager)
-        self.frame_quit.pack(side = "top", padx=10, pady=5,fill='x')
+        self.frame_quit.pack(side = "top", padx=10, pady=4,fill='x')
 
         lbl_quit_text = MyLabel(self.frame_quit,self.data_manager,width=5,text='')
         lbl_quit_text.pack(side = "left", padx=10)
@@ -402,16 +396,16 @@ class CreateEditAccountBody:
             btn_text = self.language_dict['add']
 
         self.btn_quit = MyButton(self.frame_quit,self.data_manager, text=btn_text, command=self.finish, width=46)
-        self.btn_quit.pack(side = "left", padx=10, pady=5)
+        self.btn_quit.pack(side = "left", padx=10, pady=4)
 
         self.lbl_error_info = MyLabel(self.frame_quit,self.data_manager,anchor='w',justify='left')
         self.lbl_error_info.configure(foreground=self.style_dict["caution_color_red"])
-        self.lbl_error_info.pack(side = "left", padx=10, pady=5)
+        self.lbl_error_info.pack(side = "left", padx=10, pady=4)
         return
     
     def paste_clipboard(self):
         if self.modus in ['new_main','new_order','new_process','edit_main']:
-            account_data = self.create_account_page.clipboard_input(self.gui.root.clipboard_get())
+            account_data = self.create_account_page.clipboard_input()
             if account_data == False:
                 self.lbl_clipboard_info.configure(text = self.language_dict['clipboard_paste_info'])
                 return

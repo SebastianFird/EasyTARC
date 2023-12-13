@@ -184,7 +184,9 @@ class CaptureBody:
     def update_clock_properties(self):
         for group_frame in self.group_frame_list:
             group_frame.update_clock_properties()
-
+            if group_frame.get_main_account_list() == []:
+                group_frame.pack_forget()
+                self.group_frame_list = [ele for ele in self.group_frame_list if ele != group_frame]
 
 #################################################################
 

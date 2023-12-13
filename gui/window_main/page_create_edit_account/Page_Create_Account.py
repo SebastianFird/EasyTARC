@@ -92,12 +92,10 @@ class CreateEditAccount(tk.Frame):
     
 #################################################################
 
-    def clipboard_input(self,clipboard):
-        #print(clipboard)
-
+    def clipboard_input(self):
         try:
-            data_json = json.loads(clipboard)
-        except json.decoder.JSONDecodeError:
+            data_json = json.loads(self.gui.root.clipboard_get())
+        except:
             return False
 
         try:

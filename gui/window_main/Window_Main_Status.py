@@ -248,7 +248,7 @@ class MainWindowStatus(tk.Frame):
         if self.main_app.get_action_state() == 'disabled':
             return
 
-        info_dict = {self.language_dict["session_data"]:"#bold"}
+        info_dict = {self.language_dict["session_data"]:"#"}
 
         info_dict.update({self.language_dict["easytarc_execution"]:str(self.data_manager.start_timestamp) + ' ' + self.language_dict["o_clock"]})
 
@@ -276,7 +276,7 @@ class MainWindowStatus(tk.Frame):
         if main_account_clock_list != []:
             activated_main_account_clock_list = [ele for ele in main_account_clock_list if ele.str_timedelta(ele.get_total_time_sum()) != '00:00:00']
             if activated_main_account_clock_list != []:
-                info_dict.update({self.language_dict["record"]:'#bold'})
+                info_dict.update({self.language_dict["record"]:'#'})
                 for main_account_clock in activated_main_account_clock_list:
                     info_dict.update({main_account_clock.get_name():main_account_clock.str_timedelta(main_account_clock.get_total_time_sum())})
 
@@ -289,7 +289,7 @@ class MainWindowStatus(tk.Frame):
                     bookingrate = (1 - (q_not_bookable_time / work_time_q))*100 
                 else:
                     bookingrate = 0
-                info_dict.update({self.language_dict["analysis"]:'#bold'})
+                info_dict.update({self.language_dict["analysis"]:'#'})
                 info_dict.update({self.language_dict["rate"]:str(round(bookingrate)) + ' %   '})
 
         info_window = InfoDictWindow(self.main_app, self.gui ,self.main_window,info_dict,450,300)

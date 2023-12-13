@@ -44,6 +44,8 @@ class AccountsOptionMenu(tkinter.Listbox):
 
         self.optionmenu.add_command(label=self.language_dict["info_about_the_time_account"],command=self.show_clock_info)
         self.optionmenu.add_separator()
+        self.optionmenu.add_command(label=self.language_dict["time_account_report"],command=self.show_report)
+        self.optionmenu.add_separator()
         
         self.optionmenu.add_command(label=self.language_dict["edit"],command=self.edit_account)
 
@@ -77,6 +79,32 @@ class AccountsOptionMenu(tkinter.Listbox):
     def show_info(self):
         text = self.language_dict["edit_delete_info_text"]
         info_window = InfoWindow(self.main_app, self.gui, self.account_tab.main_frame ,text,300,210)
+
+    def show_report(self):
+        if self.account_dict['account_kind'] == 1:
+            report_dict = self.data_manager.get_time_account_report(1,self.account_dict['account_id'])
+
+            info_dict = {self.language_dict["type"]:self.language_dict["main_account"]}
+
+            if self.account_dict['account_id'] != 0:
+                info_dict.update({self.language_dict["name"]:self.account_dict['name']})
+            else:
+                info_dict.update({self.language_dict["name"]:self.language_dict["without_allocation"]})
+            
+            info_dict.update({self.language_dict["time_sum"]:"#"})
+            info_dict.update({self.language_dict["without_sub_accounts"]:str('{:n}'.format(round(float(report_dict['single']),3))) + ' ' + self.language_dict["hours"]})
+            info_dict.update({self.language_dict["with_sub_accounts"]:str('{:n}'.format(round(float(report_dict['overall']),3))) + ' ' + self.language_dict["hours"]})
+        else:
+            report_dict = self.data_manager.get_time_account_report(0,self.account_dict['account_id'])
+
+            info_dict = {self.language_dict["type"]:self.language_dict["sub_account"],
+                        self.language_dict["main_account"]:self.account_dict['main_name']}
+
+            info_dict.update({self.language_dict["name"]:self.account_dict['name']})
+            
+            info_dict.update({self.language_dict["time_sum"]:"#"+str('{:n}'.format(round(float(report_dict['single']),3))) + ' ' + self.language_dict["hours"]})
+        
+        info_window = InfoDictWindow(self.main_app, self.gui, self.account_tab.main_frame ,info_dict,400,280)
 
     def show_clock_info(self):
         if self.account_dict['account_kind'] == 1:

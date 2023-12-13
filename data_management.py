@@ -392,6 +392,10 @@ class DataManager:
         photo_btn_off = Image.open("images/btn_off.png").convert('RGBA')
         photo_btn_pause = Image.open("images/btn_pause.png").convert('RGBA')
 
+        photo_btn_highlight_2 = Image.open("images/btn_highlight_2.PNG").convert('RGBA')
+        photo_btn_off_2 = Image.open("images/btn_off_2.png").convert('RGBA')
+        photo_btn_pause_2 = Image.open("images/btn_pause_2.png").convert('RGBA')
+
         photo_btn_plus_light_strong_highlight = Image.open("images/btn_plus_146.png").convert('RGBA')
         photo_btn_plus_light_font = Image.open("images/btn_plus_0.png").convert('RGBA')
         photo_btn_plus_dark_strong_highlight = Image.open("images/btn_plus_110.png").convert('RGBA')
@@ -421,6 +425,9 @@ class DataManager:
         }
 
         self.image_light_dict = {
+            "photo_btn_highlight_head":photo_btn_highlight_2,
+            "photo_btn_off_head":photo_btn_off_2,
+            "photo_btn_pause_head":photo_btn_pause_2,
             "photo_btn_plus_strong_highlight":photo_btn_plus_light_strong_highlight,
             "photo_btn_plus_font":photo_btn_plus_light_font,
             "photo_btn_plus_plus_strong_highlight":photo_btn_plus_plus_light_strong_highlight,
@@ -432,6 +439,9 @@ class DataManager:
         }
 
         self.image_dark_dict = {
+            "photo_btn_highlight_head":photo_btn_highlight,
+            "photo_btn_off_head":photo_btn_off,
+            "photo_btn_pause_head":photo_btn_pause,
             "photo_btn_plus_strong_highlight":photo_btn_plus_dark_strong_highlight,
             "photo_btn_plus_font":photo_btn_plus_dark_font,
             "photo_btn_plus_plus_strong_highlight":photo_btn_plus_plus_dark_strong_highlight,
@@ -736,6 +746,19 @@ class DataManager:
 
         record_dict_list_date_list = self.create_record_dict_list_date_list(df)
         return(record_dict_list_date_list)
+    
+    def get_time_account_report(self,kind,account_id):
+        two_month_limit = False
+        df = self.user_db.get_passed_times_with_accounts(two_month_limit)
+
+        sum_without_sub_accounts = df.loc[(df['accountid'] == account_id), 'hours'].sum()
+        report_dict = {"single":str(sum_without_sub_accounts)}
+
+        if kind == 1:
+            sum_with_sub_accounts = df.loc[(df['main_id'] == account_id), 'hours'].sum()
+            report_dict.update({"overall":str(sum_with_sub_accounts)})
+        
+        return(report_dict)
 
 #################################################################
 
@@ -826,12 +849,11 @@ class DataManager:
         
         writer.save()
     
-    def get_all_account_groups(self):
-        group_list = self.user_db.get_all_account_groups()
+    def get_all_active_account_groups(self):
+        group_list = self.user_db.get_all_active_account_groups()
         group_list = [ele for ele in group_list if ele != ' - ']
         group_list = list(set(group_list))
         return(group_list)
-
 
 #################################################################
 
@@ -843,7 +865,6 @@ class DataManager:
                 self.user_db.update_linked_sub_account(account_id,account_dict)
         else:
             self.user_db.update_sub_account(account_dict)
-
 
     def delete_account(self,account_dict):
         if account_dict['account_kind'] == 1:
@@ -858,7 +879,6 @@ class DataManager:
     def get_account_dict_by_account_id(self,account_id):
         account_dict = self.user_db.get_account_details(account_id)
         return(account_dict)
-
 
 #################################################################
 

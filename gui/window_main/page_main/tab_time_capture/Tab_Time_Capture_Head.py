@@ -39,9 +39,9 @@ class CaptureHead:
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
 
-        image_1 = self.style_dict['photo_btn_pause']
-        image_2 = self.style_dict['photo_btn_highlight']
-        image_3 = self.style_dict['photo_btn_off']
+        image_1 = self.style_dict['photo_btn_pause_head']
+        image_2 = self.style_dict['photo_btn_highlight_head']
+        image_3 = self.style_dict['photo_btn_off_head']
 
         self.photo_btn_highlight = ImageTk.PhotoImage(image_2.resize((40, 20), Image.ANTIALIAS))
         self.photo_btn_off = ImageTk.PhotoImage(image_3.resize((40, 20), Image.ANTIALIAS))
@@ -92,7 +92,7 @@ class CaptureHead:
         self.main_head_frame.configure(background=self.style_dict["header_color_blue"])
         self.main_head_frame.pack(side = "top", fill = "x")
     
-        self.btn_add_clock = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict['new_main_account'],width=25,command=lambda:self.add_new_main_account())
+        self.btn_add_clock = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict['new_main_account'],width=20,command=lambda:self.add_new_main_account())
         self.btn_add_clock.pack(side='left',padx = 10,pady=10)
 
         self.btn_end_of_work = MyButton(self.main_head_frame, self.data_manager, text=u'\U0001F4BE' + '   ' + self.language_dict['closing_time'],width=20,command=self.end_of_work)
@@ -183,7 +183,7 @@ class CaptureHead:
         if self.main_app.get_action_state() == 'disabled':
             return
 
-        info_dict = {self.language_dict["session_data"]:"#bold"}
+        info_dict = {self.language_dict["session_data"]:"#"}
 
         info_dict.update({self.language_dict["easytarc_execution"]:str(self.data_manager.start_timestamp) + ' ' + self.language_dict["o_clock"]})
 
@@ -213,7 +213,7 @@ class CaptureHead:
         if main_account_clock_list != []:
             activated_main_account_clock_list = [ele for ele in main_account_clock_list if ele.str_timedelta(ele.get_total_time_sum()) != '00:00:00']
             if activated_main_account_clock_list != []:
-                info_dict.update({self.language_dict["record"]:'#bold'})
+                info_dict.update({self.language_dict["record"]:'#'})
                 for main_account_clock in activated_main_account_clock_list:
                     info_dict.update({main_account_clock.get_name():main_account_clock.str_timedelta(main_account_clock.get_total_time_sum())})
 
@@ -226,7 +226,7 @@ class CaptureHead:
                     bookingrate = (1 - (q_not_bookable_time / work_time_q))*100 
                 else:
                     bookingrate = 0
-                info_dict.update({self.language_dict["analysis"]:'#bold'})
+                info_dict.update({self.language_dict["analysis"]:'#'})
                 info_dict.update({self.language_dict["rate"]:str(round(bookingrate)) + ' %   '})
 
         info_window = Endofworkinfo(self.main_app, self.gui ,self.gui.main_window,info_dict,450,300)
@@ -441,6 +441,14 @@ class CaptureHead:
 
         self.lbl_correction.configure(text=self.language_dict['correction'])
         self.lbl_name.configure(text=self.language_dict['name'])
+
+        image_1 = self.style_dict['photo_btn_pause_head']
+        image_2 = self.style_dict['photo_btn_highlight_head']
+        image_3 = self.style_dict['photo_btn_off_head']
+
+        self.photo_btn_highlight = ImageTk.PhotoImage(image_2.resize((40, 20), Image.ANTIALIAS))
+        self.photo_btn_off = ImageTk.PhotoImage(image_3.resize((40, 20), Image.ANTIALIAS))
+        self.photo_btn_pause = ImageTk.PhotoImage(image_1.resize((40, 20), Image.ANTIALIAS))
 
         self.update_table_head()
         return

@@ -623,9 +623,10 @@ class InfoDictWindow(tk.Toplevel):
                 lbl_text_col0 = MyLabel(scroll_frame, self.data_manager, text=key_text + ': ',wraplength=self.w/2, anchor='w')
                 lbl_text_col0.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5)
 
-                if value_text == '#bold':
-                    lbl_text_col0.configure(font = Font_tuple)
-                    value_text = ''
+                if len(value_text) > 0:
+                    if value_text[0] == '#':
+                        lbl_text_col0.configure(font = Font_tuple)
+                        value_text = value_text[1:]
 
                 col_nbr = col_nbr + 1
 
@@ -1275,9 +1276,10 @@ class Endofworkinfo(tk.Toplevel):
                 lbl_text_col0 = MyLabel(scroll_frame, self.data_manager, text=key_text + ': ',wraplength=self.w/2, anchor='w')
                 lbl_text_col0.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5)
 
-                if value_text == '#bold':
-                    lbl_text_col0.configure(font = Font_tuple)
-                    value_text = ''
+                if len(value_text) > 0:
+                    if value_text[0] == '#':
+                        lbl_text_col0.configure(font = Font_tuple)
+                        value_text = value_text[1:]
 
                 col_nbr = col_nbr + 1
 
