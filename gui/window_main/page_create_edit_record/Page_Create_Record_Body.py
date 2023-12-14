@@ -67,7 +67,7 @@ class CreateEditRecordBody:
         self.frame_account = MyFrame(self.main_frame,self.data_manager)
         self.frame_account.pack(side = "top", padx=10, pady=5,fill='x')
 
-        self.lbl_account = MyLabel(self.frame_account,self.data_manager,width=15,text= self.language_dict['time_account'] + ':')
+        self.lbl_account = MyLabel(self.frame_account,self.data_manager,width=15,anchor='w',justify='left',text= self.language_dict['time_account'] + ':')
         self.lbl_account.pack(side = "left", padx=10)
 
         self.account_name = tk.StringVar()
@@ -115,7 +115,7 @@ class CreateEditRecordBody:
         self.frame_date = MyFrame(self.main_frame,self.data_manager)
         self.frame_date.pack(side = "top", padx=10, pady=5,fill='x')
 
-        self.lbl_date = MyLabel(self.frame_date,self.data_manager,width=15,text= self.language_dict['date'] + ':')
+        self.lbl_date = MyLabel(self.frame_date,self.data_manager,width=15,anchor='w',justify='left',text= self.language_dict['date'] + ':')
         self.lbl_date.pack(side = "left", padx=10)
 
         self.date = tk.StringVar()
@@ -175,7 +175,7 @@ class CreateEditRecordBody:
         self.frame_time = MyFrame(self.main_frame,self.data_manager)
         self.frame_time.pack(side = "top", padx=10, pady=5,fill='x')
 
-        self.lbl_time = MyLabel(self.frame_time,self.data_manager,width=15,text=self.language_dict['hours'] + ':')
+        self.lbl_time = MyLabel(self.frame_time,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict['hours'] + ':')
         self.lbl_time.pack(side = "left", padx=10)
 
         self.time = tk.StringVar()
@@ -199,7 +199,7 @@ class CreateEditRecordBody:
         self.frame_status = MyFrame(self.main_frame,self.data_manager)
         self.frame_status.pack(side = "top", padx=10, pady=5,fill='x')
 
-        self.lbl_status = MyLabel(self.frame_status,self.data_manager,width=15,text= self.language_dict['status'] + ':')
+        self.lbl_status = MyLabel(self.frame_status,self.data_manager,width=15,anchor='w',justify='left',text= self.language_dict['status'] + ':')
         self.lbl_status.pack(side = "left", padx=10)
 
         self.status = tk.StringVar()

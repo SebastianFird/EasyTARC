@@ -85,7 +85,7 @@ class BarWorkWindowCbox(WorkWindowCbox):
             x=self.winfo_x()
             y=self.winfo_y()
             screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(x,y)
-            #print('Window Root Pos: ',x,y)
+            print('Window Root Pos: ',x,y)
 
             if y != screen_root_y-self.gui.get_y_pos_correction():
                 y = screen_root_y-self.gui.get_y_pos_correction()
@@ -95,9 +95,9 @@ class BarWorkWindowCbox(WorkWindowCbox):
             self.pos_moved = False
 
     def reset_window_pos(self):
-        ws = self.winfo_screenwidth() # width of the screen
-        x = (ws/2) 
-        y = 0
+        screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(0,0)
+        x = (screen_root_x+screen_width)/2 
+        y = screen_root_y
         self.geometry("+%d+%d" % (x, y))
         self.y_pos_pinned = 0
 
