@@ -35,7 +35,8 @@ class AccountsTab(Scroll_Frame):
         self.user_db = main_app.data_manager.user_db
         self.gui = gui
 
-        self.clicked_account_frame = None
+        self.clicked_account_frame_list = []
+        self.current_account_scope = []
         self.last_modus = None
         self.last_search_input = None
 
@@ -90,7 +91,7 @@ class AccountsTab(Scroll_Frame):
         return
 
     def reload(self):
-        self.clicked_account_frame = None
+        self.clicked_account_frame_list = []
         if self.last_modus != None:
             self.load_data_by_search(self.last_modus, self.last_search_input)
 
@@ -99,43 +100,58 @@ class AccountsTab(Scroll_Frame):
     def load_data_by_search(self,modus, search_input):
         self.last_modus = modus
         self.last_search_input = search_input
-        self.clicked_account_frame = None
+        self.clicked_account_frame_list = []
         self.body.case_frame.show_loading_frame()
         self.gui.root.update()
         account_dict_list = self.data_manager.get_account_dict_list_by_search(modus, search_input)
         self.account_dict_list = [ele for ele in account_dict_list if ele['account_id'] != 0]
-        self.body.case_frame.show_data()
+        self.body.case_frame.show_accounts_total()
         return
     
     def show_empty_frame(self):
         self.last_modus = None
-        self.clicked_account_frame = None
+        self.clicked_account_frame_list = []
         self.body.case_frame.show_empty_frame()
     
     def get_account_dict_list(self):
         return(self.account_dict_list)
     
 #################################################################
+    
+    def get_current_account_scope(self):
+        return(self.current_account_scope)
+    
+    def set_current_account_scope(self,current_account_scope):
+        self.current_account_scope = current_account_scope
+        return
 
-    def get_clicked_account_frame(self):
-        return(self.clicked_account_frame)
+#################################################################
+
+    def get_clicked_account_frame_list(self):
+        return(self.clicked_account_frame_list)
     
-    def set_clicked_account_frame(self,account_frame):
-        reset_frame = self.clicked_account_frame
-        self.clicked_account_frame = account_frame
-        if reset_frame != None:
-            reset_frame.update()
+    def set_clicked_account_frame_list(self,new_clicked_account_frame_list):
+        self.clicked_account_frame_list = new_clicked_account_frame_list
         return
     
-    def reset_clicked_account_frame(self):
-        reset_frame = self.clicked_account_frame
-        self.clicked_account_frame = None
-        if reset_frame != None:
-            reset_frame.update()
+    def reset_clicked_account_frame_list(self):
+        reset_frame_list = self.clicked_account_frame_list
+        self.clicked_account_frame_list = []
+        if reset_frame_list != []:
+            for reset_frame in reset_frame_list:
+                reset_frame.update()
         return
+    
+    def activate_all_account_frames(self,all_clicked_account_frame_list):
+        self.reset_clicked_account_frame_list()
+        if all_clicked_account_frame_list != []:
+            for clicked_account_frame in all_clicked_account_frame_list:
+                clicked_account_frame.append_activate_account()
+        return
+
     
     def empty_body_clicked(self,e):
-        self.set_clicked_account_frame(None)
+        self.reset_clicked_account_frame_list()
     
 #################################################################
     

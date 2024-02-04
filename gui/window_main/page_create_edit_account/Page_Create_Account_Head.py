@@ -81,17 +81,17 @@ class CreateEditAccountHead:
         btn_quit.pack(side = "left", padx=10, pady=5)
 
         if self.modus == 'new_main':
-            header_text = self.language_dict['new_time_account']
+            header_text = self.language_dict['new_main_account']
         elif self.modus == 'new_order':
             header_text = self.language_dict['new_order']
         elif self.modus == 'new_process':
             header_text = self.language_dict['new_process']
         elif self.modus == 'new_sub':
-            header_text = self.language_dict['new_subaccount']
+            header_text = self.language_dict['new_sub_account']
         elif self.modus == 'edit_main':
-            header_text = self.language_dict['edit_time_account']
+            header_text = self.language_dict['edit_main_account']
         elif self.modus == 'edit_sub':
-            header_text = self.language_dict['edit_time_subaccount']
+            header_text = self.language_dict['edit_sub_account']
         else:
             header_text = self.language_dict['error']
 

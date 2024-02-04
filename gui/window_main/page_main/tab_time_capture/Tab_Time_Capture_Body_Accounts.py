@@ -37,6 +37,7 @@ class MainAccountFrame(tk.Frame):
         self.clock_frame_list = []
         self.sub_clock_frame_list = []
         self.tree_view = False
+        self.account_date_expiration = False
 
         MyFrame.__init__(self, container, self.data_manager)
 
@@ -48,7 +49,7 @@ class MainAccountFrame(tk.Frame):
         for sub_clock in sub_clock_list:
             self.create_sub_clock_frame(sub_clock)
 
-        if self.main_account_clock.str_timedelta(self.main_account_clock.get_sub_time_sum()) == "00:00:00":
+        if self.main_account_clock.str_timedelta(self.main_account_clock.get_sub_time_sum()) == "00:00:00" and self.account_date_expiration == False:
             self.fold_up_sub_clocks()
         else:
             self.fold_out_sub_clocks()
@@ -83,6 +84,7 @@ class MainAccountFrame(tk.Frame):
                 self.fold_up_sub_clocks()
             else:
                 self.fold_out_sub_clocks()
+            self.capture_body.update_work_window_group_main_account_list()
         else:
             return
 

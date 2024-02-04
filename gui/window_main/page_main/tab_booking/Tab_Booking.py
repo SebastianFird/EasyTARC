@@ -27,7 +27,8 @@ class BookingTab(Scroll_Frame):
         self.case_frame_manager = case_frame_manager
 
         self.booking_kind = 'sum'
-        self.clicked_record_dict = None
+        self.clicked_record_frame_list = []
+        self.current_record_scope = []
 
         # run the main frame of this layer
         self.create_main_frame(container)
@@ -102,7 +103,7 @@ class BookingTab(Scroll_Frame):
         return
 
     def load_booking_by_sum(self):
-        self.clicked_record_frame = None
+        self.clicked_record_frame_list = []
         self.body.case_frame.show_loading_frame()
         self.gui.root.update()
         self.unbooked_record_dict_list_sum_list = self.data_manager.get_unbooked_record_dict_list_sum_list()
@@ -113,7 +114,7 @@ class BookingTab(Scroll_Frame):
         return(self.unbooked_record_dict_list_sum_list)
     
     def load_booking_by_date(self):
-        self.clicked_record_frame = None
+        self.clicked_record_frame_list = []
         self.body.case_frame.show_loading_frame()
         self.gui.root.update()
         self.unbooked_record_dict_list_date_list = self.data_manager.get_unbooked_record_dict_list_date_list()
@@ -124,26 +125,41 @@ class BookingTab(Scroll_Frame):
         return(self.unbooked_record_dict_list_date_list)
 
 #################################################################
+    
+    def get_current_record_scope(self):
+        return(self.current_record_scope)
+    
+    def set_current_record_scope(self,current_record_scope):
+        self.current_record_scope = current_record_scope
+        return
+    
+#################################################################
 
-    def get_clicked_record_frame(self):
-        return(self.clicked_record_frame)
+    def get_clicked_record_frame_list(self):
+        return(self.clicked_record_frame_list)
     
-    def set_clicked_record_frame(self,record_frame):
-        reset_frame = self.clicked_record_frame
-        self.clicked_record_frame = record_frame
-        if reset_frame != None:
-            reset_frame.update()
+    def set_clicked_record_frame_list(self,new_clicked_record_frame_list):
+        self.clicked_record_frame_list = new_clicked_record_frame_list
         return
     
-    def reset_clicked_record_frame(self):
-        reset_frame = self.clicked_record_frame
-        self.clicked_record_frame = None
-        if reset_frame != None:
-            reset_frame.update()
+    def reset_clicked_record_frame_list(self):
+        reset_frame_list = self.clicked_record_frame_list
+        self.clicked_record_frame_list = []
+        if reset_frame_list != []:
+            for reset_frame in reset_frame_list:
+                reset_frame.update()
         return
+    
+    def activate_all_record_frames(self,all_clicked_record_frame_list):
+        self.reset_clicked_record_frame_list()
+        if all_clicked_record_frame_list != []:
+            for clicked_record_frame in all_clicked_record_frame_list:
+                clicked_record_frame.append_activate_record()
+        return
+
     
     def empty_body_clicked(self,e):
-        self.set_clicked_record_frame(None)
+        self.reset_clicked_record_frame_list()
 
 #################################################################
 

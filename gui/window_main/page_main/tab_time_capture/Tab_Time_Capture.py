@@ -65,7 +65,6 @@ class CaptureTab(Scroll_Frame):
         self.head = CaptureHead(self.main_frame, self.main_app, self.gui, self.case_frame_manager, self)
         return
         
-
     def refresh_head(self):
         # configure style and language of main frame head
         self.head.refresh()

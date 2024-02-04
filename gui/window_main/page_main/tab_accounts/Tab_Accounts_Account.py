@@ -22,7 +22,7 @@ from gui.window_main.page_main.tab_accounts.Tab_Accounts_OptionMenu import Accou
 from gui.Window_Additionals import  CloseAccountWarning
 
 class AccountFrame(tk.Frame):
-    def __init__(self, container, main_app, gui, accounts_tab,account_list,account_dict):
+    def __init__(self, container, main_app, gui, accounts_tab,account_scope,account_dict):
          
         self.main_app = main_app
         self.data_manager = self.main_app.get_data_manager()
@@ -32,7 +32,7 @@ class AccountFrame(tk.Frame):
 
         self.gui = gui
         self.accounts_tab = accounts_tab
-        self.account_list = account_list
+        self.account_scope = account_scope
         self.account_dict = account_dict
 
         MyFrame.__init__(self, container, self.data_manager)
@@ -105,6 +105,16 @@ class AccountFrame(tk.Frame):
         self.lbl_project.bind("<Button-1>", self.activate_account)
         self.lbl_name.bind("<Button-1>", self.activate_account)
 
+        self.bind("<Control-1>", self.append_activate_account)
+        self.lbl_empty0.bind("<Control-1>", self.append_activate_account)
+        self.lbl_empty1.bind("<Control-1>", self.append_activate_account)
+        self.lbl_empty2.bind("<Control-1>", self.append_activate_account)
+        self.lbl_status.bind("<Control-1>", self.append_activate_account)
+        self.lbl_process.bind("<Control-1>", self.append_activate_account)
+        self.lbl_order.bind("<Control-1>", self.append_activate_account)
+        self.lbl_project.bind("<Control-1>", self.append_activate_account)
+        self.lbl_name.bind("<Control-1>", self.append_activate_account)
+
         self.bind("<Button-3>", self.right_clicked)
         self.lbl_empty0.bind("<Button-3>", self.right_clicked)
         self.lbl_empty1.bind("<Button-3>", self.right_clicked)
@@ -116,6 +126,8 @@ class AccountFrame(tk.Frame):
         self.lbl_name.bind("<Button-3>", self.right_clicked)
         return
     
+    
+    
 ##################################################
 
     def enter_account(self,e):
@@ -126,21 +138,52 @@ class AccountFrame(tk.Frame):
         self.on_account = False
         self.update()
 
-    def activate_account(self,e=None):
-        if self.accounts_tab.get_clicked_account_frame() == self:
-            self.accounts_tab.reset_clicked_account_frame()
+    def append_activate_account(self,e=None):
+        if self.accounts_tab.get_current_account_scope() != self.account_scope:
+            self.accounts_tab.reset_clicked_account_frame_list()
+            self.accounts_tab.set_current_account_scope(self.account_scope)
+
+        clicked_account_frame_list = self.accounts_tab.get_clicked_account_frame_list()
+
+        if self in clicked_account_frame_list:
+            new_account_frame_list = [ele for ele in clicked_account_frame_list if ele != self]
+            self.accounts_tab.set_clicked_account_frame_list(new_account_frame_list)
         else:
-            self.accounts_tab.set_clicked_account_frame(self)
+            new_clicked_account_frame_list = clicked_account_frame_list + [self]
+            self.accounts_tab.set_clicked_account_frame_list(new_clicked_account_frame_list)
+
         self.update()
 
-    def right_clicked(self,e):
+    def activate_account(self,e=None):
+        if self.accounts_tab.get_current_account_scope() != self.account_scope:
+            self.accounts_tab.reset_clicked_account_frame_list()
+            self.accounts_tab.set_current_account_scope(self.account_scope)
+
+        clicked_account_frame_list = self.accounts_tab.get_clicked_account_frame_list()
+
+        if  clicked_account_frame_list == [self]:
+            self.accounts_tab.reset_clicked_account_frame_list()
+        else:
+            self.accounts_tab.reset_clicked_account_frame_list()
+            new_clicked_account_frame_list = [self]
+            self.accounts_tab.set_clicked_account_frame_list(new_clicked_account_frame_list)
+        self.update()
+
+    def activate_all_accounts(self,e=None):
+        new_clicked_account_frame_list = self.account_scope.account_frame_list
+        self.accounts_tab.activate_all_account_frames(new_clicked_account_frame_list)
+
+    def right_clicked(self,e=None):
         if self.main_app.get_action_state() == "normal" or self.main_app.get_action_state() == "endofwork":
-            if self.accounts_tab.get_clicked_account_frame() != self:
-                self.activate_account(e)
+            if self not in self.accounts_tab.get_clicked_account_frame_list():
+                self.accounts_tab.reset_clicked_account_frame_list()
+                new_clicked_account_frame_list = [self]
+                self.accounts_tab.set_clicked_account_frame_list(new_clicked_account_frame_list)
+                self.update()
             self.option_menu.popup(e)
 
     def update(self):
-        if self.accounts_tab.get_clicked_account_frame() == self:
+        if self in self.accounts_tab.get_clicked_account_frame_list():
             background_color = self.style_dict["selected_color_grey"]
         elif self.on_account == True:
             background_color = self.style_dict["frame_hover_color_grey"]

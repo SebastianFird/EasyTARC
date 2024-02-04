@@ -44,52 +44,70 @@ class NewRoot(tk.Tk):
 class SqlCodeDataManager(SqlManager):
     def __init__(self,main_app):
         self.main_app = main_app
-        self.new_version = False
-
-        name = self.main_app.get_code_db_name() 
-
-        if self.main_app.get_config() == 'single_user_unencrypted':
-            super().__init__(main_app, name)
-        else:
-            code_db_password = self.main_app.get_db_code_password()
-            db_password = str.encode(code_db_password)
-            super().__init__(main_app, name, db_password)
-    
-        if os.path.isfile(self.folder_name + '\\' + self.name + self.name_ending) == False:
-            self.create_db()
-            return
+        super().__init__(main_app)
 
 ######################################
-
-    def create_db(self):
-
-        conn = self.new_db_conn()
-
-        cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS code(
-            codeid INT PRIMARY KEY,
-            user_license_hash_data_db TEXT,
-            user_license_hash_current TEXT,
-            user_str_case TEXT
-            );
-            """)
-
-        code_id = 0
-        user_license_hash_data_db = ''
-        user_license_hash_current = ''
-        user_data_str = str(getpass.getuser())
-        if user_data_str.islower() == True:
-            user_str_case = 'lower'
-        else:
-            user_str_case = 'upper'
-
-        code_tuple = (code_id,user_license_hash_data_db,user_license_hash_current,user_str_case)
-        cur = conn.cursor()
-        cur.execute("INSERT INTO code VALUES(?,?,?,?);", code_tuple)
         
+    def start_db(self,db_config,folder_name,name,name_ending,db_password,db_salt):
+        self.set_db_config(db_config,folder_name,name,name_ending,db_password,db_salt)
+
+        try:
+            test_id = self.get_new_codeid()
+            return(True)
+        except:
+            return(False)
+            
+        
+######################################
+
+    def create_db(self,db_config,folder_name,name,name_ending,db_password,db_salt):
+        self.set_db_config(db_config,folder_name,name,name_ending,db_password,db_salt)
+        
+        if os.path.isfile(self.folder_name + '\\' + self.name + self.name_ending) == False:
+
+            conn = self.new_db_conn()
+
+            cur = conn.cursor()
+            cur.execute("""CREATE TABLE IF NOT EXISTS code(
+                codeid INT PRIMARY KEY,
+                user_license_hash_data_db TEXT,
+                user_license_hash_current TEXT,
+                user_str_case TEXT
+                );
+                """)
+
+            code_id = 0
+            user_license_hash_data_db = ''
+            user_license_hash_current = ''
+            user_data_str = str(getpass.getuser())
+            if user_data_str.islower() == True:
+                user_str_case = 'lower'
+            else:
+                user_str_case = 'upper'
+
+            code_tuple = (code_id,user_license_hash_data_db,user_license_hash_current,user_str_case)
+            cur = conn.cursor()
+            cur.execute("INSERT INTO code VALUES(?,?,?,?);", code_tuple)
+            
+            self.save_and_close_db(conn)
+            return(True)
+        return(False)
+
+######################################
+            
+    def get_new_codeid(self):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+
+        cur.execute("SELECT MAX(codeid) FROM code")
+        result = cur.fetchone()
         self.save_and_close_db(conn)
 
-######################################
+        if result[0] != None:
+            codeid = result[0] + 1
+        else:
+            codeid = 0
+        return(codeid)
 
     def set_user_license_hash_data_db(self, user_license_hash_data_db):
         conn = self.open_db_conn()
@@ -104,6 +122,14 @@ class SqlCodeDataManager(SqlManager):
         cur.execute("UPDATE code SET user_license_hash_current = ? WHERE codeid = ?", (user_license_hash_current,0,))
         self.save_and_close_db(conn)
         return()
+    
+    def get_user_license_hash_data_db(self):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        cur.execute("SELECT user_license_hash_data_db FROM code WHERE codeid = ?", (0,))
+        user_license_hash_data = cur.fetchone()[0]
+        self.save_and_close_db(conn)
+        return(user_license_hash_data)
     
     def get_user_str_case(self):
         conn = self.open_db_conn()

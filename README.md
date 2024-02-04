@@ -19,23 +19,12 @@ And if you work in a lot of projects and often switch between them, you can also
 ____________________________________________________________________
 Installation instructions:
 
-To get a first impression of EasyTARC, download the latest release and put the files into your preferred directory. Then go to the folder Version_X_X_EXE and execute the file EasyTARC.exe. Next a License_request.txt file will appear, then run the User_License_Creator.exe file and your personal license file will be in the directory. Now you can run the EasyTARC.exe again and test the program.
-
-
-License:
-
-The license is only for knowing the circle of users in your team or company. If only you want to use the program for yourself, a license is not really necessary. Therefore you can simply issue the license yourself with the file User_License_Creator.exe.
-
-
-Encryption:
-
-The user data is stored in an encrypted database called EasyTARC_Database_User_crypted.sql.gz. The encryption is made from a combination of the user name and a password.
-
+To get a first impression of EasyTARC, download the latest release and put the files into your preferred directory. Then go to the folder Version_X_X_EXE and execute the file EasyTARC.exe.
 
 You like EasyTARC and want to use it in your team or company? 
 Then these are your next steps:
 
-The executable files in the folder Version_X_X_EXE are great for a first impression, but there are still dummy passwords in the source code. To really use EasyTARC with specific passwords in your team or company, you have to define the passwords in the source code (file easytarc_pw_container.py) and then create your own EasyTARC.exe and User_License_Creator.exe. To create these files you need Python and the extension pyinstaller. Then you can use the Windows PowerShell with the command "pyinstaller -F -w -i "Logo.ico" EasyTARC.py" and the command "pyinstaller -F -w User_License_Creator.py" to create your own executables with your passwords.
+The executable files in the folder Version_X_X_EXE are great for a first impression, but there are still dummy hash complements in the source code. You can use the Windows PowerShell with the command "pyinstaller -F -w -i "Logo.ico" EasyTARC.py".
 For further information please contact me.
 
 ____________________________________________________________________

@@ -44,30 +44,29 @@ class NewRoot(tk.Tk):
 class SqlUserDataManager(SqlManager):
     def __init__(self,main_app):
         self.main_app = main_app
+        super().__init__(main_app)
 
-        name = self.main_app.get_user_db_name()
+    def start_db(self,db_config,folder_name,name,name_ending,db_password,db_salt):
+        self.set_db_config(db_config,folder_name,name,name_ending,db_password,db_salt)
 
-        if self.main_app.get_config() == 'single_user_unencrypted':
-            super().__init__(main_app, name)
-        else:
-            db_user_password = self.main_app.get_db_user_password()
-            db_password = str.encode(db_user_password)
-            super().__init__(main_app, name, db_password)
-    
-        if os.path.isfile(self.folder_name + '\\' + self.name + self.name_ending) == False:
-            self.create_db()
-        else:
-            try:
-                test_id = self.get_new_accountid()
-            except:
-                self.request_restoring_backup()
+        try:
+            test_id = self.get_new_accountid()
 
             try:
                 if self.main_app.get_version_update() == True:
-                    if self.check_column_type_accounts_project_nbr() == 'INT':
+                    if self.check_column_name_accounts_project_nbr() == True:
                         self.update_1_7_0()
+
+                    if self.check_column_name_accounts_a_group() == True:
+                        self.update_1_7_2()
             except:
-                print('update_failed')
+                self.root = NewRoot()
+                messagebox.showinfo('EasyTARC','update_failed')
+                return(False)
+
+            return(True)
+        except:
+            return(False)
 
 ####################################################################################################################
 
@@ -97,141 +96,140 @@ class SqlUserDataManager(SqlManager):
 
 ####################################################################################################################
 
-    def create_db(self):
+    def create_db(self,db_config,folder_name,name,name_ending,db_password,db_salt):
+        self.set_db_config(db_config,folder_name,name,name_ending,db_password,db_salt)
 
-        conn = self.new_db_conn()
+        if os.path.isfile(self.folder_name + '\\' + self.name + self.name_ending) == False:
 
-        cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS accounts(
-            accountid INT PRIMARY KEY,
-            account_kind INT,
-            main_id INT,
-            name TEXT,
-            description_text TEXT,
-            project_label TEXT,
-            order_label TEXT,
-            process_label TEXT,
-            response_code TEXT,
-            response_text TEXT,
-            auto_booking INT,
-            status TEXT,
-            a_group TEXT,
-            bookable INT,
-            a_year INT,
-            a_month INT,
-            a_day INT
-            );
-            """)
+            conn = self.new_db_conn()
 
-        cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS passed_times(
-            passedid INT PRIMARY KEY,
-            accountid INT,
-            year INT,
-            month INT,
-            day INT,
-            d_hour INT,
-            d_minute INT,
-            d_second INT,
-            hours REAL,
-            booked INT
-            );
-            """)
+            cur = conn.cursor()
+            cur.execute("""CREATE TABLE IF NOT EXISTS accounts(
+                accountid INT PRIMARY KEY,
+                account_kind INT,
+                main_id INT,
+                name TEXT,
+                description_text TEXT,
+                project_label TEXT,
+                order_label TEXT,
+                process_label TEXT,
+                response_code TEXT,
+                response_text TEXT,
+                auto_booking INT,
+                status TEXT,
+                group_name TEXT,
+                bookable INT,
+                expiration_year INT,
+                expiration_month INT,
+                expiration_day INT,
+                available_hours REAL
+                );
+                """)
 
-        cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS backup_current_times(
-            backupid INT PRIMARY KEY,
-            passedid INT,
-            accountid INT,
-            year INT,
-            month INT,
-            day INT,
-            d_hour INT,
-            d_minute INT,
-            d_second INT,
-            hours REAL,
-            booked INT
-            );
-            """)
-        
-        cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS groups(
-            groupid INT PRIMARY KEY,
-            fold_up_groups TEXT
-            );
-            """)
-        
-        cur = conn.cursor()
-        cur.execute("INSERT INTO groups VALUES(?, ?);", (1,''))
+            cur = conn.cursor()
+            cur.execute("""CREATE TABLE IF NOT EXISTS passed_times(
+                passedid INT PRIMARY KEY,
+                accountid INT,
+                year INT,
+                month INT,
+                day INT,
+                hours REAL,
+                booked INT
+                );
+                """)
 
-        self.save_and_close_db(conn)
+            cur = conn.cursor()
+            cur.execute("""CREATE TABLE IF NOT EXISTS backup_current_times(
+                backupid INT PRIMARY KEY,
+                accountid INT,
+                year INT,
+                month INT,
+                day INT,
+                hours REAL,
+                booked INT
+                );
+                """)
+            
+            cur = conn.cursor()
+            cur.execute("""CREATE TABLE IF NOT EXISTS groups(
+                groupid INT PRIMARY KEY,
+                fold_up_groups TEXT
+                );
+                """)
+            
+            cur = conn.cursor()
+            cur.execute("INSERT INTO groups VALUES(?, ?);", (1,''))
 
-        test_id = self.get_new_accountid()
+            self.save_and_close_db(conn)
 
-        def new_data_base():
+            test_id = self.get_new_accountid()
 
-            account_id = 0
-            name = 'Without allocation'
-            description_text = ' - '
-            kind = 1
-            main_id = 0
-            project_label = ' - '
-            order_label = ' - '
-            process_label = ' - '
-            response_code = ' - '
-            response_text = ' - '
-            auto_booking = 0
-            status = "open"
-            group = ' - '
-            bookable = 0
+            def new_data_base():
 
-            dt = datetime.datetime.now()
-            a_day = int(dt.strftime("%d"))
-            a_month = int(dt.strftime("%m"))
-            a_year = int(dt.strftime("%Y"))
+                account_id = 0
+                name = 'Without allocation'
+                description_text = ' - '
+                kind = 1
+                main_id = 0
+                project_label = ' - '
+                order_label = ' - '
+                process_label = ' - '
+                response_code = ' - '
+                response_text = ' - '
+                auto_booking = 0
+                status = "open"
+                group = ' - '
+                bookable = 0
 
-            account_dict = {"account_id":account_id,
-                            "account_kind":kind,
-                            "main_id":main_id,
-                            "name":name,
-                            "description_text":description_text,
-                            "project_label":project_label,
-                            "order_label":order_label,
-                            "process_label":process_label,
-                            "response_code":response_code,
-                            "response_text":response_text,
-                            "auto_booking":auto_booking,
-                            "status":status,
-                            "group":group,
-                            "bookable":bookable,
-                            "a_year":a_year,
-                            "a_month":a_month,
-                            "a_day":a_day
-                            }
+                expiration_day = 1
+                expiration_month = 1
+                expiration_year = 2000
 
-            self.add_account((account_dict))
-            return()
+                date_expiration = datetime.date(expiration_year, expiration_month, expiration_day)
 
-        if test_id == 0:
-            new_data_base()
+                available_hours = 0
 
-        return()
+                account_dict = {"account_id":account_id,
+                                "account_kind":kind,
+                                "main_id":main_id,
+                                "name":name,
+                                "description_text":description_text,
+                                "project_label":project_label,
+                                "order_label":order_label,
+                                "process_label":process_label,
+                                "response_code":response_code,
+                                "response_text":response_text,
+                                "auto_booking":auto_booking,
+                                "status":status,
+                                "group":group,
+                                "bookable":bookable,
+                                "date_expiration":date_expiration,
+                                "available_hours":available_hours
+                                }
+
+                self.add_account((account_dict))
+                return()
+
+            if test_id == 0:
+                new_data_base()
+            return(True)
+        return(False)
     
 ####################################################################################################################
 
-    def check_column_type_accounts_project_nbr(self):
+    def check_column_name_accounts_project_nbr(self):
         conn = self.open_db_conn()
         cur = conn.cursor()
 
-        info = cur.execute("PRAGMA table_info('accounts')")
+        info = cur.execute("select * from accounts")
         columns = [item[0] for item in info.description]
-        df = pd.DataFrame(info, columns=columns)
-        col_type = df.loc[df.name=='project_nbr', 'type'].values[0]
         self.save_and_close_db(conn)
-        return(col_type)
+        if 'project_nbr' in columns:
+            return(True)
+        else:
+            return(False)
         
     def update_1_7_0(self):
-        print('create new_table_accounts')
         conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("""CREATE TABLE IF NOT EXISTS new_table_accounts (
@@ -255,7 +253,6 @@ class SqlUserDataManager(SqlManager):
             );
             """)
 
-        print('copie_data')
         cur = conn.cursor()
         cur.execute("""INSERT INTO new_table_accounts (
                     accountid ,
@@ -297,12 +294,9 @@ class SqlUserDataManager(SqlManager):
                     FROM accounts;
                     """)
         
-
-        print('drop table')
         cur = conn.cursor()
         cur.execute("DROP TABLE accounts;")
 
-        print('rename new_table_accounts to accounts')
         cur = conn.cursor()
         cur.execute("ALTER TABLE new_table_accounts RENAME TO accounts;")
 
@@ -325,7 +319,7 @@ class SqlUserDataManager(SqlManager):
         cur.execute("""UPDATE accounts SET response_text = ? WHERE response_text = ?""",(' - ','',))
 
         cur = conn.cursor()
-        cur.execute("""UPDATE accounts SET a_group = ? WHERE a_group = ?""",(' - ','default',))
+        cur.execute("""UPDATE accounts SET group_name = ? WHERE group_name = ?""",(' - ','default',))
 
         cur = conn.cursor()
         cur.execute("""UPDATE accounts SET status = ? WHERE status = ?""",('open','current',))
@@ -339,6 +333,188 @@ class SqlUserDataManager(SqlManager):
         
         cur = conn.cursor()
         cur.execute("INSERT INTO groups VALUES(?, ?);", (1,''))
+
+        self.save_and_close_db(conn)
+
+    ####################################################################################################################
+
+    def check_column_name_accounts_a_group(self):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+
+        info = cur.execute("select * from accounts")
+        columns = [item[0] for item in info.description]
+        self.save_and_close_db(conn)
+        if 'a_group' in columns:
+            return(True)
+        else:
+            return(False)
+
+    def update_1_7_2(self):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        cur.execute("""CREATE TABLE IF NOT EXISTS new_table_accounts (
+            accountid INT PRIMARY KEY,
+            account_kind INT,
+            main_id INT,
+            name TEXT,
+            description_text TEXT,
+            project_label TEXT,
+            order_label TEXT,
+            process_label TEXT,
+            response_code TEXT,
+            response_text TEXT,
+            auto_booking INT,
+            status TEXT,
+            group_name TEXT,
+            bookable INT,
+            expiration_year INT,
+            expiration_month INT,
+            expiration_day INT,
+            available_hours REAL
+            );
+            """)
+
+        cur = conn.cursor()
+        cur.execute("""INSERT INTO new_table_accounts (
+                    accountid ,
+                    account_kind ,
+                    main_id ,
+                    name ,
+                    description_text ,
+                    project_label ,
+                    order_label ,
+                    process_label ,
+                    response_code ,
+                    response_text ,
+                    auto_booking ,
+                    status ,
+                    group_name ,
+                    bookable ,
+                    expiration_year,
+                    expiration_month,
+                    expiration_day
+                    )
+                    SELECT 
+                    accountid ,
+                    account_kind ,
+                    main_id ,
+                    name ,
+                    description_text ,
+                    project_label ,
+                    order_label ,
+                    process_label ,
+                    response_code ,
+                    response_text ,
+                    auto_booking ,
+                    status ,
+                    a_group ,
+                    bookable ,
+                    a_year ,
+                    a_month ,
+                    a_day 
+                    FROM accounts;
+                    """)
+        
+        cur = conn.cursor()
+        cur.execute("DROP TABLE accounts;")
+
+        cur = conn.cursor()
+        cur.execute("ALTER TABLE new_table_accounts RENAME TO accounts;")
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE accounts SET expiration_year = ?""",(2000,))
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE accounts SET expiration_month = ?""",(1,))
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE accounts SET expiration_day = ?""",(1,))
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE accounts SET available_hours = ?""",(0,))
+
+        #############################################
+
+        cur = conn.cursor()
+        cur.execute("""CREATE TABLE IF NOT EXISTS new_table_passed_times (
+            passedid INT PRIMARY KEY,
+            accountid INT,
+            year INT,
+            month INT,
+            day INT,
+            hours REAL,
+            booked INT
+            );
+            """)
+
+        cur = conn.cursor()
+        cur.execute("""INSERT INTO new_table_passed_times (
+                    passedid,
+                    accountid,
+                    year,
+                    month,
+                    day,
+                    hours,
+                    booked
+                    )
+                    SELECT 
+                    passedid,
+                    accountid,
+                    year,
+                    month,
+                    day,
+                    hours,
+                    booked
+                    FROM passed_times;
+                    """)
+        
+        cur = conn.cursor()
+        cur.execute("DROP TABLE passed_times;")
+
+        cur = conn.cursor()
+        cur.execute("ALTER TABLE new_table_passed_times RENAME TO passed_times;")
+
+        #############################################
+
+        cur = conn.cursor()
+        cur.execute("""CREATE TABLE IF NOT EXISTS new_table_backup_current_times (
+            backupid INT PRIMARY KEY,
+            accountid INT,
+            year INT,
+            month INT,
+            day INT,
+            hours REAL,
+            booked INT
+            );
+            """)
+
+        cur = conn.cursor()
+        cur.execute("""INSERT INTO new_table_backup_current_times (
+                    backupid,
+                    accountid,
+                    year,
+                    month,
+                    day,
+                    hours,
+                    booked
+                    )
+                    SELECT 
+                    backupid,
+                    accountid,
+                    year,
+                    month,
+                    day,
+                    hours,
+                    booked
+                    FROM backup_current_times;
+                    """)
+        
+        cur = conn.cursor()
+        cur.execute("DROP TABLE backup_current_times;")
+
+        cur = conn.cursor()
+        cur.execute("ALTER TABLE new_table_backup_current_times RENAME TO backup_current_times;")
 
         self.save_and_close_db(conn)
 
@@ -360,14 +536,15 @@ class SqlUserDataManager(SqlManager):
         status = account_dict['status']
         group = account_dict['group']
         bookable = account_dict['bookable']
-        a_year = account_dict['a_year']
-        a_month = account_dict['a_month']
-        a_day = account_dict['a_day']
+        expiration_year = int(account_dict["date_expiration"].strftime("%Y"))
+        expiration_month = int(account_dict["date_expiration"].strftime("%m"))
+        expiration_day = int(account_dict["date_expiration"].strftime("%d"))
+        available_hours = account_dict['available_hours']
 
-        account_tuple = (account_id,kind,main_id,name,description_text,project_label,order_label,process_label,response_code,response_text,auto_booking,status,group,bookable,a_year,a_month,a_day)
+        account_tuple = (account_id,kind,main_id,name,description_text,project_label,order_label,process_label,response_code,response_text,auto_booking,status,group,bookable,expiration_year,expiration_month,expiration_day,available_hours)
         conn = self.open_db_conn()
         cur = conn.cursor()
-        cur.execute("INSERT INTO accounts VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", account_tuple)
+        cur.execute("INSERT INTO accounts VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?);", account_tuple)
         self.save_and_close_db(conn)
         success = True
         return(success)
@@ -399,6 +576,10 @@ class SqlUserDataManager(SqlManager):
         auto_booking = account_dict['auto_booking']
         group = account_dict['group']
         bookable = account_dict['bookable']
+        expiration_year = int(account_dict["date_expiration"].strftime("%Y"))
+        expiration_month = int(account_dict["date_expiration"].strftime("%m"))
+        expiration_day = int(account_dict["date_expiration"].strftime("%d"))
+        available_hours = account_dict['available_hours']
 
         conn = self.open_db_conn()
         cur = conn.cursor()
@@ -412,7 +593,12 @@ class SqlUserDataManager(SqlManager):
                     response_text = ?,
                     auto_booking = ?,
                     bookable = ?,
-                    a_group = ? WHERE accountid = ?""",
+                    group_name = ?,
+                    expiration_year = ?,
+                    expiration_month = ?,
+                    expiration_day = ?,
+                    available_hours = ?  
+                    WHERE accountid = ?""",
                     (
                     name,
                     description_text,
@@ -424,6 +610,10 @@ class SqlUserDataManager(SqlManager):
                     auto_booking,
                     bookable,
                     group,
+                    expiration_year,
+                    expiration_month,
+                    expiration_day,
+                    available_hours,
                     account_id,
                     ))
         self.save_and_close_db(conn)
@@ -448,7 +638,8 @@ class SqlUserDataManager(SqlManager):
                     response_code = ?,
                     auto_booking = ?,
                     bookable = ?,
-                    a_group = ? WHERE accountid = ?""",
+                    group_name = ? 
+                    WHERE accountid = ?""",
                     (
                     project_label,
                     order_label,
@@ -468,23 +659,35 @@ class SqlUserDataManager(SqlManager):
         name = account_dict['name']
         description_text = account_dict['description_text']
         response_text = account_dict['response_text']
+        expiration_year = int(account_dict["date_expiration"].strftime("%Y"))
+        expiration_month = int(account_dict["date_expiration"].strftime("%m"))
+        expiration_day = int(account_dict["date_expiration"].strftime("%d"))
+        available_hours = account_dict['available_hours']
 
         conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("""UPDATE accounts 
                     SET name = ?,
                     description_text = ?,
-                    response_text = ? WHERE accountid = ?""",
+                    response_text = ?,
+                    expiration_year = ?,
+                    expiration_month = ?,
+                    expiration_day = ?,
+                    available_hours = ? 
+                    WHERE accountid = ?""",
                     (
                     name,
                     description_text,
                     response_text,
+                    expiration_year,
+                    expiration_month,
+                    expiration_day,
+                    available_hours,
                     account_id,
                     ))
         self.save_and_close_db(conn)
         success = True
         return(success)
-    
 
     def get_new_accountid(self):
         conn = self.open_db_conn()
@@ -546,7 +749,6 @@ class SqlUserDataManager(SqlManager):
         conn = self.open_db_conn()
         cur = conn.cursor()
         id_list = [account_id[0] for account_id in cur.execute("SELECT accountid FROM accounts WHERE main_id = ? and account_kind = ?", (main_account_id,0,))]
-        # print(id_list)
         self.save_and_close_db(conn)
         return(id_list)
 
@@ -555,7 +757,6 @@ class SqlUserDataManager(SqlManager):
         conn = self.open_db_conn()
         cur = conn.cursor()
         id_list = [account_id[0] for account_id in cur.execute("SELECT accountid FROM accounts WHERE status = ?", ("open",))]
-        # print(id_list)
         self.save_and_close_db(conn)
         return(id_list)
 
@@ -564,6 +765,17 @@ class SqlUserDataManager(SqlManager):
         cur = conn.cursor()
         cur.execute("SELECT * FROM accounts WHERE accountid = ?", (account_id,))
         result = cur.fetchall()[0]
+
+        date_expiration = datetime.date(result[14], result[15], result[16])
+
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        cur.execute("SELECT SUM(passed_times.hours) FROM passed_times WHERE accountid = ?", (account_id,))
+        sum_passed_times = cur.fetchone()[0]
+
+        if sum_passed_times == None:
+            sum_passed_times = 0
+
         account_dict = {"account_id":result[0],
                         "account_kind":result[1],
                         "main_id":result[2],
@@ -578,14 +790,14 @@ class SqlUserDataManager(SqlManager):
                         "status":result[11],
                         "group": result[12],
                         "bookable":result[13],
-                        "a_year":result[14],
-                        "a_month":result[15],
-                        "a_day":result[16],
+                        "date_expiration":date_expiration,
+                        "available_hours":result[17],
+                        "sum_passed_times":sum_passed_times
                         }
+        
         if account_dict['account_kind'] == 0:
             name_dict = self.get_namedict_by_accountid_list([account_dict['main_id']])
             account_dict.update({'main_name':str(name_dict[account_dict['main_id']])})
-        #print(account_dict)
         self.save_and_close_db(conn)
         return(account_dict)
     
@@ -594,22 +806,18 @@ class SqlUserDataManager(SqlManager):
         df= pd.DataFrame.from_records(data = query.fetchall(), columns = cols)
         if df.empty:
             return(df)
-        date_0 = df.apply(lambda x: datetime.date(int(x['a_year']), x['a_month'], x['a_day']),axis=1)
-        date_1 = pd.to_datetime(date_0)
-        date_str = date_1.dt.strftime('%d.%m.%Y')
-        date_nbr = date_1.dt.strftime('%Y%m%d').astype(int)
-        df.insert(0, 'date', date_str)
-        date_int_list = []
-        for x in date_nbr:
-            date_int_list.append(x)
-        df.insert(0,'date_int',date_int_list)
+
+        date_expiration = df.apply(lambda x: datetime.date(x['expiration_year'], x['expiration_month'], x['expiration_day']),axis=1)
+        date_expiration = pd.to_datetime(date_expiration)
+        df.insert(0, 'date_expiration', date_expiration)
+        df = df.drop(columns=['expiration_year', 'expiration_month', 'expiration_day'])
+
         df = df.loc[:,~df.columns.duplicated()].copy()
         df = df.replace(r'^\s*$', np.nan, regex=True)
 
         return(df)
     
     def get_accounts_by_search_input(self,modus,search_input):
-        #print('sql',modus,search_input)
         conn = self.open_db_conn()
         cur = conn.cursor()
 
@@ -627,10 +835,10 @@ class SqlUserDataManager(SqlManager):
             query = cur.execute("SELECT * FROM accounts")
         elif modus == 'name':
             query = cur.execute("SELECT * FROM accounts WHERE name LIKE  ?", ('%'+str(search_input)+'%',))
-        elif modus == 'a_group' and search_input == '':
-            query = cur.execute("SELECT * FROM accounts WHERE a_group LIKE  ?", (' - ',))
-        elif modus == 'a_group':
-            query = cur.execute("SELECT * FROM accounts WHERE a_group LIKE  ? AND a_group != ?", ('%'+str(search_input)+'%',' - ',))
+        elif modus == 'group_name' and search_input == '':
+            query = cur.execute("SELECT * FROM accounts WHERE group_name LIKE  ?", (' - ',))
+        elif modus == 'group_name':
+            query = cur.execute("SELECT * FROM accounts WHERE group_name LIKE  ? AND group_name != ?", ('%'+str(search_input)+'%',' - ',))
         elif modus == 'project_label':
             query = cur.execute("SELECT * FROM accounts WHERE project_label LIKE  ?", ('%'+str(search_input)+'%',))
         elif modus == 'order_label':
@@ -660,7 +868,7 @@ class SqlUserDataManager(SqlManager):
     def get_all_active_account_groups(self):
         conn = self.open_db_conn()
         cur = conn.cursor()
-        group_list = [group[0] for group in cur.execute("SELECT a_group FROM accounts WHERE status != ?", ('closed',))]
+        group_list = [group[0] for group in cur.execute("SELECT group_name FROM accounts WHERE status != ?", ('closed',))]
         self.save_and_close_db(conn)
         return(group_list)
 
@@ -674,22 +882,17 @@ class SqlUserDataManager(SqlManager):
         df= pd.DataFrame.from_records(data = query.fetchall(), columns = cols)
         if df.empty:
             return(df)
-        date_0 = df.apply(lambda x: datetime.date(int(x['a_year']), x['a_month'], x['a_day']),axis=1)
-        date_1 = pd.to_datetime(date_0)
-        date_str = date_1.dt.strftime('%d.%m.%Y')
-        date_nbr = date_1.dt.strftime('%Y%m%d').astype(int)
-        df = df.drop(columns=['a_year', 'a_month', 'a_day'])
-        df.insert(0, 'date', date_str)
-        date_int_list = []
-        for x in date_nbr:
-            date_int_list.append(x)
-        df.insert(0,'date_int',date_int_list)
+        
+        date_expiration = df.apply(lambda x: datetime.date(int(x['expiration_year']), x['expiration_month'], x['expiration_day']),axis=1)
+        date_expiration = pd.to_datetime(date_expiration)
+        df.insert(0, 'date_expiration', date_expiration)
+        df = df.drop(columns=['expiration_year', 'expiration_month', 'expiration_day'])
+
         df = df.loc[:,~df.columns.duplicated()].copy()
         df = df.replace(r'^\s*$', np.nan, regex=True)
 
         self.save_and_close_db(conn)
         return(df)
-
 
     def account_set_open(self,account_id):
         conn = self.open_db_conn()
@@ -738,17 +941,14 @@ class SqlUserDataManager(SqlManager):
         year = passed_time_dict['year']
         month = passed_time_dict['month']
         day = passed_time_dict['day']
-        d_hour = passed_time_dict['d_hour']
-        d_minute = passed_time_dict['d_minute']
-        d_second = passed_time_dict['d_second']
         hours = passed_time_dict['hours']
         booked = passed_time_dict['booked']
 
-        passed_tuple = (passedid,accountid,year,month,day,d_hour,d_minute,d_second,hours,booked)
+        passed_tuple = (passedid,accountid,year,month,day,hours,booked)
 
         conn = self.open_db_conn()
         cur = conn.cursor()
-        cur.execute("INSERT INTO passed_times VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", passed_tuple)
+        cur.execute("INSERT INTO passed_times VALUES(?, ?, ?, ?, ?, ?, ?);", passed_tuple)
         self.save_and_close_db(conn)
         success = True
         return(success)
@@ -787,7 +987,7 @@ class SqlUserDataManager(SqlManager):
         else:
             return(hours)
 
-    def get_passed_times_with_accounts(self,two_month_limit,booking_status=None):
+    def get_passed_times_with_accounts(self,two_month_limit=False,booking_status=None):
         conn = self.open_db_conn()
         cur = conn.cursor()
 
@@ -795,6 +995,7 @@ class SqlUserDataManager(SqlManager):
             dt = datetime.datetime.now()
             this_month = int(dt.strftime("%m"))
             year_1 = int(dt.strftime("%Y"))
+            
             if this_month == 1:
                 last_month = 12
                 year_2 = year_1 - 1
@@ -814,19 +1015,17 @@ class SqlUserDataManager(SqlManager):
         df= pd.DataFrame.from_records(data = query.fetchall(), columns = cols)
         if df.empty:
             return(df)
-        datetime_0 = df.apply(lambda x: datetime.datetime(int(x['year']), x['month'], x['day'], x['d_hour'], x['d_minute'], x['d_second']),axis=1)
-        date_0 = df.apply(lambda x: datetime.date(int(x['year']), x['month'], x['day']),axis=1)
-        datetime_1 = pd.to_datetime(datetime_0)
-        date_1 = pd.to_datetime(date_0)
-        date_str = date_1.dt.strftime('%d.%m.%Y')
-        date_nbr = date_1.dt.strftime('%Y%m%d').astype(int)
-        df = df.drop(columns=['year', 'month', 'day','d_hour','d_minute','d_second'])
-        df.insert(0, 'datetime', datetime_1)
-        df.insert(0, 'date', date_str)
-        date_int_list = []
-        for x in date_nbr:
-            date_int_list.append(x)
-        df.insert(0,'date_int',date_int_list)
+        
+        date_record = df.apply(lambda x: datetime.date(x['year'], x['month'], x['day']),axis=1)
+        date_record = pd.to_datetime(date_record)
+        df.insert(0, 'date_record', date_record)
+        df = df.drop(columns=['year', 'month', 'day'])
+        
+        date_expiration = df.apply(lambda x: datetime.date(x['expiration_year'], x['expiration_month'], x['expiration_day']),axis=1)
+        date_expiration = pd.to_datetime(date_expiration)
+        df.insert(0, 'date_expiration', date_expiration)
+        df = df.drop(columns=['expiration_year', 'expiration_month', 'expiration_day'])
+
         df = df.loc[:,~df.columns.duplicated()].copy()
         df = df.replace(r'^\s*$', np.nan, regex=True)
 
@@ -855,22 +1054,19 @@ class SqlUserDataManager(SqlManager):
         cur.execute("UPDATE passed_times SET booked = ? WHERE passedid = ?", (1,passed_id))
         self.save_and_close_db(conn)
         return()
-    
-    def set_booked_time_unbooked(self,passed_id):
-        conn = self.open_db_conn()
-        cur = conn.cursor()
-        cur.execute("UPDATE passed_times SET booked = ? WHERE passedid = ?", (0,passed_id))
-        self.save_and_close_db(conn)
-        return()
-    
+        
 ################################################
-
-    def update_passed_time_by_passed_id(self,passed_id,hours):
+    
+    def update_passed_times(self,passed_time_dict):
         conn = self.open_db_conn()
         cur = conn.cursor()
-        cur.execute("UPDATE passed_times SET hours = ? WHERE passedid = ?", (hours,passed_id))
+        cur.execute("UPDATE passed_times SET accountid = ? WHERE passedid = ?", (passed_time_dict["account_id"],passed_time_dict["passed_id"]))
+        cur.execute("UPDATE passed_times SET year = ? WHERE passedid = ?", (passed_time_dict["year"],passed_time_dict["passed_id"]))
+        cur.execute("UPDATE passed_times SET month = ? WHERE passedid = ?", (passed_time_dict["month"],passed_time_dict["passed_id"]))
+        cur.execute("UPDATE passed_times SET day = ? WHERE passedid = ?", (passed_time_dict["day"],passed_time_dict["passed_id"]))
+        cur.execute("UPDATE passed_times SET hours = ? WHERE passedid = ?", (passed_time_dict["hours"],passed_time_dict["passed_id"]))
+        cur.execute("UPDATE passed_times SET booked = ? WHERE passedid = ?", (passed_time_dict["booked"],passed_time_dict["passed_id"]))
         self.save_and_close_db(conn)
-        return()
 
 ################################################
     
@@ -894,22 +1090,18 @@ class SqlUserDataManager(SqlManager):
     def add_backup(self,passed_time_dict):
 
         backupid = passed_time_dict['backup_id']
-        passedid = passed_time_dict['passed_id']
         accountid = passed_time_dict['account_id']
         year = passed_time_dict['year']
         month = passed_time_dict['month']
         day = passed_time_dict['day']
-        d_hour = passed_time_dict['d_hour']
-        d_minute = passed_time_dict['d_minute']
-        d_second = passed_time_dict['d_second']
         hours = passed_time_dict['hours']
         booked = passed_time_dict['booked']
 
-        backup_tuple = (backupid,passedid,accountid,year,month,day,d_hour,d_minute,d_second,hours,booked)
+        backup_tuple = (backupid,accountid,year,month,day,hours,booked)
 
         conn = self.open_db_conn()
         cur = conn.cursor()
-        cur.execute("INSERT INTO backup_current_times VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", backup_tuple)
+        cur.execute("INSERT INTO backup_current_times VALUES(?, ?, ?, ?, ?, ?, ?);", backup_tuple)
         self.save_and_close_db(conn)
         success = True
         return(success)
@@ -951,16 +1143,12 @@ class SqlUserDataManager(SqlManager):
             return(None)
         result = res[0]
         backup_dict = {"backup_id":result[0],
-                       "passed_id":result[1],
-                        "account_id":result[2],
-                        "year":result[3],
-                        "month":result[4],
-                        "day":result[5],
-                        "d_hour":result[6],
-                        "d_minute":result[7],
-                        "d_second":result[8],
-                        "hours":result[9],
-                        "booked":result[10]
+                        "account_id":result[1],
+                        "year":result[2],
+                        "month":result[3],
+                        "day":result[4],
+                        "hours":result[5],
+                        "booked":result[6]
                         }
         self.save_and_close_db(conn)
         return(backup_dict)

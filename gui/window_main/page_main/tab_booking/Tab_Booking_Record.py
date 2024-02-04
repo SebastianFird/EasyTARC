@@ -25,7 +25,7 @@ from style_classes import MyText
 from gui.window_main.page_main.tab_booking.Tab_Booking_OptionMenu import BookingOptionMenu
 
 class BookingRecordFrame(tk.Frame):
-    def __init__(self, container, main_app, gui, booking_tab,booking_category,record_dict):
+    def __init__(self, container, main_app, gui, booking_tab,booking_category,record_dict,record_scope):
          
         self.main_app = main_app
         self.data_manager = self.main_app.get_data_manager()
@@ -37,6 +37,7 @@ class BookingRecordFrame(tk.Frame):
         self.booking_category = booking_category
         self.record_dict = record_dict
         self.booked_check = False
+        self.record_scope = record_scope
 
         MyFrame.__init__(self, container, self.data_manager)
 
@@ -131,7 +132,7 @@ class BookingRecordFrame(tk.Frame):
         info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project"] + ': ' + str(self.record_dict['project_label']) + '\n' + self.language_dict["order"] + ': ' + str(self.record_dict['order_label']) + '\n' + self.language_dict["process"] + ': ' +str(self.record_dict['process_label'])
         self.account_info_ttp = CreateToolTip(self.lbl_name, self.data_manager, 30, 25, info_text)
 
-        self.on_clock = False
+        self.on_record = False
 
         self.bind("<Enter>", self.enter_record)
         self.bind("<Leave>", self.leave_record)
@@ -143,6 +144,14 @@ class BookingRecordFrame(tk.Frame):
         self.lbl_empty2.bind("<Button-1>", self.activate_record)
         self.lbl_empty1.bind("<Button-1>", self.activate_record)
         self.lbl_empty0.bind("<Button-1>", self.activate_record)
+
+        self.bind("<Control-1>", self.append_activate_record)
+        self.lbl_name.bind("<Control-1>", self.append_activate_record)
+        self.lbl_empty4.bind("<Control-1>", self.append_activate_record)
+        self.lbl_empty3.bind("<Control-1>", self.append_activate_record)
+        self.lbl_empty2.bind("<Control-1>", self.append_activate_record)
+        self.lbl_empty1.bind("<Control-1>", self.append_activate_record)
+        self.lbl_empty0.bind("<Control-1>", self.append_activate_record)
 
         self.bind("<Button-3>", self.right_clicked)
         self.lbl_name.bind("<Button-3>", self.right_clicked)
@@ -165,8 +174,8 @@ class BookingRecordFrame(tk.Frame):
         self.gui.main_window.clipboard_clear()
         self.gui.main_window.clipboard_append(str(self.record_dict['response_text']))
         self.btn_copy_response_text_ttp.showresponse()
-        if self.booking_tab.get_clicked_record_frame() != self:
-            self.activate_record(e)
+        self.booking_tab.reset_clicked_record_frame_list()
+        self.activate_record(e)
 
 ##################################################
 
@@ -180,8 +189,8 @@ class BookingRecordFrame(tk.Frame):
         self.gui.main_window.clipboard_clear()
         self.gui.main_window.clipboard_append(str('{:n}'.format(round(self.record_dict['hours'],3))))
         self.btn_copy_hours_ttp.showresponse()
-        if self.booking_tab.get_clicked_record_frame() != self:
-            self.activate_record(e)
+        self.booking_tab.reset_clicked_record_frame_list()
+        self.activate_record(e)
 
 ##################################################
 
@@ -195,37 +204,69 @@ class BookingRecordFrame(tk.Frame):
         self.gui.main_window.clipboard_clear()
         self.gui.main_window.clipboard_append(str(self.record_dict['response_code']))
         self.btn_copy_response_code_ttp.showresponse()
-        if self.booking_tab.get_clicked_record_frame() != self:
-            self.activate_record(e)
+        self.booking_tab.reset_clicked_record_frame_list()
+        self.activate_record(e)
 
 ##################################################
 
     def enter_record(self,e):
-        self.on_clock = True
+        self.on_record = True
         self.update()
 
     def leave_record(self,e):
-        self.on_clock = False
+        self.on_record = False
         self.update()
+
+    def append_activate_record(self,e=None):
+        if self.booked_check == False:
+            if self.booking_tab.get_current_record_scope() != self.record_scope:
+                self.booking_tab.reset_clicked_record_frame_list()
+                self.booking_tab.set_current_record_scope(self.record_scope)
+
+            clicked_record_frame_list = self.booking_tab.get_clicked_record_frame_list()
+
+            if self in clicked_record_frame_list:
+                new_record_frame_list = [ele for ele in clicked_record_frame_list if ele != self]
+                self.booking_tab.set_clicked_record_frame_list(new_record_frame_list)
+            else:
+                new_clicked_record_frame_list = clicked_record_frame_list + [self]
+                self.booking_tab.set_clicked_record_frame_list(new_clicked_record_frame_list)
+
+            self.update()
 
     def activate_record(self,e=None):
         if self.booked_check == False:
-            if self.booking_tab.get_clicked_record_frame() == self:
-                self.booking_tab.reset_clicked_record_frame()
-            else:
-                self.booking_tab.set_clicked_record_frame(self)
-        self.update()
+            if self.booking_tab.get_current_record_scope() != self.record_scope:
+                self.booking_tab.reset_clicked_record_frame_list()
+                self.booking_tab.set_current_record_scope(self.record_scope)
 
-    def right_clicked(self,e):
+            clicked_record_frame_list = self.booking_tab.get_clicked_record_frame_list()
+
+            if  clicked_record_frame_list == [self]:
+                self.booking_tab.reset_clicked_record_frame_list()
+            else:
+                self.booking_tab.reset_clicked_record_frame_list()
+                new_clicked_record_frame_list = [self]
+                self.booking_tab.set_clicked_record_frame_list(new_clicked_record_frame_list)
+            self.update()
+
+    def activate_all_records(self,e=None):
+        new_clicked_record_frame_list = self.record_scope.record_frame_list
+        self.booking_tab.activate_all_record_frames(new_clicked_record_frame_list)
+
+    def right_clicked(self,e=None):
         if self.main_app.get_action_state() == "normal" or self.main_app.get_action_state() == "endofwork":
-            if self.booking_tab.get_clicked_record_frame() != self:
-                self.activate_record(e)
+            if self not in self.booking_tab.get_clicked_record_frame_list():
+                self.booking_tab.reset_clicked_record_frame_list()
+                new_clicked_record_frame_list = [self]
+                self.booking_tab.set_clicked_record_frame_list(new_clicked_record_frame_list)
+                self.update()
             self.option_menu.popup(e)
 
     def update(self):
-        if self.booking_tab.get_clicked_record_frame() == self and self.booked_check == False:
+        if self in self.booking_tab.get_clicked_record_frame_list() and self.booked_check == False:
             background_color = self.style_dict["selected_color_grey"]
-        elif self.on_clock == True and self.booked_check == False:
+        elif self.on_record == True and self.booked_check == False:
             background_color = self.style_dict["frame_hover_color_grey"]
         elif self.booked_check == True:
             background_color = self.style_dict["highlight_color_grey"]
@@ -252,8 +293,7 @@ class BookingRecordFrame(tk.Frame):
         self.btn_booking.configure(text=u'\U00002713')
         self.btn_booking.configure(state=tk.DISABLED)
         self.booked_check = True
-        if self.booking_tab.get_clicked_record_frame() == self:
-            self.booking_tab.reset_clicked_record_frame()
+        self.booking_tab.reset_clicked_record_frame_list()
         self.update()
         return
     

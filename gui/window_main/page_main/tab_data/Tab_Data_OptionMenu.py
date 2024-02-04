@@ -37,21 +37,27 @@ class DataOptionMenu(tkinter.Listbox):
         self.refresh()
 
     def build_options(self):
-        self.record_dict = self.data_tab.get_clicked_record_frame().record_dict
-
         self.optionmenu.delete(0, "end")
+        clicked_record_frame_list = self.data_tab.get_clicked_record_frame_list()
 
-        self.optionmenu.add_command(label=self.language_dict["info_about_the_time_account"],command=self.show_clock_info)
-        self.optionmenu.add_separator()
-        
-        self.optionmenu.add_command(label=self.language_dict["edit"],command=self.edit_record)
-        self.optionmenu.add_command(label=self.language_dict["delete"],command=self.ask_delete_record)
+        if len(clicked_record_frame_list) == 1:
+            self.record_dict = clicked_record_frame_list[0].record_dict
+            self.optionmenu.add_command(label=self.language_dict["info_about_the_time_account"],command=self.show_clock_info)
+            self.optionmenu.add_separator()
+            
+            self.optionmenu.add_command(label=self.language_dict["edit"],command=self.edit_record)
+            self.optionmenu.add_command(label=self.language_dict["delete"],command=self.ask_delete_record)
+            self.optionmenu.add_separator()
+
+        if self.data_tab.data_kind == 'default_list':
+            self.optionmenu.add_command(label=self.language_dict["select_day"],command=self.select_all)
+
 
 
     def popup(self, event):
         try:
             self.build_options()
-            self.optionmenu.tk_popup((event.x_root + 80), event.y_root, 0)
+            self.optionmenu.tk_popup((event.x_root), event.y_root)
         finally:
             self.optionmenu.grab_release()
 
@@ -62,6 +68,9 @@ class DataOptionMenu(tkinter.Listbox):
         self.optionmenu.configure(background=self.style_dict["background_color_grey"])
         self.optionmenu.configure(foreground=self.style_dict["font_color"])
         self.optionmenu.configure(activebackground=self.style_dict["selected_color_grey"])
+
+    def select_all(self):
+        self.data_tab.get_clicked_record_frame_list()[0].activate_all_records()
 
     def ask_delete_record(self):
         DeleteRecordWarning(self.main_app,self.gui,self.data_tab.main_frame, self.data_tab,self.record_dict)
@@ -107,6 +116,18 @@ class DataOptionMenu(tkinter.Listbox):
                         self.language_dict["response_code"]:self.record_dict['response_code'],                            
                         self.language_dict["response_text"]:self.record_dict['response_text']              
                         })
+        #############
+        if self.record_dict['account_id'] != 0:
+            if int(self.record_dict['date_expiration'].strftime("%Y")) != 2000:
+                info_dict.update({self.language_dict["expiration_date"]:self.record_dict['date_expiration'].strftime('%d.%m.%Y')}) 
+            else: 
+                info_dict.update({self.language_dict["expiration_date"]:" - "}) 
+        #############
+        if self.record_dict['account_id'] != 0:
+            if float(self.record_dict['available_hours']) != 0:
+                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.record_dict['available_hours']),2))) + ' ' + self.language_dict["hours"]}) 
+            else:
+                info_dict.update({self.language_dict["available_hours"]:" - "}) 
         #############
         info_window = InfoDictWindow(self.main_app, self.gui, self.data_tab.main_frame ,info_dict,400,280)
 

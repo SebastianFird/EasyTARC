@@ -54,10 +54,17 @@ class GroupFrame((tk.Frame)):
     def get_tree_view(self):
         return(self.tree_view)
     
-    def get_main_account_list(self):
-        main_account_list = [ele.main_account_clock for ele in self.main_account_frame_list]
+    def get_main_account_frame_list(self):
+        return(self.main_account_frame_list)    
+
+    def get_main_account_clock_list(self):
+        main_account_clock_list = [ele.main_account_clock for ele in self.main_account_frame_list]
+        return(main_account_clock_list)    
+
+    def get_work_window_main_account_list(self):
+        main_account_list = [[ele.main_account_clock,ele.tree_view] for ele in self.main_account_frame_list]
         return(main_account_list)
-    
+
     def create_main_frame(self):
 
         self.main_frame = MyFrame(self,self.data_manager)

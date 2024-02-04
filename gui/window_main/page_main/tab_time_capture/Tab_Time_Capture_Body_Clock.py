@@ -17,7 +17,9 @@ __author__ = 'Sebastian Feiert'
 
 import tkinter as tk
 from PIL import ImageTk, Image
+import datetime
 
+from gui.Window_Additionals import CreateToolTip
 from gui.Window_Additionals import CurrentAddedTimeTip
 from gui.Window_Additionals import CreateInfo
 from gui.Window_Additionals import TimeTip
@@ -37,52 +39,20 @@ class ClockFrame(tk.Frame):
         self.gui = gui
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
+        self.image_dict = self.data_manager.get_image_dict()
 
         self.frame_deleted = False
-
-        image_1 = self.style_dict['photo_btn_on']
-        image_2 = self.style_dict['photo_btn_highlight']
-        image_3 = self.style_dict['photo_btn_off']
-        image_12 = self.style_dict['photo_btn_not_bookable']
-
-        self.photo_btn_highlight = ImageTk.PhotoImage(image_2.resize((40, 20), Image.ANTIALIAS))
-        self.photo_btn_off = ImageTk.PhotoImage(image_3.resize((40, 20), Image.ANTIALIAS))
-        self.photo_btn_on = ImageTk.PhotoImage(image_1.resize((40, 20), Image.ANTIALIAS))
-        self.photo_btn_not_bookable  = ImageTk.PhotoImage(image_12.resize((40, 20), Image.ANTIALIAS))
-
-        image_4 = self.style_dict['photo_btn_plus_strong_highlight']
-        image_5 = self.style_dict['photo_btn_plus_font']
-        self.photo_btn_plus_strong_highlight = ImageTk.PhotoImage(image_4.resize((20, 20), Image.ANTIALIAS))
-        self.photo_btn_plus_font = ImageTk.PhotoImage(image_5.resize((20, 20), Image.ANTIALIAS))
-
-        image_6 = self.style_dict['photo_btn_plus_plus_strong_highlight']
-        image_7 = self.style_dict['photo_btn_plus_plus_font']
-        self.photo_btn_plus_plus_strong_highlight = ImageTk.PhotoImage(image_6.resize((35, 20), Image.ANTIALIAS))
-        self.photo_btn_plus_plus_font = ImageTk.PhotoImage(image_7.resize((35, 20), Image.ANTIALIAS))
-
-        image_8 = self.style_dict['photo_btn_minus_minus_strong_highlight']
-        image_9 = self.style_dict['photo_btn_minus_minus_font']
-        self.photo_btn_minus_minus_strong_highlight = ImageTk.PhotoImage(image_8.resize((35, 20), Image.ANTIALIAS))
-        self.photo_btn_minus_minus_font = ImageTk.PhotoImage(image_9.resize((35, 20), Image.ANTIALIAS))
-
-        image_10 = self.style_dict['photo_btn_minus_strong_highlight']
-        image_11 = self.style_dict['photo_btn_minus_font']
-        self.photo_btn_minus_strong_highlight = ImageTk.PhotoImage(image_10.resize((20, 20), Image.ANTIALIAS))
-        self.photo_btn_minus_font = ImageTk.PhotoImage(image_11.resize((20, 20), Image.ANTIALIAS))
-
 
         self.clock = clock
         self.capture_body = capture_body
         self.main_account_frame = main_account_frame
         self.capture_tab = self.capture_body.capture_tab
 
+        self.after_func = None
+
         MyFrame.__init__(self, container, self.data_manager)
 
         self.option_menu = CaptureOptionMenu(self,self.main_app,self.gui, self.capture_tab)
-
-        font_family = self.main_app.get_setting('font_family')
-        font_size = self.main_app.get_setting('font_size')
-        Font_tuple = (font_family, font_size, "bold")
 
         self.full_time_correction_str = ''
 
@@ -108,8 +78,8 @@ class ClockFrame(tk.Frame):
         else:
             self.lbl_indent.configure(text = '')
 
-        self.lbl_activate_clock = MyLabel(self, self.data_manager, image=self.photo_btn_off)
-        self.lbl_activate_clock.image = self.photo_btn_off
+        self.lbl_activate_clock = MyLabel(self, self.data_manager, image=self.image_dict['photo_btn_off'])
+        self.lbl_activate_clock.image = self.image_dict['photo_btn_off']
         self.lbl_activate_clock.pack(side='left')
 
         self.on_activate = False
@@ -123,16 +93,18 @@ class ClockFrame(tk.Frame):
         self.lbl_empty1.set_photo_width(10)
         self.lbl_empty1.pack(side = "right")
 
-        self.btn_minus = MyLabel(self, self.data_manager, image=self.photo_btn_minus_strong_highlight)
-        self.btn_minus.image = self.photo_btn_minus_strong_highlight
+        self.btn_minus = MyLabel(self, self.data_manager, image=self.image_dict['photo_btn_minus_strong_highlight'])
+        self.btn_minus.image = self.image_dict['photo_btn_minus_strong_highlight']
+        self.btn_minus_ttp = CreateInfo(self.btn_minus, self.data_manager, 30, 25, ' -5 ' + self.language_dict["minutes"])
         self.on_btn_minus = False
         self.btn_minus.bind("<Enter>", self.btn_minus_enter)
         self.btn_minus.bind("<Leave>", self.btn_minus_leave)
         self.btn_minus.bind("<Button-1>", self.activate_btn_minus)
         self.btn_minus.pack(side='right',padx=3) 
 
-        self.btn_minus_minus = MyLabel(self, self.data_manager, image=self.photo_btn_minus_minus_strong_highlight)
-        self.btn_minus_minus.image = self.photo_btn_minus_minus_strong_highlight
+        self.btn_minus_minus = MyLabel(self, self.data_manager, image=self.image_dict['photo_btn_minus_minus_strong_highlight'])
+        self.btn_minus_minus.image = self.image_dict['photo_btn_minus_minus_strong_highlight']
+        self.btn_minus_minus_ttp = CreateInfo(self.btn_minus_minus, self.data_manager, 30, 25, ' -30 ' + self.language_dict["minutes"])
         self.on_btn_minus_minus = False
         self.btn_minus_minus.bind("<Enter>", self.btn_minus_minus_enter)
         self.btn_minus_minus.bind("<Leave>", self.btn_minus_minus_leave)
@@ -140,16 +112,18 @@ class ClockFrame(tk.Frame):
         self.btn_minus_minus.pack(side='right',padx=3) 
 
 
-        self.btn_plus_plus = MyLabel(self, self.data_manager, image=self.photo_btn_plus_plus_strong_highlight)
-        self.btn_plus_plus.image = self.photo_btn_plus_plus_strong_highlight
+        self.btn_plus_plus = MyLabel(self, self.data_manager, image=self.image_dict['photo_btn_plus_plus_strong_highlight'])
+        self.btn_plus_plus.image = self.image_dict['photo_btn_plus_plus_strong_highlight']
+        self.btn_plus_plus_ttp = CreateInfo(self.btn_plus_plus, self.data_manager, 30, 25, ' +30 ' + self.language_dict["minutes"])
         self.on_btn_plus_plus = False
         self.btn_plus_plus.bind("<Enter>", self.btn_plus_plus_enter)
         self.btn_plus_plus.bind("<Leave>", self.btn_plus_plus_leave)
         self.btn_plus_plus.bind("<Button-1>", self.activate_btn_plus_plus)
         self.btn_plus_plus.pack(side='right',padx=3) 
 
-        self.btn_plus = MyLabel(self, self.data_manager, image=self.photo_btn_plus_strong_highlight)
-        self.btn_plus.image = self.photo_btn_plus_strong_highlight
+        self.btn_plus = MyLabel(self, self.data_manager, image=self.image_dict['photo_btn_plus_strong_highlight'])
+        self.btn_plus.image = self.image_dict['photo_btn_plus_strong_highlight']
+        self.btn_plus_ttp = CreateInfo(self.btn_plus, self.data_manager, 30, 25, ' +5 ' + self.language_dict["minutes"])
         self.on_btn_plus = False
         self.btn_plus.bind("<Enter>", self.btn_plus_enter)
         self.btn_plus.bind("<Leave>", self.btn_plus_leave)
@@ -171,8 +145,7 @@ class ClockFrame(tk.Frame):
             self.lbl_add_time.configure(text = sign + ' ' + str(added_minutes))
             self.add_full_time_correction_str(self.language_dict["start"] + ': ' + sign + ' ' + str(added_minutes))
 
-        info_text = ''
-        self.lbl_add_time_ttp = CreateInfo(self.lbl_add_time, self.data_manager, 30, 25, info_text)
+        self.lbl_add_time_ttp = CreateInfo(self.lbl_add_time, self.data_manager, 30, 25)
         self.lbl_add_time.bind("<Enter>", self.correction_time_enter)
         self.lbl_add_time.bind("<Leave>", self.correction_time_leave)
 
@@ -186,19 +159,23 @@ class ClockFrame(tk.Frame):
         self.lbl_total_time = MyLabel(self, self.data_manager, width=16, anchor='w',text = total_time)
         self.lbl_total_time_ttp = TimeTip(self.lbl_total_time, self.data_manager, 50, 30, self.clock,'full_time')
 
-        self.lbl_running_clock = MyLabel(self, self.data_manager, width=3)
+        self.lbl_running_clock = MyLabel(self, self.data_manager, width=6)
         self.lbl_current_added_time_ttp =CurrentAddedTimeTip(self.lbl_running_clock, self.data_manager, 50, 30, self)
+
+        self.lbl_hours_left = MyLabel(self, self.data_manager, width=10)
+        self.lbl_hours_left_ttp = CreateToolTip(self.lbl_hours_left, self.data_manager, 30, 25)
         
 ##################################################
+        
+        self.update_hours_left()
 
         if self.clock.get_id() != 0:
             name_text =  self.clock.get_name()
-            info_text = self.language_dict["name"] + ': ' + str(self.clock.get_name()) + '\n' + self.language_dict["project"]  + ': ' + str(self.clock.get_project_label()) + '\n' + self.language_dict["order"] + ': ' + str(self.clock.get_order_label()) + '\n' + self.language_dict["process"] + ': ' + str(self.clock.get_process_label())
         else:
             name_text = self.language_dict["without_allocation"]
-            info_text = self.language_dict["without_allocation"]
+
         self.lbl_name = MyLabel(self, self.data_manager,text = name_text, anchor='w')
-        self.account_info_ttp = CreateInfo(self.lbl_name, self.data_manager, 30, 25, info_text)
+        self.account_info_ttp = CreateInfo(self.lbl_name, self.data_manager, 30, 25, name_text)
         self.lbl_name.bind("<Enter>", self.name_enter)
         self.lbl_name.bind("<Leave>", self.name_leave)
 
@@ -214,6 +191,7 @@ class ClockFrame(tk.Frame):
         self.lbl_add_time.bind("<Button-1>", self.clock_frame_clicked)
         self.lbl_total_time.bind("<Button-1>", self.clock_frame_clicked)
         self.lbl_running_clock.bind("<Button-1>", self.clock_frame_clicked)
+        self.lbl_hours_left.bind("<Button-1>", self.clock_frame_clicked)
         self.lbl_name.bind("<Button-1>", self.clock_frame_clicked)
 
         self.bind("<Button-3>", self.right_clicked)
@@ -222,14 +200,14 @@ class ClockFrame(tk.Frame):
         self.lbl_add_time.bind("<Button-3>", self.right_clicked)
         self.lbl_total_time.bind("<Button-3>", self.right_clicked)
         self.lbl_running_clock.bind("<Button-3>", self.right_clicked)
+        self.lbl_hours_left.bind("<Button-3>", self.right_clicked)
         self.lbl_name.bind("<Button-3>", self.right_clicked)
         
         self.packed = None
-        if self.clock.get_id() == 0:
-            self.activate_clock()
         
         self.update_frame()
         self.update_clock()
+        self.check_date_expiration()
 
 
 ################################################################################################################################
@@ -240,11 +218,13 @@ class ClockFrame(tk.Frame):
         self.lbl_empty3.pack_forget()
         self.lbl_total_time.pack_forget()
         self.lbl_running_clock.pack_forget()
+        self.lbl_hours_left.pack_forget()
         self.lbl_name.pack_forget()
 
         self.lbl_add_time.pack(side='right',padx=3)            
         self.lbl_passed_time.pack(side='right',padx=3)         
-        self.lbl_running_clock.pack(side='right',padx=3)        
+        self.lbl_running_clock.pack(side='right',padx=3)  
+        self.lbl_hours_left.pack(side='right',padx=3)        
         self.lbl_name.pack(side='left')
 
         self.packed = "captured_added_time"
@@ -255,11 +235,13 @@ class ClockFrame(tk.Frame):
         self.lbl_empty3.pack_forget()
         self.lbl_total_time.pack_forget()
         self.lbl_running_clock.pack_forget()
+        self.lbl_hours_left.pack_forget() 
         self.lbl_name.pack_forget()
 
         self.lbl_empty3.pack(side='right',padx=3)   
         self.lbl_total_time.pack(side='right',padx=3)          
-        self.lbl_running_clock.pack(side='right',padx=3)       
+        self.lbl_running_clock.pack(side='right',padx=3) 
+        self.lbl_hours_left.pack(side='right',padx=3)      
         self.lbl_name.pack(side='left')
 
         self.packed = "full_time"
@@ -289,14 +271,14 @@ class ClockFrame(tk.Frame):
     def activate_enter(self,e):
         self.on_activate = True
         if self.clock.get_runninig() == False:
-            self.lbl_activate_clock.configure(image=self.photo_btn_highlight)
-            self.lbl_activate_clock.image = self.photo_btn_highlight
+            self.lbl_activate_clock.configure(image=self.image_dict['photo_btn_highlight'])
+            self.lbl_activate_clock.image = self.image_dict['photo_btn_highlight']
 
     def activate_leave(self,e):
         self.on_activate = False
         if self.clock.get_runninig() == False:
-            self.lbl_activate_clock.configure(image=self.photo_btn_off)
-            self.lbl_activate_clock.image = self.photo_btn_off
+            self.lbl_activate_clock.configure(image=self.image_dict['photo_btn_off'])
+            self.lbl_activate_clock.image = self.image_dict['photo_btn_off']
 
     def activate_clock(self,e=None):
         if self.main_app.get_action_state() == "normal":
@@ -309,13 +291,15 @@ class ClockFrame(tk.Frame):
 
     def btn_minus_enter(self,e):
         self.on_btn_minus = True
-        self.btn_minus.configure(image=self.photo_btn_minus_font)
-        self.btn_minus.image = self.photo_btn_minus_font
+        self.btn_minus.configure(image=self.image_dict['photo_btn_minus_font'])
+        self.btn_minus.image = self.image_dict['photo_btn_minus_font']
+        self.btn_minus_ttp.scheduleinfo()
 
     def btn_minus_leave(self,e):
         self.on_btn_minus = False
-        self.btn_minus.configure(image=self.photo_btn_minus_strong_highlight)
-        self.btn_minus.image = self.photo_btn_minus_strong_highlight
+        self.btn_minus.configure(image=self.image_dict['photo_btn_minus_strong_highlight'])
+        self.btn_minus.image = self.image_dict['photo_btn_minus_strong_highlight']
+        self.btn_minus_ttp.hideinfo()
 
     def activate_btn_minus(self,e):
         if self.main_app.get_action_state() == "normal":
@@ -328,13 +312,15 @@ class ClockFrame(tk.Frame):
 
     def btn_minus_minus_enter(self,e):
         self.on_btn_minus_minus = True
-        self.btn_minus_minus.configure(image=self.photo_btn_minus_minus_font)
-        self.btn_minus_minus.image = self.photo_btn_minus_minus_font
+        self.btn_minus_minus.configure(image=self.image_dict['photo_btn_minus_minus_font'])
+        self.btn_minus_minus.image = self.image_dict['photo_btn_minus_minus_font']
+        self.btn_minus_minus_ttp.scheduleinfo()
 
     def btn_minus_minus_leave(self,e):
         self.on_btn_minus_minus = False
-        self.btn_minus_minus.configure(image=self.photo_btn_minus_minus_strong_highlight)
-        self.btn_minus_minus.image = self.photo_btn_minus_minus_strong_highlight
+        self.btn_minus_minus.configure(image=self.image_dict['photo_btn_minus_minus_strong_highlight'])
+        self.btn_minus_minus.image = self.image_dict['photo_btn_minus_minus_strong_highlight']
+        self.btn_minus_minus_ttp.hideinfo()
 
     def activate_btn_minus_minus(self,e):
         if self.main_app.get_action_state() == "normal":
@@ -347,13 +333,15 @@ class ClockFrame(tk.Frame):
 
     def btn_plus_plus_enter(self,e):
         self.on_btn_plus_plus = True
-        self.btn_plus_plus.configure(image=self.photo_btn_plus_plus_font)
-        self.btn_plus_plus.image = self.photo_btn_plus_plus_font
+        self.btn_plus_plus.configure(image=self.image_dict['photo_btn_plus_plus_font'])
+        self.btn_plus_plus.image = self.image_dict['photo_btn_plus_plus_font']
+        self.btn_plus_plus_ttp.scheduleinfo()
 
     def btn_plus_plus_leave(self,e):
         self.on_btn_plus_plus = False
-        self.btn_plus_plus.configure(image=self.photo_btn_plus_plus_strong_highlight)
-        self.btn_plus_plus.image = self.photo_btn_plus_plus_strong_highlight
+        self.btn_plus_plus.configure(image=self.image_dict['photo_btn_plus_plus_strong_highlight'])
+        self.btn_plus_plus.image = self.image_dict['photo_btn_plus_plus_strong_highlight']
+        self.btn_plus_plus_ttp.hideinfo()
 
     def activate_btn_plus_plus(self,e):
         if self.main_app.get_action_state() == "normal":
@@ -366,13 +354,15 @@ class ClockFrame(tk.Frame):
 
     def btn_plus_enter(self,e):
         self.on_btn_plus = True
-        self.btn_plus.configure(image=self.photo_btn_plus_font)
-        self.btn_plus.image = self.photo_btn_plus_font
+        self.btn_plus.configure(image=self.image_dict['photo_btn_plus_font'])
+        self.btn_plus.image = self.image_dict['photo_btn_plus_font']
+        self.btn_plus_ttp.scheduleinfo()
 
     def btn_plus_leave(self,e):
         self.on_btn_plus = False
-        self.btn_plus.configure(image=self.photo_btn_plus_strong_highlight)
-        self.btn_plus.image = self.photo_btn_plus_strong_highlight
+        self.btn_plus.configure(image=self.image_dict['photo_btn_plus_strong_highlight'])
+        self.btn_plus.image = self.image_dict['photo_btn_plus_strong_highlight']
+        self.btn_plus_ttp.hideinfo()
 
     def activate_btn_plus(self,e):
         if self.main_app.get_action_state() == "normal":
@@ -441,21 +431,21 @@ class ClockFrame(tk.Frame):
         if self.clock.get_runninig() == True and self.main_app.get_action_state() == "normal":
             self.lbl_running_clock.configure(text = u'\U000023F1') 
             if int(self.clock.get_bookable()) == 1:
-                self.lbl_activate_clock.configure(image=self.photo_btn_on)
-                self.lbl_activate_clock.image = self.photo_btn_on
+                self.lbl_activate_clock.configure(image=self.image_dict['photo_btn_on'])
+                self.lbl_activate_clock.image = self.image_dict['photo_btn_on']
             else:
-                self.lbl_activate_clock.configure(image=self.photo_btn_not_bookable)
-                self.lbl_activate_clock.image = self.photo_btn_not_bookable
+                self.lbl_activate_clock.configure(image=self.image_dict['photo_btn_not_bookable'])
+                self.lbl_activate_clock.image = self.image_dict['photo_btn_not_bookable']
         else:
             self.lbl_running_clock.configure(text = ' ')
             if self.on_activate == True:
-                self.lbl_activate_clock.configure(image=self.photo_btn_highlight)
-                self.lbl_activate_clock.image = self.photo_btn_highlight
+                self.lbl_activate_clock.configure(image=self.image_dict['photo_btn_highlight'])
+                self.lbl_activate_clock.image = self.image_dict['photo_btn_highlight']
             else:
-                self.lbl_activate_clock.configure(image=self.photo_btn_off)
-                self.lbl_activate_clock.image = self.photo_btn_off
+                self.lbl_activate_clock.configure(image=self.image_dict['photo_btn_off'])
+                self.lbl_activate_clock.image = self.image_dict['photo_btn_off']
 
-    def auto_clock(self):
+    def auto_clock(self,i=1):
         passed_time = self.clock.str_timedelta(self.clock.get_passed_time())
         self.lbl_passed_time.configure(text = passed_time)
         sign, added_minutes = self.clock.get_added_time()
@@ -464,19 +454,79 @@ class ClockFrame(tk.Frame):
         else:
             self.lbl_add_time.configure(text = sign + ' ' + str(added_minutes))
 
+        if i > 60:
+            self.update_hours_left()
+            i=1
+        else:
+            i = i + 1
+
         total_time = self.clock.str_timedelta(self.clock.get_total_time())
         self.lbl_total_time.configure(text = total_time)
 
         if self.clock.get_runninig() == True and self.main_app.get_action_state() == "normal" and self.frame_deleted == False:
-            self.after(1000, lambda:self.auto_clock())
+            self.after_func = self.after(1000, lambda:self.auto_clock(i))
         else:
             self.show_state()
 
+    def update_hours_left(self):
+
+        if self.clock  == self.main_account_frame.main_account_clock:
+            time_left,state= self.clock.get_time_left()
+            if state == '+':
+                font_appearance = "normal"
+                font_color = self.style_dict["font_color"]
+                self.lbl_hours_left.configure(text = '(' + str('{:n}'.format(round(float(self.clock.float_hourdelta(time_left)),1))) + ' ' + self.language_dict["hours_abbreviation"] + ')')
+                info_text = self.language_dict["hours_left"]
+            elif state == '-':
+                font_appearance = "bold"
+                font_color = self.style_dict["caution_color_red"]
+                self.lbl_hours_left.configure(text = '(' + str('-'+'{:n}'.format(round(float(self.clock.float_hourdelta(time_left)),1))) + ' ' + self.language_dict["hours_abbreviation"] + ')')
+                info_text = self.language_dict["hours_left"]
+            else:
+                font_appearance = "normal"
+                font_color = self.style_dict["font_color"]
+                self.lbl_hours_left.configure(text ='')
+                info_text = self.language_dict[""]
+
+            self.lbl_hours_left_ttp.text = info_text
+            font_family = self.main_app.get_setting('font_family')
+            font_size = self.main_app.get_setting('font_size')
+            Font_tuple = (font_family, font_size, font_appearance)
+            self.lbl_hours_left.configure(foreground=font_color, font = Font_tuple)
+
+        else:
+            self.main_account_frame.main_clock_frame.update_hours_left()
+
     def update_clock(self):
         self.show_state()
+        if self.after_func != None:
+            self.after_cancel(self.after_func)
         self.auto_clock()
+        self.update_hours_left()
 
 ################################################################################################################################
+        
+    def check_date_expiration(self):
+        today = datetime.datetime.now().date()
+
+        font_family = self.main_app.get_setting('font_family')
+        font_size = self.main_app.get_setting('font_size')
+
+        if today > self.clock.get_date_expiration() and self.clock.get_id() != 0 and int(self.clock.get_date_expiration().strftime("%Y")) != 2000:
+            font_color = self.style_dict["caution_color_red"]
+            info_text = self.language_dict["name"] + ': ' + str(self.clock.get_name()) + '\n' + self.language_dict["time_account_date_expiration"]
+            Font_tuple = (font_family, font_size, "bold")
+            self.main_account_frame.account_date_expiration = True  
+        else:
+            if self.clock.get_id() != 0:
+                info_text = self.language_dict["name"] + ': ' + str(self.clock.get_name()) + '\n' + self.language_dict["project"]  + ': ' + str(self.clock.get_project_label()) + '\n' + self.language_dict["order"] + ': ' + str(self.clock.get_order_label()) + '\n' + self.language_dict["process"] + ': ' + str(self.clock.get_process_label())
+            else:
+                info_text = self.language_dict["without_allocation"]
+            Font_tuple = (font_family, font_size, "normal")
+            font_color = self.style_dict["font_color"]
+
+        self.lbl_name.configure(foreground=font_color, font= Font_tuple)
+        self.account_info_ttp.text = info_text
 
     def update_frame(self):
         if self.data_manager.get_selected_clock() == self.clock:
@@ -499,6 +549,7 @@ class ClockFrame(tk.Frame):
         self.lbl_passed_time.configure(background=background_color)
         self.lbl_total_time.configure(background=background_color)
         self.lbl_running_clock.configure(background=background_color)
+        self.lbl_hours_left.configure(background=background_color)
         self.lbl_add_time.configure(background=background_color)
         self.btn_minus.configure(background=background_color)
         self.btn_minus_minus.configure(background=background_color)
@@ -523,6 +574,7 @@ class ClockFrame(tk.Frame):
     def refresh(self):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
+        self.image_dict = self.data_manager.get_image_dict()
         
         self.account_info_ttp.refresh()
         self.lbl_passed_time_ttp.refresh()
@@ -530,6 +582,11 @@ class ClockFrame(tk.Frame):
         self.lbl_total_time_ttp.refresh()
         self.option_menu.refresh()
         self.lbl_current_added_time_ttp.refresh()
+        self.lbl_hours_left_ttp.refresh()
+        self.btn_minus_ttp.refresh()
+        self.btn_minus_minus_ttp.refresh()
+        self.btn_plus_plus_ttp.refresh()
+        self.btn_plus_ttp.refresh()
 
         self.lbl_empty0.refresh_style()
         self.lbl_empty1.refresh_style()
@@ -547,43 +604,38 @@ class ClockFrame(tk.Frame):
         self.lbl_passed_time.refresh_style()
         self.lbl_total_time.refresh_style()
         self.lbl_running_clock.refresh_style()
+        self.lbl_hours_left.refresh_style()
 
         self.lbl_name.refresh_style()
 
+        self.btn_minus.configure(image=self.image_dict['photo_btn_minus_strong_highlight'])
+        self.btn_minus.image = self.image_dict['photo_btn_minus_strong_highlight']
+        self.btn_minus_minus.configure(image=self.image_dict['photo_btn_minus_minus_strong_highlight'])
+        self.btn_minus_minus.image = self.image_dict['photo_btn_minus_minus_strong_highlight']
+        self.btn_plus_plus.configure(image=self.image_dict['photo_btn_plus_plus_strong_highlight'])
+        self.btn_plus_plus.image = self.image_dict['photo_btn_plus_plus_strong_highlight']
+        self.btn_plus.configure(image=self.image_dict['photo_btn_plus_strong_highlight'])
+        self.btn_plus.image = self.image_dict['photo_btn_plus_strong_highlight']
+
         self.lbl_view_sub_clocks.configure(foreground=self.style_dict["highlight_color_grey"])
 
-        image_4 = self.style_dict['photo_btn_plus_strong_highlight']
-        image_5 = self.style_dict['photo_btn_plus_font']
-        self.photo_btn_plus_strong_highlight = ImageTk.PhotoImage(image_4.resize((20, 20), Image.ANTIALIAS))
-        self.photo_btn_plus_font = ImageTk.PhotoImage(image_5.resize((20, 20), Image.ANTIALIAS))
-
-        image_6 = self.style_dict['photo_btn_plus_plus_strong_highlight']
-        image_7 = self.style_dict['photo_btn_plus_plus_font']
-        self.photo_btn_plus_plus_strong_highlight = ImageTk.PhotoImage(image_6.resize((35, 20), Image.ANTIALIAS))
-        self.photo_btn_plus_plus_font = ImageTk.PhotoImage(image_7.resize((35, 20), Image.ANTIALIAS))
-
-        image_8 = self.style_dict['photo_btn_minus_minus_strong_highlight']
-        image_9 = self.style_dict['photo_btn_minus_minus_font']
-        self.photo_btn_minus_minus_strong_highlight = ImageTk.PhotoImage(image_8.resize((35, 20), Image.ANTIALIAS))
-        self.photo_btn_minus_minus_font = ImageTk.PhotoImage(image_9.resize((35, 20), Image.ANTIALIAS))
-
-        image_10 = self.style_dict['photo_btn_minus_strong_highlight']
-        image_11 = self.style_dict['photo_btn_minus_font']
-        self.photo_btn_minus_strong_highlight = ImageTk.PhotoImage(image_10.resize((20, 20), Image.ANTIALIAS))
-        self.photo_btn_minus_font = ImageTk.PhotoImage(image_11.resize((20, 20), Image.ANTIALIAS))
+        self.update_hours_left()
 
         if self.clock.get_id() != 0:
             name_text =  self.clock.get_name()
-            info_text = self.language_dict["name"] + ': ' + str(self.clock.get_name()) + '\n' + self.language_dict["project"] + ': ' + str(self.clock.get_project_label()) + '\n' + self.language_dict["order"] + ': ' + str(self.clock.get_order_label()) + '\n' + self.language_dict["process"] + ': ' + str(self.clock.get_process_label())
         else:
             name_text = self.language_dict["without_allocation"]
-            info_text = self.language_dict["without_allocation"]
 
         self.lbl_name.configure(text=name_text)
-        self.account_info_ttp.text = info_text
+
+        self.btn_minus_ttp.text = ' -5 ' + self.language_dict["minutes"]
+        self.btn_minus_minus_ttp.text = ' -30 ' + self.language_dict["minutes"]
+        self.btn_plus_plus_ttp.text = ' +30 ' + self.language_dict["minutes"]
+        self.btn_plus_ttp.text = ' +5 ' + self.language_dict["minutes"]
 
         self.update_frame()
         self.update_clock()
+        self.check_date_expiration()
         return
 
 

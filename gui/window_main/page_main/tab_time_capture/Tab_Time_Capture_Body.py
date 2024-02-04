@@ -42,6 +42,8 @@ class CaptureBody:
         self.group_frame_list = []
         self.backup_request_frame = None
 
+        self.after_func = None
+
         # run the main frame of this layer
         self.create_main_frame(container)
 
@@ -52,25 +54,75 @@ class CaptureBody:
         self.main_frame.pack(side = "top", fill = "both", expand = True)
 
         if self.data_manager.get_backup_found() == False:
-            self.data_manager.load_clocks_and_start()
-            self.create_clock_frames_and_start()
-            self.main_frame.after(5000, lambda: self.auto_backup())
+            self.gui.start_recording = True
         else:
             self.create_backup_rebuild_request()
 
-    def create_clock_frames_and_start(self):
-        self.main_account_clock_list = self.data_manager.get_main_account_clock_list()
+    #########################################################
+
+    def start_recording(self,load_clocks=True,load_back_up=False):
+        if load_clocks == True:
+            self.data_manager.load_open_clocks(load_back_up)
+        self.data_manager.set_backup_found_false()
+
         self.main_app.set_action_state_normal()
 
+        if load_clocks == True:
+            self.create_recording_frames()
+
+        for group_frame in self.group_frame_list:
+            main_account_frame_list = group_frame.get_main_account_frame_list()
+            for main_account_frame in main_account_frame_list:
+                if main_account_frame.main_account_clock.get_id() == 0:
+                    main_account_frame.main_clock_frame.activate_clock()
+                    self.data_manager.set_start_timestamp()
+
+        self.start_auto_backup()
+
+        system_start_time = self.main_app.get_system_start_time()
+        if system_start_time != None and load_clocks == True:            
+            work_clock = self.data_manager.get_work_clock()
+            deviation_start_time = self.data_manager.start_timestamp - system_start_time
+            self.gui.main_window.reminder_frame.add_reminder_frame("system_start_info_1",work_clock.str_timedelta(deviation_start_time),"system_start_info_2")
+
+    def forget_backup_request_frame(self):
+        self.backup_request_frame.pack_forget()
+        self.backup_request_frame.destroy()
+        self.backup_request_frame = None
+
+    def reload_backup_start_recording(self):
+        self.forget_backup_request_frame()
+        load_back_up = True
+        load_clocks = True
+        self.start_recording(load_clocks, load_back_up)
+        return
+    
+    def save_backup_start_recording(self):
+        response = self.data_manager.save_backup_to_db()
+        if response == False:
+            messagebox.showerror(self.language_dict["error_message"],self.language_dict["backup_error_text"])
+
+        self.forget_backup_request_frame()
+        load_clocks = True
+        self.start_recording(load_clocks)
+        return
+    
+    def forget_backup_start_recording(self):
+        self.forget_backup_request_frame()
+        load_clocks = True
+        self.start_recording(load_clocks)
+        return
+    
+    #########################################################
+
+    def create_recording_frames(self):
+        self.main_account_clock_list = self.data_manager.get_main_account_clock_list()
         group_name_list = []
         for main_account_clock in self.main_account_clock_list:
             group_name_list.append(main_account_clock.get_group())
-
         group_name_list = list(set(group_name_list))
-
         for group_name in group_name_list:
             self.create_group_frame(group_name)
-
         self.capture_tab.head.update()
 
     def create_group_frame(self, group_name):
@@ -117,7 +169,7 @@ class CaptureBody:
         for group_frame in self.group_frame_list:
             if group_frame.get_tree_view() == True:
                 group = group_frame.get_group_name()
-                main_account_list = group_frame.get_main_account_list()
+                main_account_list = group_frame.get_work_window_main_account_list()
                 work_window_group_main_account_list.append([group,main_account_list])
 
         self.data_manager.set_work_window_group_main_account_list(work_window_group_main_account_list)
@@ -134,7 +186,7 @@ class CaptureBody:
         group_frame = [ele for ele in self.group_frame_list if ele.get_group_name() == group][0]
         group_frame.close_main_account_frame(id)
 
-        if group_frame.get_main_account_list() == []:
+        if group_frame.get_main_account_clock_list() == []:
             group_frame.pack_forget()
             self.group_frame_list = [ele for ele in self.group_frame_list if ele.get_group_name() != group]
 
@@ -184,7 +236,7 @@ class CaptureBody:
     def update_clock_properties(self):
         for group_frame in self.group_frame_list:
             group_frame.update_clock_properties()
-            if group_frame.get_main_account_list() == []:
+            if group_frame.get_main_account_clock_list() == []:
                 group_frame.pack_forget()
                 self.group_frame_list = [ele for ele in self.group_frame_list if ele != group_frame]
 
@@ -192,25 +244,31 @@ class CaptureBody:
 
     def create_backup(self):
         fold_up_list = self.get_fold_up_list()
-        response = self.data_manager.capture_backup(fold_up_list)
+        self.data_manager.save_fold_up_list(fold_up_list)
+        response = self.data_manager.capture_backup()
         if response == True:
             self.notification_backup_saved()
 
     def notification_backup_saved(self):
-        self.gui.main_window.bottom_status.backup_saved_on()
+        self.gui.main_window.status_frame.backup_saved_on()
 
         def notification_off():
-            self.gui.main_window.bottom_status.backup_saved_off()
+            self.gui.main_window.status_frame.backup_saved_off()
             return
 
         self.main_frame.after(3000, notification_off)
         return
+    
+    def start_auto_backup(self):
+        if self.after_func != None:
+            self.main_frame.after_cancel(self.after_func)
+        self.auto_backup()
 
     def auto_backup(self):
         milliseconds = 60000
         cycle_minutes = milliseconds * 3
         self.create_backup()
-        self.main_frame.after(cycle_minutes, lambda: self.auto_backup())
+        self.after_func = self.main_frame.after(cycle_minutes, lambda: self.auto_backup())
 
     def create_backup_rebuild_request(self):
         self.backup_request_frame = MyFrame(self.main_frame,self.data_manager)
@@ -250,20 +308,20 @@ class CaptureBody:
         self.req_title_bar.configure(background=self.style_dict["highlight_color_yellow"])
         self.req_title_bar.pack(side='top', fill="x")
 
-        self.req_lbl_name = MyLabel(self.req_title_bar, self.data_manager, text=self.language_dict["backup_found"])
+        self.req_lbl_name = MyLabel(self.req_title_bar, self.data_manager, text=self.language_dict["backup_found"], width=45)
         self.req_lbl_name.configure(background=self.style_dict["highlight_color_yellow"], foreground=self.style_dict["font_color_black"])
         self.req_lbl_name.pack(side='left')
 
         self.req_btnframe = MyFrame(self.req_container_frame, self.data_manager)
         self.req_btnframe.pack(side="bottom", fill="x")
 
-        self.req_btn_reload_backup = MyButton(self.req_btnframe, self.data_manager, width=40, text=self.language_dict["restore_recording"], command=self.reload_backup)
+        self.req_btn_reload_backup = MyButton(self.req_btnframe, self.data_manager, width=45, text=self.language_dict["restore_recording"], command=self.reload_backup_start_recording)
         self.req_btn_reload_backup.pack(side='top', pady=5, padx=5)
 
-        self.req_btn_save_backup = MyButton(self.req_btnframe, self.data_manager, width=40, text=self.language_dict["save_and_start_new_recording"], command=self.save_backup)
+        self.req_btn_save_backup = MyButton(self.req_btnframe, self.data_manager, width=45, text=self.language_dict["save_and_start_new_recording"], command=self.save_backup_start_recording)
         self.req_btn_save_backup.pack(side='top', pady=5, padx=5)
 
-        self.req_btn_forget_backup = MyButton(self.req_btnframe, self.data_manager, width=40, text=self.language_dict["start_new_recording"], command=self.forget_backup)
+        self.req_btn_forget_backup = MyButton(self.req_btnframe, self.data_manager, width=45, text=self.language_dict["start_new_recording"], command=self.forget_backup_start_recording)
         self.req_btn_forget_backup.pack(side='top', pady=5, padx=5)
 
         self.req_bodyframe = MyFrame(self.req_container_frame, self.data_manager)
@@ -273,40 +331,6 @@ class CaptureBody:
         self.req_lbl_text.pack(pady=5, padx=5)
         return
         
-    def reload_backup(self):
-        load_back_up = True
-        self.data_manager.load_clocks_and_start(load_back_up)
-        self.data_manager.set_backup_found_false()
-        self.backup_request_frame.pack_forget()
-        self.backup_request_frame.destroy()
-        self.backup_request_frame = None
-        self.create_clock_frames_and_start()
-        self.main_frame.after(5000, lambda: self.auto_backup())
-        return
-    
-    def save_backup(self):
-        response = self.data_manager.save_backup_to_db()
-        if response == False:
-            messagebox.showerror(self.language_dict["error_message"],self.language_dict["backup_error_text"])
-
-        self.data_manager.load_clocks_and_start()
-        self.data_manager.set_backup_found_false()
-        self.backup_request_frame.pack_forget()
-        self.backup_request_frame.destroy()
-        self.backup_request_frame = None
-        self.create_clock_frames_and_start()
-        self.main_frame.after(5000, lambda: self.auto_backup())
-        return
-    
-    def forget_backup(self):
-        self.data_manager.load_clocks_and_start()
-        self.data_manager.set_backup_found_false()
-        self.backup_request_frame.pack_forget()
-        self.backup_request_frame.destroy()
-        self.backup_request_frame = None
-        self.create_clock_frames_and_start()
-        self.main_frame.after(5000, lambda: self.auto_backup())
-        return
     
     def refresh_backup_rebuild_request(self):
         self.style_dict = self.data_manager.get_style_dict()

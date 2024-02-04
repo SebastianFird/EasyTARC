@@ -86,7 +86,7 @@ class DataHead:
         self.btn_add_record = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict["new_record"],width=15,command=lambda:self.data_tab.add_new_record())
         self.btn_add_record.pack(side='left',padx = 10,pady=10)
 
-        self.btn_records_to_excel = MyButton(self.main_head_frame, self.data_manager, text=self.language_dict["output_times_in_excel"],width=25,command=lambda:self.data_tab.export_all_passed_times())
+        self.btn_records_to_excel = MyButton(self.main_head_frame, self.data_manager, text=self.language_dict["output_times_in_excel"],width=30,command=lambda:self.data_tab.export_all_passed_times())
         self.btn_records_to_excel.pack(side='right',padx = 10,pady=10)
 
         self.update_main_head()

@@ -18,6 +18,13 @@ __author__ = 'Sebastian Feiert'
 import tkinter as tk
 from tkinter import ttk
 
+import os
+import shutil
+import subprocess
+from pyshortcuts import make_shortcut
+from gui.Window_Additionals import InfoWindow
+
+
 from style_classes import MyFrame
 from style_classes import MyLabel
 from style_classes import MyButton
@@ -78,135 +85,10 @@ class SetupBody:
 
         self.updt_style_cblist()
 
-        #print(self.language_dict)
         self.btn_set_style = MyButton(self.appearance_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_style(clicked_style.get()))
         self.btn_set_style.grid(row=row_nbr, column=2, padx=5, pady=5)
 
-        self.separator_frame_0 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_0.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_0.pack(side = "top",fill='x')
-
         #########################
-
-        self.head_language_frame = MyFrame(self.main_frame,self.data_manager)
-        self.head_language_frame.pack(side = "top",fill='x')
-
-        self.lbl_category_language = MyLabel(self.head_language_frame,self.data_manager,text = self.language_dict['language'], anchor = 'w', width=35)
-        self.lbl_category_language.configure(font = Font_tuple)
-        self.lbl_category_language.pack(side = "left")
-
-        self.language_frame = MyFrame(self.main_frame,self.data_manager)
-        self.language_frame.pack(side = "top", fill = 'x')
-
-        row_nbr = 0
-
-        self.lbl_language = MyLabel(self.language_frame,self.data_manager,text = '   ' + self.language_dict['language'], anchor = 'w', width=20)
-        self.lbl_language.grid(row=row_nbr, column=0, padx=5, pady=5)
-
-        clicked_language = tk.StringVar()
-        self.language_cbox = ttk.Combobox(self.language_frame, state="readonly", width = 40, textvariable = clicked_language, postcommand = self.updt_language_cblist)
-        self.language_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
-        self.language_cbox.bind('<Button-1>', self.btn_language_cbox_reset)
-
-        self.updt_language_cblist()
-
-        self.btn_set_language = MyButton(self.language_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_language(clicked_language.get()))
-        self.btn_set_language.grid(row=row_nbr, column=2, padx=5, pady=5)
-
-        self.separator_frame_1 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_1.pack(side = "top",fill='x')
-
-        #########################
-
-        self.head_workwindow_frame = MyFrame(self.main_frame,self.data_manager)
-        self.head_workwindow_frame.pack(side = "top", fill='x')
-
-        self.lbl_category_work_window = MyLabel(self.head_workwindow_frame,self.data_manager,text = self.language_dict['working_window'], anchor = 'w', width=35)
-        self.lbl_category_work_window.configure(font = Font_tuple)
-        self.lbl_category_work_window.pack(side = "left")
-
-        ########
-
-        self.workwindow_frame = MyFrame(self.main_frame,self.data_manager)
-        self.workwindow_frame.pack(side = "top", fill = 'x')
-
-        row_nbr = 0
-
-        self.lbl_work_window = MyLabel(self.workwindow_frame,self.data_manager,text = '   ' + self.language_dict['standard'], anchor = 'w', width=20)
-        self.lbl_work_window.grid(row=row_nbr, column=0, padx=5, pady=5)
-
-        clicked_work_window = tk.StringVar()
-        self.work_window_cbox = ttk.Combobox(self.workwindow_frame, state="readonly", width = 40, textvariable = clicked_work_window, postcommand = self.updt_ww_cblist)
-        self.work_window_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
-        self.work_window_cbox.bind('<Button-1>', self.btn_ww_cbox_reset)
-
-        self.updt_ww_cblist()
-
-        self.btn_set_work_window = MyButton(self.workwindow_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_work_window(self.language_dict[clicked_work_window.get()]))
-        self.btn_set_work_window.grid(row=row_nbr, column=2, padx=5, pady=5)
-
-        ########
-
-        self.bar_workwindow_modus_frame = MyFrame(self.main_frame,self.data_manager)
-        self.bar_workwindow_modus_frame.pack(side = "top", fill = 'x')
-
-        row_nbr = 0
-
-        self.lbl_bar_work_window_modus = MyLabel(self.bar_workwindow_modus_frame,self.data_manager,text = '   ' + self.language_dict['bar_work_window_view'], anchor = 'w', width=20)
-        self.lbl_bar_work_window_modus.grid(row=row_nbr, column=0, padx=5, pady=5)
-
-        clicked_bar_work_window_modus = tk.StringVar()
-        self.bar_work_window_modus_cbox = ttk.Combobox(self.bar_workwindow_modus_frame, state="readonly", width = 40, textvariable = clicked_bar_work_window_modus, postcommand = self.updt_bwwm_cblist)
-        self.bar_work_window_modus_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
-        self.bar_work_window_modus_cbox.bind('<Button-1>', self.btn_bwwm_cbox_reset)
-
-        self.updt_bwwm_cblist()
-
-        self.btn_set_bar_work_window_modus = MyButton(self.bar_workwindow_modus_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_bar_work_window_modus(self.language_dict[clicked_bar_work_window_modus.get()]))
-        self.btn_set_bar_work_window_modus.grid(row=row_nbr, column=2, padx=5, pady=5)
-
-        ########
-
-        self.mini_workwindow_modus_frame = MyFrame(self.main_frame,self.data_manager)
-        self.mini_workwindow_modus_frame.pack(side = "top", fill = 'x')
-
-        row_nbr = 0
-
-        self.lbl_mini_work_window_modus = MyLabel(self.mini_workwindow_modus_frame,self.data_manager,text = '   ' + self.language_dict['mini_work_window_view'], anchor = 'w', width=20)
-        self.lbl_mini_work_window_modus.grid(row=row_nbr, column=0, padx=5, pady=5)
-
-        clicked_mini_work_window_modus = tk.StringVar()
-        self.mini_work_window_modus_cbox = ttk.Combobox(self.mini_workwindow_modus_frame, state="readonly", width = 40, textvariable = clicked_mini_work_window_modus, postcommand = self.updt_mwwm_cblist)
-        self.mini_work_window_modus_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
-        self.mini_work_window_modus_cbox.bind('<Button-1>', self.btn_mwwm_cbox_reset)
-
-        self.updt_mwwm_cblist()
-
-        self.btn_set_mini_work_window_modus = MyButton(self.mini_workwindow_modus_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_mini_work_window_modus(self.language_dict[clicked_mini_work_window_modus.get()]))
-        self.btn_set_mini_work_window_modus.grid(row=row_nbr, column=2, padx=5, pady=5)
-
-        ########
-
-        self.workwindow_type_frame = MyFrame(self.main_frame,self.data_manager)
-        self.workwindow_type_frame.pack(side = "top", fill = 'x')
-
-        row_nbr = 0
-
-        self.lbl_work_window_type = MyLabel(self.workwindow_type_frame,self.data_manager,text = '   ' + self.language_dict['mini_work_window_type'], anchor = 'w', width=20)
-        self.lbl_work_window_type.grid(row=row_nbr, column=0, padx=5, pady=5)
-
-        clicked_work_window_type = tk.StringVar()
-        self.work_window_type_cbox = ttk.Combobox(self.workwindow_type_frame, state="readonly", width = 40, textvariable = clicked_work_window_type, postcommand = self.updt_wwt_cblist)
-        self.work_window_type_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
-        self.work_window_type_cbox.bind('<Button-1>', self.btn_wwt_cbox_reset)
-
-        self.updt_wwt_cblist()
-
-        self.btn_set_work_window_type = MyButton(self.workwindow_type_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_work_window_type(self.language_dict[clicked_work_window_type.get()]))
-        self.btn_set_work_window_type.grid(row=row_nbr, column=2, padx=5, pady=5)
-
-        ########
 
         self.separator_frame_2 = MyFrame(self.main_frame,self.data_manager)
         self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
@@ -241,12 +123,48 @@ class SetupBody:
 
         #########################
 
-        self.separator_frame_3 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_3.pack(side = "top",fill='x')
+        self.separator_frame_0 = MyFrame(self.main_frame,self.data_manager)
+        self.separator_frame_0.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_0.pack(side = "top",fill='x')
 
+        #########################
+
+        self.head_language_frame = MyFrame(self.main_frame,self.data_manager)
+        self.head_language_frame.pack(side = "top",fill='x')
+
+        self.lbl_category_language = MyLabel(self.head_language_frame,self.data_manager,text = self.language_dict['language'], anchor = 'w', width=35)
+        self.lbl_category_language.configure(font = Font_tuple)
+        self.lbl_category_language.pack(side = "left")
+
+        self.language_frame = MyFrame(self.main_frame,self.data_manager)
+        self.language_frame.pack(side = "top", fill = 'x')
+
+        row_nbr = 0
+
+        self.lbl_language = MyLabel(self.language_frame,self.data_manager,text = '   ' + self.language_dict['language'], anchor = 'w', width=20)
+        self.lbl_language.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        clicked_language = tk.StringVar()
+        self.language_cbox = ttk.Combobox(self.language_frame, state="readonly", width = 40, textvariable = clicked_language, postcommand = self.updt_language_cblist)
+        self.language_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.language_cbox.bind('<Button-1>', self.btn_language_cbox_reset)
+
+        self.updt_language_cblist()
+
+        self.btn_set_language = MyButton(self.language_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_language(clicked_language.get()))
+        self.btn_set_language.grid(row=row_nbr, column=2, padx=5, pady=5)
+
+
+        ######################
+
+        self.separator_frame_1 = MyFrame(self.main_frame,self.data_manager)
+        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_1.pack(side = "top",fill='x')
+
+        #########################
+        
         self.head_db_frame = MyFrame(self.main_frame,self.data_manager)
-        if self.main_app.get_config() == 'single_user_encrypted':
+        if self.main_app.get_restricted_data_access() == False:
             self.head_db_frame.pack(side = "top",fill='x')
 
         self.lbl_category_db = MyLabel(self.head_db_frame,self.data_manager,text = self.language_dict['database'], anchor = 'w', width=35)
@@ -254,7 +172,7 @@ class SetupBody:
         self.lbl_category_db.pack(side = "left")
 
         self.db_frame = MyFrame(self.main_frame,self.data_manager)
-        if self.main_app.get_config() == 'single_user_encrypted':
+        if self.main_app.get_restricted_data_access() == False:
             self.db_frame.pack(side = "top", fill = 'x')
 
         row_nbr = 0
@@ -271,6 +189,44 @@ class SetupBody:
 
         self.btn_set_db_export = MyButton(self.db_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.export_database(clicked_db_export.get()))
         self.btn_set_db_export.grid(row=row_nbr, column=2, padx=5, pady=5)
+
+        ######################
+
+        self.separator_frame_3 = MyFrame(self.main_frame,self.data_manager)
+        self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_3.pack(side = "top",fill='x')
+
+        self.head_link_frame = MyFrame(self.main_frame,self.data_manager)
+        self.head_link_frame.pack(side = "top",fill='x')
+
+        self.lbl_category_link = MyLabel(self.head_link_frame,self.data_manager,text = self.language_dict['app_links'], anchor = 'w', width=35)
+        self.lbl_category_link.configure(font = Font_tuple)
+        self.lbl_category_link.pack(side = "left")
+
+        self.link_frame = MyFrame(self.main_frame,self.data_manager)
+        self.link_frame.pack(side = "top", fill = 'x')
+
+        row_nbr = 0
+
+        self.lbl_start_up_link = MyLabel(self.link_frame,self.data_manager,text = '   ' + self.language_dict['start_up_link'], anchor = 'w', width=20)
+        self.lbl_start_up_link.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        self.btn_set_start_up_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['add'],width=12,command=self.set_start_up_link)
+        self.btn_set_start_up_link.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        self.btn_remove_start_up_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['remove'],width=12,command=self.remove_start_up_link)
+        self.btn_remove_start_up_link.grid(row=row_nbr, column=2, padx=10, pady=5)
+
+        row_nbr = 1
+
+        self.lbl_desktop_link = MyLabel(self.link_frame,self.data_manager,text = '   ' + self.language_dict['desktop_link'], anchor = 'w', width=20)
+        self.lbl_desktop_link.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        self.btn_set_desktop_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['add'],width=12,command=self.set_desktop_link)
+        self.btn_set_desktop_link.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        self.btn_remove_desktop_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['remove'],width=12,command=self.remove_desktop_link)
+        self.btn_remove_desktop_link.grid(row=row_nbr, column=2, padx=10, pady=5)
 
         return
     
@@ -289,6 +245,7 @@ class SetupBody:
     def set_style(self,style_name):
         self.main_app.change_settings('style_name',style_name)
         self.data_manager.load_style_dict(style_name)
+        self.data_manager.load_image_dict(self.main_app.get_setting('font_size'),self.main_app.get_setting('style_name'))
         self.gui.refresh()
         self.gui.main_window.case_frame.notebook_frame.tab_manager.go_to_setup()
         self.btn_set_style.configure(text=u'\U00002713') 
@@ -313,80 +270,6 @@ class SetupBody:
         self.gui.main_window.case_frame.notebook_frame.tab_manager.go_to_setup()
         self.btn_set_language.configure(text=u'\U00002713') 
         return
-    
-###############################
-
-    def updt_ww_cblist(self):
-        self.work_window_cbox['values'] = [self.language_dict['mini_work_window'],self.language_dict['bar_work_window']]
-        if self.main_app.get_setting('work_window') == self.language_dict[self.language_dict['mini_work_window']]:
-            self.work_window_cbox.current(0)
-        else:
-            self.work_window_cbox.current(1)
-
-    def btn_ww_cbox_reset(self,event):
-        self.btn_set_work_window.configure(text=self.language_dict['apply']) 
-        return
-    
-    def set_work_window(self,name):
-        self.main_app.change_settings('work_window',name)
-        self.btn_set_work_window.configure(text=u'\U00002713') 
-
-###############################
-
-    def updt_bwwm_cblist(self):
-        self.bar_work_window_modus_cbox['values'] = [self.language_dict['control_view'],self.language_dict['info_view'],self.language_dict['dynamic_view']]
-        if self.main_app.get_setting('bar_work_window_modus') == self.language_dict[self.language_dict['control_view']]:
-            self.bar_work_window_modus_cbox.current(0)
-        elif self.main_app.get_setting('bar_work_window_modus') == self.language_dict[self.language_dict['info_view']]:
-            self.bar_work_window_modus_cbox.current(1)
-        else:
-            self.bar_work_window_modus_cbox.current(2)
-
-    def btn_bwwm_cbox_reset(self,event):
-        self.btn_set_bar_work_window_modus.configure(text=self.language_dict['apply']) 
-        return
-    
-    def set_bar_work_window_modus(self,modus):
-        self.gui.bar_work_window_modus = modus
-        self.main_app.change_settings('bar_work_window_modus',modus)
-        self.btn_set_bar_work_window_modus.configure(text=u'\U00002713') 
-
-###############################
-
-    def updt_mwwm_cblist(self):
-        self.mini_work_window_modus_cbox['values'] = [self.language_dict['control_view'],self.language_dict['info_view'],self.language_dict['dynamic_view']]
-        if self.main_app.get_setting('mini_work_window_modus') == self.language_dict[self.language_dict['control_view']]:
-            self.mini_work_window_modus_cbox.current(0)
-        elif self.main_app.get_setting('mini_work_window_modus') == self.language_dict[self.language_dict['info_view']]:
-            self.mini_work_window_modus_cbox.current(1)
-        else:
-            self.mini_work_window_modus_cbox.current(2)
-
-    def btn_mwwm_cbox_reset(self,event):
-        self.btn_set_mini_work_window_modus.configure(text=self.language_dict['apply']) 
-        return
-    
-    def set_mini_work_window_modus(self,modus):
-        self.gui.mini_work_window_modus = modus
-        self.main_app.change_settings('mini_work_window_modus',modus)
-        self.btn_set_mini_work_window_modus.configure(text=u'\U00002713') 
-
-###############################
-
-    def updt_wwt_cblist(self):
-        self.work_window_type_cbox['values'] = [self.language_dict['dropdown'],self.language_dict['list']]
-        if self.main_app.get_setting('work_window_type') == self.language_dict[self.language_dict['dropdown']]:
-            self.work_window_type_cbox.current(0)
-        else:
-            self.work_window_type_cbox.current(1)
-
-    def btn_wwt_cbox_reset(self,event):
-        self.btn_set_work_window_type.configure(text=self.language_dict['apply']) 
-        return
-    
-    def set_work_window_type(self,ww_type):
-        self.main_app.change_settings('work_window_type',ww_type)
-        self.btn_set_work_window_type.configure(text=u'\U00002713') 
 
 ###############################
 
@@ -410,6 +293,7 @@ class SetupBody:
     
     def set_font_size(self,size):
         self.main_app.change_settings('font_size',size)
+        self.data_manager.load_image_dict(self.main_app.get_setting('font_size'),self.main_app.get_setting('style_name'))
         self.gui.myttk.set_defaultFont_size(int(size))
         self.gui.refresh()
         self.gui.main_window.case_frame.notebook_frame.tab_manager.go_to_setup()
@@ -433,6 +317,69 @@ class SetupBody:
         self.btn_set_db_export.configure(text=u'\U00002713') 
 
 ###############################
+        
+    def set_start_up_link(self):
+        file_path = os.path.join(self.main_app.get_filepath(), self.main_app.get_name() +'.exe')  
+        startup_folder = os.environ["APPDATA"] + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+        shortcut_name = self.main_app.get_name() +'_Link.lnk'
+        shortcut_path = os.path.join(startup_folder, shortcut_name)
+        if not os.path.exists(shortcut_path): 
+            try:
+                if os.path.exists(file_path):
+                    script_path = file_path
+                    shortcut_name = shortcut_name
+                    shortcut_desc = "A Python script"
+                    icon_path = os.path.join( self.main_app.get_filepath(), 'Logo.ico')  
+                    folder_path = startup_folder
+                    make_shortcut(script_path, name=shortcut_name, description=shortcut_desc, icon=icon_path, folder=folder_path)
+            except:
+                pass
+            if not os.path.exists(shortcut_path):
+                app_folder = self.main_app.get_filepath()
+                startup_folder = os.environ["APPDATA"] + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+                text = self.language_dict['set_start_up_link_manual']
+                info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,400,300)
+                os.startfile(app_folder)
+                os.startfile(startup_folder)
+        return
+    
+    def remove_start_up_link(self):
+        startup_folder = os.environ["APPDATA"] + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+        text = self.language_dict['delete_app_link']
+        info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,300,200)
+        os.startfile(startup_folder)
+
+    
+    def set_desktop_link(self):
+        file_path = os.path.join(self.main_app.get_filepath(), self.main_app.get_name() +'.exe')  
+        desktop_folder = os.path.join(os.environ["USERPROFILE"], "Desktop") 
+        shortcut_name = self.main_app.get_name() +'_Link.lnk'
+        shortcut_path = os.path.join(desktop_folder, shortcut_name)
+        if not os.path.exists(shortcut_path): 
+            try:
+                if os.path.exists(file_path):
+                    script_path = file_path
+                    shortcut_name = shortcut_name
+                    shortcut_desc = "A Python script"
+                    icon_path = os.path.join( self.main_app.get_filepath(), 'Logo.ico')  
+                    folder_path = desktop_folder
+                    make_shortcut(script_path, name=shortcut_name, description=shortcut_desc, icon=icon_path, folder=folder_path)
+            except:
+                pass
+            if not os.path.exists(shortcut_path):
+                app_folder = self.main_app.get_filepath()
+                desktop_folder = os.path.join(os.environ["USERPROFILE"], "Desktop")
+                text = self.language_dict['set_desktop_link_manual']
+                info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,400,300)
+                os.startfile(app_folder)
+                os.startfile(desktop_folder)
+        return
+    
+    def remove_desktop_link(self):
+        desktop_folder = os.path.join(os.environ["USERPROFILE"], "Desktop")
+        text = self.language_dict['delete_app_link']
+        info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,300,200)
+        os.startfile(desktop_folder)
 
     def refresh(self):
         # configure style and language of main frame
@@ -455,37 +402,29 @@ class SetupBody:
         self.btn_set_language.refresh_style()
 
         self.separator_frame_1.refresh_style()
-        self.head_workwindow_frame.refresh_style()
-        self.workwindow_frame.refresh_style()
-        self.lbl_category_work_window.refresh_style()
-        self.lbl_work_window.refresh_style()
-        self.btn_set_work_window.refresh_style()
-
-        self.workwindow_type_frame.refresh_style()
-        self.lbl_work_window_type.refresh_style()
-        self.btn_set_work_window_type.refresh_style()
-
-        self.mini_workwindow_modus_frame.refresh_style()
-        self.lbl_mini_work_window_modus.refresh_style()
-        self.btn_set_mini_work_window_modus.refresh_style()
-
-        self.bar_workwindow_modus_frame.refresh_style()
-        self.lbl_bar_work_window_modus.refresh_style()
-        self.btn_set_bar_work_window_modus.refresh_style()
-
         self.separator_frame_2.refresh_style()
+        self.separator_frame_3.refresh_style()
         self.head_font_frame.refresh_style()
         self.font_frame.refresh_style()
         self.lbl_category_font.refresh_style()
         self.lbl_font_size.refresh_style()
         self.btn_set_font_size.refresh_style()
-
-        self.separator_frame_3.refresh_style()
+        
         self.head_db_frame.refresh_style()
         self.lbl_category_db.refresh_style()
         self.db_frame.refresh_style()
         self.lbl_export.refresh_style()
         self.btn_set_db_export.refresh_style()
+
+        self.head_link_frame.refresh_style()
+        self.lbl_category_link.refresh_style()
+        self.link_frame.refresh_style()
+        self.lbl_start_up_link.refresh_style()
+        self.btn_set_start_up_link.refresh_style()
+        self.lbl_desktop_link.refresh_style()
+        self.btn_set_desktop_link.refresh_style()
+        self.btn_remove_start_up_link.refresh_style()
+        self.btn_remove_desktop_link.refresh_style()
 
         font_family = self.main_app.get_setting('font_family')
         font_size = self.main_app.get_setting('font_size')
@@ -493,9 +432,9 @@ class SetupBody:
 
         self.lbl_category_appearance.configure(font = Font_tuple)
         self.lbl_category_language.configure(font = Font_tuple)
-        self.lbl_category_work_window.configure(font = Font_tuple)
         self.lbl_category_font.configure(font = Font_tuple)
         self.lbl_category_db.configure(font = Font_tuple)
+        self.lbl_category_link.configure(font = Font_tuple)
 
         self.separator_frame_0.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
@@ -503,12 +442,8 @@ class SetupBody:
         self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
 
         #language
-        self.btn_set_work_window_type.configure(text=self.language_dict['apply'])
         self.btn_set_style.configure(text=self.language_dict['apply'])
         self.btn_set_language.configure(text=self.language_dict['apply'])
-        self.btn_set_work_window.configure(text=self.language_dict['apply'])
-        self.btn_set_mini_work_window_modus.configure(text=self.language_dict['apply'])
-        self.btn_set_bar_work_window_modus.configure(text=self.language_dict['apply'])
         self.btn_set_font_size.configure(text=self.language_dict['apply'])
         self.btn_set_db_export.configure(text=self.language_dict['apply'])
         self.lbl_category_appearance.configure(text = self.language_dict['appearance'])
@@ -519,19 +454,17 @@ class SetupBody:
         self.lbl_category_db.configure(text = self.language_dict['database'])
         self.lbl_font_size.configure(text = '   ' + self.language_dict['size'])
         self.lbl_category_font.configure(text = self.language_dict['font'])
-        self.lbl_work_window.configure(text = '   ' + self.language_dict['standard'])
-        self.lbl_work_window_type.configure(text = '   ' + self.language_dict['mini_work_window_type'])
-        self.lbl_mini_work_window_modus.configure(text = '   ' + self.language_dict['mini_work_window_view'])
-        self.lbl_bar_work_window_modus.configure(text = '   ' + self.language_dict['bar_work_window_view'])
-        self.lbl_category_work_window.configure(text = self.language_dict['working_window'])
+        self.lbl_category_link.configure(text = self.language_dict['app_links'])
+        self.lbl_start_up_link.configure(text = '   ' + self.language_dict['start_up_link'])
+        self.btn_set_start_up_link.configure(text=self.language_dict['add'])
+        self.lbl_desktop_link.configure(text = '   ' + self.language_dict['desktop_link'])
+        self.btn_set_desktop_link.configure(text=self.language_dict['add'])
+        self.btn_remove_start_up_link.configure(text=self.language_dict['remove'])
+        self.btn_remove_desktop_link.configure(text=self.language_dict['remove'])
 
-        self.updt_bwwm_cblist()
         self.updt_db_export_cblist()
         self.updt_fs_cblist()
         self.updt_language_cblist()
-        self.updt_mwwm_cblist()
         self.updt_style_cblist()
-        self.updt_ww_cblist()
-        self.updt_wwt_cblist()
         return
 

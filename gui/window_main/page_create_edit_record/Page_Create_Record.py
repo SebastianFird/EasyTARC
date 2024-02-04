@@ -18,7 +18,7 @@ __author__ = 'Sebastian Feiert'
 import tkinter as tk
 import decimal
 import locale
-from datetime import datetime,timedelta
+import datetime
 
 from gui.window_main.page_create_edit_record.Page_Create_Record_Head import CreateEditRecordHead
 from gui.window_main.page_create_edit_record.Page_Create_Record_Body import CreateEditRecordBody
@@ -91,7 +91,7 @@ class CreateEditRecord(tk.Frame):
     
 #################################################################
 
-    def user_input(self,account_name,date,time,status, account_dict_list = None):
+    def user_input(self,account_name,date,time,status, account_dict_list):
 
         account_name = account_name.get()
         date = date.get()
@@ -121,49 +121,37 @@ class CreateEditRecord(tk.Frame):
 
 ###################################################
 
-    def save(self,account_name,date,time,status,account_dict_list = None):
+    def save(self,account_name,date,time,status,account_dict_list):
+
+        date = datetime.datetime.strptime(date, "%d.%m.%Y")
+        day = int(date.strftime("%d"))
+        month = int(date.strftime("%m"))
+        year = int(date.strftime("%Y"))
+
+        for account_dict in account_dict_list:
+            if account_dict["full_name"] == account_name:
+                account_id = account_dict["account_id"]
+
+        if status == self.language_dict["booked"]:
+            booked = 1
+        else:
+            booked = 0
+
+        time_dict = {       "account_id": account_id,
+                            "year": year,
+                            "month": month,
+                            "day": day,
+                            "hours": time,
+                            "booked": booked
+                            }
 
         if self.modus in ['new_record']:
-
-            d_second = 0
-            d_minute = 0
-            d_hour = 0
-
-            date = datetime.strptime(date, "%d.%m.%Y")
-            day = int(date.strftime("%d"))
-            month = int(date.strftime("%m"))
-            year = int(date.strftime("%Y"))
-
-            for account_dict in account_dict_list:
-                if account_dict["full_name"] == account_name:
-                    account_id = account_dict["account_id"]
-
-            if status == self.language_dict["booked"]:
-                booked = 1
-            else:
-                booked = 0
-
-            time_dict = {       "account_id": account_id,
-                                "year": year,
-                                "month": month,
-                                "day": day,
-                                "d_hour": d_hour,
-                                "d_minute":d_minute,
-                                "d_second":d_second,
-                                "hours": time,
-                                "booked": booked
-                                }
             self.data_manager.add_passed_time(time_dict)
-            
         elif self.modus in ['edit_record']:
+            self.data_manager.update_record(self.record_dict["passed_id"],time_dict)
 
-            if status == self.language_dict["booked"]:
-                booked = 1
-            else:
-                booked = 0
-
-            self.data_manager.update_record(self.record_dict["passed_id"],time,booked)
-            
+        self.data_manager.update_clocks()
+        self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.update_clock_properties()
         self.gui.main_window.case_frame.notebook_frame.tab_manager.data_tab.reload()
         self.back()
         return

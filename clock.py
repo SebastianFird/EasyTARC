@@ -15,7 +15,7 @@ limitations under the License.
 '''
 __author__ = 'Sebastian Feiert'
 
-from datetime import datetime,timedelta
+import datetime
 import decimal
 import re
 
@@ -25,11 +25,11 @@ class Clock():
         self.main_app = main_app
         self.running = False
 
-        self.previous_passed_time = timedelta()
-        self.previous_total_time = timedelta()
+        self.previous_passed_time = datetime.timedelta()
+        self.previous_total_time = datetime.timedelta()
 
-        self.passed_time = timedelta(hours = passed_hours,minutes = passed_minutes,seconds=passed_seconds)
-        self.added_time = timedelta(minutes = added_minutes)
+        self.passed_time = datetime.timedelta(hours = passed_hours,minutes = passed_minutes,seconds=passed_seconds)
+        self.added_time = datetime.timedelta(minutes = added_minutes)
         self.total_time = self.passed_time + self.added_time
 
         self.time_str_list_list = []
@@ -42,8 +42,8 @@ class Clock():
 
     def get_total_time(self):
         if self.running == True:
-            request_timestamp = datetime.now()
-            time_delta = timedelta()
+            request_timestamp = datetime.datetime.now()
+            time_delta = datetime.timedelta()
             time_delta = request_timestamp - self.start_timestamp
             self.passed_time = self.previous_passed_time + time_delta
             self.total_time = self.previous_total_time + time_delta
@@ -54,8 +54,8 @@ class Clock():
     def stop(self):
         if self.running == True:
             self.running = False
-            self.stop_timestamp = datetime.now()
-            time_delta = timedelta()
+            self.stop_timestamp = datetime.datetime.now()
+            time_delta = datetime.timedelta()
             time_delta = self.stop_timestamp - self.start_timestamp
             self.passed_time = self.previous_passed_time + time_delta
             self.total_time = self.previous_total_time + time_delta
@@ -86,6 +86,11 @@ class Clock():
         delta_string = str_hours + ':' + str_minutes + ':' + str_seconds
         return (delta_string)
 
+    def float_hourdelta(self,duration):
+        days, seconds = duration.days, duration.seconds
+        hours = days * 24 + seconds / 3600
+        return (hours)
+
     def __del__(self):
         return
 
@@ -96,10 +101,23 @@ class InfoClock(Clock):
 
         self.name = name
 
+    def deep_reset(self):
+        self.running = False
+        self.previous_passed_time = datetime.timedelta()
+        self.previous_total_time = datetime.timedelta()
+        self.passed_time = datetime.timedelta()
+        self.added_time = datetime.timedelta()
+        self.total_time = datetime.timedelta()
+        self.time_str_list_list = []
+        return
+
     def get_name(self):
         return(self.name)
 
     def get_full_name(self):
+        return(self.name)
+    
+    def get_ww_full_name(self):
         return(self.name)
 
     def start(self):
@@ -119,14 +137,14 @@ class InfoClock(Clock):
             else:
                 return
             self.running = True
-            self.start_timestamp = datetime.now()
+            self.start_timestamp = datetime.datetime.now()
             self.previous_passed_time = self.passed_time
             self.previous_total_time = self.total_time
         else:
             pass
 
     def add_time(self,sign,add_minutes):
-        add_time = timedelta(minutes=add_minutes)
+        add_time = datetime.timedelta(minutes=add_minutes)
 
         if self.running == True and sign == '+':
             self.added_time = self.added_time + add_time
@@ -189,6 +207,9 @@ class AccountClock(Clock):
         self.account_status = self.account_dict.get("status")
         self.group = self.account_dict.get("group")
         self.bookable = self.account_dict.get("bookable")
+        self.date_expiration = self.account_dict.get("date_expiration")
+        self.available_hours = self.account_dict.get("available_hours")
+        self.sum_passed_times = self.account_dict.get("sum_passed_times")
 
         if load_backup == True:
             self.load_backup_time()
@@ -206,6 +227,9 @@ class AccountClock(Clock):
         self.auto_booking = self.account_dict.get("auto_booking")
         self.group = self.account_dict.get("group")
         self.bookable = self.account_dict.get("bookable")
+        self.date_expiration = self.account_dict.get("date_expiration")
+        self.available_hours = self.account_dict.get("available_hours")
+        self.sum_passed_times = self.account_dict.get("sum_passed_times")
 
     def get_account_dict(self):
         return(self.account_dict)
@@ -217,6 +241,9 @@ class AccountClock(Clock):
         return(self.name)
 
     def get_full_name(self):
+        return(self.name)
+    
+    def get_ww_full_name(self):
         return(self.name)
 
     def get_project_label(self):
@@ -245,6 +272,21 @@ class AccountClock(Clock):
     
     def get_bookable(self):
         return(self.bookable)
+    
+    def get_date_expiration(self):
+        return(self.date_expiration)
+    
+    def get_available_hours(self):
+        return(self.available_hours)
+    
+    def get_sum_db_passed_times(self):
+        if self.sum_passed_times != 0:
+            return(self.sum_passed_times)
+        else:
+            return(0)
+        
+    def get_time_left(self):
+            return(0,'')
 
     def set_status_open(self):
         self.user_db.account_set_open(self.id)
@@ -258,7 +300,7 @@ class AccountClock(Clock):
         data_manager = self.main_app.data_manager
         work_clock = data_manager.get_work_clock()
 
-        add_time = timedelta(minutes=add_minutes)
+        add_time = datetime.timedelta(minutes=add_minutes)
 
         if self.running == True and sign == '+':
             result = work_clock.add_time(sign,add_minutes)
@@ -301,13 +343,13 @@ class AccountClock(Clock):
             return(False)
 
     def get_added_time(self):
-        zero_time = timedelta()
+        zero_time = datetime.timedelta()
         if self.added_time > zero_time:
             added_str_time = self.str_timedelta(self.added_time)
             sign = '+'
         else:
             added_secounds = int(abs(self.added_time.total_seconds()))
-            abs_added_time = timedelta(seconds=added_secounds)
+            abs_added_time = datetime.timedelta(seconds=added_secounds)
             added_str_time = self.str_timedelta(abs_added_time)
             sign = '-'
         
@@ -327,7 +369,7 @@ class AccountClock(Clock):
             data_manager.set_active_clock(self)
 
             self.running = True
-            self.start_timestamp = datetime.now()
+            self.start_timestamp = datetime.datetime.now()
             self.previous_passed_time = self.passed_time
             self.previous_total_time = self.total_time
         else:
@@ -339,16 +381,16 @@ class AccountClock(Clock):
             work_clock = data_manager.get_work_clock()
             check = work_clock.reset_account_time(self.total_time)
             if check == True:
-                self.previous_passed_time = timedelta(hours = 0,minutes = 0,seconds=0)
-                self.previous_total_time = timedelta(hours = 0,minutes = 0,seconds=0)
-                self.passed_time = timedelta(hours = 0,minutes = 0,seconds=0)
-                self.added_time = timedelta(hours = 0,minutes = 0,seconds=0)
-                self.total_time = timedelta(hours = 0,minutes = 0,seconds=0)
+                self.previous_passed_time = datetime.timedelta(hours = 0,minutes = 0,seconds=0)
+                self.previous_total_time = datetime.timedelta(hours = 0,minutes = 0,seconds=0)
+                self.passed_time = datetime.timedelta(hours = 0,minutes = 0,seconds=0)
+                self.added_time = datetime.timedelta(hours = 0,minutes = 0,seconds=0)
+                self.total_time = datetime.timedelta(hours = 0,minutes = 0,seconds=0)
 
     def get_passed_time(self):
         if self.running == True:
-            request_timestamp = datetime.now()
-            time_delta = timedelta()
+            request_timestamp = datetime.datetime.now()
+            time_delta = datetime.timedelta()
             time_delta = request_timestamp - self.start_timestamp
             self.passed_time = self.previous_passed_time + time_delta
             self.total_time = self.previous_total_time + time_delta
@@ -388,6 +430,18 @@ class MainAccountClock(AccountClock):
         for sub_clock in self.sub_clock_list:
             sub_clock.reload_account_dict()
 
+    def deep_reset(self):
+        self.running = False
+        self.previous_passed_time = datetime.timedelta()
+        self.previous_total_time = datetime.timedelta()
+        self.passed_time = datetime.timedelta()
+        self.added_time = datetime.timedelta()
+        self.total_time = datetime.timedelta()
+        self.time_str_list_list = []
+
+        for sub_clock in self.sub_clock_list:
+            sub_clock.deep_reset()
+
     def get_account_runninig(self):
         account_running = False
         for sub_clock in self.sub_clock_list:
@@ -413,10 +467,35 @@ class MainAccountClock(AccountClock):
         return(time_sum)
     
     def get_sub_time_sum(self):
-        time_sum = timedelta()
+        time_sum = datetime.timedelta()
         for sub_clock in self.sub_clock_list:
             time_sum = time_sum + sub_clock.get_total_time()
         return(time_sum)
+    
+    def get_db_total_passed_time_sum(self):
+        passed_time_sum = self.get_sum_db_passed_times()
+        for sub_clock in self.sub_clock_list:
+            passed_time_sum = passed_time_sum + sub_clock.get_sum_db_passed_times()
+        return(passed_time_sum)
+    
+    def get_time_left(self):
+        if self.available_hours != 0:
+            available_time = datetime.timedelta(hours=self.available_hours)
+            passed_time_sum = self.get_db_total_passed_time_sum()
+            total_time = self.get_total_time_sum()
+            if passed_time_sum != 0:
+                recorded_time = datetime.timedelta(hours=passed_time_sum) + total_time
+            else:
+                recorded_time = total_time
+
+            if available_time > recorded_time:
+                time_left = available_time - recorded_time
+                return(time_left,'+')
+            else:
+                time_left = recorded_time - available_time
+                return(time_left,'-')
+        else:
+            return(0,'')
 
     def get_info_dict(self):
         self.language_dict = self.main_app.data_manager.get_language_dict()
@@ -454,7 +533,18 @@ class MainAccountClock(AccountClock):
                         self.language_dict["response_text"]:str(self.response_text)               
                         })
         #############
-        info_dict.update({self.language_dict["hours"]:str(self.str_timedelta(self.get_total_time()))}) 
+        if self.id != 0:
+            if int(self.date_expiration.strftime("%Y")) != 2000:
+                info_dict.update({self.language_dict["expiration_date"]:self.date_expiration.strftime('%d.%m.%Y')}) 
+            else: 
+                info_dict.update({self.language_dict["expiration_date"]:" - "}) 
+        #############
+        if self.id != 0:
+            if float(self.available_hours) != 0:
+                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.available_hours),2))) + ' ' + self.language_dict["hours"]}) 
+            else:
+                info_dict.update({self.language_dict["available_hours"]:" - "}) 
+        #############
 
         return(info_dict)
 
@@ -467,12 +557,26 @@ class SubAccountClock(AccountClock):
         self.account_dict = account_dict
         self.clock_kind = 'sub' 
 
+    def deep_reset(self):
+        self.running = False
+        self.previous_passed_time = datetime.timedelta()
+        self.previous_total_time = datetime.timedelta()
+        self.passed_time = datetime.timedelta()
+        self.added_time = datetime.timedelta()
+        self.total_time = datetime.timedelta()
+        self.time_str_list_list = []
+        return
+
     def get_main_name(self):
         name  = self.main_account_clock.get_name()
         return(name)
 
     def get_full_name(self):
         name = self.get_name() + ' (' + self.main_account_clock.get_name() + ')'
+        return(name)
+    
+    def get_ww_full_name(self):
+        name =  ' ' + u'\U00002B9E' + ' ' +  self.get_name() + ' (' + self.main_account_clock.get_name() + ')'
         return(name)
     
     def get_account_runninig(self):
@@ -520,7 +624,18 @@ class SubAccountClock(AccountClock):
                         self.language_dict["response_text"]:str(self.response_text)               
                         })
         #############
-        info_dict.update({self.language_dict["hours"]:str(self.str_timedelta(self.get_total_time()))}) 
+        if self.id != 0:
+            if int(self.date_expiration.strftime("%Y")) != 2000:
+                info_dict.update({self.language_dict["expiration_date"]:self.date_expiration.strftime('%d.%m.%Y')}) 
+            else: 
+                info_dict.update({self.language_dict["expiration_date"]:" - "}) 
+        #############
+        if self.id != 0:
+            if float(self.available_hours) != 0:
+                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.available_hours),2))) + ' ' + self.language_dict["hours"]}) 
+            else:
+                info_dict.update({self.language_dict["available_hours"]:" - "}) 
+        #############
 
         return(info_dict)
 

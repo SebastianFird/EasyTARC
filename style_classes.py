@@ -239,7 +239,6 @@ class MyTipLabel(tk.Label):
         self.configure(background=self.style_dict["background_color_grey"])
         self.configure(foreground=self.style_dict["font_color"])
 
-
 class MyEntry(tk.Entry):
     def __init__(self, master, data_manager, **kw):
         tk.Entry.__init__(self, master=master, **kw)

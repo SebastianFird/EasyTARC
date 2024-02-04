@@ -24,7 +24,6 @@ from style_classes import MyButtonPixel
 
 from gui.window_main.page_main.tab_booking.Tab_Booking_Record import BookingRecordFrame
 
-
 class BookingBySum(tk.Frame):
     def __init__(self, container, main_app, gui, booking_tab):
 
@@ -41,7 +40,6 @@ class BookingBySum(tk.Frame):
         self.gui = gui
         self.booking_tab = booking_tab
 
-        self.main_seperator_frame_list = []
         self.record_frame_list = []
 
         # run the main frame of this layer
@@ -62,7 +60,7 @@ class BookingBySum(tk.Frame):
         unbooked_record_dict_list_sum_list = self.booking_tab.get_unbooked_record_dict_list_sum_list()
 
         for unbooked_record_dict_list in unbooked_record_dict_list_sum_list:
-                record_frame = BookingRecordFrame(self.sum_list_frame, self.main_app, self.gui, self.booking_tab,self,unbooked_record_dict_list)
+                record_frame = BookingRecordFrame(self.sum_list_frame, self.main_app, self.gui, self.booking_tab,self,unbooked_record_dict_list,self)
                 record_frame.pack(side = "top", fill = "x")
                 self.record_frame_list.append(record_frame)
 
@@ -90,4 +88,3 @@ class BookingBySum(tk.Frame):
         self.update()
         return
 
-    

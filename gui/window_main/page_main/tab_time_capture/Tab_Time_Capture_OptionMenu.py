@@ -57,7 +57,7 @@ class CaptureOptionMenu(tkinter.Listbox):
             self.optionmenu.add_separator()
             self.optionmenu.add_command(label=self.language_dict["new_order"],command=self.create_order_account)
             self.optionmenu.add_command(label=self.language_dict["new_process"],command=self.create_process_account)
-            self.optionmenu.add_command(label=self.language_dict["new_subaccount"],command=self.create_sub_account)
+            self.optionmenu.add_command(label=self.language_dict["new_sub_account"],command=self.create_sub_account)
 
         if self.selected_clock.clock_kind == 'sub':
            self.optionmenu.add_separator()
@@ -65,7 +65,7 @@ class CaptureOptionMenu(tkinter.Listbox):
 
         if self.selected_clock.clock_kind == 'main' and self.selected_clock.get_id() != 0:
             self.optionmenu.add_separator()
-            self.optionmenu.add_command(label=self.language_dict["show_alsubaccounts"],command=self.pack_all_sub_account)
+            self.optionmenu.add_command(label=self.language_dict["show_all_sub_accounts"],command=self.pack_all_sub_account)
 
         self.optionmenu.add_separator()
         self.optionmenu.add_command(label=self.language_dict["reset_time"],command=self.reset_clock)
@@ -74,7 +74,7 @@ class CaptureOptionMenu(tkinter.Listbox):
     def popup(self, event):
         try:
             self.build_options()
-            self.optionmenu.tk_popup((event.x_root + 100), event.y_root, 0)
+            self.optionmenu.tk_popup((event.x_root), event.y_root)
         finally:
             self.optionmenu.grab_release()
 

@@ -18,7 +18,7 @@ __author__ = 'Sebastian Feiert'
 import tkinter as tk
 from tkinter import ttk
 
-from gui.window_main.page_main.tab_data.Tab_Data_CaseFrame_DateList import DataByDate
+from gui.window_main.page_main.tab_data.Tab_Data_CaseFrame_Date import DataByDate
 from style_classes import MyFrame
 from gui.Gui_CaseFrame_Manager import CaseFrameManager
 

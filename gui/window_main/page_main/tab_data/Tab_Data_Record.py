@@ -24,7 +24,7 @@ from gui.window_main.page_main.tab_data.Tab_Data_OptionMenu import DataOptionMen
 
 
 class DataRecordFrame(tk.Frame):
-    def __init__(self, container, main_app, gui, data_tab,data_category,record_dict):
+    def __init__(self, container, main_app, gui, data_tab,data_category,record_dict,record_scope):
          
         self.main_app = main_app
         self.data_manager = self.main_app.get_data_manager()
@@ -35,6 +35,7 @@ class DataRecordFrame(tk.Frame):
         self.data_tab = data_tab
         self.data_category = data_category
         self.record_dict = record_dict
+        self.record_scope = record_scope
 
         MyFrame.__init__(self, container, self.data_manager)
 
@@ -98,7 +99,7 @@ class DataRecordFrame(tk.Frame):
 
         ##########################
 
-        self.on_clock = False
+        self.on_record = False
 
         self.bind("<Enter>", self.enter_record)
         self.bind("<Leave>", self.leave_record)
@@ -111,6 +112,15 @@ class DataRecordFrame(tk.Frame):
         self.lbl_empty2.bind("<Button-1>", self.activate_record)
         self.lbl_empty0.bind("<Button-1>", self.activate_record)
         self.lbl_empty1.bind("<Button-1>", self.activate_record)
+
+        self.bind("<Control-1>", self.append_activate_record)
+        self.lbl_status_name.bind("<Control-1>", self.append_activate_record)
+        self.lbl_status.bind("<Control-1>", self.append_activate_record)
+        self.lbl_name.bind("<Control-1>", self.append_activate_record)
+        self.lbl_passed_time.bind("<Control-1>", self.append_activate_record)
+        self.lbl_empty2.bind("<Control-1>", self.append_activate_record)
+        self.lbl_empty0.bind("<Control-1>", self.append_activate_record)
+        self.lbl_empty1.bind("<Control-1>", self.append_activate_record)
 
         self.bind("<Button-3>", self.right_clicked)
         self.lbl_status_name.bind("<Button-3>", self.right_clicked)
@@ -126,30 +136,61 @@ class DataRecordFrame(tk.Frame):
 ##################################################
 
     def enter_record(self,e):
-        self.on_clock = True
+        self.on_record = True
         self.update()
 
     def leave_record(self,e):
-        self.on_clock = False
+        self.on_record = False
+        self.update()
+
+    def append_activate_record(self,e=None):
+        if self.data_tab.get_current_record_scope() != self.record_scope:
+            self.data_tab.reset_clicked_record_frame_list()
+            self.data_tab.set_current_record_scope(self.record_scope)
+
+        clicked_record_frame_list = self.data_tab.get_clicked_record_frame_list()
+
+        if self in clicked_record_frame_list:
+            new_record_frame_list = [ele for ele in clicked_record_frame_list if ele != self]
+            self.data_tab.set_clicked_record_frame_list(new_record_frame_list)
+        else:
+            new_clicked_record_frame_list = clicked_record_frame_list + [self]
+            self.data_tab.set_clicked_record_frame_list(new_clicked_record_frame_list)
+
         self.update()
 
     def activate_record(self,e=None):
-        if self.data_tab.get_clicked_record_frame() == self:
-            self.data_tab.reset_clicked_record_frame()
+        if self.data_tab.get_current_record_scope() != self.record_scope:
+            self.data_tab.reset_clicked_record_frame_list()
+            self.data_tab.set_current_record_scope(self.record_scope)
+
+        clicked_record_frame_list = self.data_tab.get_clicked_record_frame_list()
+
+        if  clicked_record_frame_list == [self]:
+            self.data_tab.reset_clicked_record_frame_list()
         else:
-            self.data_tab.set_clicked_record_frame(self)
+            self.data_tab.reset_clicked_record_frame_list()
+            new_clicked_record_frame_list = [self]
+            self.data_tab.set_clicked_record_frame_list(new_clicked_record_frame_list)
         self.update()
 
-    def right_clicked(self,e):
+    def activate_all_records(self,e=None):
+        new_clicked_record_frame_list = self.record_scope.record_frame_list
+        self.data_tab.activate_all_record_frames(new_clicked_record_frame_list)
+
+    def right_clicked(self,e=None):
         if self.main_app.get_action_state() == "normal" or self.main_app.get_action_state() == "endofwork":
-            if self.data_tab.get_clicked_record_frame() != self:
-                self.activate_record(e)
+            if self not in self.data_tab.get_clicked_record_frame_list():
+                self.data_tab.reset_clicked_record_frame_list()
+                new_clicked_record_frame_list = [self]
+                self.data_tab.set_clicked_record_frame_list(new_clicked_record_frame_list)
+                self.update()
             self.option_menu.popup(e)
 
     def update(self):
-        if self.data_tab.get_clicked_record_frame() == self:
+        if self in self.data_tab.get_clicked_record_frame_list():
             background_color = self.style_dict["selected_color_grey"]
-        elif self.on_clock == True:
+        elif self.on_record == True:
             background_color = self.style_dict["frame_hover_color_grey"]
         else:
             background_color = self.style_dict["background_color_grey"]

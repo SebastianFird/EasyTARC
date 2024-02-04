@@ -31,7 +31,7 @@ class CreateToolTip(object):
     """
     create a tooltip for a given widget
     """
-    def __init__(self, widget, data_manager, rel_x, rey_y, text):
+    def __init__(self, widget, data_manager, rel_x, rey_y, text=''):
 
         self.widget = widget
         self.data_manager = data_manager
@@ -346,7 +346,7 @@ class CreateToolResponse(object):
 
 class CreateInfo(object):
 
-    def __init__(self, widget, data_manager, rel_x, rey_y, text):
+    def __init__(self, widget, data_manager, rel_x, rey_y, text=""):
 
         self.widget = widget
         self.data_manager = data_manager
@@ -403,7 +403,7 @@ class CreateInfo(object):
 
 
 class InfoWindow(tk.Toplevel):
-    def __init__(self ,main_app, gui, widget, text, w, h,  *args, **kwargs):
+    def __init__(self ,main_app, gui, widget, text, w, h, login_window = False,  *args, **kwargs):
         tk.Toplevel.__init__(self,widget)
 
         self.gui = gui
@@ -412,8 +412,12 @@ class InfoWindow(tk.Toplevel):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
         self.widget = widget
-        self.h = h
-        self.w = w
+        self.login_window = login_window
+
+        geo_factor = float(self.main_app.get_setting("geometry_factor"))
+        self.w = int(round(geo_factor*w))
+        self.h = int(round(geo_factor*h))
+
         self.text = text
 
         x, y, cx, cy = self.widget.bbox("insert")
@@ -421,7 +425,10 @@ class InfoWindow(tk.Toplevel):
         x = x + self.widget.winfo_rootx() + self.widget.winfo_width()/2 - self.w/2
         y = y + cy + self.widget.winfo_rooty() + self.widget.winfo_height()/2 - self.h/2
 
-        self.gui.disable_main_window()
+        if  self.login_window == True:
+            self.gui.disable_login_window()
+        else:
+            self.gui.disable_main_window()
 
         self.wm_geometry('%dx%d+%d+%d' % (self.w, self.h, x, y))
         self.wm_overrideredirect(1)
@@ -500,9 +507,13 @@ class InfoWindow(tk.Toplevel):
         bodyframe.pack(side = "top", fill = "both", expand = True)
 
     def close_window(self,*event):
-        self.gui.enable_main_window()
-        self.gui.activate_current_tab()
+        if  self.login_window == True:
+            self.gui.enable_login_window()
+        else:
+            self.gui.enable_main_window()
+            self.gui.activate_current_tab()
         self.destroy()
+
 
     def get_pos(self, event):
         self.x_win = self.winfo_x()
@@ -527,8 +538,11 @@ class InfoDictWindow(tk.Toplevel):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
         self.widget = widget
-        self.h = h
-        self.w = w
+
+        geo_factor = float(self.main_app.get_setting("geometry_factor"))
+        self.w = int(round(geo_factor*w))
+        self.h = int(round(geo_factor*h))
+
         self.text_dict = text_dict
 
         x, y, cx, cy = self.widget.bbox("insert")
@@ -620,8 +634,8 @@ class InfoDictWindow(tk.Toplevel):
 
                 col_nbr = 0
 
-                lbl_text_col0 = MyLabel(scroll_frame, self.data_manager, text=key_text + ': ',wraplength=self.w/2, anchor='w')
-                lbl_text_col0.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5)
+                lbl_text_col0 = MyLabel(scroll_frame, self.data_manager, text=key_text + ': ',wraplength=self.w/2, anchor='w', justify="left")
+                lbl_text_col0.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5,sticky='w')
 
                 if len(value_text) > 0:
                     if value_text[0] == '#':
@@ -631,7 +645,7 @@ class InfoDictWindow(tk.Toplevel):
                 col_nbr = col_nbr + 1
 
                 lbl_text_col1 = MyLabel(scroll_frame, self.data_manager, text=value_text,wraplength=self.w/2, anchor='w', justify="left")
-                lbl_text_col1.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5)
+                lbl_text_col1.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5,sticky='w')
 
                 row_nbr = row_nbr + 1
             return(bodyframe)
@@ -669,8 +683,10 @@ class ExitSavingWindow(tk.Toplevel):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
         self.widget = widget
-        self.h = 200
-        self.w = 350
+
+        geo_factor = float(self.main_app.get_setting("geometry_factor"))
+        self.w = int(round(geo_factor*350))
+        self.h = int(round(geo_factor*200))
 
         self.user_db = self.main_app.data_manager.user_db
 
@@ -799,8 +815,10 @@ class DeleteRecordWarning(tk.Toplevel):
         self.widget = widget
         self.data_tab = data_tab
         self.record_dict = record_dict
-        self.h = 200
-        self.w = 350
+
+        geo_factor = float(self.main_app.get_setting("geometry_factor"))
+        self.w = int(round(geo_factor*350))
+        self.h = int(round(geo_factor*200))
 
         self.user_db = self.main_app.data_manager.user_db
 
@@ -894,6 +912,8 @@ class DeleteRecordWarning(tk.Toplevel):
 
     def delete_record(self):
         self.data_tab.delete_record(self.record_dict)
+        self.data_manager.update_clocks()
+        self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.update_clock_properties()
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
         self.destroy()
@@ -923,8 +943,10 @@ class DeleteAccountWarning(tk.Toplevel):
         self.widget = widget
         self.account_tab = account_tab
         self.account_dict = account_dict
-        self.h = 200
-        self.w = 350
+
+        geo_factor = float(self.main_app.get_setting("geometry_factor"))
+        self.w = int(round(geo_factor*350))
+        self.h = int(round(geo_factor*200))
 
         self.user_db = self.main_app.data_manager.user_db
 
@@ -1048,8 +1070,10 @@ class CloseAccountWarning(tk.Toplevel):
         self.widget = widget
         self.account_tab = account_tab
         self.account_dict = account_dict
-        self.h = 200
-        self.w = 350
+
+        geo_factor = float(self.main_app.get_setting("geometry_factor"))
+        self.w = int(round(geo_factor*350))
+        self.h = int(round(geo_factor*200))
 
         self.user_db = self.main_app.data_manager.user_db
 
@@ -1177,8 +1201,11 @@ class Endofworkinfo(tk.Toplevel):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
         self.widget = widget
-        self.h = h
-        self.w = w
+
+        geo_factor = float(self.main_app.get_setting("geometry_factor"))
+        self.w = int(round(geo_factor*w))
+        self.h = int(round(geo_factor*h))
+
         self.text_dict = text_dict
 
         x, y, cx, cy = self.widget.bbox("insert")
@@ -1273,8 +1300,8 @@ class Endofworkinfo(tk.Toplevel):
 
                 col_nbr = 0
 
-                lbl_text_col0 = MyLabel(scroll_frame, self.data_manager, text=key_text + ': ',wraplength=self.w/2, anchor='w')
-                lbl_text_col0.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5)
+                lbl_text_col0 = MyLabel(scroll_frame, self.data_manager, text=key_text + ': ',wraplength=self.w/2, anchor='w', justify="left")
+                lbl_text_col0.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5, sticky='w')
 
                 if len(value_text) > 0:
                     if value_text[0] == '#':
@@ -1284,7 +1311,7 @@ class Endofworkinfo(tk.Toplevel):
                 col_nbr = col_nbr + 1
 
                 lbl_text_col1 = MyLabel(scroll_frame, self.data_manager, text=value_text,wraplength=self.w/2, anchor='w', justify="left")
-                lbl_text_col1.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5)
+                lbl_text_col1.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5, sticky='w')
 
                 row_nbr = row_nbr + 1
 

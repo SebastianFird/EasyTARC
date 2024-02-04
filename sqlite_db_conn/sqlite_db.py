@@ -37,35 +37,52 @@ class NewRoot(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self.attributes('-alpha', 0.0)
-        entry = tk.Button()
-        entry.pack()
-        entry.focus_set()
-        entry.pack_forget()
-
 
 class SqlManager:
-    def __init__(self,main_app,name,db_password=None):
+    def __init__(self,main_app):
         self.main_app = main_app
+        
+    def set_db_config(self,db_config,folder_name,name,name_ending,db_password=None,db_salt=None):
+        self.db_config = db_config
+        self.folder_name = folder_name
         self.name = name
-        self.folder_name = self.main_app.get_db_folder_name()
-        self.name_ending = self.main_app.get_db_name_ending()
-        self.db_password = db_password
+        self.name_ending = name_ending
+
+        if db_config != 'database_unencrypted':
+            if isinstance(db_password, bytes):
+                self.db_password = db_password 
+            else:
+                self.db_password = str.encode(db_password)
+
+            if isinstance(db_salt, bytes):
+                self.db_salt = db_salt # b'\xfaz\xb5\xf2|\xa1z\xa9\xfe\xd1F@1\xaa\x8a\xc2' 
+            else:
+                self.db_salt = str.encode(db_salt)
+
+    
+    def get_db_name_ending(self):
+        return(self.name_ending)
+
+    def get_db_config(self):
+        return(self.db_config)
+
+######################################
         
     ##creating key
-    def key_creation(self, password):
-        kdf=PBKDF2HMAC(algorithm = hashes.SHA256(), salt=b'\xfaz\xb5\xf2|\xa1z\xa9\xfe\xd1F@1\xaa\x8a\xc2', iterations=1024, length=32, backend=default_backend())
-        key=Fernet(base64.urlsafe_b64encode(kdf.derive(password)))
+    def key_creation(self):
+        kdf=PBKDF2HMAC(algorithm = hashes.SHA256(), salt=self.db_salt, iterations=1024, length=32, backend=default_backend())
+        key=Fernet(base64.urlsafe_b64encode(kdf.derive(self.db_password)))
         return key
     
     ## encryption
-    def encryption(self, b, password):
-        f=self.key_creation(password)
+    def encryption(self, b):
+        f=self.key_creation()
         safe=f.encrypt(b)
         return safe
 
     ## decryption
-    def decryption(self, safe, password):
-        f=self.key_creation(password)
+    def decryption(self, safe):
+        f=self.key_creation()
         b=f.decrypt(safe)
         return b
     
@@ -80,7 +97,7 @@ class SqlManager:
                 self.root = NewRoot()
                 messagebox.showinfo('Faild','The database folder can not be created')
 
-        if self.main_app.get_config() == 'single_user_unencrypted':
+        if self.db_config == 'database_unencrypted':
             con = sqlite3.connect(self.folder_name + '\\' + self.name + self.name_ending)
         else:
             con = sqlite3.connect(':memory:')
@@ -88,7 +105,7 @@ class SqlManager:
         return con
 
     def open_db_conn(self):
-        if self.main_app.get_config() == 'single_user_unencrypted':
+        if self.db_config == 'database_unencrypted':
             con = sqlite3.connect(self.folder_name + '\\' + self.name + self.name_ending)
         else:
             file_path = getcwd() + '\\' + self.folder_name + '\\' + self.name + self.name_ending
@@ -97,16 +114,22 @@ class SqlManager:
             safe=f.read()
             f.close()
 
-            content= self.decryption(safe,self.db_password)
+            content= self.decryption(safe)
             content=content.decode('utf-8')
 
             con=sqlite3.connect(':memory:')
             con.executescript(content)
 
         return con
+    
+    def create_empty_db(self,db_config,folder_name,name,name_ending,db_password,db_salt):
+        self.set_db_config(db_config,folder_name,name,name_ending,db_password,db_salt)
+        conn = sqlite3.connect(':memory:')
+        self.save_and_close_db(conn)
+        conn.close()
 
     def save_and_close_db(self,conn):
-        if self.main_app.get_config() == 'single_user_unencrypted':
+        if self.db_config == 'database_unencrypted':
             conn.commit()
         else:
             file_path = getcwd() + '\\' + self.folder_name + '\\' + self.name + self.name_ending
@@ -116,13 +139,13 @@ class SqlManager:
             for line in conn.iterdump():
                 b+=bytes('%s\n','utf8') % bytes(line,'utf8')
 
-            b=self.encryption(b,self.db_password)
+            b=self.encryption(b)
             fp.write(b)
             fp.close()
         conn.close()
 
     def copy_and_save_decrypted_db(self):
-        if self.main_app.get_config() == 'single_user_encrypted':
+        if self.db_config == 'database_unencrypted':
             memory_db_conn = self.open_db_conn()
             
             if os.path.isfile(self.folder_name + '\\' + 'decrypted_' + self.name + '.db'):

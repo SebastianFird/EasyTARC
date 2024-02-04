@@ -18,6 +18,11 @@ __author__ = 'Sebastian Feiert'
 import tkinter # Tkinter -> tkinter in Python 3
 from gui.Window_Additionals import InfoWindow, DeleteAccountWarning
 from gui.Window_Additionals import InfoDictWindow
+from tkinter import messagebox
+
+import datetime
+import json
+import os
 
 
 class AccountsOptionMenu(tkinter.Listbox):
@@ -38,27 +43,37 @@ class AccountsOptionMenu(tkinter.Listbox):
         self.refresh()
 
     def build_options(self):
-        self.account_dict = self.account_tab.get_clicked_account_frame().account_dict
-
         self.optionmenu.delete(0, "end")
 
-        self.optionmenu.add_command(label=self.language_dict["info_about_the_time_account"],command=self.show_clock_info)
-        self.optionmenu.add_separator()
-        self.optionmenu.add_command(label=self.language_dict["time_account_report"],command=self.show_report)
-        self.optionmenu.add_separator()
-        
-        self.optionmenu.add_command(label=self.language_dict["edit"],command=self.edit_account)
+        clicked_account_frame_list = self.account_tab.get_clicked_account_frame_list()
 
-        if self.account_dict['status'] == 'closed':
-            self.optionmenu.add_command(label=self.language_dict["delete"],command=self.ask_delete_account)
+        if len(clicked_account_frame_list) == 1:
+
+            self.account_dict = clicked_account_frame_list[0].account_dict
+
+            self.optionmenu.add_command(label=self.language_dict["info_about_the_time_account"],command=self.show_clock_info)
+            self.optionmenu.add_separator()
+            self.optionmenu.add_command(label=self.language_dict["edit"],command=self.edit_account)
+
+            if self.account_dict['status'] == 'closed':
+                self.optionmenu.add_command(label=self.language_dict["delete"],command=self.ask_delete_account)
+            else:
+                self.optionmenu.add_command(label=self.language_dict["delete"],command=lambda:self.show_info(self.language_dict["edit_delete_info_text"]))
+
+            self.optionmenu.add_separator()
+            self.optionmenu.add_command(label=self.language_dict["export_time_account"],command=self.export_time_accounts)
         else:
-            self.optionmenu.add_command(label=self.language_dict["delete"],command=self.show_info)
+            self.optionmenu.add_command(label=self.language_dict["export_time_accounts"],command=self.export_time_accounts)
+
+        self.optionmenu.add_separator()
+        self.optionmenu.add_command(label=self.language_dict["select_all"],command=self.select_all)
+
 
 
     def popup(self, event):
         try:
             self.build_options()
-            self.optionmenu.tk_popup((event.x_root + 80), event.y_root, 0)
+            self.optionmenu.tk_popup((event.x_root), event.y_root)
         finally:
             self.optionmenu.grab_release()
 
@@ -76,11 +91,78 @@ class AccountsOptionMenu(tkinter.Listbox):
     def edit_account(self):
         self.account_tab.edit_selected_account(self.account_dict)
 
-    def show_info(self):
-        text = self.language_dict["edit_delete_info_text"]
-        info_window = InfoWindow(self.main_app, self.gui, self.account_tab.main_frame ,text,300,210)
+    def select_all(self):
+        self.account_tab.get_clicked_account_frame_list()[0].activate_all_accounts()
 
+    def export_time_accounts(self):
+        clicked_account_frame_list = self.account_tab.get_clicked_account_frame_list()
+        counter = 0
+        iconfy_after = True
+        export_dict = {}
+
+        account_id_list = [ele.account_dict['account_id'] for ele in clicked_account_frame_list]
+
+        checked_clicked_account_frame_list = [ele for ele in clicked_account_frame_list if ele.account_dict['main_id'] in account_id_list]
+        if checked_clicked_account_frame_list == []:
+            self.show_info(self.language_dict["export_time_accounts_failed"])
+            return
+        
+        if checked_clicked_account_frame_list != clicked_account_frame_list:
+            self.show_info(self.language_dict["export_sub_time_accounts_failed"])
+            iconfy_after = False
+
+        for clicked_account_frame in checked_clicked_account_frame_list:
+
+            export_account_dict = clicked_account_frame.account_dict.copy()
+
+            date_expiration_str = export_account_dict['date_expiration'].strftime('%d.%m.%Y')
+            if date_expiration_str == "01.01.2000":
+                date_expiration_str = ""
+            export_account_dict.update({'date_expiration':date_expiration_str})
+
+            export_dict.update({counter:export_account_dict})
+            counter = counter + 1
+
+        self.gui.disable_main_window()
+
+        export_path = self.main_app.get_filepath() + '/TIME_ACCOUNT_EXPORT'
+
+        if os.path.exists(export_path) == False:
+            new_path = os.path.abspath(os.getcwd()) +'\\' + 'TIME_ACCOUNT_EXPORT'
+            os.makedirs(new_path)
+
+        path_name = self.check_name_exsits("EasyTARC_TA_")
+
+        try:
+            export_json_file = open(path_name,"w+",encoding='UTF-8')
+            json.dump(export_dict, export_json_file)
+            export_json_file.close()
+            os.startfile(export_path)
+        except PermissionError:
+            messagebox.showinfo('Faild','The Json document could not be exported')
+            self.gui.enable_main_window()
+            return
+        
+        self.gui.enable_main_window()
+        if iconfy_after:
+            self.gui.root.iconify()
+
+    def check_name_exsits(self,name):
+        path_exsists = True
+        file_counter = 1
+        while path_exsists == True:
+            path_name = 'TIME_ACCOUNT_EXPORT/'  + name + str(file_counter) + '.json'
+            file_counter = file_counter + 1
+            path_exsists = os.path.isfile(path_name)
+            if file_counter > 1000:
+                text = "Error: Too many exports"
+                info_window = InfoWindow(self.main_app, self.gui, self.account_tab.main_frame ,text,300,210)
+                return
+
+        return(path_name)
+    
     def show_report(self):
+        # currently not used 
         if self.account_dict['account_kind'] == 1:
             report_dict = self.data_manager.get_time_account_report(1,self.account_dict['account_id'])
 
@@ -105,6 +187,9 @@ class AccountsOptionMenu(tkinter.Listbox):
             info_dict.update({self.language_dict["time_sum"]:"#"+str('{:n}'.format(round(float(report_dict['single']),3))) + ' ' + self.language_dict["hours"]})
         
         info_window = InfoDictWindow(self.main_app, self.gui, self.account_tab.main_frame ,info_dict,400,280)
+
+    def show_info(self,text):
+        info_window = InfoWindow(self.main_app, self.gui, self.account_tab.main_frame ,text,300,210)
 
     def show_clock_info(self):
         if self.account_dict['account_kind'] == 1:
@@ -144,4 +229,16 @@ class AccountsOptionMenu(tkinter.Listbox):
                         self.language_dict["response_text"]:self.account_dict['response_text']              
                         })
         #############
+        if self.account_dict['account_id'] != 0:
+            if int(self.account_dict['date_expiration'].strftime("%Y")) != 2000:
+                info_dict.update({self.language_dict["expiration_date"]:self.account_dict['date_expiration'].strftime('%d.%m.%Y')}) 
+            else: 
+                info_dict.update({self.language_dict["expiration_date"]:" - "}) 
+        #############
+        if self.account_dict['account_id'] != 0:
+            if float(self.account_dict['available_hours']) != 0:
+                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.account_dict['available_hours']),2))) + ' ' + self.language_dict["hours"]}) 
+            else:
+                info_dict.update({self.language_dict["available_hours"]:" - "}) 
+
         info_window = InfoDictWindow(self.main_app, self.gui, self.account_tab.main_frame ,info_dict,400,280)

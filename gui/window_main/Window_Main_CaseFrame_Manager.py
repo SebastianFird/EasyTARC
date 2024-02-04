@@ -23,6 +23,7 @@ from gui.window_main.page_create_edit_account.Page_Create_Account import CreateE
 from gui.window_main.page_create_edit_record.Page_Create_Record import CreateEditRecord
 from gui.Gui_CaseFrame_Manager import CaseFrameManager
 from style_classes import MyFrame
+from style_classes import MyLabel
 
 
 class CaseFrameManagerMW(CaseFrameManager):

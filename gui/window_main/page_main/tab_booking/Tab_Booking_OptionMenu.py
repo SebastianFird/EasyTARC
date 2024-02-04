@@ -37,16 +37,22 @@ class BookingOptionMenu(tkinter.Listbox):
         self.refresh()
 
     def build_options(self):
-        self.account_dict = self.booking_tab.get_clicked_record_frame().record_dict
-
         self.optionmenu.delete(0, "end")
+        clicked_record_frame_list = self.booking_tab.get_clicked_record_frame_list()
 
-        self.optionmenu.add_command(label=self.language_dict["info_about_the_time_account"],command=self.show_clock_info)
+        if len(clicked_record_frame_list) == 1:
+            self.record_dict = clicked_record_frame_list[0].record_dict
+            self.optionmenu.add_command(label=self.language_dict["info_about_the_time_account"],command=self.show_clock_info)
+
+        if self.booking_tab.booking_kind == 'date':
+            self.optionmenu.add_command(label=self.language_dict["select_day"],command=self.select_all)
+        else:  
+            self.optionmenu.add_command(label=self.language_dict["select_all"],command=self.select_all)
 
     def popup(self, event):
         try:
             self.build_options()
-            self.optionmenu.tk_popup((event.x_root + 80), event.y_root, 0)
+            self.optionmenu.tk_popup((event.x_root), event.y_root)
         finally:
             self.optionmenu.grab_release()
 
@@ -58,42 +64,57 @@ class BookingOptionMenu(tkinter.Listbox):
         self.optionmenu.configure(foreground=self.style_dict["font_color"])
         self.optionmenu.configure(activebackground=self.style_dict["selected_color_grey"])
 
+    def select_all(self):
+        self.booking_tab.get_clicked_record_frame_list()[0].activate_all_records()
+
     def show_clock_info(self):
-        if self.account_dict['account_kind'] == 1:
+        if self.record_dict['account_kind'] == 1:
             info_dict = {self.language_dict["type"]:self.language_dict["main_account"]}
         else:
             info_dict = {self.language_dict["type"]:self.language_dict["sub_account"],
-                        self.language_dict["main_account"]:self.account_dict['main_name']}
+                        self.language_dict["main_account"]:self.record_dict['main_name']}
         #############
-        if self.account_dict['account_id'] != 0:
-            info_dict.update({self.language_dict["name"]:self.account_dict['name']})
+        if self.record_dict['account_id'] != 0:
+            info_dict.update({self.language_dict["name"]:self.record_dict['name']})
         else:
             info_dict.update({self.language_dict["name"]:self.language_dict["without_allocation"]})
         #############
-        info_dict.update({self.language_dict["group"]:self.account_dict['group']})
+        info_dict.update({self.language_dict["group"]:self.record_dict['group']})
         #############
-        if self.account_dict['account_id'] != 0:
+        if self.record_dict['account_id'] != 0:
             info_dict.update({                
-                        self.language_dict["project"]:self.account_dict['project_label'],  
-                        self.language_dict["order"]:self.account_dict['order_label'],                              
-                        self.language_dict["process"]:self.account_dict['process_label'],
-                        self.language_dict["description"]:self.account_dict['description_text']           
+                        self.language_dict["project"]:self.record_dict['project_label'],  
+                        self.language_dict["order"]:self.record_dict['order_label'],                              
+                        self.language_dict["process"]:self.record_dict['process_label'],
+                        self.language_dict["description"]:self.record_dict['description_text']           
                         })
         #############
-        if self.account_dict['bookable'] == 1:
+        if self.record_dict['bookable'] == 1:
             info_dict.update({self.language_dict["bookable"]:self.language_dict["yes"]}) 
         else:
             info_dict.update({self.language_dict["bookable"]:self.language_dict["no"]}) 
         #############
-        if self.account_dict['bookable'] == 1:
-            if self.account_dict['auto_booking'] == 1:
+        if self.record_dict['bookable'] == 1:
+            if self.record_dict['auto_booking'] == 1:
                 info_dict.update({self.language_dict["auto_booking"]:self.language_dict["yes"]}) 
             else:
                 info_dict.update({self.language_dict["auto_booking"]:self.language_dict["no"]}) 
             #########
             info_dict.update({                     
-                        self.language_dict["response_code"]:self.account_dict['response_code'],                            
-                        self.language_dict["response_text"]:self.account_dict['response_text']              
+                        self.language_dict["response_code"]:self.record_dict['response_code'],                            
+                        self.language_dict["response_text"]:self.record_dict['response_text']              
                         })
+        #############
+        if self.record_dict['account_id'] != 0:
+            if int(self.record_dict['date_expiration'].strftime("%Y")) != 2000:
+                info_dict.update({self.language_dict["expiration_date"]:self.record_dict['date_expiration'].strftime('%d.%m.%Y')}) 
+            else: 
+                info_dict.update({self.language_dict["expiration_date"]:" - "}) 
+        #############
+        if self.record_dict['account_id'] != 0:
+            if float(self.record_dict['available_hours']) != 0:
+                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.record_dict['available_hours']),2))) + ' ' + self.language_dict["hours"]}) 
+            else:
+                info_dict.update({self.language_dict["available_hours"]:" - "})         
         #############
         info_window = InfoDictWindow(self.main_app, self.gui, self.booking_tab.main_frame ,info_dict,400,280)

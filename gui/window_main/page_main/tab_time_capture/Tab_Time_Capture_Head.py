@@ -19,7 +19,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import tkinter.font as tkfont
 from PIL import ImageTk, Image
-from datetime import datetime, timedelta
+import datetime
 
 from gui.Window_Additionals import CreateToolTip
 from gui.Window_Additionals import Endofworkinfo
@@ -38,14 +38,7 @@ class CaptureHead:
         self.data_manager = self.main_app.get_data_manager()
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
-
-        image_1 = self.style_dict['photo_btn_pause_head']
-        image_2 = self.style_dict['photo_btn_highlight_head']
-        image_3 = self.style_dict['photo_btn_off_head']
-
-        self.photo_btn_highlight = ImageTk.PhotoImage(image_2.resize((40, 20), Image.ANTIALIAS))
-        self.photo_btn_off = ImageTk.PhotoImage(image_3.resize((40, 20), Image.ANTIALIAS))
-        self.photo_btn_pause = ImageTk.PhotoImage(image_1.resize((40, 20), Image.ANTIALIAS))
+        self.image_dict = self.data_manager.get_image_dict()
 
         # get gui for additional windows
         # get case_frame_manager for switching case_frame
@@ -80,6 +73,7 @@ class CaptureHead:
         # configure style and language of main frame
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
+        self.image_dict = self.data_manager.get_image_dict()
 
         self.refresh_main_head()
         self.refresh_table_head()
@@ -92,10 +86,10 @@ class CaptureHead:
         self.main_head_frame.configure(background=self.style_dict["header_color_blue"])
         self.main_head_frame.pack(side = "top", fill = "x")
     
-        self.btn_add_clock = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict['new_main_account'],width=20,command=lambda:self.add_new_main_account())
+        self.btn_add_clock = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict['new_time_account'],width=25,command=lambda:self.add_new_main_account())
         self.btn_add_clock.pack(side='left',padx = 10,pady=10)
 
-        self.btn_end_of_work = MyButton(self.main_head_frame, self.data_manager, text=u'\U0001F4BE' + '   ' + self.language_dict['closing_time'],width=20,command=self.end_of_work)
+        self.btn_end_of_work = MyButton(self.main_head_frame, self.data_manager, text=u'\U0001F4BE' + '   ' + self.language_dict['close_recording'],width=25,command=self.end_of_work)
         self.btn_end_of_work.pack(side='right',padx = 10,pady=10)
         self.btn_end_of_work_ttp = CreateToolTip(self.btn_end_of_work, self.data_manager, 50, 30, '')
 
@@ -108,8 +102,8 @@ class CaptureHead:
         self.lbl_pause.configure(background=self.style_dict["header_color_blue"],foreground=self.style_dict["font_color_white"])
         self.lbl_pause.pack(side='right')
 
-        self.lbl_activate_pause = MyLabel(self.main_head_frame, self.data_manager, image=self.photo_btn_off)
-        self.lbl_activate_pause.image = self.photo_btn_off
+        self.lbl_activate_pause = MyLabel(self.main_head_frame, self.data_manager, image=self.image_dict['photo_btn_off_head'])
+        self.lbl_activate_pause.image = self.image_dict['photo_btn_off_head']
         self.lbl_activate_pause.configure(background=self.style_dict["header_color_blue"])
         self.lbl_activate_pause.pack(side='right')
 
@@ -129,45 +123,49 @@ class CaptureHead:
     def pause_enter(self,e):
         self.on_activate_pause = True
         if self.pause_clock.get_runninig() == False:
-            self.lbl_activate_pause.configure(image=self.photo_btn_highlight)
-            self.lbl_activate_pause.image = self.photo_btn_highlight
+            self.lbl_activate_pause.configure(image=self.image_dict['photo_btn_highlight_head'])
+            self.lbl_activate_pause.image = self.image_dict['photo_btn_highlight_head']
 
     def pause_leave(self,e):
         self.on_activate_pause = False
         if self.pause_clock.get_runninig() == False:
-            self.lbl_activate_pause.configure(image=self.photo_btn_off)
-            self.lbl_activate_pause.image = self.photo_btn_off
+            self.lbl_activate_pause.configure(image=self.image_dict['photo_btn_off_head'])
+            self.lbl_activate_pause.image = self.image_dict['photo_btn_off_head']
 
     def activate_pause(self,e):
         if self.main_app.get_action_state() == "normal":
             self.pause_clock.start()
-            self.lbl_activate_pause.configure(image=self.photo_btn_pause)
-            self.lbl_activate_pause.image = self.photo_btn_pause
+            self.lbl_activate_pause.configure(image=self.image_dict['photo_btn_pause_head'])
+            self.lbl_activate_pause.image = self.image_dict['photo_btn_pause_head']
             self.capture_tab.body.update_main_account_clocks()
             self.update_main_head()    
     
     def update_main_head(self):
         if self.pause_clock.get_runninig() == True:
-            self.lbl_activate_pause.configure(image=self.photo_btn_pause)
-            self.lbl_activate_pause.image = self.photo_btn_pause
+            self.lbl_activate_pause.configure(image=self.image_dict['photo_btn_pause_head'])
+            self.lbl_activate_pause.image = self.image_dict['photo_btn_pause_head']
         else:
             if self.on_activate_pause == True:
-                self.lbl_activate_pause.configure(image=self.photo_btn_highlight)
-                self.lbl_activate_pause.image = self.photo_btn_highlight
+                self.lbl_activate_pause.configure(image=self.image_dict['photo_btn_highlight_head'])
+                self.lbl_activate_pause.image = self.image_dict['photo_btn_highlight_head']
             else:
-                self.lbl_activate_pause.configure(image=self.photo_btn_off)
-                self.lbl_activate_pause.image = self.photo_btn_off
+                self.lbl_activate_pause.configure(image=self.image_dict['photo_btn_off_head'])
+                self.lbl_activate_pause.image = self.image_dict['photo_btn_off_head']
 
         if self.main_app.get_action_state() == "disabled" or self.main_app.get_action_state() == "arrange_clocks":
             self.btn_end_of_work.configure(state=tk.DISABLED)
             self.btn_end_of_work_ttp.text = ''
             self.btn_add_clock.configure(state=tk.DISABLED)
         elif self.main_app.get_action_state() == "endofwork":
-            self.btn_end_of_work.configure(state=tk.DISABLED)
-            self.btn_end_of_work_ttp.text = self.language_dict["the_recording_is_finished"]
+            self.btn_end_of_work.configure(text=self.language_dict['start_new_recording'])
+            self.btn_end_of_work.configure(command=self.start_new_recording)
+            self.btn_end_of_work.configure(state=tk.NORMAL)
+            self.btn_end_of_work_ttp.text = ""
             self.btn_add_clock.configure(state=tk.NORMAL)
         else:
             self.btn_end_of_work.configure(state=tk.NORMAL)
+            self.btn_end_of_work.configure(text=u'\U0001F4BE' + '   ' + self.language_dict['close_recording'])
+            self.btn_end_of_work.configure(command=self.end_of_work)
             self.btn_end_of_work_ttp.text = ''
             self.btn_add_clock.configure(state=tk.NORMAL)
 
@@ -179,20 +177,29 @@ class CaptureHead:
         self.data_manager.set_end_of_work(fold_up_list)
         self.info_end_of_work()
 
+    def start_new_recording(self):
+        self.data_manager.deep_reset_clocks()
+        self.data_manager.update_clocks()
+        self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.update_clock_properties()
+        load_clocks = False
+        self.capture_tab.body.start_recording(load_clocks)
+
     def info_end_of_work(self,event=None):
         if self.main_app.get_action_state() == 'disabled':
             return
+        
+        work_clock = self.data_manager.get_work_clock()
+        pause_clock = self.data_manager.get_pause_clock()
 
         info_dict = {self.language_dict["session_data"]:"#"}
 
-        info_dict.update({self.language_dict["easytarc_execution"]:str(self.data_manager.start_timestamp) + ' ' + self.language_dict["o_clock"]})
+        system_start_time = self.main_app.get_system_start_time()
+        
+        if system_start_time != None:
+            info_dict.update({self.language_dict["system_start_time"]:str(system_start_time.strftime('%H:%M'))+ ' ' + self.language_dict["o_clock"]})
 
-        days,hour,mins,sec = self.main_app.get_system_start_time_diff()
-        if mins > 5 and days == 0:
-            self.system_start_time_diff_str = f"{hour:02}:{mins:02}:{sec:02}"
-            info_dict.update({self.language_dict["diff_system_start"]:self.system_start_time_diff_str})
+        info_dict.update({self.language_dict["recording_start"]:str(self.data_manager.start_timestamp.strftime('%H:%M')) + ' ' + self.language_dict["o_clock"]})
 
-        pause_clock = self.data_manager.get_pause_clock()
         pause_shift_list_list = pause_clock.get_time_str_list_list()
         if pause_shift_list_list != []:
             pause_counter = 1
@@ -203,9 +210,11 @@ class CaptureHead:
 
         end_timestamp = self.data_manager.end_timestamp
         if end_timestamp != None:
-            info_dict.update({self.language_dict["closing_time"]:str(self.data_manager.end_timestamp) + ' '+ self.language_dict["o_clock"]})
+            info_dict.update({self.language_dict["recording_closed"]:str(self.data_manager.end_timestamp.strftime('%H:%M')) + ' '+ self.language_dict["o_clock"]})
+            recording_period = self.data_manager.end_timestamp - self.data_manager.start_timestamp
+        else:
+            recording_period = datetime.datetime.now() - self.data_manager.start_timestamp
 
-        work_clock = self.data_manager.get_work_clock()
         work_time = work_clock.str_timedelta(work_clock.get_total_time())
         work_time_q = work_clock.get_total_time()
 
@@ -213,23 +222,33 @@ class CaptureHead:
         if main_account_clock_list != []:
             activated_main_account_clock_list = [ele for ele in main_account_clock_list if ele.str_timedelta(ele.get_total_time_sum()) != '00:00:00']
             if activated_main_account_clock_list != []:
-                info_dict.update({self.language_dict["record"]:'#'})
+                info_dict.update({self.language_dict["recorded_times"]:'#'})
                 for main_account_clock in activated_main_account_clock_list:
                     info_dict.update({main_account_clock.get_name():main_account_clock.str_timedelta(main_account_clock.get_total_time_sum())})
 
+        info_dict.update({self.language_dict["analysis"]:'#'})
+        recording_period = recording_period - pause_clock.get_total_time()
+        info_dict.update({self.language_dict["recording_period"]:work_clock.str_timedelta(recording_period)})
+        info_dict.update({self.language_dict["working_time"]:work_clock.str_timedelta(work_time_q)})
+
+        if main_account_clock_list != []:
             activated_main_account_clock_not_bookable_list = [ele for ele in activated_main_account_clock_list if ele.get_bookable() == 0]
             if activated_main_account_clock_not_bookable_list != []:
-                q_not_bookable_time = timedelta(hours = 0)
+                q_not_bookable_time = datetime.timedelta(hours = 0)
                 for main_account_clock in activated_main_account_clock_not_bookable_list:
                     q_not_bookable_time = q_not_bookable_time + main_account_clock.get_total_time_sum()
                 if str(work_time) != '00:00:00':
                     bookingrate = (1 - (q_not_bookable_time / work_time_q))*100 
                 else:
                     bookingrate = 0
-                info_dict.update({self.language_dict["analysis"]:'#'})
                 info_dict.update({self.language_dict["rate"]:str(round(bookingrate)) + ' %   '})
 
-        info_window = Endofworkinfo(self.main_app, self.gui ,self.gui.main_window,info_dict,450,300)
+        info_dict.update({self.language_dict["database"]:'#'})
+        info_dict.update({self.language_dict["data"]:self.language_dict["save_info"]})
+        info_dict.update({self.language_dict["status"]:self.language_dict["data_are_stored_temporarily"]})
+
+
+        info_window = Endofworkinfo(self.main_app, self.gui ,self.gui.main_window,info_dict,500,300)
         return
     
 
@@ -247,8 +266,7 @@ class CaptureHead:
         self.lbl_activate_pause.configure(background=self.style_dict["header_color_blue"])
         self.lbl_empty0.configure(background=self.style_dict["header_color_blue"])
         
-        self.btn_add_clock.configure(text=self.language_dict['new_main_account'])
-        self.btn_end_of_work.configure(text=u'\U0001F4BE' + '   ' + self.language_dict['closing_time'])
+        self.btn_add_clock.configure(text=self.language_dict['new_time_account'])
         self.lbl_pause.configure(text=self.language_dict['break'])
 
         self.update_main_head()
@@ -270,7 +288,6 @@ class CaptureHead:
         self.empty0.set_photo_width(10)
         self.empty0.configure(background=self.style_dict["selected_color_grey"])
         self.empty0.pack(side='right')
-
 
         ################
 
@@ -347,7 +364,7 @@ class CaptureHead:
         self.lbl_empty4 = MyLabel(self.passed_time_visible_frame, self.data_manager, width=1)
         self.lbl_empty4.pack(side='right',padx = 3)
 
-        self.lbl_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=time_column,width=16)
+        self.lbl_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=time_column,width=18)
         self.lbl_time.pack(side='right',padx = 3)
 
         ################
@@ -441,14 +458,6 @@ class CaptureHead:
 
         self.lbl_correction.configure(text=self.language_dict['correction'])
         self.lbl_name.configure(text=self.language_dict['name'])
-
-        image_1 = self.style_dict['photo_btn_pause_head']
-        image_2 = self.style_dict['photo_btn_highlight_head']
-        image_3 = self.style_dict['photo_btn_off_head']
-
-        self.photo_btn_highlight = ImageTk.PhotoImage(image_2.resize((40, 20), Image.ANTIALIAS))
-        self.photo_btn_off = ImageTk.PhotoImage(image_3.resize((40, 20), Image.ANTIALIAS))
-        self.photo_btn_pause = ImageTk.PhotoImage(image_1.resize((40, 20), Image.ANTIALIAS))
 
         self.update_table_head()
         return

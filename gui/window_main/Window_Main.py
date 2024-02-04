@@ -17,13 +17,14 @@ __author__ = 'Sebastian Feiert'
 
 import tkinter as tk
 from tkinter import ttk
-from datetime import datetime
+import datetime
 from PIL import ImageTk, Image
 
 from gui.window_main.Window_Main_CaseFrame_Manager import CaseFrameManagerMW
 from gui.window_main.Window_Main_Status import MainWindowStatus
+from gui.window_main.Window_Main_Reminder import MainWindowReminder
 from gui.Window_Additionals import InfoWindow
-from gui.Gui_OptionMenu import GuiOptionMenu
+from gui.window_main.Window_Main_OptionMenu import MainWindowOptionMenu
 from gui.Window_Additionals import CreateInfo
 
 from style_classes import MyFrame
@@ -35,16 +36,23 @@ class MainWindow(tk.Toplevel):
         tk.Toplevel.__init__(self, root)
         self.gui = gui
         self.root = root
-        self.main_window_active = True
-        self.root.bind('<FocusIn>', self.on_root_deiconify)
-        self.overrideredirect(1)
-        self.geometry('1200x600+100+100')
 
         self.main_app = main_app
         self.data_manager = self.main_app.get_data_manager()
 
+        self.main_window_active = True
+        #self.root.bind('<FocusIn>', self.on_root_deiconify)
+        self.transient(self.root)
+        self.overrideredirect(1)
+        self.attributes('-alpha',0)
+        geo_factor = float(self.main_app.get_setting("geometry_factor"))
+        width = int(round(geo_factor*1200))
+        height = int(round(geo_factor*600))
+        self.geometry(str(width)+ 'x' + str(height) + '+100+100')
+
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
+        self.image_dict = self.data_manager.get_image_dict()
 
         self.x_win = None
         self.y_win = None
@@ -53,7 +61,7 @@ class MainWindow(tk.Toplevel):
 
         self.highlight_main_window = False
 
-        self.option_menu = GuiOptionMenu(self,self.main_app,self.gui)
+        self.option_menu = MainWindowOptionMenu(self,self.main_app,self.gui)
 
         # run the main frame of this layer
         self.create_main_frame()
@@ -74,41 +82,40 @@ class MainWindow(tk.Toplevel):
         self.title_bar.bind('<Button-1>', self.get_pos)
         self.title_bar.bind("<Button-3>", self.bar_right_clicked)
 
-        image = Image.open("images/Logo_image.png")
-        photo = ImageTk.PhotoImage(image.resize((30, 30), Image.ANTIALIAS))
-        self.lbl_icon = MyLabel(self.title_bar, self.data_manager, image=photo)
+        self.lbl_icon = MyLabel(self.title_bar, self.data_manager, image=self.image_dict['photo_icon'])
         self.lbl_icon.configure(background=self.style_dict["titlebar_color"])
-        self.lbl_icon.image = photo
+        self.lbl_icon.image = self.image_dict['photo_icon']
         self.lbl_icon.pack(side='left')
         self.lbl_icon.bind('<Button-1>', self.show_about)
         self.lbl_icon.bind("<Button-3>", self.bar_right_clicked)
-        icon_text = self.language_dict["about_EasyTARC"]
-        self.about_easytarc_ttp = CreateInfo(self.lbl_icon, self.data_manager, 30, 25, icon_text)
+        self.about_easytarc_ttp = CreateInfo(self.lbl_icon, self.data_manager, 30, 25, self.language_dict["about_EasyTARC"])
         self.lbl_icon.bind("<Enter>", self.icon_enter)
         self.lbl_icon.bind("<Leave>", self.icon_leave)
 
-        dt = datetime.now()
+        dt = datetime.datetime.now()
         str_today = dt.strftime("%d") + "." + dt.strftime("%m") + "." + dt.strftime("%Y") + "  "+ self.language_dict["week"] + ' ' + str(dt.isocalendar()[1])
         self.lbl_title = MyLabelPixel(self.title_bar, self.data_manager, text='   ' + self.main_app.get_name() + '                     ' + str_today)
-        self.lbl_title.configure(background=self.style_dict["titlebar_color"],height=30)
-        self.lbl_title.pack(side='left')
+        self.lbl_title.configure(background=self.style_dict["titlebar_color"]) # height=30
+        self.lbl_title.pack(side='left',fill='y')
         self.lbl_title.bind('<B1-Motion>', self.move_window)
         self.lbl_title.bind('<Button-1>', self.get_pos)
         self.lbl_title.bind("<Button-3>", self.bar_right_clicked)
 
         self.close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
-        self.close_button.configure(background=self.style_dict["titlebar_color"],height=30)
-        self.close_button.pack(side='right')
+        self.close_button.configure(background=self.style_dict["titlebar_color"]) # height=30
+        self.close_button.pack(side='right',fill='y')
         self.close_button.bind('<Button-1>', self.close_window)
         self.close_button.bind("<Button-3>", self.bar_right_clicked)
+        self.close_main_ttp = CreateInfo(self.close_button, self.data_manager, 30, 25, self.language_dict["close_main_window"])
         self.close_button.bind("<Enter>", self.enter_close)
         self.close_button.bind("<Leave>", self.leave_close)
 
         self.workwindow_button = MyLabelPixel(self.title_bar, self.data_manager, text = '     ' + u'\U0000003E' + '     ') #u'\U000025B7'
-        self.workwindow_button.configure(background=self.style_dict["titlebar_color"],height=30)
-        self.workwindow_button.pack(side='right',padx = 5)
+        self.workwindow_button.configure(background=self.style_dict["titlebar_color"]) # height=30
+        self.workwindow_button.pack(side='right',padx = 5,fill='y')
         self.workwindow_button.bind('<Button-1>', self.show_workwindow)
         self.workwindow_button.bind("<Button-3>", self.bar_right_clicked)
+        self.open_work_window_ttp = CreateInfo(self.workwindow_button, self.data_manager, 30, 25, self.language_dict["open_work_window"])
         self.workwindow_button.bind("<Enter>", self.enter_workwindow)
         self.workwindow_button.bind("<Leave>", self.leave_workwindow)
 
@@ -117,7 +124,9 @@ class MainWindow(tk.Toplevel):
         self.root.bind("<Map>", self.on_root_deiconify)
         self.root.bind("<Unmap>", self.on_root_iconify)
 
-        self.bottom_status = MainWindowStatus(self.main_frame, self.main_app,self.gui,self)
+        self.status_frame = MainWindowStatus(self.main_frame, self.main_app,self.gui,self)
+
+        self.reminder_frame = MainWindowReminder(self.main_frame, self.main_app,self.gui,self)
 
         self.case_frame = CaseFrameManagerMW(self.main_frame, self.main_app, self.gui)
         self.case_frame.pack(side = "top", fill = "both", expand = True)
@@ -125,20 +134,22 @@ class MainWindow(tk.Toplevel):
 ##################################################
 
     def on_root_iconify(self, event=None):
-        # print('unmap')
         if self.gui.on_window_switch == False:
+            self.attributes('-alpha', 0.0)
             self.withdraw()
             self.gui.minimise()
-            self.root.update()
+            #self.root.update()
             if self.main_window_active != False:
                 self.main_window_active = False
 
     def on_root_deiconify(self, event=None):
-        # print('map')
         if self.gui.on_window_switch == False:
             self.gui.unminimise()
+            #self.root.update()
             self.deiconify()
             self.root.update()
+            self.attributes('-alpha', 1.0)
+            self.overrideredirect(1)
             if self.main_window_active != True:
                 self.main_window_active = True
                 self.adjust_pos()
@@ -146,9 +157,8 @@ class MainWindow(tk.Toplevel):
     def adjust_pos(self, event=None):
         x=self.winfo_x()
         y=self.winfo_y()
-        screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(x,y)
+        screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(x,y)
         if (screen_root_x <= x) and (x <= screen_root_x + screen_width) and (screen_root_y <= y) and (y <= screen_root_y + screen_height):
-            #print('on screen')
             pass
         else:
             self.reset_window_pos()
@@ -175,11 +185,10 @@ class MainWindow(tk.Toplevel):
             self.start_y = event.y_root
 
     def reset_window_pos(self):
-        w = 1200
-        h = 600
-        self.start_x = 100
-        self.start_y = 100
-        self.geometry('%dx%d+%d+%d' % (w, h, self.start_x, self.start_y))
+        geo_factor = float(self.main_app.get_setting("geometry_factor"))
+        width = int(round(geo_factor*1200))
+        height = int(round(geo_factor*600))
+        self.geometry(str(width)+ 'x' + str(height) + '+100+100')
 
     def pos_window_central_and_highlight(self):
         ws = self.winfo_screenwidth() # width of the screen
@@ -213,9 +222,11 @@ class MainWindow(tk.Toplevel):
 
     def enter_close(self,e):
         self.close_button.configure(background=self.style_dict["caution_color_red"])
+        self.close_main_ttp.scheduleinfo()
 
     def leave_close(self,e):
         self.close_button.configure(background=self.style_dict["titlebar_color"])
+        self.close_main_ttp.hideinfo()
 
     def close_window(self,event):
         self.work_clock = self.main_app.data_manager.get_work_clock()
@@ -231,13 +242,15 @@ class MainWindow(tk.Toplevel):
     def enter_workwindow(self,e):
         if self.main_app.get_action_state() != 'disabled':
             self.workwindow_button.configure(background=self.style_dict["btn_hover_color_grey"])
+            self.open_work_window_ttp.scheduleinfo()
+
 
     def leave_workwindow(self,e):
         self.workwindow_button.configure(background=self.style_dict["titlebar_color"])
+        self.open_work_window_ttp.hideinfo()
 
     def show_workwindow(self,event=None):
         if self.main_app.get_action_state() != 'disabled':
-            self.gui.switch_to_work_window = True
             self.root.iconify()
 
 ##################################################
@@ -255,14 +268,16 @@ class MainWindow(tk.Toplevel):
     def refresh(self):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
+        self.image_dict = self.data_manager.get_image_dict()
 
         self.title_bar.refresh_style()
         self.lbl_title.refresh_style()
         self.lbl_icon.refresh_style()
         self.close_button.refresh_style()
-        self.workwindow_button.refresh_style()
-        self.option_menu.refresh()
-        self.about_easytarc_ttp.refresh()
+        self.workwindow_button.refresh_style()        
+
+        self.lbl_icon.configure(image=self.image_dict['photo_icon'])
+        self.lbl_icon.image = self.image_dict['photo_icon']
 
         self.main_frame.configure(highlightbackground=self.style_dict["window_border_color"], highlightcolor=self.style_dict["window_border_color"], highlightthickness=1)
         self.title_bar.configure(background=self.style_dict["titlebar_color"],highlightcolor=self.style_dict["titlebar_color"],highlightbackground=self.style_dict["titlebar_color"])
@@ -272,14 +287,21 @@ class MainWindow(tk.Toplevel):
         self.workwindow_button.configure(background=self.style_dict["titlebar_color"])
 
         self.case_frame.refresh()
-        self.bottom_status.refresh()
+        self.status_frame.refresh()
+        self.reminder_frame.refresh()
 
-        dt = datetime.now()
+        self.option_menu.refresh()
+        self.about_easytarc_ttp.refresh()
+        self.close_main_ttp.refresh()
+        self.open_work_window_ttp.refresh()
+
+        dt = datetime.datetime.now()
         str_today = dt.strftime("%d") + "." + dt.strftime("%m") + "." + dt.strftime("%Y") + "  "+ self.language_dict["week"] + str(dt.isocalendar()[1])
         self.lbl_title.configure(text='   ' + self.main_app.get_name() + '                     ' + str_today)
 
-        icon_text = self.language_dict["about_EasyTARC"]
-        self.about_easytarc_ttp.text = icon_text
+        self.about_easytarc_ttp.text = self.language_dict["about_EasyTARC"]
+        self.close_main_ttp.text = self.language_dict["close_main_window"]
+        self.open_work_window_ttp.text = self.language_dict["open_work_window"]
         return
 
 

@@ -17,7 +17,7 @@ __author__ = 'Sebastian Feiert'
 
 import tkinter as tk
 from tkinter import ttk
-from gui.window_main.page_main.tab_accounts.Tab_Accounts_CaseFrame_AccountList import AccountList
+from gui.window_main.page_main.tab_accounts.Tab_Accounts_CaseFrame_AccountTotal import AccountTotal
 from style_classes import MyFrame
 from gui.Gui_CaseFrame_Manager import CaseFrameManager
 
@@ -28,16 +28,17 @@ class CaseFrameManagerTA(CaseFrameManager):
         super().__init__(container,main_app, gui)
         self.accounts_tab = accounts_tab
 
-    def show_data(self):
-        frame = AccountList(self,self.main_app,self.gui,self.accounts_tab)
+    def show_accounts_total(self):
+        frame = AccountTotal(self,self.main_app,self.gui,self.accounts_tab)
 
-        if AccountList in self.frames:
-            self.frames[AccountList].destroy()
-            self.frames.pop(AccountList, None)
+        if AccountTotal in self.frames:
+            self.frames[AccountTotal].destroy()
+            self.frames.pop(AccountTotal, None)
         
-        self.frames[AccountList] = frame
+        self.frames[AccountTotal] = frame
         frame.pack(side = "top", fill = "both", expand = True)
         
-        self.show_frame(AccountList)
+        self.show_frame(AccountTotal)
         return(frame)
+    
     
