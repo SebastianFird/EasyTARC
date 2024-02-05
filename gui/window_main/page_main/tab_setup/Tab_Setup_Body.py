@@ -331,10 +331,8 @@ class SetupBody:
                     shortcut_desc = "A Python script"
                     icon_path = os.path.join( self.main_app.get_filepath(), 'Logo.ico')  
                     folder_path = startup_folder
-                    make_shortcut(script_path, name=shortcut_name, description=shortcut_desc, icon=icon_path, folder=folder_path)
+                    make_shortcut(script_path, name=shortcut_name, description=shortcut_desc, icon=icon_path, folder=folder_path, working_dir=self.main_app.get_filepath())
             except:
-                pass
-            if not os.path.exists(shortcut_path):
                 app_folder = self.main_app.get_filepath()
                 startup_folder = os.environ["APPDATA"] + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
                 text = self.language_dict['set_start_up_link_manual']
@@ -363,10 +361,8 @@ class SetupBody:
                     shortcut_desc = "A Python script"
                     icon_path = os.path.join( self.main_app.get_filepath(), 'Logo.ico')  
                     folder_path = desktop_folder
-                    make_shortcut(script_path, name=shortcut_name, description=shortcut_desc, icon=icon_path, folder=folder_path)
+                    make_shortcut(script_path, name=shortcut_name, description=shortcut_desc, icon=icon_path, folder=folder_path, working_dir=self.main_app.get_filepath())
             except:
-                pass
-            if not os.path.exists(shortcut_path):
                 app_folder = self.main_app.get_filepath()
                 desktop_folder = os.path.join(os.environ["USERPROFILE"], "Desktop")
                 text = self.language_dict['set_desktop_link_manual']
