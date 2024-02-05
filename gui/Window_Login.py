@@ -73,7 +73,7 @@ class LoginWindow(tk.Toplevel):
         geo_factor = float(self.main_app.get_setting("geometry_factor"))
 
         if self.kind == 'sign_up':
-            x = 500
+            x = 550
             y = 600
         else:
             x = 400

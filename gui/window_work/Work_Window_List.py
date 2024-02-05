@@ -18,119 +18,115 @@ __author__ = 'Sebastian Feiert'
 import tkinter as tk
 from tkinter import ttk
 from PIL import ImageTk, Image
+from gui.Window_Additionals import CreateInfo
 
 from style_classes import MyFrame
 from style_classes import MyLabel
 from style_classes import MyLabelPixel
 from gui.Window_Additionals import CreateToolTip
 from gui.Scroll_Frame import Scroll_Frame
-from gui.Gui_OptionMenu import GuiOptionMenu
+from gui.window_work.Work_Window_OptionMenu import WorkWindowOptionMenu
 
-class MiniWorkWindowList(tk.Toplevel):
-    def __init__(self, main_app, root, gui, *args, **kwargs):
+class WorkWindowList(tk.Toplevel):
+    def __init__(self, main_app, root, gui, x, y, *args, **kwargs):
 
         self.main_app = main_app
         self.data_manager = self.main_app.get_data_manager()
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
+        self.image_dict = self.data_manager.get_image_dict()
+        self.ww_kind = "ww_list"
 
         tk.Toplevel.__init__(self,root,highlightthickness=1, highlightcolor = self.style_dict["window_border_color"], highlightbackground=self.style_dict["window_border_color"])
 
         self.root = root
         self.gui = gui
 
-        image_1 = self.style_dict['photo_btn_pause']
-        image_2 = self.style_dict['photo_btn_highlight']
-        image_3 = self.style_dict['photo_btn_off']
-        image_4 = self.style_dict['photo_btn_on']
-        image_5 = self.style_dict['photo_btn_not_bookable']
-
-
-        self.photo_btn_highlight = ImageTk.PhotoImage(image_2.resize((40, 20), Image.ANTIALIAS))
-        self.photo_btn_off = ImageTk.PhotoImage(image_3.resize((40, 20), Image.ANTIALIAS))
-        self.photo_btn_pause = ImageTk.PhotoImage(image_1.resize((40, 20), Image.ANTIALIAS))
-        self.photo_btn_on = ImageTk.PhotoImage(image_4.resize((40, 20), Image.ANTIALIAS))
-        self.photo_btn_not_bookable = ImageTk.PhotoImage(image_5.resize((40, 20), Image.ANTIALIAS))
-
-
         self.work_clock = self.data_manager.get_work_clock()
         self.pause_clock = self.data_manager.get_pause_clock()
         self.default_clock = self.data_manager.get_default_clock()
-
-        self.option_menu = GuiOptionMenu(self,self.main_app,self.gui)
-        self.scroll = Scroll_Frame(self.main_app,self.gui)
-
-        self.modus = self.main_app.get_setting('mini_work_window_modus')
-        self.expand_frame_displayed = False  
-        self.after_func_leave = None
-
         self.main_account_clock_list = self.data_manager.get_main_account_clock_list()
+
         self.account_clock_frame_list = []
         self.group_name_frame_list = []
         self.active_clock_frame = None
+
+        self.option_menu = WorkWindowOptionMenu(self,self.main_app,self.gui,self)
+        self.scroll = Scroll_Frame(self.main_app,self.gui)
+
+        ###########
 
         self.win_expand_x_pos = None
         self.win_expand_width = None
         self.win_vertical_x_pos = None
         self.win_vertical_width = None
+
+        self.expand_frame_displayed = False  
+        self.after_func_leave = None
         self.win_y_pos = None
-
         self.pos_moved = False
-        
-        self.attributes('-alpha', 0.0)
 
-        if self.gui.get_mini_work_window_pos() == None:
-            screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(0,0)
-            self.x_pos_right = screen_root_x + screen_width
-            self.y_pos = (screen_root_y + screen_height)/10
-            self.win_expand_height = screen_height/1.5
-            print(screen_root_x,screen_root_y,screen_width,screen_height)
-            print(self.x_pos_right)
-        else:
-            x, y = self.gui.get_mini_work_window_pos()
-            if type(x) != int or type(y) != int:
-                screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(0,0)
-                self.x_pos_right = screen_root_x + screen_width
-                self.y_pos = (screen_root_y + screen_height)/10
-                self.win_expand_height = screen_height/1.5
-            else:
-                self.root.update()
-                screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(x,y)
-                self.root.update()        
+        self.modus = self.main_app.get_setting('list_work_window_modus')
+        self.ww_bar_attach_pos = self.main_app.get_setting('bar_work_window_attach_pos')
 
-                if (screen_root_x <= x) and (x <= screen_root_x + screen_width) and (screen_root_y <= y) and (y <= screen_height + screen_root_y):
-                    self.x_pos_right = screen_root_x + screen_width
-                    self.y_pos = y
-                    self.win_expand_height = screen_height/1.5
-                else:
-                    screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(0,0)
-                    self.x_pos_right = screen_root_x + screen_width
-                    self.y_pos = (screen_root_y + screen_height)/10
-                    self.win_expand_height = screen_height/1.5 
-                       
-        self.geometry("+%d+%d" % (self.x_pos_right, self.y_pos))
-        self.overrideredirect(1)
-        self.attributes('-topmost',True)
+        ###########
 
+        self.attributes("-alpha", 0)
         self.run_main_frame()
         self.title_bar.pack(side='top', fill = "x")
-        self.update()
-        root.update()
+        self.root.update()   
         self.win_vertical_width = self.winfo_height()
         self.win_expand_width = self.winfo_width()
         self.title_bar.pack_forget()
-
-        self.win_vertical_x_pos = self.x_pos_right - self.win_vertical_width
-        self.win_expand_x_pos = self.x_pos_right - self.win_expand_width
         
-        self.show_expand_frame()
+        ###########
 
-        if self.modus != 'control_view':
+        if x == None or y == None:
+            self.reset_window_pos()
+        else:
+            if type(x) != int or type(y) != int:
+                self.reset_window_pos()
+            else:
+                screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(x,y)
+                if (screen_root_x <= x) and (x <= screen_root_x + screen_width) and (screen_root_y <= y) and (y <= screen_height + screen_root_y):
+                    
+                    self.x_pos_right = screen_root_x + screen_width
+                    
+                    self.win_vertical_x_pos = self.x_pos_right - self.win_vertical_width
+
+                    self.win_expand_x_pos = self.x_pos_right - self.win_expand_width
+                    self.win_expand_height = screen_height/1.5
+                    
+                    self.y_pos = y
+                else:
+                    self.reset_window_pos()
+
+        if self.modus == 'control_view':
+            self.expand_frame_displayed = False
+            self.show_expand_frame()
+        else:
             self.expand_frame_displayed = True
             self.show_vertical_frame()
 
-        root.update()
-        self.attributes('-alpha', 1.0)
+        self.root.update()
+
+        ###########
+
+        self.overrideredirect(1)
+        self.attributes('-topmost',True) 
+        self.attributes("-alpha", 1)
+        self.save_window_pos()
+
+##############################################################################################################################
+
+    def set_modus(self,modus):
+        if modus == 'control_view' and self.expand_frame_displayed == False:
+            self.show_expand_frame()
+
+        if modus == 'info_view' and self.expand_frame_displayed == True:
+            self.show_vertical_frame()
+
+        self.modus = modus
 
 ##############################################################################################################################
 
@@ -150,10 +146,10 @@ class MiniWorkWindowList(tk.Toplevel):
             self.vertical_frame.pack_forget()
             self.btn_frame.pack_forget()
             self.title_bar.pack_forget()
+            print(self.win_expand_width,self.win_expand_height, self.win_expand_x_pos, self.y_pos)
             self.geometry('%dx%d+%d+%d' % (self.win_expand_width,self.win_expand_height, self.win_expand_x_pos, self.y_pos))
             self.title_bar.pack(side='top', fill = "x")
             self.btn_frame.pack(side = "top", fill = "both", expand = True)
-            #print('Window Expand Root Pos: ',self.win_expand_x_pos, self.y_pos)
             self.expand_frame_displayed = True
 
     def show_vertical_frame(self):
@@ -163,15 +159,12 @@ class MiniWorkWindowList(tk.Toplevel):
             self.title_bar.pack_forget()
             self.geometry('%dx%d+%d+%d' % (self.win_vertical_width,300, self.win_vertical_x_pos, self.y_pos))
             self.vertical_frame.pack(side='top', fill = "x")
-            #print('Window Vertical Root Pos: ',self.win_vertical_x_pos, self.y_pos)
             self.expand_frame_displayed = False
 
     def switch_view(self):
         if self.expand_frame_displayed == True:
-            self.modus = 'info_view'
             self.show_vertical_frame()
         elif self.expand_frame_displayed == False:
-            self.modus = 'control_view'
             self.show_expand_frame()
 
     def save_and_adjust_pos(self, event):
@@ -179,11 +172,7 @@ class MiniWorkWindowList(tk.Toplevel):
             x=self.win_expand_x_pos
             self.y_pos = self.winfo_y()
             y=self.y_pos
-            print('\nWindow Root Pos: ',x,y)
-
-            screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(x,y)
-            print(screen_root_x,screen_root_y,screen_width,screen_height)
-            print(self.x_pos_right)
+            screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(x,y)
             if self.x_pos_right != (screen_width + screen_root_x):
                 self.x_pos_right = screen_width + screen_root_x
                 self.win_vertical_x_pos = self.x_pos_right - self.win_vertical_width
@@ -191,7 +180,6 @@ class MiniWorkWindowList(tk.Toplevel):
                 self.win_expand_height = screen_height/1.5
                 x = self.win_expand_x_pos 
 
-            self.gui.set_mini_work_window_pos(x,y)
             self.pos_moved = False
 
             if self.expand_frame_displayed == True:
@@ -201,12 +189,15 @@ class MiniWorkWindowList(tk.Toplevel):
                 self.expand_frame_displayed = True
                 self.show_vertical_frame()
 
+            self.save_window_pos()
+
     def reset_window_pos(self):
-        screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(0,0)
-        print(screen_root_x,screen_root_y,screen_width,screen_height)
+        screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(0,0)
         self.x_pos_right = screen_root_x + screen_width
         self.y_pos = (screen_root_y + screen_height)/10
         self.win_expand_height = screen_height/1.5
+        self.win_vertical_x_pos = self.x_pos_right - self.win_vertical_width
+        self.win_expand_x_pos = self.x_pos_right - self.win_expand_width
 
         if self.expand_frame_displayed == True:
             self.expand_frame_displayed = False
@@ -214,6 +205,10 @@ class MiniWorkWindowList(tk.Toplevel):
         else:
             self.expand_frame_displayed = True
             self.show_vertical_frame()
+
+    def save_window_pos(self):
+        self.gui.set_list_work_window_pos(self.win_expand_x_pos,self.winfo_y())
+
 
 ##############################################################################################################################
 
@@ -224,10 +219,10 @@ class MiniWorkWindowList(tk.Toplevel):
         self.main_frame.bind("<Leave>", self.main_leave)
         self.main_frame.bind("<Enter>", self.main_enter)
 
-
         self.create_vertical_frame()
         self.create_titlebar_frame()
         self.create_btn_frame()
+
 
     def main_enter(self,e):
         if self.expand_frame_displayed == True and self.after_func_leave != None:
@@ -248,7 +243,6 @@ class MiniWorkWindowList(tk.Toplevel):
 
     def update(self):
         self.active_clock = self.data_manager.get_active_clock()
-        self.last_clock = self.data_manager.get_last_active_clock()
 
         if self.main_app.get_action_state() == 'disabled':
             color = self.style_dict["titlebar_color"]
@@ -267,9 +261,7 @@ class MiniWorkWindowList(tk.Toplevel):
 
         if self.main_app.get_action_state() == 'disabled':
             background_color = self.style_dict["titlebar_color"]
-            self.lbl_name.configure(text=' ' + self.language_dict['locked'])
-            self.canvas_lbl_name.configure(bg=self.style_dict["titlebar_color"])
-            self.canvas_lbl_name.itemconfig(self.canvas_text, text=self.language_dict['locked'])
+            status_text=self.language_dict['locked']
 
         elif self.work_clock.get_runninig() == True:
             background_color = self.style_dict["recording_color_green"]
@@ -277,26 +269,25 @@ class MiniWorkWindowList(tk.Toplevel):
                 clock_name = self.active_clock.get_full_name()
             else:
                 clock_name = self.language_dict['without_allocation']
-            self.lbl_name.configure(text=' ' + clock_name)
-            self.canvas_lbl_name.configure(bg=self.style_dict["recording_color_green"])
-            self.canvas_lbl_name.itemconfig(self.canvas_text, text=clock_name)
+            status_text=clock_name
 
             if self.modus != 'dynamic_view':
-                self.lbl_name_ttp.text = self.language_dict['double_click'] + '\n' + clock_name
+                self.lbl_name_ttp.text = clock_name + '\n' + self.language_dict['double_click'] + '\n' + self.language_dict['right_click']
             else:
-                self.lbl_name_ttp.text = clock_name
+                self.lbl_name_ttp.text = clock_name + '\n' + self.language_dict['right_click']
 
         elif self.pause_clock.get_runninig() == True:
             background_color = self.style_dict["pause_color_orange"]
-            self.lbl_name.configure(text=' ' +self.language_dict['break'])
-            self.canvas_lbl_name.configure(bg=self.style_dict["pause_color_orange"])
-            self.canvas_lbl_name.itemconfig(self.canvas_text, text=self.language_dict['break'])
+            status_text=self.language_dict['break']
         else:
             background_color = self.style_dict["titlebar_color"]
-            self.lbl_name.configure(text=' ' +self.language_dict['closing_time'])
-            self.canvas_lbl_name.configure(bg=self.style_dict["titlebar_color"])
-            self.canvas_lbl_name.itemconfig(self.canvas_text, text=self.language_dict['closing_time'])
+            status_text=self.language_dict['recording_closed']
 
+        
+        self.canvas_lbl_name.itemconfig(self.canvas_text, text=status_text)
+        self.lbl_name.configure(text=' ' +status_text)
+
+        self.canvas_lbl_name.configure(bg=background_color)
         self.title_bar.configure(background=background_color)
         self.lbl_name.configure(background=background_color)
         self.lbl_emtpy.configure(background=background_color)
@@ -318,15 +309,15 @@ class MiniWorkWindowList(tk.Toplevel):
         # update pause clock
 
         if self.pause_clock.get_runninig() == True:
-            self.lbl_activate_pause.configure(image=self.photo_btn_pause)
-            self.lbl_activate_pause.image = self.photo_btn_pause
+            self.lbl_activate_pause.configure(image=self.image_dict['photo_btn_pause'])
+            self.lbl_activate_pause.image = self.image_dict['photo_btn_pause']
         else:
             if self.on_activate_pause == True:
-                self.lbl_activate_pause.configure(image=self.photo_btn_highlight)
-                self.lbl_activate_pause.image = self.photo_btn_highlight
+                self.lbl_activate_pause.configure(image=self.image_dict['photo_btn_highlight'])
+                self.lbl_activate_pause.image = self.image_dict['photo_btn_highlight']
             else:
-                self.lbl_activate_pause.configure(image=self.photo_btn_off)
-                self.lbl_activate_pause.image = self.photo_btn_off
+                self.lbl_activate_pause.configure(image=self.image_dict['photo_btn_off'])
+                self.lbl_activate_pause.image = self.image_dict['photo_btn_off']
 ##############################################################################################################################
 
     def create_vertical_frame(self):
@@ -341,8 +332,9 @@ class MiniWorkWindowList(tk.Toplevel):
         self.close_button_v.pack(side='top')
         self.close_button_v.bind('<Button-1>', self.close_window)
         self.on_close_button_v = False
-        self.close_button_v.bind("<Enter>", self.enter_close)
-        self.close_button_v.bind("<Leave>", self.leave_close)
+        self.close_work_window_v_ttp = CreateInfo(self.close_button_v, self.data_manager, 30, 25, self.language_dict["close_work_window"])
+        self.close_button_v.bind("<Enter>", self.enter_close_v)
+        self.close_button_v.bind("<Leave>", self.leave_close_v)
         self.close_button_v.bind("<Button-3>", self.right_clicked)
 
         self.expand_btn_v = MyLabelPixel(self.vertical_btn_frame, self.data_manager)
@@ -350,24 +342,30 @@ class MiniWorkWindowList(tk.Toplevel):
         self.expand_btn_v.pack(side='top')
         self.expand_btn_v.bind('<Button-1>', self.expand_to_main_window)
         self.on_expand_button_v = False
-        self.expand_btn_v.bind("<Enter>", self.enter_expand_window)
-        self.expand_btn_v.bind("<Leave>", self.leave_expand_window)
+        self.open_main_window_v_ttp = CreateInfo(self.expand_btn_v, self.data_manager, 30, 25, self.language_dict["open_main_window"])
+        self.expand_btn_v.bind("<Enter>", self.enter_expand_window_v)
+        self.expand_btn_v.bind("<Leave>", self.leave_expand_window_v)
         self.expand_btn_v.bind("<Button-3>", self.right_clicked)
 
         self.bar_btn_v = MyLabelPixel(self.vertical_btn_frame, self.data_manager)
-        self.bar_btn_v.configure(text = u'\U00002191', background=self.style_dict["titlebar_color"], width=30, height=30) # u'\U0001F881'
+        self.bar_btn_v.configure(background=self.style_dict["titlebar_color"], width=30, height=30) # u'\U0001F881'
+        if self.ww_bar_attach_pos == "top":
+            self.bar_btn_v.configure(text = u'\U00002191')
+        else:
+            self.bar_btn_v.configure(text = u'\U00002193')
         self.bar_btn_v.pack(side='top')
         self.bar_btn_v.bind('<Button-1>', self.change_to_bar_work_window)
         self.on_bar_btn_v = False
-        self.bar_btn_v.bind("<Enter>", self.enter_change_to_bar)
-        self.bar_btn_v.bind("<Leave>", self.leave_change_to_bar)
+        self.change_work_window_v_ttp = CreateInfo(self.bar_btn_v, self.data_manager, 30, 25, self.language_dict["change_work_window"])
+        self.bar_btn_v.bind("<Enter>", self.enter_change_to_bar_v)
+        self.bar_btn_v.bind("<Leave>", self.leave_change_to_bar_v)
         self.bar_btn_v.bind("<Button-3>", self.right_clicked)
 
         self.vertical_name_frame = MyFrame(self.vertical_frame,self.data_manager)
         self.vertical_name_frame.configure(highlightthickness=1, highlightcolor = self.style_dict["titlebar_color"], highlightbackground=self.style_dict["titlebar_color"])
         self.vertical_name_frame.pack(side='top')
         if self.modus != 'dynamic_view':
-            self.vertical_frame_ttp = CreateToolTip(self.vertical_name_frame, self.data_manager, -50, 100, self.language_dict['double_click'])
+            self.vertical_frame_ttp = CreateToolTip(self.vertical_name_frame, self.data_manager, -50, 100, self.language_dict['right_click'] + '\n' + self.language_dict['double_click'])
 
         font_family = self.main_app.get_setting('font_family')
         font_size = self.main_app.get_setting('font_size')
@@ -400,6 +398,7 @@ class MiniWorkWindowList(tk.Toplevel):
         self.close_button.pack(side='right', fill = "y")
         self.close_button.bind('<Button-1>', self.close_window)
         self.on_close_button = False
+        self.close_work_window_ttp = CreateInfo(self.close_button, self.data_manager, 30, 25, self.language_dict["close_work_window"])
         self.close_button.bind("<Enter>", self.enter_close)
         self.close_button.bind("<Leave>", self.leave_close)
         self.close_button.bind("<Button-3>", self.right_clicked)
@@ -409,15 +408,21 @@ class MiniWorkWindowList(tk.Toplevel):
         self.expand_btn.pack(side='right', fill = "y")
         self.expand_btn.bind('<Button-1>', self.expand_to_main_window)
         self.on_expand_button = False
+        self.open_main_window_ttp = CreateInfo(self.expand_btn, self.data_manager, 30, 25, self.language_dict["open_main_window"])
         self.expand_btn.bind("<Enter>", self.enter_expand_window)
         self.expand_btn.bind("<Leave>", self.leave_expand_window)
         self.expand_btn.bind("<Button-3>", self.right_clicked)
 
         self.bar_btn = MyLabel(self.title_bar_btn, self.data_manager)
-        self.bar_btn.configure(text = u'\U00002191', background=self.style_dict["titlebar_color"], width = 5) # u'\U0001F881'
+        self.bar_btn.configure(background=self.style_dict["titlebar_color"], width = 5) # u'\U0001F881'
+        if self.ww_bar_attach_pos == "top":
+            self.bar_btn.configure(text = u'\U00002191')
+        else:
+            self.bar_btn.configure(text = u'\U00002193')
         self.bar_btn.pack(side='right', fill = "y")
         self.bar_btn.bind('<Button-1>', self.change_to_bar_work_window)
         self.on_bar_btn = False
+        self.change_work_window_ttp = CreateInfo(self.bar_btn, self.data_manager, 30, 25, self.language_dict["change_work_window"])
         self.bar_btn.bind("<Enter>", self.enter_change_to_bar)
         self.bar_btn.bind("<Leave>", self.leave_change_to_bar)
         self.bar_btn.bind("<Button-3>", self.right_clicked)
@@ -451,8 +456,8 @@ class MiniWorkWindowList(tk.Toplevel):
         self.pause_frame = MyFrame(self.scroll_frame,self.data_manager)
         self.pause_frame.pack(side = "top", fill = "x")
 
-        self.lbl_activate_pause = MyLabel(self.pause_frame, self.data_manager, image=self.photo_btn_off)
-        self.lbl_activate_pause.image = self.photo_btn_off
+        self.lbl_activate_pause = MyLabel(self.pause_frame, self.data_manager, image=self.image_dict['photo_btn_off'])
+        self.lbl_activate_pause.image = self.image_dict['photo_btn_off']
         self.lbl_activate_pause.pack(side = "left", padx=5, pady=5)
 
         self.lbl_pause = MyLabel(self.pause_frame,self.data_manager,text = self.language_dict['break'])
@@ -477,17 +482,20 @@ class MiniWorkWindowList(tk.Toplevel):
                 self.group_name_frame_list.append(group_name_frame)
                 group_name_frame.pack(side = "top", fill = "x")
 
-            for main_account_clock in main_account_list:                    
+            for main_account in main_account_list:   
+                main_account_clock = main_account[0]
+
                 account_clock_frame = ClockFrame(self.scroll_frame, self.main_app, self.gui,main_account_clock,self)
                 self.account_clock_frame_list.append(account_clock_frame)
                 account_clock_frame.pack(side = "top", fill = "x")
 
-                sub_clock_list = main_account_clock.get_sub_clock_list()
-                sub_clock_list = [ele for ele in sub_clock_list if ele.get_account_status() == 'open']
-                for sub_account_clock in sub_clock_list:
-                    account_clock_frame = ClockFrame(self.scroll_frame, self.main_app, self.gui,sub_account_clock,self)
-                    self.account_clock_frame_list.append(account_clock_frame)
-                    account_clock_frame.pack(side = "top", fill = "x")
+                if main_account[1] == True:
+                    sub_clock_list = main_account_clock.get_sub_clock_list()
+                    sub_clock_list = [ele for ele in sub_clock_list if ele.get_account_status() == 'open']
+                    for sub_account_clock in sub_clock_list:
+                        account_clock_frame = ClockFrame(self.scroll_frame, self.main_app, self.gui, sub_account_clock,self)
+                        self.account_clock_frame_list.append(account_clock_frame)
+                        account_clock_frame.pack(side = "top", fill = "x")
 
 
 #################################################################################
@@ -501,20 +509,20 @@ class MiniWorkWindowList(tk.Toplevel):
     def pause_enter(self,e):
         self.on_activate_pause = True
         if self.pause_clock.get_runninig() == False:
-            self.lbl_activate_pause.configure(image=self.photo_btn_highlight)
-            self.lbl_activate_pause.image = self.photo_btn_highlight
+            self.lbl_activate_pause.configure(image=self.image_dict['photo_btn_highlight'])
+            self.lbl_activate_pause.image = self.image_dict['photo_btn_highlight']
 
     def pause_leave(self,e):
         self.on_activate_pause = False
         if self.pause_clock.get_runninig() == False:
-            self.lbl_activate_pause.configure(image=self.photo_btn_off)
-            self.lbl_activate_pause.image = self.photo_btn_off
+            self.lbl_activate_pause.configure(image=self.image_dict['photo_btn_off'])
+            self.lbl_activate_pause.image = self.image_dict['photo_btn_off']
 
-    def activate_pause(self,e):
+    def activate_pause(self,e=None):
         if self.main_app.get_action_state() == "normal":
             self.pause_clock.start()
-            self.lbl_activate_pause.configure(image=self.photo_btn_pause)
-            self.lbl_activate_pause.image = self.photo_btn_pause
+            self.lbl_activate_pause.configure(image=self.image_dict['photo_btn_pause'])
+            self.lbl_activate_pause.image = self.image_dict['photo_btn_pause']
             self.set_active_clock_frame(None)
             self.update()    
 
@@ -534,13 +542,27 @@ class MiniWorkWindowList(tk.Toplevel):
     def enter_close(self,e):
         self.on_close_button = True
         self.close_button.configure(background=self.style_dict["caution_color_red"])
-        self.close_button_v.configure(background=self.style_dict["caution_color_red"])
+        self.close_work_window_ttp.scheduleinfo()
 
     def leave_close(self,e):
         self.on_close_button = False
+        self.close_work_window_ttp.hideinfo()
+        self.update()
+
+    def enter_close_v(self,e):
+        self.on_close_button_v = True
+        self.close_button_v.configure(background=self.style_dict["caution_color_red"])
+        self.close_work_window_v_ttp.scheduleinfo()
+
+    def leave_close_v(self,e):
+        self.on_close_button_v = False
+        self.close_work_window_v_ttp.hideinfo()
         self.update()
 
     def close_window(self,event):
+        if self.after_func_leave != None:
+            self.main_frame.after_cancel(self.after_func_leave)
+            self.after_func_leave = None
         self.destroy()
 
 #################################################################################
@@ -548,27 +570,49 @@ class MiniWorkWindowList(tk.Toplevel):
     def enter_change_to_bar(self,e):
         self.on_bar_btn = True
         self.bar_btn.configure(background=self.style_dict["highlight_color_grey"])
-        self.bar_btn_v.configure(background=self.style_dict["highlight_color_grey"])
+        self.change_work_window_ttp.scheduleinfo()
 
     def leave_change_to_bar(self,e):
         self.on_bar_btn = False
+        self.change_work_window_ttp.hideinfo()
+        self.update()
+
+    def enter_change_to_bar_v(self,e):
+        self.on_bar_btn_v = True
+        self.bar_btn_v.configure(background=self.style_dict["highlight_color_grey"])
+        self.change_work_window_v_ttp.scheduleinfo()
+
+    def leave_change_to_bar_v(self,e):
+        self.on_bar_btn_v = False
+        self.change_work_window_v_ttp.hideinfo()
         self.update()
 
     def change_to_bar_work_window(self,event):
         if self.after_func_leave != None:
             self.main_frame.after_cancel(self.after_func_leave)
             self.after_func_leave = None
-        self.gui.mini_work_window_to_bar_work_window()
+        self.gui.list_work_window_to_bar_work_window()
 
 #################################################################################
 
     def enter_expand_window(self,e):
         self.on_expand_button = True
         self.expand_btn.configure(background=self.style_dict["highlight_color_grey"])
-        self.expand_btn_v.configure(background=self.style_dict["highlight_color_grey"])
+        self.open_main_window_ttp.scheduleinfo()
 
     def leave_expand_window(self,e):
         self.on_expand_button = False
+        self.open_main_window_ttp.hideinfo()
+        self.update()
+
+    def enter_expand_window_v(self,e):
+        self.on_expand_button_v = True
+        self.expand_btn_v.configure(background=self.style_dict["highlight_color_grey"])
+        self.open_main_window_v_ttp.scheduleinfo()
+
+    def leave_expand_window_v(self,e):
+        self.on_expand_button_v = False
+        self.open_main_window_v_ttp.hideinfo()
         self.update()
 
     def expand_to_main_window(self,event):
@@ -635,19 +679,8 @@ class ClockFrame((tk.Frame)):
         self.data_manager = self.main_app.get_data_manager()
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
+        self.image_dict = self.data_manager.get_image_dict()
         self.work_window = work_window
-
-        image_1 = self.style_dict['photo_btn_pause']
-        image_2 = self.style_dict['photo_btn_highlight']
-        image_3 = self.style_dict['photo_btn_off']
-        image_4 = self.style_dict['photo_btn_on']
-        image_5 = self.style_dict['photo_btn_not_bookable']
-
-        self.photo_btn_highlight = ImageTk.PhotoImage(image_2.resize((40, 20), Image.ANTIALIAS))
-        self.photo_btn_off = ImageTk.PhotoImage(image_3.resize((40, 20), Image.ANTIALIAS))
-        self.photo_btn_pause = ImageTk.PhotoImage(image_1.resize((40, 20), Image.ANTIALIAS))
-        self.photo_btn_on = ImageTk.PhotoImage(image_4.resize((40, 20), Image.ANTIALIAS))
-        self.photo_btn_not_bookable = ImageTk.PhotoImage(image_5.resize((40, 20), Image.ANTIALIAS))
 
         MyFrame.__init__(self, container, self.data_manager)
 
@@ -662,8 +695,8 @@ class ClockFrame((tk.Frame)):
 
     def create_main_frame(self):
 
-        self.lbl_activate_account_clock = MyLabel(self, self.data_manager, image=self.photo_btn_off)
-        self.lbl_activate_account_clock.image = self.photo_btn_off
+        self.lbl_activate_account_clock = MyLabel(self, self.data_manager, image=self.image_dict['photo_btn_off'])
+        self.lbl_activate_account_clock.image = self.image_dict['photo_btn_off']
         self.lbl_activate_account_clock.pack(side = "left", padx=5, pady=5)
 
         if self.clock.get_id() == 0:
@@ -685,16 +718,16 @@ class ClockFrame((tk.Frame)):
     def account_clock_enter(self,e):
         self.on_activate_account_clock = True
         if self.clock.get_runninig() == False:
-            self.lbl_activate_account_clock.configure(image=self.photo_btn_highlight)
-            self.lbl_activate_account_clock.image = self.photo_btn_highlight
+            self.lbl_activate_account_clock.configure(image=self.image_dict['photo_btn_highlight'])
+            self.lbl_activate_account_clock.image = self.image_dict['photo_btn_highlight']
 
     def account_clock_leave(self,e):
         self.on_activate_account_clock = False
         if self.clock.get_runninig() == False:
-            self.lbl_activate_account_clock.configure(image=self.photo_btn_off)
-            self.lbl_activate_account_clock.image = self.photo_btn_off
+            self.lbl_activate_account_clock.configure(image=self.image_dict['photo_btn_off'])
+            self.lbl_activate_account_clock.image = self.image_dict['photo_btn_off']
 
-    def activate_account_clock(self,e):
+    def activate_account_clock(self,e=None):
         if self.main_app.get_action_state() == "normal":
             self.clock.start()
             if self.work_window.get_active_clock_frame() != self:
@@ -703,18 +736,18 @@ class ClockFrame((tk.Frame)):
     def update(self):
         if self.clock.get_runninig() == True:
             if int(self.clock.get_bookable()) == 1:
-                self.lbl_activate_account_clock.configure(image=self.photo_btn_on)
-                self.lbl_activate_account_clock.image = self.photo_btn_on
+                self.lbl_activate_account_clock.configure(image=self.image_dict['photo_btn_on'])
+                self.lbl_activate_account_clock.image = self.image_dict['photo_btn_on']
             else:
-                self.lbl_activate_account_clock.configure(image=self.photo_btn_not_bookable)
-                self.lbl_activate_account_clock.image = self.photo_btn_not_bookable
+                self.lbl_activate_account_clock.configure(image=self.image_dict['photo_btn_not_bookable'])
+                self.lbl_activate_account_clock.image = self.image_dict['photo_btn_not_bookable']
         else:
             if self.on_activate_default == True:
-                self.lbl_activate_account_clock.configure(image=self.photo_btn_highlight)
-                self.lbl_activate_account_clock.image = self.photo_btn_highlight
+                self.lbl_activate_account_clock.configure(image=self.image_dict['photo_btn_highlight'])
+                self.lbl_activate_account_clock.image = self.image_dict['photo_btn_highlight']
             else:
-                self.lbl_activate_account_clock.configure(image=self.photo_btn_off)
-                self.lbl_activate_account_clock.image = self.photo_btn_off
+                self.lbl_activate_account_clock.configure(image=self.image_dict['photo_btn_off'])
+                self.lbl_activate_account_clock.image = self.image_dict['photo_btn_off']
         return
 
     def refresh(self):

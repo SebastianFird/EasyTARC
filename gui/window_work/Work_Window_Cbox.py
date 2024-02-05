@@ -18,7 +18,7 @@ __author__ = 'Sebastian Feiert'
 import tkinter as tk
 from tkinter import ttk
 from PIL import ImageTk, Image
-from gui.work_window.Work_Window_OptionMenu import WorkWindowOptionMenu
+from gui.window_work.Work_Window_OptionMenu import WorkWindowOptionMenu
 
 class WorkWindowCbox(tk.Toplevel):
     def __init__(self, main_app, root, gui, ww_kind, *args, **kwargs):

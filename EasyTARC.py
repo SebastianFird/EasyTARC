@@ -59,7 +59,7 @@ class App():
         
         self.authorisation = Authorisation()
 
-        self.version = '1.9'
+        self.version = '1.9.0'
         self.old_version = None
         self.version_update = False
 
@@ -440,10 +440,9 @@ class App():
 
                     ######
 
+                    current_user_permission_hash = self.authorisation.create_permission_hash(str_format)
 
-                    user_data_str = self.authorisation.create_user_data_str(str_format)
-
-                    if  user_data_str == user_license_hash:
+                    if  current_user_permission_hash == user_license_hash:
 
                         user_db_hash_complement = 'Password_C'
                         old_db_password = user_db_hash_complement + user_license_hash
@@ -487,6 +486,8 @@ class App():
                         os.remove(path+'\\' + 'database' + '\\' + 'old_' + 'EasyTARC_Database_User' + '_crypted.sql.gz')
 
                         os.remove(path+'\\' + 'database' + '\\' + 'EasyTARC_Database_Code' + '_crypted.sql.gz')
+                    else:
+                        return(False)
 
         return(True)
 

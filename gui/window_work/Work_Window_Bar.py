@@ -18,54 +18,81 @@ __author__ = 'Sebastian Feiert'
 import tkinter as tk
 from tkinter import ttk
 from PIL import ImageTk, Image
+from gui.Window_Additionals import CreateInfo
 
 from style_classes import MyFrame
 from style_classes import MyLabel
 from style_classes import MyLabelPixel
 from gui.Window_Additionals import CreateToolTip
-from gui.window_work_cbox.Window_Work_Cbox import WorkWindowCbox
+from gui.window_work.Work_Window_Cbox import WorkWindowCbox
 
-class BarWorkWindowCbox(WorkWindowCbox):
-    def __init__(self, main_app, root, gui, *args, **kwargs):
-        super().__init__(main_app, root, gui)
+class WorkWindowBar(WorkWindowCbox):
+    def __init__(self, main_app, root, gui, x, y, *args, **kwargs):
+        super().__init__(main_app, root, gui,"ww_bar")
+
+        ###########
 
         self.x_win = None
         self.y_win = None
         self.start_x = None
         self.start_y = None
 
-        self.attributes("-alpha", 0) 
+        self.btn_frame_displayed = False  
+        self.main_frame_leave = True
+        self.pos_moved = False
+
+        self.modus = self.main_app.get_setting('bar_work_window_modus')
+        self.attach_pos = self.main_app.get_setting('bar_work_window_attach_pos')
+
+        ###########
         
-        if self.gui.get_bar_work_window_pos() == None:
+        self.attributes("-alpha", 0) 
+        self.run_main_frame()
+        self.root.update()
+        self.win_height = self.winfo_height()
+
+        ###########
+        
+        if x == None or y == None:
             self.reset_window_pos()
         else:
-            x, y = self.gui.get_bar_work_window_pos()
             if type(x) != int or type(y) != int:
                 self.reset_window_pos()   
             else:
-                self.root.update()
-                screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(x,y)
-                self.root.update()
+                if self.attach_pos == 'top':
+                    screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(x,y)
+                else:
+                    screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(x,y,True)
 
-                if (screen_root_x <= x) and (x <= screen_width + screen_root_x) and ((screen_root_y -self.gui.get_y_pos_correction()) <= y) and (y <= screen_height + screen_root_y):
-                    self.geometry("+%d+%d" % (x, screen_root_y))
-                    self.y_pos_pinned = screen_root_y
+                if (screen_root_x <= x) and (x <= screen_width + screen_root_x) and (screen_root_y<= y) and (y <= screen_height + screen_root_y):
+                    if self.attach_pos == 'top':
+                        self.y_pos_pinned = screen_root_y
+                    else:
+                        self.y_pos_pinned = screen_height + screen_root_y - self.win_height - task_bar_height_offset
+                    self.geometry("+%d+%d" % (x,self.y_pos_pinned))
                 else:
                     self.reset_window_pos()
 
-        
+        self.root.update()
+
+        ###########
+
         self.overrideredirect(1)
         self.attributes('-topmost',True) 
-        self.attributes("-alpha", 1) 
+        self.attributes("-alpha", 1)
+        self.save_window_pos()
+        
+        
+##############################################################################################################################
 
-        self.modus = self.main_app.get_setting('bar_work_window_modus')
-        self.btn_frame_displayed = False  
-        self.main_frame_leave = True
-        self.after_func = None
+    def set_modus(self,modus):
+        if modus == 'control_view' and self.btn_frame_displayed == False:
+            self.show_btn_frame()
 
-        self.pos_moved = False
+        if modus == 'info_view' and self.btn_frame_displayed == True:
+            self.hide_btn_frame()
 
-        self.run_main_frame()
+        self.modus = modus
 
 ##############################################################################################################################
 
@@ -84,22 +111,40 @@ class BarWorkWindowCbox(WorkWindowCbox):
         if self.pos_moved == True:
             x=self.winfo_x()
             y=self.winfo_y()
-            screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(x,y)
-            print('Window Root Pos: ',x,y)
-
-            if y != screen_root_y-self.gui.get_y_pos_correction():
-                y = screen_root_y-self.gui.get_y_pos_correction()
-                self.geometry("+%d+%d" % (x, y))
-                self.y_pos_pinned = y
-            self.gui.set_bar_work_window_pos(x,y)
+            if self.attach_pos == 'top':
+                screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(x,y)
+                self.y_pos_pinned = screen_root_y
+            else:
+                screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(x,y,True)
+                self.y_pos_pinned = screen_height + screen_root_y - self.win_height - task_bar_height_offset
+            self.geometry("+%d+%d" % (x, self.y_pos_pinned))
+            self.save_window_pos()
             self.pos_moved = False
 
     def reset_window_pos(self):
-        screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(0,0)
+        screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(0,0)
         x = (screen_root_x+screen_width)/2 
-        y = screen_root_y
-        self.geometry("+%d+%d" % (x, y))
-        self.y_pos_pinned = 0
+        self.y_pos_pinned = screen_root_y
+        self.main_app.change_settings('bar_work_window_attach_pos',"top")
+        self.attach_pos = "top"
+        self.geometry("+%d+%d" % (x, self.y_pos_pinned))
+
+    def set_attach_pos(self,attach_pos):
+        self.main_app.change_settings('bar_work_window_attach_pos',attach_pos)
+        self.attach_pos = attach_pos
+        x=self.winfo_x()
+        y=self.winfo_y()
+        if self.attach_pos == 'top':
+            screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(x,y)
+            self.y_pos_pinned = screen_root_y
+        else:
+            screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(x,y,True)
+            self.y_pos_pinned = screen_height + screen_root_y - self.win_height - task_bar_height_offset
+        self.geometry("+%d+%d" % (x, self.y_pos_pinned))
+
+    def save_window_pos(self):
+        self.gui.set_bar_work_window_pos(self.winfo_x(),self.winfo_y())
+
 
 ##############################################################################################################################
 
@@ -117,12 +162,8 @@ class BarWorkWindowCbox(WorkWindowCbox):
 
     def update(self):
         self.updt_selectable_account_clock_cblist()
-        self.auto_update()
-
-    def auto_update(self):
 
         self.active_clock = self.data_manager.get_active_clock()
-        self.last_clock = self.data_manager.get_last_active_clock()
 
         if self.main_app.get_action_state() == 'disabled':
             color = self.style_dict["titlebar_color"]
@@ -135,9 +176,9 @@ class BarWorkWindowCbox(WorkWindowCbox):
         self.btn_frame.configure(highlightcolor = color, highlightbackground=color)
         self.status_frame.configure(highlightcolor = color, highlightbackground=color)
         
-        self.auto_update_status_frame()
-        self.auto_update_btn_frame()
-        self.auto_update_title_bar()
+        self.update_status_frame()
+        self.update_btn_frame()
+        self.update_title_bar()
 
     def main_enter(self,e):
         self.main_frame_leave = False
@@ -146,10 +187,10 @@ class BarWorkWindowCbox(WorkWindowCbox):
         self.main_frame_leave = True
 
         if self.modus == 'dynamic_view':
-            if self.after_func != None:
-                self.main_frame.after_cancel(self.after_func)
-                self.after_func = None
-            self.after_func = self.main_frame.after(3000,self.hide_btn_frame)
+            if self.after_func_leave != None:
+                self.main_frame.after_cancel(self.after_func_leave)
+                self.after_func_leave = None
+            self.after_func_leave = self.main_frame.after(3000,self.hide_btn_frame)
 
 ##############################################################################################################################
 
@@ -180,10 +221,10 @@ class BarWorkWindowCbox(WorkWindowCbox):
         self.lbl_name.bind("<Double-Button-1>", self.status_double_click)
         self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, 50, 30,'')
 
-    def auto_update_status_frame(self):
+    def update_status_frame(self):
         if self.main_app.get_action_state() == 'disabled':
             background_color = self.style_dict["titlebar_color"]
-            self.lbl_name.configure(text=' ' + self.language_dict['locked'])
+            status_text = self.language_dict['locked']
 
         elif self.work_clock.get_runninig() == True:
             background_color = self.style_dict["recording_color_green"]
@@ -191,19 +232,21 @@ class BarWorkWindowCbox(WorkWindowCbox):
                 clock_name = self.active_clock.get_full_name()
             else:
                 clock_name = self.language_dict['without_allocation']
-            self.lbl_name.configure(text=' ' + clock_name)
+            status_text = clock_name
             
             if self.modus != 'dynamic_view':
-                self.lbl_name_ttp.text = self.language_dict['double_click'] + '\n' + clock_name
+                self.lbl_name_ttp.text =  clock_name + '\n' + self.language_dict['double_click'] + '\n' + self.language_dict['right_click']
             else:
-                self.lbl_name_ttp.text =  clock_name
+                self.lbl_name_ttp.text =  clock_name + '\n' + self.language_dict['right_click']
 
         elif self.pause_clock.get_runninig() == True:
             background_color = self.style_dict["pause_color_orange"]
-            self.lbl_name.configure(text=' ' + self.language_dict['break'])
+            status_text = self.language_dict['break']
         else:
             background_color = self.style_dict["titlebar_color"]
-            self.lbl_name.configure(text=' ' + self.language_dict['closing_time'])
+            status_text = self.language_dict['recording_closed']
+
+        self.lbl_name.configure(text=' ' + status_text)
 
         self.status_frame.configure(background=background_color)
         self.lbl_name.configure(background=background_color)
@@ -232,8 +275,8 @@ class BarWorkWindowCbox(WorkWindowCbox):
 
         self.selectable_account_clock_cbox.bind("<<ComboboxSelected>>", self.cbox_selected)
 
-        self.lbl_activate_account_clock = MyLabel(self.btn_frame, self.data_manager, image=self.photo_btn_off)
-        self.lbl_activate_account_clock.image = self.photo_btn_off
+        self.lbl_activate_account_clock = MyLabel(self.btn_frame, self.data_manager, image=self.image_dict['photo_btn_off'])
+        self.lbl_activate_account_clock.image = self.image_dict['photo_btn_off']
         self.lbl_activate_account_clock.pack(side='left')
 
         self.lbl_activate_account_clock.bind("<Enter>", self.account_clock_enter)
@@ -245,11 +288,11 @@ class BarWorkWindowCbox(WorkWindowCbox):
         self.lbl_separator_1.pack(side='left', padx=8, fill='y')
 
         self.lbl_default = MyLabel(self.btn_frame,self.data_manager,text = self.language_dict['without_allocation'])
-        self.lbl_default.pack(side='left', padx=5)
+        #self.lbl_default.pack(side='left', padx=5)
 
-        self.lbl_activate_default = MyLabel(self.btn_frame, self.data_manager, image=self.photo_btn_off)
-        self.lbl_activate_default.image = self.photo_btn_off
-        self.lbl_activate_default.pack(side='left')
+        self.lbl_activate_default = MyLabel(self.btn_frame, self.data_manager, image=self.image_dict['photo_btn_off'])
+        self.lbl_activate_default.image = self.image_dict['photo_btn_off']
+        #self.lbl_activate_default.pack(side='left')
 
         self.lbl_activate_default.bind("<Enter>", self.default_enter)
         self.lbl_activate_default.bind("<Leave>", self.default_leave)
@@ -257,13 +300,13 @@ class BarWorkWindowCbox(WorkWindowCbox):
         self.on_activate_default = False
 
         self.lbl_separator_2 = MyLabel(self.btn_frame,self.data_manager)
-        self.lbl_separator_2.pack(side='left', padx=8, fill='y')
+        #self.lbl_separator_2.pack(side='left', padx=8, fill='y')
 
         self.lbl_pause = MyLabel(self.btn_frame,self.data_manager,text = self.language_dict['break'])
         self.lbl_pause.pack(side='left', padx=5)
 
-        self.lbl_activate_pause = MyLabel(self.btn_frame, self.data_manager, image=self.photo_btn_off)
-        self.lbl_activate_pause.image = self.photo_btn_off
+        self.lbl_activate_pause = MyLabel(self.btn_frame, self.data_manager, image=self.image_dict['photo_btn_off'])
+        self.lbl_activate_pause.image = self.image_dict['photo_btn_off']
         self.lbl_activate_pause.pack(side='left')
 
         self.lbl_activate_pause.bind("<Enter>", self.pause_enter)
@@ -279,7 +322,7 @@ class BarWorkWindowCbox(WorkWindowCbox):
 
         self.updt_selectable_account_clock_cblist()
 
-    def cbox_selected(self,e):
+    def cbox_selected(self,e=None):
         self.updt_selectable_account_clock_cblist()
         if self.modus == 'dynamic_view':
             self.status_enter()
@@ -296,11 +339,12 @@ class BarWorkWindowCbox(WorkWindowCbox):
         self.title_bar.bind('<ButtonRelease-1>', self.save_and_adjust_pos)
         self.title_bar.bind("<Button-3>", self.right_clicked)
 
-        self.close_button = MyLabel(self.title_bar, self.data_manager, text='  X  ')
+        self.close_button = MyLabel(self.title_bar, self.data_manager, text='X')
         self.close_button.configure(background=self.style_dict["titlebar_color"], width = 5)
         self.close_button.pack(side='right',fill='y',expand=True)
         self.close_button.bind('<Button-1>', self.close_window)
         self.on_close_button = False
+        self.close_work_window_ttp = CreateInfo(self.close_button, self.data_manager, 30, 25, self.language_dict["close_work_window"])
         self.close_button.bind("<Enter>", self.enter_close)
         self.close_button.bind("<Leave>", self.leave_close)
         self.close_button.bind("<Button-3>", self.right_clicked)
@@ -310,22 +354,24 @@ class BarWorkWindowCbox(WorkWindowCbox):
         self.expand_btn.pack(side='right',fill='y',expand=True)
         self.expand_btn.bind('<Button-1>', self.expand_to_main_window)
         self.on_expand_button = False
+        self.open_main_window_ttp = CreateInfo(self.expand_btn, self.data_manager, 30, 25, self.language_dict["open_main_window"])
         self.expand_btn.bind("<Enter>", self.enter_expand_window)
         self.expand_btn.bind("<Leave>", self.leave_expand_window)
         self.expand_btn.bind("<Button-3>", self.right_clicked)
 
-        self.mini_btn = MyLabel(self.title_bar, self.data_manager)
-        self.mini_btn.configure(text = u'\U00002193', background=self.style_dict["titlebar_color"], width = 5) # u'\U0001F881'
-        self.mini_btn.pack(side='right',fill='y',expand=True)
-        self.mini_btn.bind('<Button-1>', self.change_to_mini_work_window)
-        self.on_mini_btn = False
-        self.mini_btn.bind("<Enter>", self.enter_change_to_mini)
-        self.mini_btn.bind("<Leave>", self.leave_change_to_mini)
-        self.mini_btn.bind("<Button-3>", self.right_clicked)
+        self.list_btn = MyLabel(self.title_bar, self.data_manager)
+        self.list_btn.configure(text = u'\U00002192', background=self.style_dict["titlebar_color"], width = 5) # u'\U0001F881'
+        self.list_btn.pack(side='right',fill='y',expand=True)
+        self.list_btn.bind('<Button-1>', self.change_to_list_work_window)
+        self.on_list_btn = False
+        self.change_work_window_ttp = CreateInfo(self.list_btn, self.data_manager, 30, 25, self.language_dict["change_work_window"])
+        self.list_btn.bind("<Enter>", self.enter_change_to_list)
+        self.list_btn.bind("<Leave>", self.leave_change_to_list)
+        self.list_btn.bind("<Button-3>", self.right_clicked)
 
 ##############################################################################################################################
 
-    def auto_update_title_bar(self):
+    def update_title_bar(self):
         if self.main_app.get_action_state() == 'disabled':
             background_color = self.style_dict["titlebar_color"]
 
@@ -343,8 +389,8 @@ class BarWorkWindowCbox(WorkWindowCbox):
             self.close_button.configure(background=background_color)
         if self.on_expand_button == False:
             self.expand_btn.configure(background=background_color)
-        if self.on_mini_btn == False:
-            self.mini_btn.configure(background=background_color)
+        if self.on_list_btn == False:
+            self.list_btn.configure(background=background_color)
         return
     
     def show_btn_frame(self):
@@ -367,6 +413,20 @@ class BarWorkWindowCbox(WorkWindowCbox):
         else:
             pass
 
+##############################################################################################################################
+
+    def enter_change_to_list(self,e):
+        self.on_list_btn = True
+        self.list_btn.configure(background=self.style_dict["highlight_color_grey"])
+        self.change_work_window_ttp.scheduleinfo()
+
+    def leave_change_to_list(self,e):
+        self.on_list_btn = False
+        self.change_work_window_ttp.hideinfo()
+        self.update()
+
+    def change_to_list_work_window(self,event):
+        self.gui.bar_work_window_to_list_work_window()
 
 
 

@@ -26,9 +26,9 @@ from style_classes import Myttk
 from gui.Window_Additionals import ExitSavingWindow
 from gui.window_main.Window_Main import MainWindow
 from gui.Window_Login import LoginWindow
-from gui.work_window.Work_Window_Box import WorkWindowBox
-from gui.work_window.Work_Window_Bar import WorkWindowBar
-from gui.work_window.Work_Window_List import WorkWindowList
+from gui.window_work.Work_Window_Box import WorkWindowBox
+from gui.window_work.Work_Window_Bar import WorkWindowBar
+from gui.window_work.Work_Window_List import WorkWindowList
 from gui.window_main.Window_Main_CaseFrame_Manager import NotebookFrame
 
 
@@ -90,11 +90,11 @@ class ScreenSizeWindow(tk.Toplevel):
         tk.Toplevel.__init__(self,root)
 
         self.attributes("-alpha", 00)
-        self.overrideredirect(1)
         self.update()
         w=100
         h=100
         self.geometry('%dx%d+%d+%d' % (w, h, 0, 0))
+        self.overrideredirect(1)
         self.update()
         
 ############################################################
@@ -171,6 +171,8 @@ class Gui_Manager:
 
         self.login_window.mainloop()
 
+       # self.screen_size_window.destroy()
+
     def run_main_window(self):
 
         self.root = NewRoot()
@@ -208,10 +210,13 @@ class Gui_Manager:
     
     def check_screen(self,x,y,task_bar_height=False):
         # inspired by https://stackoverflow.com/questions/17741928/tkinter-screen-width-and-height-of-secondary-display
-        self.screen_size_window.geometry("+%d+%d" % (x, y))
-        self.screen_size_window.state('zoomed')
+        print(x,y)
+        self.screen_size_window.state('normal')
         self.screen_size_window.update()
-
+        self.screen_size_window.geometry("+%d+%d" % (x, y))
+        self.screen_size_window.update()
+        self.screen_size_window.state('zoomed')
+        
         if task_bar_height== True:
             self.screen_size_window.overrideredirect(0)
             self.screen_size_window.update()
@@ -230,7 +235,7 @@ class Gui_Manager:
         screen_root_x = self.screen_size_window.winfo_x()
         screen_root_y = self.screen_size_window.winfo_y()
         self.screen_size_window.state('normal')
-
+        print(screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset)
         return(screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset)
     
     

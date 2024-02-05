@@ -18,52 +18,54 @@ __author__ = 'Sebastian Feiert'
 import tkinter as tk
 from tkinter import ttk
 from PIL import ImageTk, Image
+from gui.Window_Additionals import CreateInfo
 
 from style_classes import MyFrame
 from style_classes import MyLabel
 from style_classes import MyButtonPixel
 from style_classes import MyLabelPixel
 from gui.Window_Additionals import CreateToolTip
-from gui.window_work_cbox.Window_Work_Cbox import WorkWindowCbox
+from gui.window_work.Work_Window_Cbox import WorkWindowCbox
 
-class MiniWorkWindowCbox(WorkWindowCbox):
-    def __init__(self, main_app, root, gui, *args, **kwargs):
-        super().__init__(main_app, root, gui)
+class WorkWindowBox(WorkWindowCbox):
+    def __init__(self, main_app, root, gui, x, y, ww_kind_original, *args, **kwargs):
+        super().__init__(main_app, root, gui,"ww_box")
+
+        self.ww_kind_original = ww_kind_original
 
         self.x_win = None
         self.y_win = None
         self.start_x = None
         self.start_y = None
 
-        self.attributes("-alpha", 0) 
+        self.btn_frame_displayed = False  
+        self.main_frame_leave = True
 
-        if self.gui.get_mini_work_window_pos() == None:
+        ###########
+
+        self.attributes("-alpha", 0) 
+        self.run_main_frame()
+        self.root.update()
+
+        ###########
+
+        if x == None or y == None:
             self.reset_window_pos()
         else:
-            x, y = self.gui.get_mini_work_window_pos()
             if type(x) != int or type(y) != int:
                 self.reset_window_pos()
             else:
-                self.root.update()
-                screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(x,y)
-                self.root.update()
-
+                screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(x,y)
                 if (screen_root_x <= x) and (x <= screen_root_x + screen_width) and (screen_root_y <= y) and (y <= screen_root_y + screen_height):
                     self.geometry("+%d+%d" % (x, y))
                 else:
                     self.reset_window_pos()
 
-        
+        ###########
+
         self.overrideredirect(1)
         self.attributes('-topmost',True)
-        self.attributes("-alpha", 1) 
-
-        self.modus = self.main_app.get_setting('mini_work_window_modus')
-        self.btn_frame_displayed = False  
-        self.main_frame_leave = True
-        self.after_func = None
-
-        self.run_main_frame()
+        self.attributes("-alpha", 1)
 
 ##############################################################################################################################
 
@@ -82,11 +84,13 @@ class MiniWorkWindowCbox(WorkWindowCbox):
             self.start_y = event.y_root
 
     def save_pos(self, event):
-        self.gui.set_mini_work_window_pos(self.winfo_x(),self.winfo_y())
-        print(self.winfo_x(),self.winfo_y())
+        if self.ww_kind_original == "ww_list":
+            self.gui.set_list_work_window_pos(self.winfo_x(),self.winfo_y())
+        elif self.ww_kind_original == "ww_bar":
+            self.gui.set_bar_work_window_pos(self.winfo_x(),self.winfo_y())
 
     def reset_window_pos(self):
-        screen_root_x,screen_root_y,screen_width,screen_height = self.gui.check_screen(0,0)
+        screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(0,0)
         x = (screen_root_x + screen_width)/1.2 
         y = (screen_root_y + screen_height)/1.2 
         self.geometry("+%d+%d" % (x, y))
@@ -113,20 +117,10 @@ class MiniWorkWindowCbox(WorkWindowCbox):
     def main_leave(self,e=None):
         self.main_frame_leave = True
 
-        if self.modus == 'dynamic_view':
-            if self.after_func != None:
-                self.main_frame.after_cancel(self.after_func)
-                self.after_func = None
-            self.after_func = self.main_frame.after(3000,self.hide_btn_frame)
-
     def update(self):
         self.updt_selectable_account_clock_cblist()
-        self.auto_update()
-
-    def auto_update(self):
 
         self.active_clock = self.data_manager.get_active_clock()
-        self.last_clock = self.data_manager.get_last_active_clock()
 
         if self.main_app.get_action_state() == 'disabled':
             color = self.style_dict["titlebar_color"]
@@ -140,8 +134,8 @@ class MiniWorkWindowCbox(WorkWindowCbox):
         self.title_bar_name.configure(highlightcolor = color, highlightbackground=color)
         self.btn_frame.configure(highlightcolor = color, highlightbackground=color)
         
-        self.auto_update_title_bar()
-        self.auto_update_btn_frame()
+        self.update_title_bar()
+        self.update_btn_frame()
 
 ##############################################################################################################################
 
@@ -165,6 +159,7 @@ class MiniWorkWindowCbox(WorkWindowCbox):
         self.close_button.pack(side='right',fill='y',expand=True)
         self.close_button.bind('<Button-1>', self.close_window)
         self.on_close_button = False
+        self.close_work_window_ttp = CreateInfo(self.close_button, self.data_manager, 30, 25, self.language_dict["close_work_window"])
         self.close_button.bind("<Enter>", self.enter_close)
         self.close_button.bind("<Leave>", self.leave_close)
         self.close_button.bind("<Button-3>", self.right_clicked)
@@ -174,18 +169,20 @@ class MiniWorkWindowCbox(WorkWindowCbox):
         self.expand_btn.pack(side='right',fill='y',expand=True)
         self.expand_btn.bind('<Button-1>', self.expand_to_main_window)
         self.on_expand_button = False
+        self.open_main_window_ttp = CreateInfo(self.expand_btn, self.data_manager, 30, 25, self.language_dict["open_main_window"])
         self.expand_btn.bind("<Enter>", self.enter_expand_window)
         self.expand_btn.bind("<Leave>", self.leave_expand_window)
         self.expand_btn.bind("<Button-3>", self.right_clicked)
 
-        self.bar_btn = MyLabel(self.title_bar_btn, self.data_manager)
-        self.bar_btn.configure(text = u'\U00002191', background=self.style_dict["titlebar_color"], width = 5) # u'\U0001F881'
-        self.bar_btn.pack(side='right',fill='y',expand=True)
-        self.bar_btn.bind('<Button-1>', self.change_to_bar_work_window)
-        self.on_bar_btn = False
-        self.bar_btn.bind("<Enter>", self.enter_change_to_bar)
-        self.bar_btn.bind("<Leave>", self.leave_change_to_bar)
-        self.bar_btn.bind("<Button-3>", self.right_clicked)
+        self.attach_btn = MyLabel(self.title_bar_btn, self.data_manager)
+        self.attach_btn.configure(text = u'\U0001F4CC', background=self.style_dict["titlebar_color"], width = 5) # u'\U0001F881'
+        self.attach_btn.pack(side='right',fill='y',expand=True)
+        self.attach_btn.bind('<Button-1>', self.attach_ww)
+        self.on_attach_btn = False
+        self.attach_work_window_ttp = CreateInfo(self.attach_btn, self.data_manager, 30, 25, self.language_dict["attach_window"])
+        self.attach_btn.bind("<Enter>", self.enter_attach_ww)
+        self.attach_btn.bind("<Leave>", self.leave_attach_ww)
+        self.attach_btn.bind("<Button-3>", self.right_clicked)
 
         self.title_bar_name = MyFrame(self.title_bar,self.data_manager)
         self.title_bar_name.configure(background=self.style_dict["titlebar_color"],highlightthickness=1, highlightcolor = self.style_dict["titlebar_color"], highlightbackground=self.style_dict["titlebar_color"])
@@ -198,7 +195,7 @@ class MiniWorkWindowCbox(WorkWindowCbox):
         self.lbl_emtpy.bind("<Double-Button-1>", self.status_double_click)
 
         self.lbl_name = MyLabel(self.title_bar_name, self.data_manager)
-        self.lbl_name.configure(background=self.style_dict["titlebar_color"],foreground=self.style_dict["font_color"], anchor='w',width=18)
+        self.lbl_name.configure(background=self.style_dict["titlebar_color"],foreground=self.style_dict["font_color"], anchor='w',justify='left',width=18)
         self.lbl_name.pack(side='left',fill='both')
         self.lbl_name.bind('<B1-Motion>', self.move_window)
         self.lbl_name.bind('<Button-1>', self.get_pos)
@@ -208,17 +205,15 @@ class MiniWorkWindowCbox(WorkWindowCbox):
         self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, 50, 30,'')
 
     def title_bar_enter(self,e=None):
-        if self.btn_frame_displayed == False and self.modus == 'dynamic_view':
-            self.show_btn_frame()  
+        return
 
     def status_double_click(self,e=None):
-        if self.modus != 'dynamic_view':
-            self.switch_view()     
+        return
 
-    def auto_update_title_bar(self):
+    def update_title_bar(self):
         if self.main_app.get_action_state() == 'disabled':
             background_color = self.style_dict["titlebar_color"]
-            self.lbl_name.configure(text=' ' + self.language_dict['locked'])
+            status_text = self.language_dict['locked']
 
         elif self.work_clock.get_runninig() == True:
             background_color = self.style_dict["recording_color_green"]
@@ -226,19 +221,17 @@ class MiniWorkWindowCbox(WorkWindowCbox):
                 clock_name = self.active_clock.get_full_name()
             else:
                 clock_name = self.language_dict['without_allocation']
-            self.lbl_name.configure(text=' ' + clock_name)
-            
-            if self.modus != 'dynamic_view':
-                self.lbl_name_ttp.text = self.language_dict['double_click'] + '\n' + clock_name
-            else:
-                self.lbl_name_ttp.text =  clock_name
+            status_text = clock_name
+            self.lbl_name_ttp.text =  clock_name + '\n' + self.language_dict['right_click']
 
         elif self.pause_clock.get_runninig() == True:
             background_color = self.style_dict["pause_color_orange"]
-            self.lbl_name.configure(text=' ' +self.language_dict['break'])
+            status_text = self.language_dict['break']
         else:
             background_color = self.style_dict["titlebar_color"]
-            self.lbl_name.configure(text=' ' +self.language_dict['closing_time'])
+            status_text = self.language_dict['recording_closed']
+
+        self.lbl_name.configure(text=' ' + status_text)
 
         self.title_bar.configure(background=background_color)
         self.lbl_name.configure(background=background_color)
@@ -247,8 +240,8 @@ class MiniWorkWindowCbox(WorkWindowCbox):
             self.close_button.configure(background=background_color)
         if self.on_expand_button == False:
             self.expand_btn.configure(background=background_color)
-        if self.on_bar_btn == False:
-            self.bar_btn.configure(background=background_color)
+        if self.on_attach_btn == False:
+            self.attach_btn.configure(background=background_color)
         return
 
 ##############################################################################################################################
@@ -265,8 +258,8 @@ class MiniWorkWindowCbox(WorkWindowCbox):
         self.lbl_pause = MyLabel(self.btn_frame,self.data_manager,text = self.language_dict['break'])
         self.lbl_pause.grid(row=row_nbr, column=0, pady=5)
 
-        self.lbl_activate_pause = MyLabel(self.btn_frame, self.data_manager, image=self.photo_btn_off)
-        self.lbl_activate_pause.image = self.photo_btn_off
+        self.lbl_activate_pause = MyLabel(self.btn_frame, self.data_manager, image=self.image_dict['photo_btn_off'])
+        self.lbl_activate_pause.image = self.image_dict['photo_btn_off']
         self.lbl_activate_pause.grid(row=row_nbr, column=1, padx=5, pady=5)
 
         self.lbl_activate_pause.bind("<Enter>", self.pause_enter)
@@ -277,11 +270,11 @@ class MiniWorkWindowCbox(WorkWindowCbox):
         row_nbr = row_nbr + 1
 
         self.lbl_default = MyLabel(self.btn_frame,self.data_manager,text = self.language_dict['without_allocation'])
-        self.lbl_default.grid(row=row_nbr, column=0, pady=5)
+        #self.lbl_default.grid(row=row_nbr, column=0, pady=5)
 
-        self.lbl_activate_default = MyLabel(self.btn_frame, self.data_manager, image=self.photo_btn_off)
-        self.lbl_activate_default.image = self.photo_btn_off
-        self.lbl_activate_default.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.lbl_activate_default = MyLabel(self.btn_frame, self.data_manager, image=self.image_dict['photo_btn_off'])
+        self.lbl_activate_default.image = self.image_dict['photo_btn_off']
+        #self.lbl_activate_default.grid(row=row_nbr, column=1, padx=5, pady=5)
 
         self.lbl_activate_default.bind("<Enter>", self.default_enter)
         self.lbl_activate_default.bind("<Leave>", self.default_leave)
@@ -298,8 +291,8 @@ class MiniWorkWindowCbox(WorkWindowCbox):
 
         self.selectable_account_clock_cbox.bind("<<ComboboxSelected>>", self.cbox_selected)
 
-        self.lbl_activate_account_clock = MyLabel(self.btn_frame, self.data_manager, image=self.photo_btn_off)
-        self.lbl_activate_account_clock.image = self.photo_btn_off
+        self.lbl_activate_account_clock = MyLabel(self.btn_frame, self.data_manager, image=self.image_dict['photo_btn_off'])
+        self.lbl_activate_account_clock.image = self.image_dict['photo_btn_off']
         self.lbl_activate_account_clock.grid(row=row_nbr, column=1, padx=5, pady=5)
 
         self.lbl_activate_account_clock.bind("<Enter>", self.account_clock_enter)
@@ -307,33 +300,37 @@ class MiniWorkWindowCbox(WorkWindowCbox):
         self.lbl_activate_account_clock.bind("<Button-1>", self.activate_account_clock)
         self.on_activate_account_clock = False
 
-        if self.modus == 'control_view':
-            self.btn_frame.pack(side = "top", fill = "both", expand = True)
+        self.btn_frame.pack(side = "top", fill = "both", expand = True)
 
         self.updt_selectable_account_clock_cblist()
 
-    def cbox_selected(self,e):
+    def cbox_selected(self,e=None):
         self.updt_selectable_account_clock_cblist()
-        if self.modus == 'dynamic_view':
-            self.name_enter()
-            self.main_leave()
 
-    def show_btn_frame(self):
-        if self.btn_frame_displayed == False:
-            self.btn_frame.pack(side = "top", fill = "both", expand = True)
-            self.btn_frame_displayed = True
+##############################################################################################################################
 
-    def hide_btn_frame(self):
-        if self.btn_frame_displayed == True:
-            self.btn_frame.pack_forget()
-            self.btn_frame_displayed = False
+    def enter_attach_ww(self,e):
+        self.on_attach_btn = True
+        self.attach_btn.configure(background=self.style_dict["highlight_color_grey"])
+        self.attach_work_window_ttp.scheduleinfo()
 
-    def switch_view(self):
-        if self.btn_frame_displayed == True:
-            self.hide_btn_frame()
-        elif self.btn_frame_displayed == False:
-            self.show_btn_frame()
-        else:
-            pass
+    def leave_attach_ww(self,e):
+        self.on_attach_btn = False
+        self.attach_work_window_ttp.hideinfo()
+        self.update()
+
+    def attach_ww(self,event=None):
+        if self.after_func_leave != None:
+            self.main_frame.after_cancel(self.after_func_leave)
+            self.after_func_leave = None
+
+        if self.ww_kind_original == "ww_list":
+            self.gui.box_work_window_to_list_work_window()
+        elif self.ww_kind_original == "ww_bar":
+            self.gui.box_work_window_to_bar_work_window()        
+        return
+
+
+
 
 
