@@ -440,7 +440,7 @@ class App():
 
                     ######
 
-                    current_user_permission_hash = self.authorisation.create_permission_hash(str_format)
+                    current_user_permission_hash = self.authorisation.create_user_permission_hash(str_format)
 
                     if  current_user_permission_hash == user_license_hash:
 
