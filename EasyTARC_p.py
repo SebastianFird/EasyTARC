@@ -59,11 +59,7 @@ class Window(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         tk.CallWrapper = TkErrorCatcher
-        w=550
-        h=200
-        x=200
-        y=200
-        self.geometry('%dx%d+%d+%d' % (w, h, x, y))
+
 
         self.title("EasyTARC Permission Creator")
 
@@ -103,6 +99,15 @@ class Window(tk.Tk):
 
         self.copy_permission_code = tk.Button(self.permission_frame, text='Copy', width=8,command=self.copy_permission)
         self.copy_permission_code.pack(side='left',padx=10,pady=5)
+
+        self.update()
+
+        x=200
+        y=200
+
+        width = int(round(self.winfo_width()*1.5)) 
+        height = int(round(self.winfo_height()*1.5)) 
+        self.geometry('%dx%d+%d+%d' % (width, height, x, y))
 
     def paste_clipboard(self):
         try:

@@ -28,6 +28,7 @@ from gui.window_main.Window_Main_OptionMenu import MainWindowOptionMenu
 from gui.Window_Additionals import CreateInfo
 from gui.Window_Additionals import CreateToolTip
 from gui.Window_Additionals import CreateToolResponse
+from gui.Scroll_Frame import Scroll_Frame
 
 from style_classes import MyFrame
 from style_classes import MyLabelPixel
@@ -68,19 +69,13 @@ class LoginWindow(tk.Toplevel):
 
         self.overrideredirect(1)
         self.attributes('-alpha', 0.0)
+        self.scroll = Scroll_Frame(self.main_app,self.gui)
         self.create_main_frame()
 
-        geo_factor = float(self.main_app.get_setting("geometry_factor"))
-
-        if self.kind == 'sign_up':
-            x = 550
-            y = 600
-        else:
-            x = 400
-            y = 400
-
-        width = int(round(geo_factor*x))
-        height = int(round(geo_factor*y))
+        self.update()
+        
+        width = int(round(self.winfo_width()*1.5)) 
+        height = int(round(self.winfo_height()*1.5)) 
 
         screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(1,1)
 
@@ -88,6 +83,15 @@ class LoginWindow(tk.Toplevel):
         y_pos = screen_height/2 - height/2
 
         self.geometry(str(width)+ 'x' + str(height) + '+' + str(int(round(x_pos))) + '+' + str(int(round(y_pos))))
+
+        self.update()
+
+        if self.kind == 'sign_up':
+            self.password_frame.pack_forget()
+
+            if self.main_app.get_restricted_user_group() == False:
+                self.permission_frame.pack_forget()
+                self.permission_note_frame.pack_forget()
 
         self.update()
         self.attributes('-alpha', 1.0)
@@ -131,6 +135,13 @@ class LoginWindow(tk.Toplevel):
         self.close_button.bind("<Enter>", self.enter_close)
         self.close_button.bind("<Leave>", self.leave_close)
 
+        self.bottom_frame = MyFrame(self.main_frame, self.data_manager)
+        self.bottom_frame.pack(side = "bottom", fill = "x")
+        self.bottom_frame.configure(background=self.style_dict["titlebar_color"])
+
+        self.sizegrip = ttk.Sizegrip(self.bottom_frame)
+        self.sizegrip.pack(side = "right",ipadx=2)
+
         self.body_frame = MyFrame(self.main_frame, self.data_manager)
         self.body_frame.pack(side = "top", fill = "both",expand = True)
         self.body_frame.configure(highlightbackground=self.style_dict["header_color_blue"], highlightcolor=self.style_dict["header_color_blue"], highlightthickness=1)
@@ -141,6 +152,7 @@ class LoginWindow(tk.Toplevel):
             self.create_sign_up_body()
         else:
             self.create_sign_in_body()
+
 
 ##################################################
         
@@ -202,7 +214,13 @@ class LoginWindow(tk.Toplevel):
         self.lbl_welcome.configure(background=self.style_dict["header_color_blue"],foreground=self.style_dict["font_color_white"])
         self.lbl_welcome.pack(side='top',padx=10,pady=10, fill = "x")
 
-        self.short_description_frame = MyFrame(self.body_frame,self.data_manager)
+        ######################
+
+    def create_sign_up_body(self):
+
+        self.scroll_frame = self.scroll.create_scroll_frame(self.body_frame)
+
+        self.short_description_frame = MyFrame(self.scroll_frame,self.data_manager)
         self.short_description_frame.pack(side = "top", fill = "x")
 
         self.lbl_description_info = MyLabel(self.short_description_frame,self.data_manager,text='   ' + u'\U00002139',anchor='w',justify='left',width=4)
@@ -214,14 +232,10 @@ class LoginWindow(tk.Toplevel):
         self.lbl_short_description.pack(side='left',pady=20)
         self.lbl_short_description_ttp = CreateToolTip(self.lbl_short_description, self.data_manager, 0, 30, self.language_dict["icon_easytarc_info"])
 
-        ######################
+        #########
 
-    def create_sign_up_body(self):
-
-        self.permission_frame = MyFrame(self.body_frame,self.data_manager)
-
-        if self.main_app.get_restricted_user_group() == True:
-            self.permission_frame.pack(side = "top", fill = "x")
+        self.permission_frame = MyFrame(self.scroll_frame,self.data_manager)
+        self.permission_frame.pack(side = "top", fill = "x" )
 
         self.permission_frame_head = MyFrame(self.permission_frame,self.data_manager)
         self.permission_frame_head.pack(side = "top", fill = "x")
@@ -237,7 +251,7 @@ class LoginWindow(tk.Toplevel):
         #########
 
         self.permission_request_frame = MyFrame(self.permission_frame,self.data_manager)
-        self.permission_request_frame.pack(side = "top", fill = "x")
+        self.permission_request_frame.pack(side = "top", fill = "x" )
 
         self.lbl_permission_request_info = MyLabel(self.permission_request_frame,self.data_manager,text='   ' + u'\U00002139',anchor='w',justify='left',width=4)
         self.lbl_permission_request_info.pack(side = "left")
@@ -267,7 +281,7 @@ class LoginWindow(tk.Toplevel):
         #########
 
         self.permission_response_frame = MyFrame(self.permission_frame,self.data_manager)
-        self.permission_response_frame.pack(side = "top", fill = "x")
+        self.permission_response_frame.pack(side = "top", fill = "x" )
 
         self.lbl_permission_response_info = MyLabel(self.permission_response_frame,self.data_manager,text='   ' + u'\U00002139',anchor='w',justify='left',width=4)
         self.lbl_permission_response_info.pack(side = "left")
@@ -287,6 +301,7 @@ class LoginWindow(tk.Toplevel):
         #########
 
         self.permission_note_frame = MyFrame(self.permission_frame,self.data_manager)
+        self.permission_note_frame.pack(side = "top", fill = "x" )
 
         self.lbl_empty_1 = MyLabel(self.permission_note_frame,self.data_manager,anchor='w',justify='left',width=4)
         self.lbl_empty_1.pack(side = "left")
@@ -302,8 +317,8 @@ class LoginWindow(tk.Toplevel):
 
         ######################
 
-        self.db_config_frame = MyFrame(self.body_frame,self.data_manager)
-        self.db_config_frame.pack(side = "top", fill = "x")
+        self.db_config_frame = MyFrame(self.scroll_frame,self.data_manager)
+        self.db_config_frame.pack(side = "top", fill = "x" )
 
         self.db_config_frame_head = MyFrame(self.db_config_frame,self.data_manager)
         self.db_config_frame_head.pack(side = "top", fill = "x")
@@ -322,7 +337,7 @@ class LoginWindow(tk.Toplevel):
         #########
 
         self.option_frame = MyFrame(self.db_config_frame,self.data_manager)
-        self.option_frame.pack(side = "top", fill = "x")
+        self.option_frame.pack(side = "top", fill = "x" )
 
         self.lbl_option_info = MyLabel(self.option_frame,self.data_manager,text='   ' + u'\U00002139',anchor='w',justify='left',width=4)
         self.lbl_option_info.pack(side = "left")
@@ -350,7 +365,8 @@ class LoginWindow(tk.Toplevel):
 
         ######################
 
-        self.password_frame = MyFrame(self.body_frame,self.data_manager)
+        self.password_frame = MyFrame(self.scroll_frame,self.data_manager)
+        self.password_frame.pack(side = "top", fill = "x" )
 
         self.password_frame_head = MyFrame(self.password_frame,self.data_manager)
         self.password_frame_head.pack(side = "top", fill = "x")
@@ -402,8 +418,8 @@ class LoginWindow(tk.Toplevel):
 
         ######################
 
-        self.apply_frame = MyFrame(self.body_frame,self.data_manager)
-        self.apply_frame.pack(side = "bottom", fill = "x")
+        self.apply_frame = MyFrame(self.scroll_frame,self.data_manager)
+        self.apply_frame.pack(side = "bottom", fill = "x" )
 
         self.apply_frame_head = MyFrame(self.apply_frame,self.data_manager)
         self.apply_frame_head.pack(side = "top", fill = "x")
@@ -500,8 +516,10 @@ class LoginWindow(tk.Toplevel):
 
     def create_sign_in_body(self):
 
-        self.password_frame = MyFrame(self.body_frame,self.data_manager)
-        self.password_frame.pack(side = "top", fill = "x")
+        self.scroll_frame = self.scroll.create_scroll_frame(self.body_frame)
+
+        self.password_frame = MyFrame(self.scroll_frame,self.data_manager)
+        self.password_frame.pack(side = "top", fill = "x" )
 
         self.password_frame_head = MyFrame(self.password_frame,self.data_manager)
         self.password_frame_head.pack(side = "top", fill = "x")
@@ -536,7 +554,7 @@ class LoginWindow(tk.Toplevel):
 
         ######################
 
-        self.apply_frame = MyFrame(self.body_frame,self.data_manager)
+        self.apply_frame = MyFrame(self.scroll_frame,self.data_manager)
         self.apply_frame.pack(side = "bottom", fill = "x")
 
         self.apply_frame_head = MyFrame(self.apply_frame,self.data_manager)
