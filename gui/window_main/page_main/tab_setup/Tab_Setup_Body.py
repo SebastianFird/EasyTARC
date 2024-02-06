@@ -321,7 +321,7 @@ class SetupBody:
     def set_start_up_link(self):
         file_path = os.path.join(self.main_app.get_filepath(), self.main_app.get_name() +'.exe')  
         startup_folder = os.environ["APPDATA"] + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
-        shortcut_name = self.main_app.get_name() +'_Link.lnk'
+        shortcut_name = self.main_app.get_name() +'_Link'
         shortcut_path = os.path.join(startup_folder, shortcut_name)
         if not os.path.exists(shortcut_path): 
             try:
@@ -357,7 +357,7 @@ class SetupBody:
     def set_desktop_link(self):
         file_path = os.path.join(self.main_app.get_filepath(), self.main_app.get_name() +'.exe')  
         desktop_folder = os.path.join(os.environ["USERPROFILE"], "Desktop") 
-        shortcut_name = self.main_app.get_name() +'_Link.lnk'
+        shortcut_name = self.main_app.get_name() +'_Link'
         shortcut_path = os.path.join(desktop_folder, shortcut_name)
         if not os.path.exists(shortcut_path): 
             try:
