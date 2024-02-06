@@ -343,9 +343,15 @@ class SetupBody:
     
     def remove_start_up_link(self):
         startup_folder = os.environ["APPDATA"] + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
-        text = self.language_dict['delete_app_link']
-        info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,300,200)
-        os.startfile(startup_folder)
+        shortcut_name = self.main_app.get_name() +'_Link.lnk'
+        shortcut_path = os.path.join(startup_folder, shortcut_name)
+        if os.path.exists(shortcut_path) == True: 
+            os.remove(shortcut_path)
+        else:
+            text = self.language_dict['delete_app_link']
+            info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,300,200)
+            os.startfile(startup_folder)
+
 
     
     def set_desktop_link(self):
@@ -372,10 +378,15 @@ class SetupBody:
         return
     
     def remove_desktop_link(self):
-        desktop_folder = os.path.join(os.environ["USERPROFILE"], "Desktop")
-        text = self.language_dict['delete_app_link']
-        info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,300,200)
-        os.startfile(desktop_folder)
+        desktop_folder = os.path.join(os.environ["USERPROFILE"], "Desktop") 
+        shortcut_name = self.main_app.get_name() +'_Link.lnk'
+        shortcut_path = os.path.join(desktop_folder, shortcut_name)
+        if os.path.exists(shortcut_path) == True: 
+            os.remove(shortcut_path)
+        else:
+            text = self.language_dict['delete_app_link']
+            info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,300,200)
+            os.startfile(desktop_folder)
 
     def refresh(self):
         # configure style and language of main frame

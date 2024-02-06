@@ -117,6 +117,8 @@ class WorkWindowList(tk.Toplevel):
         self.attributes("-alpha", 1)
         self.save_window_pos()
 
+        
+
 ##############################################################################################################################
 
     def set_modus(self,modus):
@@ -223,6 +225,8 @@ class WorkWindowList(tk.Toplevel):
         self.create_titlebar_frame()
         self.create_btn_frame()
 
+        self.update()
+
 
     def main_enter(self,e):
         if self.expand_frame_displayed == True and self.after_func_leave != None:
@@ -301,12 +305,8 @@ class WorkWindowList(tk.Toplevel):
             self.bar_btn.configure(background=background_color)  
             self.bar_btn_v.configure(background=background_color)  
 
-        # update account clocks
-
         if self.active_clock_frame != None:
             self.active_clock_frame.update()
-
-        # update pause clock
 
         if self.pause_clock.get_runninig() == True:
             self.lbl_activate_pause.configure(image=self.image_dict['photo_btn_pause'])

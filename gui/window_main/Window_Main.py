@@ -72,6 +72,7 @@ class MainWindow(tk.Toplevel):
         self.main_frame = MyFrame(self, self.data_manager)
         self.main_frame.pack(side = "top", fill = "both",expand = True)
         self.main_frame.configure(highlightbackground=self.style_dict["window_border_color"], highlightcolor=self.style_dict["window_border_color"], highlightthickness=1)
+        self.main_frame.bind("<Enter>", self.main_window_enter)
         self.main_frame.bind("<Leave>", self.main_window_leave)
 
         # make a frame for the title bar
@@ -167,6 +168,9 @@ class MainWindow(tk.Toplevel):
         if self.highlight_main_window == True:
             self.highlight_main_window = False
             self.main_frame.configure(highlightbackground=self.style_dict["window_border_color"], highlightcolor=self.style_dict["window_border_color"], highlightthickness=1)
+
+    def main_window_enter(self,e):
+        self.root.focus_force()
 
 ##################################################
 
