@@ -131,6 +131,7 @@ class SetupHead:
     
     def show_directory(self):
         os.startfile(self.main_app.get_filepath())
+        self.gui.root.iconify()
         return
     
     def show_tips(self):

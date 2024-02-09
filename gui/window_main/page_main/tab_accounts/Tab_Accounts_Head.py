@@ -299,12 +299,13 @@ class AccountsHead:
         for account_dict in account_dict_list:
             self.data_manager.add_time_account_dict_to_user_db(account_dict)
 
-            if account_dict['account_kind'] == 1:
-                current_main_account_clock = self.data_manager.create_main_account_clock(account_dict)
-                self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.add_main_account_frame(account_dict['group'],current_main_account_clock)
-            else:
-                sub_clock = current_main_account_clock.add_sub_clock(account_dict)
-                self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.add_sub_account_frame(account_dict['group'],account_dict['main_id'],sub_clock)
+            if account_dict['status'] != "closed":
+                if account_dict['account_kind'] == 1:
+                    current_main_account_clock = self.data_manager.create_main_account_clock(account_dict)
+                    self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.add_main_account_frame(account_dict['group'],current_main_account_clock)
+                else:
+                    sub_clock = current_main_account_clock.add_sub_clock(account_dict)
+                    self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.add_sub_account_frame(account_dict['group'],account_dict['main_id'],sub_clock)
 
         self.search_cbox.set(self.language_dict["group"])
         self.search_var.set(new_group)

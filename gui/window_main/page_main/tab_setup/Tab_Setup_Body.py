@@ -217,6 +217,9 @@ class SetupBody:
         self.btn_remove_start_up_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['remove'],width=12,command=self.remove_start_up_link)
         self.btn_remove_start_up_link.grid(row=row_nbr, column=2, padx=10, pady=5)
 
+        self.btn_start_up_directory = MyButton(self.link_frame, self.data_manager,text=u'\U0001F4C1',width=5,command=self.show_start_up_directory)
+        self.btn_start_up_directory.grid(row=row_nbr, column=3, padx=10, pady=5)
+
         row_nbr = 1
 
         self.lbl_desktop_link = MyLabel(self.link_frame,self.data_manager,text = '   ' + self.language_dict['desktop_link'], anchor = 'w', width=20)
@@ -227,6 +230,9 @@ class SetupBody:
 
         self.btn_remove_desktop_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['remove'],width=12,command=self.remove_desktop_link)
         self.btn_remove_desktop_link.grid(row=row_nbr, column=2, padx=10, pady=5)
+
+        self.btn_desktop_directory = MyButton(self.link_frame, self.data_manager,text=u'\U0001F4C1',width=5,command=self.show_desktop_directory)
+        self.btn_desktop_directory.grid(row=row_nbr, column=3, padx=10, pady=5)
 
         return
     
@@ -352,7 +358,10 @@ class SetupBody:
             info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,300,200)
             os.startfile(startup_folder)
 
-
+    def show_start_up_directory(self):
+        os.startfile(os.environ["APPDATA"] + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup")
+        self.gui.root.iconify()
+        return
     
     def set_desktop_link(self):
         file_path = os.path.join(self.main_app.get_filepath(), self.main_app.get_name() +'.exe')  
@@ -387,6 +396,11 @@ class SetupBody:
             text = self.language_dict['delete_app_link']
             info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,300,200)
             os.startfile(desktop_folder)
+
+    def show_desktop_directory(self):
+        os.startfile(os.path.join(os.environ["USERPROFILE"], "Desktop") )
+        self.gui.root.iconify()
+        return
 
     def refresh(self):
         # configure style and language of main frame
@@ -432,6 +446,8 @@ class SetupBody:
         self.btn_set_desktop_link.refresh_style()
         self.btn_remove_start_up_link.refresh_style()
         self.btn_remove_desktop_link.refresh_style()
+        self.btn_desktop_directory.refresh_style()
+        self.btn_start_up_directory.refresh_style()
 
         font_family = self.main_app.get_setting('font_family')
         font_size = self.main_app.get_setting('font_size')
