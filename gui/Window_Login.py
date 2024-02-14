@@ -139,25 +139,43 @@ class LoginWindow(tk.Frame):
             self.winfo_update()
             #maximize current window
             self.maximize_btn.config(text="    ❐    ")
-            hwnd = windll.user32.GetParent(self.root.winfo_id())
-            SWP_SHOWWINDOW = 0x40
-            windll.user32.SetWindowPos(hwnd, 0, 0, 0, 
-                int(self.root.winfo_screenwidth()),
-                int(self.root.winfo_screenheight()-48),
-                SWP_SHOWWINDOW)
+            x=self.root.winfo_x()
+            y=self.root.winfo_y()
+            screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(x,y,True)
+
+            #hwnd = windll.user32.GetParent(self.root.winfo_id())
+            #SWP_SHOWWINDOW = 0x40
+            #windll.user32.SetWindowPos(hwnd, 0, 0, 0, 
+            #    int(self.root.winfo_screenwidth()),
+            #    int(self.root.winfo_screenheight()-48),
+            #    SWP_SHOWWINDOW)
+
+            self.root.geometry(str(screen_width)+ 'x' + str(screen_height-task_bar_height_offset) + '+' + str(screen_root_x) + '+' + str(screen_root_y))
+
             self.maximized = True
             self.move_window_bindings(status=False)
         else:
             #restore down window
             self.maximize_btn.config(text="    🗖    ")
-            hwnd = windll.user32.GetParent(self.root.winfo_id())
-            SWP_SHOWWINDOW = 0x40
-            windll.user32.SetWindowPos(hwnd, 0, 
-                self.previousPosition[0],
-                self.previousPosition[1],
-                int(self.root.windowSize[0]),
-                int(self.root.windowSize[1]),
-                SWP_SHOWWINDOW)
+
+            #hwnd = windll.user32.GetParent(self.root.winfo_id())
+            #SWP_SHOWWINDOW = 0x40
+            #windll.user32.SetWindowPos(hwnd, 0, 
+            #    self.previousPosition[0],
+            #    self.previousPosition[1],
+            #    int(self.root.windowSize[0]),
+            #    int(self.root.windowSize[1]),
+            #    SWP_SHOWWINDOW)
+
+            x=self.previousPosition[0]
+            y=self.previousPosition[1]
+            screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(x,y)
+
+            if (screen_root_x <= x) and (x <= screen_root_x + screen_width) and (screen_root_y <= y) and (y <= screen_root_y + screen_height):
+                self.root.geometry(str(self.root.windowSize[0])+ 'x' + str(self.root.windowSize[1]) + '+' + str(x) + '+' + str(y))
+            else:
+                self.reset_window_pos()
+            
             self.maximized = False
             self.move_window_bindings(status=True)
         self.root.update()
@@ -179,6 +197,14 @@ class LoginWindow(tk.Frame):
             self.title_bar.unbind("<Button-1>")
             self.lbl_title.unbind("<B1-Motion>")
             self.lbl_title.unbind("<Button-1>")
+
+    def reset_window_pos(self):
+        geo_factor = float(self.main_app.get_setting("geometry_factor"))
+        width = int(round(geo_factor*500))
+        height = int(round(geo_factor*600))
+        self.root.geometry(str(width)+ 'x' + str(height) + '+100+100')
+
+        self.previousPosition = [self.root.winfo_x(), self.root.winfo_y()]
 
 
     def create_main_frame(self):
@@ -211,7 +237,7 @@ class LoginWindow(tk.Frame):
         self.lbl_title.bind('<B1-Motion>', self.move_window)
         self.lbl_title.bind('<Button-1>', self.get_pos)
         self.lbl_title.bind('<Double-1>', self.maximizeToggle)
-        self.lbl_title_ttp = CreateToolTip(self.title_bar, self.data_manager, 100, 30, self.language_dict['double_click'])
+        self.lbl_title_ttp = CreateToolTip(self.lbl_title, self.data_manager, 100, 30, self.language_dict['double_click'])
 
         self.close_button = MyLabel(self.title_bar, self.data_manager, text='      X      ')
         self.close_button.configure(background=self.style_dict["titlebar_color"]) # height=30
