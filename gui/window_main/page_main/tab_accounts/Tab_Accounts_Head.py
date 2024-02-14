@@ -194,11 +194,9 @@ class AccountsHead:
         self.gui.disable_main_window()
         folder_path = filedialog.askopenfilename()
         self.gui.enable_main_window()
-        print(folder_path)
         try:
             with open(folder_path,encoding='UTF-8') as json_file:
                 time_accounts_import_dict = json.load(json_file)
-            print(time_accounts_import_dict)
         except:
             self.show_info(self.language_dict["import_time_accounts_failed"])
             return

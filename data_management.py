@@ -33,7 +33,7 @@ import pandas as pd
 
 class DataManager:
     def __init__(self, main_app):
-        print('datamanager_init')
+        
         self.main_app = main_app
 
         self.style_dict = None
@@ -68,7 +68,6 @@ class DataManager:
 #################################################################
         
     def start_data_management(self):
-        print('datamanager_start')
 
         self.user_db.update_main_account_name(0,self.language_dict['without_allocation'])
         if self.main_app.get_version_update() == True:

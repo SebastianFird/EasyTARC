@@ -102,8 +102,6 @@ class ScreenSizeWindow(tk.Toplevel):
 class Gui_Manager:
     def __init__(self, main_app):
 
-        print('gui_db_init')
-
         self.main_app = main_app
         self.data_manager = self.main_app.get_data_manager()
         self.style_dict = self.data_manager.get_style_dict()
@@ -150,7 +148,8 @@ class Gui_Manager:
 
     def run_login_window(self,kind,user_permission=None):
 
-        self.root = NewRoot()
+        self.root = tk.Tk()
+        self.root.attributes('-alpha',0)
         self.root.title(self.main_app.get_name())
         self.root.iconbitmap("Logo.ico")
 
@@ -165,17 +164,17 @@ class Gui_Manager:
 
         self.data_manager.load_image_dict(self.main_app.get_setting('font_size'),self.main_app.get_setting('style_name'))
 
-        print('run_login_window')
         self.login_window = LoginWindow(self.main_app,self.root,self,kind,user_permission)
-        self.login_window.attributes('-topmost',True)
+        self.login_window.pack(fill=tk.BOTH, expand=True)
+        
+        self.root.mainloop()
 
-        self.login_window.mainloop()
-
-       # self.screen_size_window.destroy()
+        #self.screen_size_window.destroy()
 
     def run_main_window(self):
 
-        self.root = NewRoot()
+        self.root = tk.Tk()
+        self.root.attributes('-alpha',0)
         self.root.title(self.main_app.get_name())
         self.root.iconbitmap("Logo.ico")
 
@@ -190,27 +189,20 @@ class Gui_Manager:
 
         self.data_manager.load_image_dict(self.main_app.get_setting('font_size'),self.main_app.get_setting('style_name'))
 
-        print('run_main_window')
         self.main_window = MainWindow(self.main_app,self.root,self)
-        self.main_window.attributes('-topmost',True)
-        self.main_window.iconbitmap("Logo.ico")
-
-        self.root.iconify()
-        self.root.update()
-        self.root.deiconify() #without this the Entry widget wont work if a login window was active before the mainwindow and the transient code line is active
-        #https://stackoverflow.com/questions/18210829/tkinter-toplevel-window-appears-not-to-react-to-some-methods
+        self.main_window.pack(fill=tk.BOTH, expand=True)
 
         if self.start_recording == True:
             load_clocks = True
             self.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.start_recording(load_clocks)
             self.start_recording = False
+        
+        self.root.mainloop()
 
-        self.main_window.mainloop()
         return
     
     def check_screen(self,x,y,task_bar_height=False):
         # inspired by https://stackoverflow.com/questions/17741928/tkinter-screen-width-and-height-of-secondary-display
-        print(x,y)
         self.screen_size_window.state('normal')
         self.screen_size_window.update()
         self.screen_size_window.geometry("+%d+%d" % (x, y))
@@ -235,14 +227,13 @@ class Gui_Manager:
         screen_root_x = self.screen_size_window.winfo_x()
         screen_root_y = self.screen_size_window.winfo_y()
         self.screen_size_window.state('normal')
-        print(screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset)
         return(screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset)
     
     
-    def unminimise(self):
+    def unminimize(self):
         if self.status_main_window == False and self.on_window_switch == False:
             self.on_window_switch = True
-            self.main_window.case_frame.frames[NotebookFrame].tab_manager.go_to_start()
+            #self.main_window.case_frame.frames[NotebookFrame].tab_manager.go_to_start()
             self.status_main_window = True
             if self.listWorkWindow != None:
                 self.listWorkWindow.destroy()
@@ -254,11 +245,9 @@ class Gui_Manager:
                 self.boxWorkWindow.destroy()
                 self.boxWorkWindow = None
             self.on_window_switch = False
-
             self.main_window.after(10, lambda:self.save_work_window_pos())
             
-
-    def minimise(self):
+    def minimize(self):
         if self.status_main_window == True:
             self.status_main_window = False
             if self.main_app.get_action_state() != 'disabled' and self.on_window_switch == False:
@@ -271,20 +260,16 @@ class Gui_Manager:
                 self.on_window_switch = False
 
     def disable_main_window(self):
-        self.main_window.attributes('-topmost',False)
-        self.main_window.attributes('-disabled',True)
+        self.root.attributes('-disabled',True)
 
     def enable_main_window(self):
-        self.main_window.attributes('-topmost', True)
-        self.main_window.attributes('-disabled', False)
+        self.root.attributes('-disabled', False)
 
     def disable_login_window(self):
-        self.login_window.attributes('-topmost',False)
-        self.login_window.attributes('-disabled',True)
+        self.root.attributes('-disabled',True)
 
     def enable_login_window(self):
-        self.login_window.attributes('-topmost', True)
-        self.login_window.attributes('-disabled', False)
+        self.root.attributes('-disabled', False)
 
     def exit_saving_warning(self):
         ExitSavingWindow(self.root,self.main_app,self,self.main_window)

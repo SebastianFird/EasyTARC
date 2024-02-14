@@ -19,6 +19,7 @@ import tkinter as tk
 from tkinter import ttk
 import datetime
 from PIL import ImageTk, Image
+from ctypes import windll
 
 from gui.window_main.Window_Main_CaseFrame_Manager import CaseFrameManagerMW
 from gui.window_main.Window_Main_Status import MainWindowStatus
@@ -37,11 +38,12 @@ from style_classes import MyButton
 from style_classes import MyEntry 
 
 
-class LoginWindow(tk.Toplevel):
+class LoginWindow(tk.Frame):
     def __init__(self, main_app, root, gui,kind, *args, **kwargs):
-        tk.Toplevel.__init__(self, root)
-        self.gui = gui
         self.root = root
+        super().__init__(self.root, **kwargs)
+
+        self.gui = gui
         self.kind = kind
 
         self.main_app = main_app
@@ -61,43 +63,123 @@ class LoginWindow(tk.Toplevel):
         font_size_3 = str(int(self.main_app.get_setting('font_size')) - 1)
         self.Font_tuple_small = (font_family, font_size_3, "normal")
 
-
         self.x_win = None
         self.y_win = None
         self.start_x = None
         self.start_y = None
 
-        self.overrideredirect(1)
-        self.attributes('-alpha', 0.0)
-        self.scroll = Scroll_Frame(self.main_app,self.gui)
-        self.create_main_frame()
+        ########_
 
-        self.update()
+        self.maximized = False
+        self.hasstyle = False
         
-        width = int(round(self.winfo_width()*1.5)) 
-        height = int(round(self.winfo_height()*1.5)) 
+        self.root.withdraw()
+        self.root.update()
+        self.root.overrideredirect(True)
+
+        ########
+
+        geo_factor = float(self.main_app.get_setting("geometry_factor"))
+        width = int(round(geo_factor*500))
+        height = int(round(geo_factor*600))
 
         screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(1,1)
 
-        x_pos = screen_width/2 - width/2
-        y_pos = screen_height/2 - height/2
+        x_pos = int(round(screen_width/2 - width/2))
+        y_pos = int(round(screen_height/2 - height/2))
 
-        self.geometry(str(width)+ 'x' + str(height) + '+' + str(int(round(x_pos))) + '+' + str(int(round(y_pos))))
+        self.root.geometry(str(width)+ 'x' + str(height) + '+' + str(x_pos) + '+' + str(y_pos))
 
-        self.update()
+        ########_
 
-        if self.kind == 'sign_up':
-            self.password_frame.pack_forget()
+        self.root.windowSize = [width, height]
+        self.root.minsize(width, height)
+        self.previousPosition = [x_pos, y_pos]
 
-            if self.main_app.get_restricted_user_group() == False:
-                self.permission_frame.pack_forget()
-                self.permission_note_frame.pack_forget()
+        ########
 
-        self.update()
-        self.attributes('-alpha', 1.0)
+        self.scroll = Scroll_Frame(self.main_app,self.gui)
+        self.create_main_frame()
 
-        # run the main frame of this layer
+        ########_
+
+        self.loop_control()
+        self.root.update()
+        self.root.attributes('-alpha',1)
+
+
+    def loop_control(self):
+        # https://stackoverflow.com/questions/73001768/tkinter-make-overrideredirect-window-appear-on-top-of-other-windows-when-clicked
+        self.root.update_idletasks()
+        self.root.withdraw()
+        self.set_appwindow()
+
+    def set_appwindow(self):
+        GWL_EXSTYLE=-20
+        WS_EX_APPWINDOW=0x00040000
+        WS_EX_TOOLWINDOW=0x00000080
+        if not self.hasstyle:
+            hwnd = windll.user32.GetParent(self.root.winfo_id())
+            style = windll.user32.GetWindowLongW(hwnd, GWL_EXSTYLE)
+            style = style & ~WS_EX_TOOLWINDOW
+            style = style | WS_EX_APPWINDOW
+            res = windll.user32.SetWindowLongW(hwnd, GWL_EXSTYLE, style)
+            self.root.withdraw()
+            self.root.after(10, lambda:self.root.wm_deiconify())
+            self.hasstyle=True
+
+    def winfo_update(self):
+        self.root.windowSize = [self.root.winfo_width(),
+                                  self.root.winfo_height()]
         
+    def maximizeToggle(self, event=None):
+        self.root.attributes('-alpha',0)
+        #self.root.update()
+        if self.maximized == False:
+            self.winfo_update()
+            #maximize current window
+            self.maximize_btn.config(text="    ❐    ")
+            hwnd = windll.user32.GetParent(self.root.winfo_id())
+            SWP_SHOWWINDOW = 0x40
+            windll.user32.SetWindowPos(hwnd, 0, 0, 0, 
+                int(self.root.winfo_screenwidth()),
+                int(self.root.winfo_screenheight()-48),
+                SWP_SHOWWINDOW)
+            self.maximized = True
+            self.move_window_bindings(status=False)
+        else:
+            #restore down window
+            self.maximize_btn.config(text="    🗖    ")
+            hwnd = windll.user32.GetParent(self.root.winfo_id())
+            SWP_SHOWWINDOW = 0x40
+            windll.user32.SetWindowPos(hwnd, 0, 
+                self.previousPosition[0],
+                self.previousPosition[1],
+                int(self.root.windowSize[0]),
+                int(self.root.windowSize[1]),
+                SWP_SHOWWINDOW)
+            self.maximized = False
+            self.move_window_bindings(status=True)
+        self.root.update()
+        self.root.attributes('-alpha',1)
+
+    def minimize(self, hide=False):
+       #reference: https://programtalk.com/python-examples/ctypes.windll.user32.ShowWindow/ 
+        hwnd = windll.user32.GetParent(self.root.winfo_id())
+        windll.user32.ShowWindow(hwnd, 0 if hide else 6)
+
+    def move_window_bindings(self, *args, status=True):
+        if status == True:
+            self.title_bar.bind("<B1-Motion>", self.move_window)
+            self.title_bar.bind("<Button-1>", self.get_pos)
+            self.lbl_title.bind("<B1-Motion>", self.move_window)
+            self.lbl_title.bind("<Button-1>", self.get_pos)
+        else:
+            self.title_bar.unbind("<B1-Motion>")
+            self.title_bar.unbind("<Button-1>")
+            self.lbl_title.unbind("<B1-Motion>")
+            self.lbl_title.unbind("<Button-1>")
+
 
     def create_main_frame(self):
 
@@ -112,6 +194,7 @@ class LoginWindow(tk.Toplevel):
         self.title_bar.pack(side='top', fill = "x")
         self.title_bar.bind('<B1-Motion>', self.move_window)
         self.title_bar.bind('<Button-1>', self.get_pos)
+        self.title_bar.bind('<Double-1>', self.maximizeToggle)
 
         self.lbl_icon = MyLabel(self.title_bar, self.data_manager, image=self.image_dict['photo_icon'])
         self.lbl_icon.configure(background=self.style_dict["titlebar_color"])
@@ -122,18 +205,39 @@ class LoginWindow(tk.Toplevel):
         self.lbl_icon.bind("<Enter>", self.icon_enter)
         self.lbl_icon.bind("<Leave>", self.icon_leave)
 
-        self.lbl_title = MyLabelPixel(self.title_bar, self.data_manager, text='   ' + self.main_app.get_name())
+        self.lbl_title = MyLabel(self.title_bar, self.data_manager, text='   ' + self.main_app.get_name())
         self.lbl_title.configure(background=self.style_dict["titlebar_color"]) # height=30
         self.lbl_title.pack(side='left',fill='y')
         self.lbl_title.bind('<B1-Motion>', self.move_window)
         self.lbl_title.bind('<Button-1>', self.get_pos)
+        self.lbl_title.bind('<Double-1>', self.maximizeToggle)
+        self.lbl_title_ttp = CreateToolTip(self.title_bar, self.data_manager, 100, 30, self.language_dict['double_click'])
 
-        self.close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
+        self.close_button = MyLabel(self.title_bar, self.data_manager, text='      X      ')
         self.close_button.configure(background=self.style_dict["titlebar_color"]) # height=30
         self.close_button.pack(side='right',fill='y')
         self.close_button.bind('<Button-1>', self.close_window)
         self.close_button.bind("<Enter>", self.enter_close)
         self.close_button.bind("<Leave>", self.leave_close)
+
+        self.maximize_btn = MyLabel(self.title_bar, self.data_manager, text='    🗖    ')
+        self.maximize_btn.configure(background=self.style_dict["titlebar_color"]) # height=30
+        self.maximize_btn.pack(side='right',fill='y')
+        self.maximize_btn.bind('<Button-1>', self.maximizeToggle)
+        self.maximize_btn.bind("<Enter>", self.enter_maximiz)
+        self.maximize_btn.bind("<Leave>", self.leave_maximiz)
+
+        self.minimize_btn = MyLabel(self.title_bar, self.data_manager, text='    __    ')
+        self.minimize_btn.configure(background=self.style_dict["titlebar_color"]) # height=30
+        self.minimize_btn.pack(side='right',fill='y')
+        self.minimize_btn.bind('<Button-1>', self.minimize)
+        self.minimize_btn.bind("<Enter>", self.enter_minimize)
+        self.minimize_btn.bind("<Leave>", self.leave_minimize)
+
+
+        self.move_window_bindings(status=True)
+
+        ########
 
         self.bottom_frame = MyFrame(self.main_frame, self.data_manager)
         self.bottom_frame.pack(side = "bottom", fill = "x")
@@ -146,19 +250,26 @@ class LoginWindow(tk.Toplevel):
         self.body_frame.pack(side = "top", fill = "both",expand = True)
         self.body_frame.configure(highlightbackground=self.style_dict["header_color_blue"], highlightcolor=self.style_dict["header_color_blue"], highlightthickness=1)
 
+        ########
+
         self.create_welcome_frame()
 
         if self.kind == 'sign_up':
             self.create_sign_up_body()
+
+            self.password_frame.pack_forget()
+            if self.main_app.get_restricted_user_group() == False:
+                self.permission_frame.pack_forget()
+                self.permission_note_frame.pack_forget()
+
         else:
             self.create_sign_in_body()
-
 
 ##################################################
         
     def get_pos(self, event):
-        self.x_win = self.winfo_x()
-        self.y_win = self.winfo_y()
+        self.x_win = self.root.winfo_x()
+        self.y_win = self.root.winfo_y()
         self.start_x = event.x_root
         self.start_y = event.y_root
         self.y_win = self.y_win - self.start_y
@@ -166,9 +277,11 @@ class LoginWindow(tk.Toplevel):
 
     def move_window(self, event):
         if type(event.x_root) == int and type(self.x_win) == int and type(event.y_root) == int and type(self.y_win) == int:
-            self.geometry('+{0}+{1}'.format(event.x_root + self.x_win, event.y_root + self.y_win))
+            self.root.geometry('+{0}+{1}'.format(event.x_root + self.x_win, event.y_root + self.y_win))
             self.start_x = event.x_root
             self.start_y = event.y_root
+
+            self.previousPosition = [self.root.winfo_x(), self.root.winfo_y()]
 
 ##################################################
 
@@ -182,6 +295,22 @@ class LoginWindow(tk.Toplevel):
         self.root.destroy()
         return
     
+##################################################
+    
+    def enter_minimize(self,e):
+        self.minimize_btn.configure(background=self.style_dict["btn_hover_color_grey"])
+
+    def leave_minimize(self,e):
+        self.minimize_btn.configure(background=self.style_dict["titlebar_color"])
+
+##################################################
+        
+    def enter_maximiz(self,e):
+        self.maximize_btn.configure(background=self.style_dict["btn_hover_color_grey"])
+
+    def leave_maximiz(self,e):
+        self.maximize_btn.configure(background=self.style_dict["titlebar_color"])
+
 ##################################################
 
     def icon_enter(self,e):

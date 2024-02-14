@@ -148,7 +148,6 @@ class WorkWindowList(tk.Toplevel):
             self.vertical_frame.pack_forget()
             self.btn_frame.pack_forget()
             self.title_bar.pack_forget()
-            print(self.win_expand_width,self.win_expand_height, self.win_expand_x_pos, self.y_pos)
             self.geometry('%dx%d+%d+%d' % (self.win_expand_width,self.win_expand_height, self.win_expand_x_pos, self.y_pos))
             self.title_bar.pack(side='top', fill = "x")
             self.btn_frame.pack(side = "top", fill = "both", expand = True)
@@ -619,7 +618,7 @@ class WorkWindowList(tk.Toplevel):
         if self.after_func_leave != None:
             self.main_frame.after_cancel(self.after_func_leave)
             self.after_func_leave = None
-        self.gui.unminimise()
+        self.gui.unminimize()
         self.root.deiconify()
 
 #################################################################################
@@ -706,8 +705,9 @@ class ClockFrame((tk.Frame)):
             if self.clock.get_clock_kind() == 'sub':
                 name = ' ' + u'\U00002B9E' + ' ' + name
 
-        self.lbl_name = MyLabel(self,self.data_manager,text = name)
+        self.lbl_name = MyLabel(self,self.data_manager,text = name, anchor='w')
         self.lbl_name.pack(side = "left", padx=5, pady=5)
+        self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, -80, 30,name)
 
         self.lbl_activate_account_clock.bind("<Enter>", self.account_clock_enter)
         self.lbl_activate_account_clock.bind("<Leave>", self.account_clock_leave)

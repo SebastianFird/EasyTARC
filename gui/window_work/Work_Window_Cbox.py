@@ -271,7 +271,7 @@ class WorkWindowCbox(tk.Toplevel):
         if self.after_func_leave != None:
             self.main_frame.after_cancel(self.after_func_leave)
             self.after_func_leave = None
-        self.gui.unminimise()
+        self.gui.unminimize()
         self.root.deiconify()
 
 #################################################################################
