@@ -288,11 +288,9 @@ class WorkWindowBar(WorkWindowCbox):
         self.lbl_separator_1.pack(side='left', padx=8, fill='y')
 
         self.lbl_default = MyLabel(self.btn_frame,self.data_manager,text = self.language_dict['without_allocation'])
-        #self.lbl_default.pack(side='left', padx=5)
 
         self.lbl_activate_default = MyLabel(self.btn_frame, self.data_manager, image=self.image_dict['photo_btn_off'])
         self.lbl_activate_default.image = self.image_dict['photo_btn_off']
-        #self.lbl_activate_default.pack(side='left')
 
         self.lbl_activate_default.bind("<Enter>", self.default_enter)
         self.lbl_activate_default.bind("<Leave>", self.default_leave)
@@ -300,7 +298,6 @@ class WorkWindowBar(WorkWindowCbox):
         self.on_activate_default = False
 
         self.lbl_separator_2 = MyLabel(self.btn_frame,self.data_manager)
-        #self.lbl_separator_2.pack(side='left', padx=8, fill='y')
 
         self.lbl_pause = MyLabel(self.btn_frame,self.data_manager,text = self.language_dict['break'])
         self.lbl_pause.pack(side='left', padx=5)
@@ -319,6 +316,7 @@ class WorkWindowBar(WorkWindowCbox):
 
         if self.modus == 'control_view':
             self.btn_frame.pack(side = "left", fill = "both", expand = True)
+            self.btn_frame_displayed = True 
 
         self.updt_selectable_account_clock_cblist()
 

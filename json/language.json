@@ -324,7 +324,8 @@
         "export_time_accounts_failed":"Die Zeitkonten konnten nicht exportiert werden.",
         "export_sub_time_accounts_failed":"Nicht alle Unterkonten konnten exportiert werden, da die jeweiligen Hauptkonten nicht ausgewählt waren.",
         "release_note_text_13":" 1.9.0 (04.02.2024)\n - Das Arbeitsfenster Leiste kann nun auch am unteren Bildschirmrand fixiert werden.\n - Nachdem eine Erfassung beendet wurde, kann direkt eine neue Erfassung gestartet werden.\n- Zeitkonten haben zwei neue Eigeschaften: Gültigkeit und Stundenvolumen\n - Der komplette Startprozess wurde überarbeitet\n - Die Datenbank kann nun mit einem eigenen Passwort verschlüsselt werden.\n - Es können Zeitkonten exportiert und importiert werden.",
-        "release_note_text_14":" 1.9.1 (14.02.2024)\n - Das Fensterverhalten wurde angepasst."
+        "release_note_text_14":" 1.9.1 (14.02.2024)\n - Das Fensterverhalten wurde angepasst.",
+        "release_note_text_15":" 1.9.2 (15.02.2024)\n - Das Fensterverhalten wurde angepasst."
     },
     "english": 
     {
@@ -651,6 +652,7 @@
         "export_time_accounts_failed":"The time accounts could not be exported.",
         "export_sub_time_accounts_failed":"Not all sub-accounts could be exported as the respective main accounts were not selected.",
         "release_note_text_13":"1.9.0 (04.02.2024)\n - The work window bar can now also be fixed at the bottom of the screen.\n - After a recording has been completed, a new recording can be started directly.\n - Time accounts have two new properties: Expiration date and Available hours\n - The complete start process has been revised\n - The database can now be encrypted with a personal password.\n - Time accounts can be exported and imported.",
-        "release_note_text_14":" 1.9.1 (14.02.2024)\n - The window behavior has been adjusted."
+        "release_note_text_14":" 1.9.1 (14.02.2024)\n - The window behavior has been adjusted.",
+        "release_note_text_15":" 1.9.2 (15.02.2024)\n - The window behavior has been adjusted."
     }
 }

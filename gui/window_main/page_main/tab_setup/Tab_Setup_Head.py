@@ -89,6 +89,9 @@ class SetupHead:
         self.btn_tips = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict['tips_and_tricks'],width=15,command=self.show_tips)
         self.btn_tips.pack(side='right',padx = 10,pady=10)
 
+        self.btn_about_easytarc = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict['about_EasyTARC'],width=15,command=self.show_about)
+        self.btn_about_easytarc.pack(side='right',padx = 10,pady=10)
+
         self.btn_directory = MyButton(self.main_head_frame, self.data_manager,text=u'\U0001F4C1',width=5,command=self.show_directory)
         self.btn_directory.pack(side='right',padx = 10,pady=10)
         directory_text = self.language_dict['easytarc_directory']
@@ -126,6 +129,7 @@ class SetupHead:
         text = text + "\n\n" + self.language_dict['release_note_text_12']
         text = text + "\n\n" + self.language_dict['release_note_text_13']
         text = text + "\n\n" + self.language_dict['release_note_text_14']
+        text = text + "\n\n" + self.language_dict['release_note_text_15']
 
         info_window = InfoWindow(self.main_app, self.gui, self.setup_tab.main_frame ,text,600,400)
         return
@@ -139,7 +143,6 @@ class SetupHead:
         text = self.language_dict["tips_and_tricks_1"]
         text = text + "\n\n" + self.language_dict["tips_and_tricks_2"]
         text = text + "\n\n" + self.language_dict["tips_and_tricks_3"]
-        text = text + "\n\n" + self.language_dict["tips_and_tricks_4"]
         text = text + "\n\n" + self.language_dict["tips_and_tricks_5"]
         text = text + "\n\n" + self.language_dict["tips_and_tricks_6"]
         text = text + "\n\n" + self.language_dict["tips_and_tricks_7"]
@@ -151,10 +154,19 @@ class SetupHead:
         info_window = InfoWindow(self.main_app, self.gui, self.setup_tab.main_frame ,text,600,400)
         return
 
+    def show_about(self):
+        text = self.language_dict['about_EasyTARC_text_1'] 
+        text = text + "\n\n" + self.language_dict['about_EasyTARC_text_2']
+        text = text + "\n\n" + self.language_dict['about_EasyTARC_text_3']
+        text = text + "\n\n" + self.language_dict['about_EasyTARC_text_4']
+
+        info_window = InfoWindow(self.main_app, self.gui, self.setup_tab.main_frame ,text,600,400)
+
     def refresh_main_head(self):
         self.main_head_frame.refresh_style()
         self.btn_release_notes.refresh_style()
         self.btn_directory.refresh_style()
+        self.btn_about_easytarc.refresh_style()
         self.btn_tips.refresh_style()
         self.lbl_version.refresh_style()
         self.lbl_config.refresh_style()

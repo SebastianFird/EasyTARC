@@ -253,7 +253,6 @@ class SetupBody:
         self.data_manager.load_style_dict(style_name)
         self.data_manager.load_image_dict(self.main_app.get_setting('font_size'),self.main_app.get_setting('style_name'))
         self.gui.refresh()
-        self.gui.main_window.case_frame.notebook_frame.tab_manager.go_to_setup()
         self.btn_set_style.configure(text=u'\U00002713') 
         return
     
@@ -273,7 +272,6 @@ class SetupBody:
         self.main_app.change_settings('language_name',language_name)
         self.data_manager.load_language_dict(language_name)
         self.gui.refresh()
-        self.gui.main_window.case_frame.notebook_frame.tab_manager.go_to_setup()
         self.btn_set_language.configure(text=u'\U00002713') 
         return
 
@@ -302,7 +300,6 @@ class SetupBody:
         self.data_manager.load_image_dict(self.main_app.get_setting('font_size'),self.main_app.get_setting('style_name'))
         self.gui.myttk.set_defaultFont_size(int(size))
         self.gui.refresh()
-        self.gui.main_window.case_frame.notebook_frame.tab_manager.go_to_setup()
         self.btn_set_font_size.configure(text=u'\U00002713') 
 
 ###############################

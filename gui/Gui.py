@@ -21,6 +21,8 @@ import subprocess
 import time
 import threading 
 import sys
+import datetime
+import ctypes as ct
 
 from style_classes import Myttk
 from gui.Window_Additionals import ExitSavingWindow
@@ -61,25 +63,6 @@ class TkErrorCatcher:
         except Exception as err:
             messagebox.showerror('Error Message','%s.\n\nThe programme is terminated. Please report this error to the support.'%err)
             raise err
-        
-############################################################
-
-class NewRoot(tk.Tk):
-    def __init__(self):
-        tk.Tk.__init__(self)
-        tk.CallWrapper = TkErrorCatcher
-        w=100
-        h=100
-        x=0
-        y=0
-        self.geometry('%dx%d+%d+%d' % (w, h, x, y))
-        self.label_frame = tk.Frame(self)
-        self.label_frame.pack(fill='both',expand=True)
-        self.name_label = tk.Label(self.label_frame,text='EasyTARC')
-        self.name_label.pack(side='top')
-        self.status_label = tk.Label(self.label_frame,anchor='w',justify='left')
-        self.status_label.pack(side='top')
-        self.attributes('-alpha', 0)
 
 ############################################################
 
@@ -117,8 +100,6 @@ class Gui_Manager:
         self.boxWorkWindow = None
         self.taskbar_height_window = None
 
-        self.status_main_window = True
-
         list_work_window_x = self.main_app.get_setting('list_work_window_x')
         if list_work_window_x == "None":
             self.list_work_window_x = None
@@ -143,6 +124,7 @@ class Gui_Manager:
         else:
             self.bar_work_window_y = int(bar_work_window_y)
 
+        self.status_main_window = True
         self.on_window_switch = False
         self.start_recording = False
 
@@ -150,6 +132,11 @@ class Gui_Manager:
 
         self.root = tk.Tk()
         self.root.attributes('-alpha',0)
+
+        self.root.update()
+        self.curent_style_name = ''
+        self.refresh_window_style()
+
         self.root.title(self.main_app.get_name())
         self.root.iconbitmap("Logo.ico")
 
@@ -166,6 +153,9 @@ class Gui_Manager:
 
         self.login_window = LoginWindow(self.main_app,self.root,self,kind,user_permission)
         self.login_window.pack(fill=tk.BOTH, expand=True)
+
+        self.root.update()
+        self.root.attributes('-alpha',1)
         
         self.root.mainloop()
 
@@ -175,7 +165,17 @@ class Gui_Manager:
 
         self.root = tk.Tk()
         self.root.attributes('-alpha',0)
-        self.root.title(self.main_app.get_name())
+
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+        self.root.update()
+        self.curent_style_name = ''
+        self.refresh_window_style()
+
+        dt = datetime.datetime.now()
+        str_today = dt.strftime("%d") + "." + dt.strftime("%m") + "." + dt.strftime("%Y") + "  "+ self.language_dict["week"] + ' ' + str(dt.isocalendar()[1])
+
+        self.root.title('   ' + self.main_app.get_name() + '                                                               ' + str_today)
         self.root.iconbitmap("Logo.ico")
 
         self.myttk = Myttk(self.main_app)
@@ -192,10 +192,16 @@ class Gui_Manager:
         self.main_window = MainWindow(self.main_app,self.root,self)
         self.main_window.pack(fill=tk.BOTH, expand=True)
 
+        self.main_window.bind("<Map>", self.unminimize)
+        self.main_window.bind("<Unmap>", self.minimize)
+
         if self.start_recording == True:
             load_clocks = True
             self.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.start_recording(load_clocks)
             self.start_recording = False
+        
+        self.root.update()
+        self.root.attributes('-alpha',1)
         
         self.root.mainloop()
 
@@ -230,10 +236,10 @@ class Gui_Manager:
         return(screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset)
     
     
-    def unminimize(self):
+    def unminimize(self,event = None):
         if self.status_main_window == False and self.on_window_switch == False:
             self.on_window_switch = True
-            #self.main_window.case_frame.frames[NotebookFrame].tab_manager.go_to_start()
+            self.activate_current_tab()
             self.status_main_window = True
             if self.listWorkWindow != None:
                 self.listWorkWindow.destroy()
@@ -247,7 +253,7 @@ class Gui_Manager:
             self.on_window_switch = False
             self.main_window.after(10, lambda:self.save_work_window_pos())
             
-    def minimize(self):
+    def minimize(self,event = None):
         if self.status_main_window == True:
             self.status_main_window = False
             if self.main_app.get_action_state() != 'disabled' and self.on_window_switch == False:
@@ -275,10 +281,22 @@ class Gui_Manager:
         ExitSavingWindow(self.root,self.main_app,self,self.main_window)
         return
     
+    def on_closing(self):
+        self.root.deiconify()
+
+        self.work_clock = self.main_app.data_manager.get_work_clock()
+        if self.data_manager.times_saved == True:
+            self.root.quit()
+        elif str(self.work_clock.str_timedelta(self.work_clock.get_total_time())) == '00:00:00':
+            self.root.quit()
+        else:
+            self.exit_saving_warning()
+
+    
     def activate_current_tab(self):
         # This function is important for the info windows
         # Without this Function the canvas rutens a windows path error
-        self.main_window.case_frame.frames[NotebookFrame].tab_manager.active_tab.activate()
+        self.main_window.case_frame.frames[NotebookFrame].tab_manager.activate_current_tab()
 
     def reset_window_pos(self):
         self.main_window.reset_window_pos()
@@ -422,7 +440,36 @@ class Gui_Manager:
         self.save_bar_work_window_pos()
 
 ############################################################
+        
+    def refresh_window_style(self):
+        self.style_dict = self.data_manager.get_style_dict()
+        if self.curent_style_name != self.style_dict['name']:
+            if self.style_dict['name'] == 'dark':
+                DWMWA_USE_IMMERSIVE_DARK_MODE = 20
+                set_window_attribute = ct.windll.dwmapi.DwmSetWindowAttribute
+                get_parent = ct.windll.user32.GetParent
+                hwnd = get_parent(self.root.winfo_id())
+                rendering_policy = DWMWA_USE_IMMERSIVE_DARK_MODE
+                value = 2
+                value = ct.c_int(value)
+                set_window_attribute(hwnd, rendering_policy, ct.byref(value),ct.sizeof(value))
+            else:
+                DWMWA_USE_IMMERSIVE_DARK_MODE = 20
+                set_window_attribute = ct.windll.dwmapi.DwmSetWindowAttribute
+                get_parent = ct.windll.user32.GetParent
+                hwnd = get_parent(self.root.winfo_id())
+                rendering_policy = DWMWA_USE_IMMERSIVE_DARK_MODE
+                value = 0
+                value = ct.c_int(value)
+                set_window_attribute(hwnd, rendering_policy, ct.byref(value),ct.sizeof(value))
 
+            self.status_main_window = False
+            self.root.iconify()
+            self.root.update()
+            self.status_main_window = True
+            self.root.deiconify()
+
+            self.curent_style_name = self.style_dict['name']
 
     def refresh(self):
         self.style_dict = self.data_manager.get_style_dict()
@@ -433,4 +480,8 @@ class Gui_Manager:
         self.root.option_add("*TCombobox*Listbox*background", self.style_dict["background_color_grey"])     #dont work for main window
         self.root.option_add("*TCombobox*Listbox*foreground", self.style_dict["font_color"])   #dont work for main window
         self.main_window.refresh()
+        self.refresh_window_style()
+
+
+
 

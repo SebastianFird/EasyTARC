@@ -139,16 +139,10 @@ class TabManager:
             self.setup_tab.activate()
             self.active_tab = self.setup_tab
 
-    def go_to_start(self):
-        self.notebook.select(self.frame_capture)
-        self.capture_tab.activate()
-        self.capture_tab.update()
-        self.active_tab = self.capture_tab
-
-    def go_to_setup(self):
-        self.notebook.select(self.frame_settings)
-        self.setup_tab.activate()
-        self.active_tab = self.setup_tab
+    def activate_current_tab(self):
+        self.active_tab.activate()
+        if self.active_tab == self.capture_tab:
+            self.capture_tab.update()
 
     def refresh(self):
         # configure style and language of main frame
@@ -180,5 +174,5 @@ class TabManager:
         self.notebook.tab(self.frame_accounts, text=self.tab_name_accounts)
         self.notebook.tab(self.frame_settings, text=self.tab_name_setup)
 
-        self.go_to_start()
+        self.activate_current_tab()
         return
