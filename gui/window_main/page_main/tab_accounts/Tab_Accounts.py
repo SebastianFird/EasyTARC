@@ -22,7 +22,6 @@ from tkinter import filedialog
 from gui.Scroll_Frame import Scroll_Frame
 from gui.window_main.page_main.tab_accounts.Tab_Accounts_Body import AccountsBody
 from gui.window_main.page_main.tab_accounts.Tab_Accounts_Head import AccountsHead
-from gui.Window_Additionals import InfoDictWindow
 from gui.Window_Additionals import InfoWindow
 
 class AccountsTab(Scroll_Frame):

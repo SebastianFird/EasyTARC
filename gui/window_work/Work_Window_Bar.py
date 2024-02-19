@@ -234,10 +234,15 @@ class WorkWindowBar(WorkWindowCbox):
                 clock_name = self.language_dict['without_allocation']
             status_text = clock_name
             
-            if self.modus != 'dynamic_view':
-                self.lbl_name_ttp.text =  clock_name + '\n' + self.language_dict['double_click'] + '\n' + self.language_dict['right_click']
+            if self.active_clock.get_response_text() == ' - ':
+                response_text = ''
             else:
-                self.lbl_name_ttp.text =  clock_name + '\n' + self.language_dict['right_click']
+                response_text =  '\n'+ str(self.language_dict['response_text']) + ': ' + self.active_clock.get_response_text()
+            
+            if self.modus != 'dynamic_view':
+                self.lbl_name_ttp.text =  clock_name + response_text + '\n' + self.language_dict['double_click'] + '\n' + self.language_dict['right_click']
+            else:
+                self.lbl_name_ttp.text =  clock_name + response_text + '\n' + self.language_dict['right_click']
 
         elif self.pause_clock.get_runninig() == True:
             background_color = self.style_dict["pause_color_orange"]

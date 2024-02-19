@@ -21,7 +21,6 @@ from tkinter import ttk
 from gui.Scroll_Frame import Scroll_Frame
 from gui.window_main.page_main.tab_time_capture.Tab_Time_Capture_Body import CaptureBody
 from gui.window_main.page_main.tab_time_capture.Tab_Time_Capture_Head import CaptureHead
-from gui.Window_Additionals import InfoDictWindow
 
 class CaptureTab(Scroll_Frame):
     def __init__(self, container, main_app, gui, case_frame_manager):

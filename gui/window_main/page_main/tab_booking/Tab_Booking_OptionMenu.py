@@ -72,20 +72,20 @@ class BookingOptionMenu(tkinter.Listbox):
             info_dict = {self.language_dict["type"]:self.language_dict["main_account"]}
         else:
             info_dict = {self.language_dict["type"]:self.language_dict["sub_account"],
-                        self.language_dict["main_account"]:self.record_dict['main_name']}
+                        self.language_dict["main_account"]:'='+self.record_dict['main_name']}
         #############
         if self.record_dict['account_id'] != 0:
-            info_dict.update({self.language_dict["name"]:self.record_dict['name']})
+            info_dict.update({self.language_dict["name"]:'='+self.record_dict['name']})
         else:
-            info_dict.update({self.language_dict["name"]:self.language_dict["without_allocation"]})
+            info_dict.update({self.language_dict["name"]:'='+self.language_dict["without_allocation"]})
         #############
-        info_dict.update({self.language_dict["group"]:self.record_dict['group']})
+        info_dict.update({self.language_dict["group"]:'='+self.record_dict['group']})
         #############
         if self.record_dict['account_id'] != 0:
             info_dict.update({                
-                        self.language_dict["project"]:self.record_dict['project_label'],  
-                        self.language_dict["order"]:self.record_dict['order_label'],                              
-                        self.language_dict["process"]:self.record_dict['process_label'],
+                        self.language_dict["project"]:'='+self.record_dict['project_label'],  
+                        self.language_dict["order"]:'='+self.record_dict['order_label'],                              
+                        self.language_dict["process"]:'='+self.record_dict['process_label'],
                         self.language_dict["description"]:self.record_dict['description_text']           
                         })
         #############
@@ -101,8 +101,8 @@ class BookingOptionMenu(tkinter.Listbox):
                 info_dict.update({self.language_dict["auto_booking"]:self.language_dict["no"]}) 
             #########
             info_dict.update({                     
-                        self.language_dict["response_code"]:self.record_dict['response_code'],                            
-                        self.language_dict["response_text"]:self.record_dict['response_text']              
+                        self.language_dict["response_code"]:'='+self.record_dict['response_code'],                            
+                        self.language_dict["default_response_text"]:self.record_dict['default_response_text']              
                         })
         #############
         if self.record_dict['account_id'] != 0:
@@ -113,8 +113,8 @@ class BookingOptionMenu(tkinter.Listbox):
         #############
         if self.record_dict['account_id'] != 0:
             if float(self.record_dict['available_hours']) != 0:
-                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.record_dict['available_hours']),2))) + ' ' + self.language_dict["hours"]}) 
+                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.record_dict['available_hours']),3))) + ' ' + self.language_dict["hours"]}) 
             else:
                 info_dict.update({self.language_dict["available_hours"]:" - "})         
         #############
-        info_window = InfoDictWindow(self.main_app, self.gui, self.booking_tab.main_frame ,info_dict,400,280)
+        info_window = InfoDictWindow(self.main_app, self.gui, self.booking_tab.main_frame ,info_dict,500,280)

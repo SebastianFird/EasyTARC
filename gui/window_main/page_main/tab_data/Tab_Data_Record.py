@@ -76,6 +76,18 @@ class DataRecordFrame(tk.Frame):
         self.lbl_empty1 = MyLabel(self, self.data_manager, text='', width=2)
         self.lbl_empty1.pack(side='right',padx=3)
 
+        self.lbl_response_text = MyLabel(self, self.data_manager,width=28,text=str(self.record_dict['response_text']), anchor='w')
+        if self.record_dict['bookable'] == 1:
+            self.lbl_response_text.pack(side='right',padx=3)
+        if str(self.record_dict['response_text']) == ' - ':
+            response_text = ''
+        else:
+            response_text = str(self.record_dict['response_text'])
+        self.response_text_ttp = CreateToolTip(self.lbl_response_text, self.data_manager, 30, 25, response_text)
+
+        self.lbl_empty3 = MyLabel(self, self.data_manager, text='', width=2)
+        self.lbl_empty3.pack(side='right',padx=3)
+
         ##########################
 
         self.lbl_empty2 = MyLabel(self, self.data_manager, text='', width=2)
@@ -112,6 +124,8 @@ class DataRecordFrame(tk.Frame):
         self.lbl_empty2.bind("<Button-1>", self.activate_record)
         self.lbl_empty0.bind("<Button-1>", self.activate_record)
         self.lbl_empty1.bind("<Button-1>", self.activate_record)
+        self.lbl_response_text.bind("<Button-1>", self.activate_record)
+        self.lbl_empty3.bind("<Button-1>", self.activate_record)
 
         self.bind("<Control-1>", self.append_activate_record)
         self.lbl_status_name.bind("<Control-1>", self.append_activate_record)
@@ -121,6 +135,8 @@ class DataRecordFrame(tk.Frame):
         self.lbl_empty2.bind("<Control-1>", self.append_activate_record)
         self.lbl_empty0.bind("<Control-1>", self.append_activate_record)
         self.lbl_empty1.bind("<Control-1>", self.append_activate_record)
+        self.lbl_response_text.bind("<Control-1>", self.append_activate_record)
+        self.lbl_empty3.bind("<Control-1>", self.append_activate_record)
 
         self.bind("<Button-3>", self.right_clicked)
         self.lbl_status_name.bind("<Button-3>", self.right_clicked)
@@ -130,6 +146,8 @@ class DataRecordFrame(tk.Frame):
         self.lbl_empty2.bind("<Button-3>", self.right_clicked)
         self.lbl_empty0.bind("<Button-3>", self.right_clicked)
         self.lbl_empty1.bind("<Button-3>", self.right_clicked)
+        self.lbl_response_text.bind("<Button-3>", self.right_clicked)
+        self.lbl_empty3.bind("<Button-3>", self.right_clicked)
 
         return
     
@@ -203,6 +221,8 @@ class DataRecordFrame(tk.Frame):
         self.lbl_empty0.configure(background=background_color)
         self.lbl_empty1.configure(background=background_color)
         self.lbl_empty2.configure(background=background_color)
+        self.lbl_response_text.configure(background=background_color)
+        self.lbl_empty3.configure(background=background_color)
         
         return
     
@@ -214,6 +234,7 @@ class DataRecordFrame(tk.Frame):
         self.language_dict = self.data_manager.get_language_dict()
 
         self.account_info_ttp.refresh()
+        self.response_text_ttp.refresh()
 
         self.option_menu.refresh()
         self.lbl_status_name.refresh_style()
@@ -223,6 +244,8 @@ class DataRecordFrame(tk.Frame):
         self.lbl_empty0.refresh_style()
         self.lbl_empty1.refresh_style()
         self.lbl_empty2.refresh_style()
+        self.lbl_response_text.refresh_style()
+        self.lbl_empty3.refresh_style()
 
         if self.record_dict['auto_booking'] == 1 and self.record_dict['account_id'] != 0:
             self.lbl_status_name.configure(text = self.language_dict["auto_booking"], anchor='w')

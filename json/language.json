@@ -58,6 +58,7 @@
         "group" : "Gruppe",
         "auto_booking" : "Auto-Buchung",
         "response_code" : "Rückmelde-ID",
+        "default_response_text": "Standard Rückmeldetext",
         "response_text": "Rückmeldetext",
         "fillable" : "Ausfüllbar",
         "mandatory_field" : "Pflichtfeld",
@@ -325,7 +326,11 @@
         "export_sub_time_accounts_failed":"Nicht alle Unterkonten konnten exportiert werden, da die jeweiligen Hauptkonten nicht ausgewählt waren.",
         "release_note_text_13":" 1.9.0 (04.02.2024)\n - Das Arbeitsfenster Leiste kann nun auch am unteren Bildschirmrand fixiert werden.\n - Nachdem eine Erfassung beendet wurde, kann direkt eine neue Erfassung gestartet werden.\n- Zeitkonten haben zwei neue Eigeschaften: Gültigkeit und Stundenvolumen\n - Der komplette Startprozess wurde überarbeitet\n - Die Datenbank kann nun mit einem eigenen Passwort verschlüsselt werden.\n - Es können Zeitkonten exportiert und importiert werden.",
         "release_note_text_14":" 1.9.1 (14.02.2024)\n - Das Fensterverhalten wurde angepasst.",
-        "release_note_text_15":" 1.9.2 (15.02.2024)\n - Das Fensterverhalten wurde angepasst."
+        "release_note_text_15":" 1.9.2 (15.02.2024)\n - Das Fensterverhalten wurde angepasst.",
+        "edit_response_text":"Die Vorlagen sind Zeitkonten spezifisch.\nDer erste Vorschlag im Dropdown-Menü ist der Standard Rückmeldetext.",
+        "add_template":"Als Vorlage speichern",
+        "delete_template":"Vorlage entfernen",
+        "release_note_text_16":" 1.9.3 (19.02.2024)\n - Rückmeldetexte sind nun mit der einzlenen erfassten Zeit verknüpft."
     },
     "english": 
     {
@@ -386,6 +391,7 @@
         "group" : "Group",
         "auto_booking" : "Auto booking",
         "response_code" : "Booking-ID",
+        "default_response_text": "Default booking text",
         "response_text": "Booking text",
         "fillable" : "Fillable",
         "mandatory_field" : "Mandatory",
@@ -653,6 +659,10 @@
         "export_sub_time_accounts_failed":"Not all sub-accounts could be exported as the respective main accounts were not selected.",
         "release_note_text_13":"1.9.0 (04.02.2024)\n - The work window bar can now also be fixed at the bottom of the screen.\n - After a recording has been completed, a new recording can be started directly.\n - Time accounts have two new properties: Expiration date and Available hours\n - The complete start process has been revised\n - The database can now be encrypted with a personal password.\n - Time accounts can be exported and imported.",
         "release_note_text_14":" 1.9.1 (14.02.2024)\n - The window behavior has been adjusted.",
-        "release_note_text_15":" 1.9.2 (15.02.2024)\n - The window behavior has been adjusted."
+        "release_note_text_15":" 1.9.2 (15.02.2024)\n - The window behavior has been adjusted.",
+        "edit_response_text":"The templates are specific to time accounts.\nThe first suggestion in the drop-down menu is the standard booking text.",
+        "add_template":"Save as template",
+        "delete_template":"Remove template",
+        "release_note_text_16":" 1.9.3 (19.02.2024)\n - Booking texts are now linked to the individual recorded time."
     }
 }

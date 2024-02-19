@@ -91,24 +91,37 @@ class CreateEditRecord(tk.Frame):
     
 #################################################################
 
-    def user_input(self,account_name,date,time,status, account_dict_list):
+    def user_input(self,account_name,date,time,status, account_dict_list,response_text):
 
         account_name = account_name.get()
         date = date.get()
         time = time.get()
         status = status.get()
+        response_text = response_text.get()
 
         input_checked = self.check_new_record_input(time)
+        input_checked_2 = self.check_characters([response_text])
 
         if input_checked != True:
             info = input_checked
             return(info)
+        elif input_checked_2 != True:
+            info = input_checked_2
+            return(info)
         else:
             time = float(locale.atof(time, decimal.Decimal))
-            self.save(account_name,date,time,status,account_dict_list)
+            self.save(account_name,date,time,status,account_dict_list,response_text)
             return(None)
         
 ###################################################
+        
+    def check_characters(self,text_list):
+        for text in text_list:
+            if '#' in text:
+                return(self.language_dict['not_allowed_characters']) 
+            if '=' in text:
+                return(self.language_dict['not_allowed_characters']) 
+        return(True)
 
     def check_new_record_input(self,time):
         try:
@@ -121,7 +134,7 @@ class CreateEditRecord(tk.Frame):
 
 ###################################################
 
-    def save(self,account_name,date,time,status,account_dict_list):
+    def save(self,account_name,date,time,status,account_dict_list,response_text):
 
         date = datetime.datetime.strptime(date, "%d.%m.%Y")
         day = int(date.strftime("%d"))
@@ -137,12 +150,16 @@ class CreateEditRecord(tk.Frame):
         else:
             booked = 0
 
+        if response_text == '':
+            response_text = ' - '
+
         time_dict = {       "account_id": account_id,
                             "year": year,
                             "month": month,
                             "day": day,
                             "hours": time,
-                            "booked": booked
+                            "booked": booked,
+                            "response_text": response_text,
                             }
 
         if self.modus in ['new_record']:

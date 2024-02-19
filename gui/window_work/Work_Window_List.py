@@ -274,10 +274,15 @@ class WorkWindowList(tk.Toplevel):
                 clock_name = self.language_dict['without_allocation']
             status_text=clock_name
 
-            if self.modus != 'dynamic_view':
-                self.lbl_name_ttp.text = clock_name + '\n' + self.language_dict['double_click'] + '\n' + self.language_dict['right_click']
+            if self.active_clock.get_response_text() == ' - ':
+                response_text = ''
             else:
-                self.lbl_name_ttp.text = clock_name + '\n' + self.language_dict['right_click']
+                response_text =  '\n'+ str(self.language_dict['response_text']) + ': ' + self.active_clock.get_response_text()
+
+            if self.modus != 'dynamic_view':
+                self.lbl_name_ttp.text = clock_name + response_text + '\n' + self.language_dict['double_click'] + '\n' + self.language_dict['right_click']
+            else:
+                self.lbl_name_ttp.text = clock_name + response_text + '\n' + self.language_dict['right_click']
 
         elif self.pause_clock.get_runninig() == True:
             background_color = self.style_dict["pause_color_orange"]
@@ -707,7 +712,13 @@ class ClockFrame((tk.Frame)):
 
         self.lbl_name = MyLabel(self,self.data_manager,text = name, anchor='w')
         self.lbl_name.pack(side = "left", padx=5, pady=5)
-        self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, -80, 30,name)
+
+        if self.clock.get_response_text() == ' - ':
+            response_text = ''
+        else:
+            response_text =  '\n'+ str(self.language_dict['response_text']) + ': ' + self.clock.get_response_text()
+
+        self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, -80, 30,name + response_text)
 
         self.lbl_activate_account_clock.bind("<Enter>", self.account_clock_enter)
         self.lbl_activate_account_clock.bind("<Leave>", self.account_clock_leave)

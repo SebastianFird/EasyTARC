@@ -20,7 +20,6 @@ from tkinter import ttk
 import datetime
 import ctypes
 
-from gui.Window_Additionals import InfoDictWindow
 from gui.Window_Additionals import CreateToolTip
 
 from style_classes import MyFrame

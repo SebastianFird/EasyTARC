@@ -68,7 +68,7 @@ class BookingBySum(tk.Frame):
         return
     
     def book_time(self,record_dict):
-         self.data_manager.set_unbooked_times_sum_by_account_id(record_dict["account_id"])
+         self.data_manager.set_unbooked_times_sum_by_account_id(record_dict["account_id"],record_dict["response_text"])
 
     def update(self):
         for record_frame in self.record_frame_list:

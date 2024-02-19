@@ -18,9 +18,6 @@ __author__ = 'Sebastian Feiert'
 import tkinter as tk
 from tkinter import ttk
 
-from gui.Window_Additionals import InfoDictWindow
-from gui.Window_Additionals import CreateToolTip
-
 from style_classes import MyFrame
 from style_classes import MyLabel
 from style_classes import MyButton
@@ -173,6 +170,32 @@ class DataHead:
 
         self.lbl_empty4 = MyLabel(self.passed_time_visible_frame, self.data_manager, width=2)
         self.lbl_empty4.pack(side='right',padx=3)
+
+        ################
+
+        self.response_text_frame = MyFrame(self.table_head_frame,self.data_manager)
+        self.response_text_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.response_text_frame.pack(side = "right")
+
+        self.response_text_invisible_frame = MyFrame(self.response_text_frame,self.data_manager)
+        self.response_text_invisible_frame.configure(height=0)
+        self.response_text_invisible_frame.pack(side = "top")
+
+        self.lbl_empty6 = MyLabelPixel(self.response_text_invisible_frame,self.data_manager, anchor='w')
+        self.lbl_empty6.set_photo_width(1)
+        self.lbl_empty6.pack(side = "right")
+
+        self.response_text_visible_frame = MyFrame(self.response_text_frame,self.data_manager)
+        self.response_text_visible_frame.pack(side = "top",fill='y')
+
+        self.lbl_empty7 = MyLabel(self.response_text_visible_frame, self.data_manager, width=2)
+        self.lbl_empty7.pack(side='right',padx=3)
+
+        self.lbl_response_text = MyLabel(self.response_text_visible_frame, self.data_manager, text=self.language_dict["response_text"],width=25)
+        self.lbl_response_text.pack(side='right',padx = 3)
+
+        self.lbl_empty8 = MyLabel(self.response_text_visible_frame, self.data_manager, width=2)
+        self.lbl_empty8.pack(side='right',padx=3)
         
         ################
 
@@ -201,6 +224,8 @@ class DataHead:
         return
     
     def refresh_table_head(self):
+        self.main_frame.refresh_style()
+
         self.table_head_frame.refresh_style()
         self.separator_frame_0.refresh_style()
 
@@ -215,6 +240,11 @@ class DataHead:
         self.passed_time_visible_frame.refresh_style()
         self.lbl_passed_time.refresh_style()
 
+        self.response_text_frame.refresh_style()
+        self.response_text_invisible_frame.refresh_style()
+        self.response_text_visible_frame.refresh_style()
+        self.lbl_response_text.refresh_style()
+
         self.name_frame.refresh_style()
         self.name_invisible_frame.refresh_style()
         self.name_visible_frame.refresh_style()
@@ -226,6 +256,9 @@ class DataHead:
         self.lbl_empty3.refresh_style()
         self.lbl_empty4.refresh_style()
         self.lbl_empty5.refresh_style()
+        self.lbl_empty6.refresh_style()
+        self.lbl_empty7.refresh_style()
+        self.lbl_empty8.refresh_style()
  
         self.table_head_frame.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.separator_frame_0.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
@@ -237,6 +270,7 @@ class DataHead:
 
         self.lbl_status_name.configure(text=self.language_dict["status"])
         self.lbl_passed_time.configure(text=self.language_dict["hours"])
+        self.lbl_response_text.configure(text=self.language_dict["response_text"])
         self.lbl_name.configure(text=self.language_dict["name"])
 
         self.update()

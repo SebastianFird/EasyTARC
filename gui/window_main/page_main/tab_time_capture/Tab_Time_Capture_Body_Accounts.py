@@ -18,7 +18,6 @@ __author__ = 'Sebastian Feiert'
 import tkinter as tk
 
 from gui.window_main.page_main.tab_time_capture.Tab_Time_Capture_Body_Clock import ClockFrame
-from gui.Window_Additionals import CreateToolTip
 
 from style_classes import MyFrame
 

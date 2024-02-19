@@ -16,6 +16,7 @@ limitations under the License.
 __author__ = 'Sebastian Feiert'
 
 import tkinter as tk
+from tkinter import ttk
 from tkinter.font import BOLD, Font
 
 from gui.Scroll_Frame import Scroll_Frame
@@ -529,7 +530,7 @@ class InfoWindow(tk.Toplevel):
         self.start_y = event.y_root
 
 class InfoDictWindow(tk.Toplevel):
-    def __init__(self ,main_app, gui, widget, text_dict, w, h,  *args, **kwargs):
+    def __init__(self ,main_app, gui, widget, text_dict, w, h, *args, **kwargs):
         tk.Toplevel.__init__(self,widget)
 
         self.gui = gui
@@ -641,11 +642,22 @@ class InfoDictWindow(tk.Toplevel):
                     if value_text[0] == '#':
                         lbl_text_col0.configure(font = Font_tuple)
                         value_text = value_text[1:]
+                        copy_func = False
+                    elif value_text[0] == '=':
+                        copy_func = True
+                        value_text = value_text[1:]
+                    else:
+                        copy_func = False
 
                 col_nbr = col_nbr + 1
 
-                lbl_text_col1 = MyLabel(scroll_frame, self.data_manager, text=value_text,wraplength=self.w/2, anchor='w', justify="left")
+                lbl_text_col1 = MyLabel(scroll_frame, self.data_manager, text=value_text,wraplength=self.w/2.5, anchor='w', justify="left")
                 lbl_text_col1.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5,sticky='w')
+
+                if copy_func == True:
+                    col_nbr = col_nbr + 1
+                    btn_copy = MyCopyBtn(scroll_frame, self.data_manager, self.gui,value_text)
+                    btn_copy.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5,sticky='w')
 
                 row_nbr = row_nbr + 1
             return(bodyframe)
@@ -670,6 +682,43 @@ class InfoDictWindow(tk.Toplevel):
         self.geometry('+{0}+{1}'.format(event.x_root + self.x_win, event.y_root + self.y_win))
         self.start_x = event.x_root
         self.start_y = event.y_root
+
+class MyCopyBtn(tk.Label):
+    def __init__(self, master, data_manager, gui, copy_text, **kw):
+        tk.Label.__init__(self, master=master, **kw)
+        self.data_manager = data_manager
+        self.gui = gui
+        self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
+        self.copy_text = copy_text
+        self['background'] = self.style_dict["background_color_grey"]
+        self['foreground'] = self.style_dict["highlight_color_grey"]
+        self['text'] = u'\U0000274F'
+        self['width'] = 2
+        self.btn_copy_ttp = CreateToolResponse(self, self.data_manager, 10, 10, self.language_dict["copied"])
+
+        self.bind('<Button-1>',self.activate_copy)
+        self.bind("<Enter>", self.enter_copy)
+        self.bind("<Leave>", self.leave_copy)
+
+    def enter_copy(self,e=None):
+        self.configure(foreground=self.style_dict["font_color"])
+
+    def leave_copy(self,e=None):
+        self.configure(foreground=self.style_dict["highlight_color_grey"])
+
+    def activate_copy(self,e=None):
+        self.gui.main_window.clipboard_clear()
+        self.gui.main_window.clipboard_append(str(self.copy_text))
+        self.btn_copy_ttp.showresponse()
+
+    def refresh_style(self):
+        self.style_dict = self.data_manager.get_style_dict()
+        self.configure(background=self.style_dict["background_color_grey"])
+        self.configure(foreground=self.style_dict["highlight_color_grey"])
+        self.btn_copy_ttp.text=self.language_dict["copied"]
+        self.btn_copy_ttp.refresh()
+
 
 class ExitSavingWindow(tk.Toplevel):
     def __init__(self, root, main_app, gui, widget, *args, **kwargs):
@@ -1328,6 +1377,214 @@ class Endofworkinfo(tk.Toplevel):
     def close_easytarc(self,*event):
         self.gui.root.quit()
         return
+
+    def get_pos(self, event):
+        self.x_win = self.winfo_x()
+        self.y_win = self.winfo_y()
+        self.start_x = event.x_root
+        self.start_y = event.y_root
+        self.y_win = self.y_win - self.start_y
+        self.x_win = self.x_win - self.start_x
+
+    def move_window(self, event):
+        self.geometry('+{0}+{1}'.format(event.x_root + self.x_win, event.y_root + self.y_win))
+        self.start_x = event.x_root
+        self.start_y = event.y_root
+
+
+class EditResponseText(tk.Toplevel):
+    def __init__(self, main_app, gui, widget, clock_frame, *args, **kwargs):
+        tk.Toplevel.__init__(self, widget)
+
+        self.gui = gui
+        self.main_app = main_app
+        self.data_manager = self.main_app.get_data_manager()
+        self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
+        self.widget = widget
+        self.clock_frame = clock_frame
+        self.clock = self.clock_frame.clock
+
+        geo_factor = float(self.main_app.get_setting("geometry_factor"))
+        self.w = int(round(geo_factor*550))
+        self.h = int(round(geo_factor*200))
+
+        self.user_db = self.main_app.data_manager.user_db
+
+        x, y, cx, cy = self.widget.bbox("insert")
+
+        x = x + self.widget.winfo_rootx() + self.widget.winfo_width() / 2 - self.w / 2
+        y = y + cy + self.widget.winfo_rooty() + self.widget.winfo_height() / 2 - self.h / 2
+
+        self.gui.disable_main_window()
+
+        self.wm_geometry('%dx%d+%d+%d' % (self.w, self.h, x, y))
+        self.wm_overrideredirect(1)
+        self.attributes('-topmost', True)
+
+        self.widget_color = self.style_dict["info_color_light_blue"]
+        self.title_fcolor = self.style_dict["font_color"]
+
+        self.scroll = Scroll_Frame(self.main_app,self.gui)
+
+        self.run_main_frame()
+
+    def run_main_frame(self):
+        # Create A Main Frame
+        self.main_frame = MyFrame(self, self.data_manager)
+        self.main_frame.configure(highlightthickness=1, highlightcolor=self.widget_color,
+                                  highlightbackground=self.widget_color)
+        self.main_frame.pack(side="top", fill="both", expand=True)
+
+        self.main_frame.grid_rowconfigure(0, weight=1)
+        self.main_frame.grid_columnconfigure(0, weight=1)
+
+        # make a frame for the title bar
+        self.title_bar = MyFrame(self.main_frame, self.data_manager)
+        self.title_bar.configure(background=self.widget_color)
+        self.title_bar.pack(side='top', fill="x")
+        self.title_bar.bind('<B1-Motion>', self.move_window)
+        self.title_bar.bind('<Button-1>', self.get_pos)
+
+        close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
+        close_button.configure(background=self.widget_color, height=30)
+        close_button.pack(side='right')
+        close_button.bind('<Button-1>', self.return_window)
+
+        def on_enter1(e):
+            close_button.configure(background=self.style_dict["caution_color_red"])
+
+        def on_leave1(e):
+            close_button.configure(background=self.widget_color)
+
+        close_button.bind("<Enter>", on_enter1)
+        close_button.bind("<Leave>", on_leave1)
+
+        lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text=self.language_dict["response_text"])
+        lbl_name.configure(background=self.widget_color, height=30, foreground=self.title_fcolor)
+        lbl_name.pack(side='left')
+        lbl_name.bind('<B1-Motion>', self.move_window)
+        lbl_name.bind('<Button-1>', self.get_pos)
+
+        def btn_frame():
+            btnframe = MyFrame(self.main_frame,self.data_manager)
+            btnframe.configure(background=self.style_dict["btn_color_grey"])
+
+            btn_save = MyButton(btnframe, self.data_manager, width=20, text=self.language_dict["apply"], command=self.save_response_text)
+            btn_save.pack(side='right', pady=5, padx=5)
+
+            btn_back = MyButton(btnframe, self.data_manager, width=8, text=self.language_dict["back"], command=self.return_window)
+            btn_back.pack(side='right', pady=5, padx=5)
+
+            return(btnframe)
+
+        btnframe = btn_frame()
+        btnframe.pack(side = "bottom", fill = "x")
+
+        self.body_frame()
+
+    def body_frame(self):
+        bodyframe = MyFrame(self.main_frame,self.data_manager)
+        scroll_frame = self.scroll.create_scroll_frame(bodyframe)
+
+        frame_dropdown = MyFrame(scroll_frame,self.data_manager)
+        frame_dropdown.pack(side = "top", padx=10, pady=4,fill='x')
+
+        lbl_dropdown_info = MyLabel(frame_dropdown,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=3)
+        lbl_dropdown_info.pack(side = "left")
+        lbl_dropdown_info_ttp = CreateToolTip(lbl_dropdown_info, self.data_manager, 0, 30, self.language_dict["edit_response_text"])
+
+        self.response_text = tk.StringVar()
+        self.response_cbox = ttk.Combobox(frame_dropdown, width = 50, textvariable = self.response_text)
+        self.get_accounts_templates()
+        self.response_cbox.pack(side="left", padx=10)
+
+        response_text_original = self.clock.get_response_text()
+        if response_text_original == ' - ':
+            self.response_text.set('')
+        else:
+            self.response_text.set(response_text_original)
+
+        frame_template = MyFrame(scroll_frame,self.data_manager)
+        frame_template.pack(side = "top", padx=10, pady=4,fill='x')
+
+        lbl_empty = MyLabel(frame_template,self.data_manager,text='',anchor='w',justify='left',width=3)
+        lbl_empty.pack(side = "left")
+
+        btn_add_template = MyButton(frame_template, self.data_manager, width=25, text=self.language_dict["add_template"], command=self.add_template)
+        btn_add_template.pack(side='left', pady=5, padx=5)
+
+        btn_delete_template = MyButton(frame_template, self.data_manager, width=20, text=self.language_dict["delete_template"], command=self.delete_template)
+        btn_delete_template.pack(side='left', pady=5, padx=5)
+
+        frame_error = MyFrame(scroll_frame,self.data_manager)
+        frame_error.pack(side = "top", padx=10, pady=4,fill='x')
+
+        self.lbl_error_info = MyLabel(frame_error,self.data_manager,anchor='w',justify='left')
+        self.lbl_error_info.configure(foreground=self.style_dict["caution_color_red"])
+        self.lbl_error_info.pack(side = "left", padx=10, pady=5)
+
+        bodyframe.pack(side="top", fill="both", expand=True)
+        return()
+    
+    def add_template(self):
+        template_text = self.response_text.get()
+        check_response = self.check_characters([template_text])
+        if check_response == True:
+            self.lbl_error_info.configure(text='')
+            if template_text not in self.template_list:
+                self.data_manager.user_db.add_template_response_text(self.clock.get_main_id(),template_text)
+                self.get_accounts_templates()
+        else:
+            self.lbl_error_info.configure(text=check_response)
+        return
+    
+    def delete_template(self):
+        template_text = self.response_text.get()
+        if template_text in self.template_list_db:
+            self.data_manager.user_db.delete_template_response_texts(self.clock.get_main_id(),template_text)
+            self.get_accounts_templates()
+            self.response_text.set('')
+        return
+    
+    def get_accounts_templates(self):
+        self.template_list_db = self.data_manager.user_db.get_template_response_texts(self.clock.get_main_id())
+        default_response_text_original = self.clock.get_default_response_text()
+        if default_response_text_original == ' - ':
+            self.default_response_text = ''
+        else:
+            self.default_response_text = default_response_text_original
+        self.template_list = [self.default_response_text] + self.template_list_db
+        self.response_cbox['values'] = self.template_list
+        return
+
+    def check_characters(self,text_list):
+        for text in text_list:
+            if '#' in text:
+                return(self.language_dict['not_allowed_characters']) 
+            if '=' in text:
+                return(self.language_dict['not_allowed_characters']) 
+        return(True)
+
+    def return_window(self, *event):
+        self.gui.enable_main_window()
+        self.gui.activate_current_tab()
+        self.destroy()
+
+    def save_response_text(self):
+        response_text = self.response_text.get()
+        check_response = self.check_characters([response_text])
+        if check_response == True:
+            self.lbl_error_info.configure(text='')
+            if response_text == '':
+                response_text = ' - '
+            self.clock.set_response_text(response_text)
+            self.clock_frame.update_frame()
+            self.gui.enable_main_window()
+            self.gui.activate_current_tab()
+            self.destroy()
+        else:
+            self.lbl_error_info.configure(text=check_response)
 
     def get_pos(self, event):
         self.x_win = self.winfo_x()

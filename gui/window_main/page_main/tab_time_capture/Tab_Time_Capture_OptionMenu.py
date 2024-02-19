@@ -88,7 +88,7 @@ class CaptureOptionMenu(tkinter.Listbox):
 
     def show_clock_info(self):
         info_dict = self.selected_clock.get_info_dict()
-        info_window = InfoDictWindow(self.main_app, self.gui, self.capture_tab.main_frame ,info_dict,400,280)
+        info_window = InfoDictWindow(self.main_app, self.gui, self.capture_tab.main_frame ,info_dict,500,280)
         return
 
     def create_sub_account(self):

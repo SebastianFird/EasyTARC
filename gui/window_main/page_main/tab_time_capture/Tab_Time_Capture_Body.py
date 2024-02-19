@@ -226,6 +226,8 @@ class CaptureBody:
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
 
+        self.main_frame.refresh_style()
+
         for group_frame in self.group_frame_list:
             group_frame.refresh()
 

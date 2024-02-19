@@ -95,9 +95,6 @@ class LoginWindow(tk.Frame):
         self.bottom_frame.pack(side = "bottom", fill = "x")
         self.bottom_frame.configure(background=self.style_dict["btn_color_grey"])
 
-        self.sizegrip = ttk.Sizegrip(self.bottom_frame)
-        self.sizegrip.pack(side = "right",ipadx=2)
-
         self.body_frame = MyFrame(self.main_frame, self.data_manager)
         self.body_frame.pack(side = "top", fill = "both",expand = True)
         self.body_frame.configure(highlightbackground=self.style_dict["header_color_blue"], highlightcolor=self.style_dict["header_color_blue"], highlightthickness=1)
@@ -187,7 +184,7 @@ class LoginWindow(tk.Frame):
         self.permission_request.set(self.request_str)
         self.textBox_permission_request.configure(state=tk.DISABLED)
 
-        self.btn_copy_request_code = MyLabel(self.permission_request_frame, self.data_manager, text=u'\U0001F4DD', width=2)
+        self.btn_copy_request_code = MyLabel(self.permission_request_frame, self.data_manager, text=u'\U0000274F', width=2)
         self.btn_copy_request_code.configure(foreground=self.style_dict["highlight_color_grey"])
         self.btn_copy_request_code.pack(side='left',padx=10,pady=5)
         self.btn_copy_request_code_ttp = CreateInfo(self.btn_copy_request_code, self.data_manager, 30, 25,self.language_dict["copy"])

@@ -128,7 +128,14 @@ class WorkWindowCbox(tk.Toplevel):
         if self.selectable_account_clock_list != []:
             self.selectable_account_clock_cbox.current(0)
             account_clock_full_name = self.clicked_selectable_account_clock.get()
-            self.selectable_account_clock_cbox_ttp.text = account_clock_full_name
+
+            account_clock = [ele for ele in self.selectable_account_clock_list if ele.get_ww_full_name() == account_clock_full_name][0]
+            if account_clock.get_response_text() == ' - ':
+                response_text = ''
+            else:
+                response_text =  '\n'+ str(self.language_dict['response_text']) + ': ' + account_clock.get_response_text()
+
+            self.selectable_account_clock_cbox_ttp.text = account_clock_full_name + response_text
 
         self.update_btn_frame()
 
@@ -193,7 +200,18 @@ class WorkWindowCbox(tk.Toplevel):
         
     def update_btn_frame(self):
         account_clock_full_name = self.clicked_selectable_account_clock.get()
-        self.selectable_account_clock_cbox_ttp.text = account_clock_full_name
+
+        if self.selectable_account_clock_list != []:
+            account_clock = [ele for ele in self.selectable_account_clock_list if ele.get_ww_full_name() == account_clock_full_name][0]
+            if account_clock.get_response_text() == ' - ':
+                response_text = ''
+            else:
+                response_text =  '\n'+ str(self.language_dict['response_text']) + ': ' + account_clock.get_response_text()
+        else:
+            response_text = ''
+
+
+        self.selectable_account_clock_cbox_ttp.text = account_clock_full_name + response_text
 
         if self.pause_clock.get_runninig() == True:
             self.lbl_activate_pause.configure(image=self.image_dict['photo_btn_pause'])

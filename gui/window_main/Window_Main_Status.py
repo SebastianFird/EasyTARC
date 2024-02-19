@@ -54,10 +54,7 @@ class MainWindowStatus(tk.Frame):
         self.main_frame = MyFrame(container, self.data_manager) 
         self.main_frame.pack(side='bottom', fill='x')
 
-        self.sizegrip = ttk.Sizegrip(self.main_frame)
-        self.sizegrip.pack(side = "right", fill='y',ipadx=2)
-
-        self.lbl_backup = MyLabel(self.main_frame, self.data_manager,  text=u'\U0001F5D8',width=2, anchor='w')
+        self.lbl_backup = MyLabel(self.main_frame, self.data_manager,  text=u'\U0001F5D8',width=4, anchor='w')
         self.lbl_backup.configure(foreground=self.style_dict["selected_color_grey"])
         self.lbl_backup.pack(side = "right")
         self.lbl_backup_ttp = CreateToolTip(self.lbl_backup, self.data_manager, -350, 30, self.language_dict["data_are_stored_temporarily"])
@@ -161,7 +158,6 @@ class MainWindowStatus(tk.Frame):
         self.lbl_pausetime.configure(background=background_color)
         if self.on_info_btn == False:
             self.lbl_btn_info.configure(background=background_color)
-        self.gui.myttk.change_sizegrip_background(background_color)
  
         self.after_func = self.main_frame.after(1000, lambda:self.auto_update_status_frame())
 

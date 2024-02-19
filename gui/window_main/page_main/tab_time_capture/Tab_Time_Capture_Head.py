@@ -75,6 +75,8 @@ class CaptureHead:
         self.language_dict = self.data_manager.get_language_dict()
         self.image_dict = self.data_manager.get_image_dict()
 
+        self.main_frame.refresh_style()
+
         self.refresh_main_head()
         self.refresh_table_head()
         return

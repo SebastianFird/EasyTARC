@@ -218,7 +218,7 @@ class AccountsHead:
                 order_label = time_accounts_import_dict[key]['order_label'] 
                 process_label = time_accounts_import_dict[key]['process_label'] 
                 response_code = time_accounts_import_dict[key]['response_code'] 
-                response_text = time_accounts_import_dict[key]['response_text'] 
+                default_response_text = time_accounts_import_dict[key]['default_response_text'] 
                 auto_booking = time_accounts_import_dict[key]['auto_booking'] 
                 bookable = time_accounts_import_dict[key]['bookable'] 
                 available_hours = time_accounts_import_dict[key]['available_hours'] 
@@ -275,7 +275,7 @@ class AccountsHead:
                                 "order_label":str(order_label),              # order label
                                 "process_label":str(process_label),          # process label
                                 "response_code":str(response_code),          # response code
-                                "response_text":str(response_text),          # booking default text
+                                "default_response_text":str(default_response_text),          # booking default text
                                 "auto_booking":int(auto_booking),            # autobooking on -> 1, off -> 0; if on the system dont show the account for booking
                                 "status":str(status),                        # open -> the account can capture time, closed -> the account cant capture time
                                 "group":str(group),                          # default -> default group, group on the display

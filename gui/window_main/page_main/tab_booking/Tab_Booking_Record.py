@@ -59,7 +59,7 @@ class BookingRecordFrame(tk.Frame):
 
         ###########################
 
-        self.btn_copy_response_text = MyLabel(self, self.data_manager, text=u'\U0001F4DD', width=2)
+        self.btn_copy_response_text = MyLabel(self, self.data_manager, text=u'\U0000274F', width=2)
         self.btn_copy_response_text.configure(foreground=self.style_dict["highlight_color_grey"])
         self.btn_copy_response_text.pack(side='right',padx=3)
         self.btn_copy_response_text_ttp = CreateToolResponse(self.btn_copy_response_text, self.data_manager, 10, 10, self.language_dict["copied"])
@@ -74,12 +74,18 @@ class BookingRecordFrame(tk.Frame):
             self.textBox_response_text.insert(1.0, str(self.record_dict['response_text']))
         self.textBox_response_text.configure(state=tk.DISABLED,inactiveselectbackground=self.textBox_response_text.cget("selectbackground"))
 
+        if str(self.record_dict['response_text']) == ' - ':
+            response_text = ''
+        else:
+            response_text = str(self.record_dict['response_text'])
+        self.response_text_ttp = CreateToolTip(self.textBox_response_text, self.data_manager, 30, 25, response_text)
+
         self.lbl_empty2 = MyLabel(self, self.data_manager, width=5)
         self.lbl_empty2.pack(side='right',padx=3)
 
         ###########################
 
-        self.btn_copy_hours = MyLabel(self, self.data_manager, text=u'\U0001F4DD', width=2)
+        self.btn_copy_hours = MyLabel(self, self.data_manager, text=u'\U0000274F', width=2)
         self.btn_copy_hours.configure(foreground=self.style_dict["highlight_color_grey"])
         self.btn_copy_hours.pack(side='right',padx=3)
         self.btn_copy_hours_ttp = CreateToolResponse(self.btn_copy_hours, self.data_manager, 10, 10, self.language_dict["copied"])
@@ -98,7 +104,7 @@ class BookingRecordFrame(tk.Frame):
         
         ###########################
 
-        self.btn_copy_response_code = MyLabel(self, self.data_manager, text=u'\U0001F4DD', width=2)
+        self.btn_copy_response_code = MyLabel(self, self.data_manager, text=u'\U0000274F', width=2)
         self.btn_copy_response_code.configure(foreground=self.style_dict["highlight_color_grey"])
         self.btn_copy_response_code.pack(side='right',padx=3)
         self.btn_copy_response_code_ttp = CreateToolResponse(self.btn_copy_response_code, self.data_manager, 10, 10, self.language_dict["copied"])
@@ -307,6 +313,8 @@ class BookingRecordFrame(tk.Frame):
         self.account_info_ttp.refresh()
         self.btn_copy_response_text_ttp.refresh()
         self.btn_copy_hours_ttp.refresh()
+
+        self.response_text_ttp.refresh()
 
         self.option_menu.refresh()
         self.lbl_name.refresh_style()

@@ -16,8 +16,6 @@ limitations under the License.
 __author__ = 'Sebastian Feiert'
 
 import tkinter # Tkinter -> tkinter in Python 3
-from gui.Window_Additionals import InfoDictWindow
-
 
 class MainWindowOptionMenu(tkinter.Listbox):
 

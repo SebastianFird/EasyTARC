@@ -210,14 +210,13 @@ class CreateEditRecordBody:
                     self.status.set(self.language_dict["booked"])
                 else:
                     self.status.set(self.language_dict["not_booked"]) 
-
-        if self.modus in  ['new_record']:
-            self.cbox_selected()
     
         if self.modus in  ['edit_record']:
             if self.record_dict["bookable"] == 1 and self.record_dict["booked"] == 1: 
                 self.frame_info = MyFrame(self.main_frame,self.data_manager)
                 self.frame_info.pack(side = "top", padx=10, pady=5,fill='x')
+                lbl_empty_6 = MyLabel(self.frame_info,self.data_manager,text='',anchor='w',justify='left',width=3)
+                lbl_empty_6.pack(side = "left")
                 self.lbl_time_info = MyLabel(self.frame_info,self.data_manager,text='',anchor='w',justify='left')
                 self.lbl_time_info.pack(side = "left", padx=10)
                 self.lbl_time_info.configure(text=self.language_dict["time_already_booked"])  
@@ -226,6 +225,67 @@ class CreateEditRecordBody:
         self.separator_frame_1 = MyFrame(self.main_frame,self.data_manager)
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
         self.separator_frame_1.pack(side = "top",fill='x', pady=10)
+
+        ###################################
+
+        frame_dropdown = MyFrame(self.main_frame,self.data_manager)
+        frame_dropdown.pack(side = "top", padx=10, pady=4,fill='x')
+
+        lbl_dropdown_info = MyLabel(frame_dropdown,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=3)
+        lbl_dropdown_info.pack(side = "left")
+        lbl_dropdown_info_ttp = CreateToolTip(lbl_dropdown_info, self.data_manager, 0, 30, self.language_dict["edit_response_text"])
+
+        self.lbl_response_text = MyLabel(frame_dropdown,self.data_manager,width=15,anchor='w',justify='left',text= self.language_dict['response_text'] + ':')
+        self.lbl_response_text.pack(side = "left", padx=10)
+
+        self.response_text = tk.StringVar()
+        self.response_cbox = ttk.Combobox(frame_dropdown, width = 75, textvariable = self.response_text)
+        self.get_accounts_templates()
+        self.response_cbox.pack(side="left", padx=10)
+
+        self.lbl_highlight_response_text = MyLabel(frame_dropdown,self.data_manager,text='  '+u'\U0001F808'+' ')
+        self.lbl_highlight_response_text.pack(side = "left")
+
+        frame_template = MyFrame(self.main_frame,self.data_manager)
+        frame_template.pack(side = "top", padx=10, pady=4,fill='x')
+
+        lbl_empty = MyLabel(frame_template,self.data_manager,text='',anchor='w',justify='left',width=3)
+        lbl_empty.pack(side = "left")
+
+        lbl_empty_3 = MyLabel(frame_template,self.data_manager,width=15,anchor='w',justify='left',text= '')
+        lbl_empty_3.pack(side = "left", padx=10)
+
+        self.btn_add_template = MyButton(frame_template, self.data_manager, width=25, text=self.language_dict["add_template"], command=self.add_template)
+        self.btn_add_template.pack(side='left', pady=5, padx=5)
+
+        self.btn_delete_template = MyButton(frame_template, self.data_manager, width=20, text=self.language_dict["delete_template"], command=self.delete_template)
+        self.btn_delete_template.pack(side='left', pady=5, padx=5)
+    
+        if self.modus in  ['edit_record']:
+            account_name = self.account_name.get()
+            account_dict = [ele for ele in self.account_dict_list if ele['full_name'] == account_name][0]
+            if account_dict['bookable']==0:
+                self.response_text.set('')
+                self.response_cbox.configure(state=tk.DISABLED)
+                self.btn_add_template.configure(state=tk.DISABLED)
+                self.btn_delete_template.configure(state=tk.DISABLED)
+                self.lbl_highlight_response_text.configure(foreground=self.style_dict["font_color"])
+            else:
+                self.response_cbox.configure(state=tk.NORMAL)
+                self.get_accounts_templates()
+                self.btn_add_template.configure(state=tk.NORMAL)
+                self.btn_delete_template.configure(state=tk.NORMAL)
+                self.lbl_highlight_response_text.configure(foreground=self.style_dict["highlight_color_yellow"])
+
+            response_text_original = self.record_dict["response_text"]
+            if response_text_original == ' - ':
+                self.response_text.set('')
+            else:
+                self.response_text.set(response_text_original)
+
+        self.separator_frame_2 = MyFrame(self.main_frame,self.data_manager)
+        self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_2.pack(side = "top",fill='x', pady=10)
 
         self.frame_obligation = MyFrame(self.main_frame,self.data_manager)
         self.frame_obligation.pack(side = "top", padx=10, pady=5,fill='x')
@@ -263,6 +323,9 @@ class CreateEditRecordBody:
         self.lbl_error_info = MyLabel(self.frame_quit,self.data_manager,anchor='w',justify='left')
         self.lbl_error_info.configure(foreground=self.style_dict["caution_color_red"])
         self.lbl_error_info.pack(side = "left", padx=10, pady=5)
+
+        if self.modus in  ['new_record']:
+            self.cbox_selected()
         return
     
     def cbox_selected(self,e=None):
@@ -273,18 +336,78 @@ class CreateEditRecordBody:
             self.status.set(self.language_dict["not_bookable"])
             self.status_cbox.configure(state=tk.DISABLED)
             self.lbl_highlight_status.configure(foreground=self.style_dict["font_color"])
+            self.response_text.set('')
+            self.response_cbox.configure(state=tk.DISABLED)
+            self.btn_add_template.configure(state=tk.DISABLED)
+            self.btn_delete_template.configure(state=tk.DISABLED)
+            self.lbl_highlight_response_text.configure(foreground=self.style_dict["font_color"])
         else:
             self.status_cbox.configure(state="readonly")
             self.status_cbox['values'] = [self.language_dict["booked"],self.language_dict["not_booked"]]
             self.status.set(self.language_dict["not_booked"])
             self.lbl_highlight_status.configure(foreground=self.style_dict["highlight_color_yellow"])
+            self.response_cbox.configure(state=tk.NORMAL)
+
+            default_response_text_original = account_dict["default_response_text"]
+            if default_response_text_original == ' - ':
+                default_response_text = ''
+            else:
+                default_response_text = default_response_text_original
+
+            self.response_text.set(default_response_text)
+            self.get_accounts_templates()
+            self.btn_add_template.configure(state=tk.NORMAL)
+            self.btn_delete_template.configure(state=tk.NORMAL)
+            self.lbl_highlight_response_text.configure(foreground=self.style_dict["highlight_color_yellow"])
+
+    def add_template(self):
+        account_name = self.account_name.get()
+        account_dict = [ele for ele in self.account_dict_list if ele['full_name'] == account_name][0]
+
+        template_text = self.response_text.get()
+        check_response = self.create_record_page.check_characters([template_text])
+        if check_response == True:
+            self.lbl_error_info.configure(text='')
+            if template_text not in self.template_list:
+                self.data_manager.user_db.add_template_response_text(account_dict["main_id"],template_text)
+                self.get_accounts_templates()
+        else:
+            self.lbl_error_info.configure(text=check_response)
+        return
+    
+    def delete_template(self):
+        account_name = self.account_name.get()
+        account_dict = [ele for ele in self.account_dict_list if ele['full_name'] == account_name][0]
+
+        template_text = self.response_text.get()
+        if template_text in self.template_list_db:
+            self.data_manager.user_db.delete_template_response_texts(account_dict["main_id"],template_text)
+            self.get_accounts_templates()
+            self.response_text.set('')
+        return
+    
+    def get_accounts_templates(self):
+        account_name = self.account_name.get()
+        account_dict = [ele for ele in self.account_dict_list if ele['full_name'] == account_name][0]
+
+        self.template_list_db = self.data_manager.user_db.get_template_response_texts(account_dict["main_id"])
+        default_response_text_original = account_dict["default_response_text"]
+        if default_response_text_original == ' - ':
+            self.default_response_text = ''
+        else:
+            self.default_response_text = default_response_text_original
+        self.template_list = [self.default_response_text] + self.template_list_db
+        self.response_cbox['values'] = self.template_list
+        return
             
     def finish(self):
+
         response = self.create_record_page.user_input(self.account_name,
                                                     self.date,
                                                     self.time,
                                                     self.status,
-                                                    self.account_dict_list)
+                                                    self.account_dict_list,
+                                                    self.response_text)
 
         if response != None:
             self.lbl_error_info.configure(text = str(response))

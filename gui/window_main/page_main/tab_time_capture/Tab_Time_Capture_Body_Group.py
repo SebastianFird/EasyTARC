@@ -88,7 +88,7 @@ class GroupFrame((tk.Frame)):
         self.group_name_frame = MyFrame(self.group_frame,self.data_manager)
         self.group_name_frame.pack(side = "top",fill='x')
 
-        self.lbl_group = MyLabel(self.group_name_frame,self.data_manager,text = '  ' + str(self.group_name) + ':', anchor = 'w', width=50)
+        self.lbl_group = MyLabel(self.group_name_frame,self.data_manager,text = '  ' + str(self.group_name) + ':', anchor = 'w')
         self.lbl_group.configure(font = Font_tuple, foreground=self.style_dict["highlight_color_grey"])
         self.lbl_group.pack(side = "left")
 

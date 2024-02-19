@@ -48,20 +48,28 @@ class SqlUserDataManager(SqlManager):
 
     def start_db(self,db_config,folder_name,name,name_ending,db_password,db_salt):
         self.set_db_config(db_config,folder_name,name,name_ending,db_password,db_salt)
-
+        print('start_db')
         try:
             test_id = self.get_new_accountid()
-
             try:
                 if self.main_app.get_version_update() == True:
+                    print('test_sql_update')
+
                     if self.check_column_name_accounts_project_nbr() == True:
+                        print('1_7_0_sql_update')
                         self.update_1_7_0()
 
                     if self.check_column_name_accounts_a_group() == True:
+                        print('1_7_2_sql_update')
                         self.update_1_7_2()
+
+
+                    if self.check_column_name_accounts_response_text() == True:
+                        print('1_9_3_sql_update')
+                        self.update_1_9_3()
             except:
                 self.root = NewRoot()
-                messagebox.showinfo('EasyTARC','update_failed')
+                messagebox.showinfo('EasyTARC','sql_updates_failed')
                 return(False)
 
             return(True)
@@ -114,7 +122,7 @@ class SqlUserDataManager(SqlManager):
                 order_label TEXT,
                 process_label TEXT,
                 response_code TEXT,
-                response_text TEXT,
+                default_response_text TEXT,
                 auto_booking INT,
                 status TEXT,
                 group_name TEXT,
@@ -134,7 +142,8 @@ class SqlUserDataManager(SqlManager):
                 month INT,
                 day INT,
                 hours REAL,
-                booked INT
+                booked INT,
+                response_text TEXT
                 );
                 """)
 
@@ -146,7 +155,8 @@ class SqlUserDataManager(SqlManager):
                 month INT,
                 day INT,
                 hours REAL,
-                booked INT
+                booked INT,
+                response_text TEXT
                 );
                 """)
             
@@ -159,6 +169,14 @@ class SqlUserDataManager(SqlManager):
             
             cur = conn.cursor()
             cur.execute("INSERT INTO groups VALUES(?, ?);", (1,''))
+
+            cur = conn.cursor()
+            cur.execute("""CREATE TABLE IF NOT EXISTS response_text_templates(
+                templateid INT PRIMARY KEY,
+                main_id INT,
+                template_text TEXT
+                );
+                """)
 
             self.save_and_close_db(conn)
 
@@ -175,7 +193,7 @@ class SqlUserDataManager(SqlManager):
                 order_label = ' - '
                 process_label = ' - '
                 response_code = ' - '
-                response_text = ' - '
+                default_response_text = ' - '
                 auto_booking = 0
                 status = "open"
                 group = ' - '
@@ -198,7 +216,7 @@ class SqlUserDataManager(SqlManager):
                                 "order_label":order_label,
                                 "process_label":process_label,
                                 "response_code":response_code,
-                                "response_text":response_text,
+                                "default_response_text":default_response_text,
                                 "auto_booking":auto_booking,
                                 "status":status,
                                 "group":group,
@@ -518,6 +536,200 @@ class SqlUserDataManager(SqlManager):
 
         self.save_and_close_db(conn)
 
+    ####################################################################################################################
+
+    def check_column_name_accounts_response_text(self):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+
+        info = cur.execute("select * from accounts")
+        columns = [item[0] for item in info.description]
+        print(columns)
+        self.save_and_close_db(conn)
+        if 'response_text' in columns:
+            return(True)
+        else:
+            return(False)
+        
+    def update_1_9_3(self):
+
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        cur.execute("""CREATE TABLE IF NOT EXISTS new_table_accounts (
+            accountid INT PRIMARY KEY,
+            account_kind INT,
+            main_id INT,
+            name TEXT,
+            description_text TEXT,
+            project_label TEXT,
+            order_label TEXT,
+            process_label TEXT,
+            response_code TEXT,
+            default_response_text TEXT,
+            auto_booking INT,
+            status TEXT,
+            group_name TEXT,
+            bookable INT,
+            expiration_year INT,
+            expiration_month INT,
+            expiration_day INT,
+            available_hours REAL
+            );
+            """)
+
+        cur = conn.cursor()
+        cur.execute("""INSERT INTO new_table_accounts (
+                    accountid,
+                    account_kind,
+                    main_id,
+                    name,
+                    description_text,
+                    project_label,
+                    order_label,
+                    process_label,
+                    response_code,
+                    default_response_text,
+                    auto_booking,
+                    status,
+                    group_name,
+                    bookable,
+                    expiration_year,
+                    expiration_month,
+                    expiration_day,
+                    available_hours
+                    )
+                    SELECT 
+                    accountid,
+                    account_kind,
+                    main_id,
+                    name,
+                    description_text,
+                    project_label,
+                    order_label,
+                    process_label,
+                    response_code,
+                    response_text,
+                    auto_booking,
+                    status,
+                    group_name,
+                    bookable,
+                    expiration_year,
+                    expiration_month,
+                    expiration_day,
+                    available_hours
+                    FROM accounts;
+                    """)
+        
+        cur = conn.cursor()
+        cur.execute("DROP TABLE accounts;")
+
+        cur = conn.cursor()
+        cur.execute("ALTER TABLE new_table_accounts RENAME TO accounts;")
+
+        #############################################
+
+        cur = conn.cursor()
+        cur.execute("""CREATE TABLE IF NOT EXISTS new_table_passed_times (
+            passedid INT PRIMARY KEY,
+            accountid INT,
+            year INT,
+            month INT,
+            day INT,
+            hours REAL,
+            booked INT,
+            response_text TEXT
+            );
+            """)
+
+        cur = conn.cursor()
+        cur.execute("""INSERT INTO new_table_passed_times (
+                    passedid,
+                    accountid,
+                    year,
+                    month,
+                    day,
+                    hours,
+                    booked
+                    )
+                    SELECT 
+                    passedid,
+                    accountid,
+                    year,
+                    month,
+                    day,
+                    hours,
+                    booked
+                    FROM passed_times;
+                    """)
+        
+        cur = conn.cursor()
+        cur.execute("DROP TABLE passed_times;")
+
+        cur = conn.cursor()
+        cur.execute("ALTER TABLE new_table_passed_times RENAME TO passed_times;")
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE passed_times
+                    SET response_text = (SELECT default_response_text FROM accounts WHERE passed_times.accountid = accounts.accountid)
+                    WHERE EXISTS (SELECT 1 FROM accounts WHERE passed_times.accountid = accounts.accountid);""")
+
+        #############################################
+
+        cur = conn.cursor()
+        cur.execute("""CREATE TABLE IF NOT EXISTS new_table_backup_current_times (
+            backupid INT PRIMARY KEY,
+            accountid INT,
+            year INT,
+            month INT,
+            day INT,
+            hours REAL,
+            booked INT,
+            response_text TEXT
+            );
+            """)
+
+        cur = conn.cursor()
+        cur.execute("""INSERT INTO new_table_backup_current_times (
+                    backupid,
+                    accountid,
+                    year,
+                    month,
+                    day,
+                    hours,
+                    booked
+                    )
+                    SELECT 
+                    backupid,
+                    accountid,
+                    year,
+                    month,
+                    day,
+                    hours,
+                    booked
+                    FROM backup_current_times;
+                    """)
+        
+        cur = conn.cursor()
+        cur.execute("DROP TABLE backup_current_times;")
+
+        cur = conn.cursor()
+        cur.execute("ALTER TABLE new_table_backup_current_times RENAME TO backup_current_times;")
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE backup_current_times
+                    SET response_text = (SELECT default_response_text FROM accounts WHERE backup_current_times.accountid = accounts.accountid)
+                    WHERE EXISTS (SELECT 1 FROM accounts WHERE backup_current_times.accountid = accounts.accountid);""")
+        
+        cur = conn.cursor()
+        cur.execute("""CREATE TABLE IF NOT EXISTS response_text_templates(
+            templateid INT PRIMARY KEY,
+            main_id INT,
+            template_text TEXT
+            );
+            """)
+
+        self.save_and_close_db(conn)
+
 ####################################################################################################################
 
     # Hinzufügen eines neuen Zeitkontos
@@ -531,7 +743,7 @@ class SqlUserDataManager(SqlManager):
         order_label = account_dict['order_label']
         process_label = account_dict['process_label']
         response_code = account_dict['response_code']
-        response_text = account_dict['response_text']
+        default_response_text = account_dict['default_response_text']
         auto_booking = account_dict['auto_booking']
         status = account_dict['status']
         group = account_dict['group']
@@ -541,7 +753,7 @@ class SqlUserDataManager(SqlManager):
         expiration_day = int(account_dict["date_expiration"].strftime("%d"))
         available_hours = account_dict['available_hours']
 
-        account_tuple = (account_id,kind,main_id,name,description_text,project_label,order_label,process_label,response_code,response_text,auto_booking,status,group,bookable,expiration_year,expiration_month,expiration_day,available_hours)
+        account_tuple = (account_id,kind,main_id,name,description_text,project_label,order_label,process_label,response_code,default_response_text,auto_booking,status,group,bookable,expiration_year,expiration_month,expiration_day,available_hours)
         conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("INSERT INTO accounts VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?);", account_tuple)
@@ -572,7 +784,7 @@ class SqlUserDataManager(SqlManager):
         order_label = account_dict['order_label']
         process_label = account_dict['process_label']
         response_code = account_dict['response_code']
-        response_text = account_dict['response_text']
+        default_response_text = account_dict['default_response_text']
         auto_booking = account_dict['auto_booking']
         group = account_dict['group']
         bookable = account_dict['bookable']
@@ -590,7 +802,7 @@ class SqlUserDataManager(SqlManager):
                     order_label = ?,
                     process_label = ?,
                     response_code = ?,
-                    response_text = ?,
+                    default_response_text = ?,
                     auto_booking = ?,
                     bookable = ?,
                     group_name = ?,
@@ -606,7 +818,7 @@ class SqlUserDataManager(SqlManager):
                     order_label,
                     process_label,
                     response_code,
-                    response_text,
+                    default_response_text,
                     auto_booking,
                     bookable,
                     group,
@@ -658,7 +870,7 @@ class SqlUserDataManager(SqlManager):
         account_id = account_dict['account_id']
         name = account_dict['name']
         description_text = account_dict['description_text']
-        response_text = account_dict['response_text']
+        default_response_text = account_dict['default_response_text']
         expiration_year = int(account_dict["date_expiration"].strftime("%Y"))
         expiration_month = int(account_dict["date_expiration"].strftime("%m"))
         expiration_day = int(account_dict["date_expiration"].strftime("%d"))
@@ -669,7 +881,7 @@ class SqlUserDataManager(SqlManager):
         cur.execute("""UPDATE accounts 
                     SET name = ?,
                     description_text = ?,
-                    response_text = ?,
+                    default_response_text = ?,
                     expiration_year = ?,
                     expiration_month = ?,
                     expiration_day = ?,
@@ -678,7 +890,7 @@ class SqlUserDataManager(SqlManager):
                     (
                     name,
                     description_text,
-                    response_text,
+                    default_response_text,
                     expiration_year,
                     expiration_month,
                     expiration_day,
@@ -785,7 +997,7 @@ class SqlUserDataManager(SqlManager):
                         "order_label":result[6],
                         "process_label":result[7],
                         "response_code":result[8],
-                        "response_text":result[9],
+                        "default_response_text":result[9],
                         "auto_booking":result[10],
                         "status":result[11],
                         "group": result[12],
@@ -943,12 +1155,13 @@ class SqlUserDataManager(SqlManager):
         day = passed_time_dict['day']
         hours = passed_time_dict['hours']
         booked = passed_time_dict['booked']
+        response_text = passed_time_dict['response_text']
 
-        passed_tuple = (passedid,accountid,year,month,day,hours,booked)
+        passed_tuple = (passedid,accountid,year,month,day,hours,booked,response_text)
 
         conn = self.open_db_conn()
         cur = conn.cursor()
-        cur.execute("INSERT INTO passed_times VALUES(?, ?, ?, ?, ?, ?, ?);", passed_tuple)
+        cur.execute("INSERT INTO passed_times VALUES(?, ?, ?, ?, ?, ?, ?, ?);", passed_tuple)
         self.save_and_close_db(conn)
         success = True
         return(success)
@@ -1034,10 +1247,10 @@ class SqlUserDataManager(SqlManager):
     
 ################################################
     
-    def set_unbooked_accound_time_sum_booked(self,account_id):
+    def set_unbooked_accound_time_sum_booked(self,account_id,response_text):
         conn = self.open_db_conn()
         cur = conn.cursor()
-        cur.execute("UPDATE passed_times SET booked = ? WHERE accountid = ?", (1,account_id))
+        cur.execute("UPDATE passed_times SET booked = ? WHERE accountid = ? AND response_text = ?", (1,account_id,response_text))
         self.save_and_close_db(conn)
         return()
     
@@ -1066,6 +1279,7 @@ class SqlUserDataManager(SqlManager):
         cur.execute("UPDATE passed_times SET day = ? WHERE passedid = ?", (passed_time_dict["day"],passed_time_dict["passed_id"]))
         cur.execute("UPDATE passed_times SET hours = ? WHERE passedid = ?", (passed_time_dict["hours"],passed_time_dict["passed_id"]))
         cur.execute("UPDATE passed_times SET booked = ? WHERE passedid = ?", (passed_time_dict["booked"],passed_time_dict["passed_id"]))
+        cur.execute("UPDATE passed_times SET response_text = ? WHERE passedid = ?", (passed_time_dict["response_text"],passed_time_dict["passed_id"]))
         self.save_and_close_db(conn)
 
 ################################################
@@ -1096,12 +1310,13 @@ class SqlUserDataManager(SqlManager):
         day = passed_time_dict['day']
         hours = passed_time_dict['hours']
         booked = passed_time_dict['booked']
+        response_text = passed_time_dict['response_text']
 
-        backup_tuple = (backupid,accountid,year,month,day,hours,booked)
+        backup_tuple = (backupid,accountid,year,month,day,hours,booked,response_text)
 
         conn = self.open_db_conn()
         cur = conn.cursor()
-        cur.execute("INSERT INTO backup_current_times VALUES(?, ?, ?, ?, ?, ?, ?);", backup_tuple)
+        cur.execute("INSERT INTO backup_current_times VALUES(?, ?, ?, ?, ?, ?, ?, ?);", backup_tuple)
         self.save_and_close_db(conn)
         success = True
         return(success)
@@ -1148,7 +1363,8 @@ class SqlUserDataManager(SqlManager):
                         "month":result[3],
                         "day":result[4],
                         "hours":result[5],
-                        "booked":result[6]
+                        "booked":result[6],
+                        "response_text":result[7]
                         }
         self.save_and_close_db(conn)
         return(backup_dict)
@@ -1179,4 +1395,46 @@ class SqlUserDataManager(SqlManager):
         self.save_and_close_db(conn)
         fold_up_list = list_str.split(",")
         return(fold_up_list)
+    
+####################################################################################################################
+    
+    def add_template_response_text(self,main_id,template_text):
 
+        templateid = self.get_new_templateid()
+
+        template_tuple = (templateid,main_id,template_text)
+
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        cur.execute("INSERT INTO response_text_templates VALUES(?, ?, ?);", template_tuple)
+        self.save_and_close_db(conn)
+        success = True
+        return(success)
+
+    def get_new_templateid(self):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+
+        cur.execute("SELECT MAX(templateid) FROM response_text_templates")
+        result = cur.fetchone()
+        self.save_and_close_db(conn)
+
+        if result[0] != None:
+            templateid = result[0] + 1
+        else:
+            templateid = 0
+        return(templateid)
+    
+    def get_template_response_texts(self,main_id):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        template_text_list = [template_text[0] for template_text in cur.execute("SELECT template_text FROM response_text_templates WHERE main_id = ?", (main_id,))]
+        self.save_and_close_db(conn)
+        return(template_text_list)
+    
+    def delete_template_response_texts(self, main_id, template_text):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM response_text_templates WHERE main_id = ? AND  template_text = ?", (main_id,template_text,))
+        self.save_and_close_db(conn)
+        return()

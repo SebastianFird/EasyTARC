@@ -18,9 +18,6 @@ __author__ = 'Sebastian Feiert'
 import tkinter as tk
 from tkinter import ttk
 
-from gui.Window_Additionals import InfoDictWindow
-from gui.Window_Additionals import CreateToolTip
-
 from style_classes import MyFrame
 from style_classes import MyLabel
 from style_classes import MyButton

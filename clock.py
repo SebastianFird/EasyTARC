@@ -202,7 +202,7 @@ class AccountClock(Clock):
         self.order_label = self.account_dict.get("order_label")
         self.process_label = self.account_dict.get("process_label")
         self.response_code = self.account_dict.get("response_code")
-        self.response_text = self.account_dict.get("response_text")
+        self.default_response_text = self.account_dict.get("default_response_text")
         self.auto_booking = self.account_dict.get("auto_booking")
         self.account_status = self.account_dict.get("status")
         self.group = self.account_dict.get("group")
@@ -210,6 +210,9 @@ class AccountClock(Clock):
         self.date_expiration = self.account_dict.get("date_expiration")
         self.available_hours = self.account_dict.get("available_hours")
         self.sum_passed_times = self.account_dict.get("sum_passed_times")
+
+        self.default_response_text_2 = self.default_response_text
+        self.response_text = self.default_response_text
 
         if load_backup == True:
             self.load_backup_time()
@@ -223,7 +226,7 @@ class AccountClock(Clock):
         self.order_label = self.account_dict.get("order_label")
         self.process_label = self.account_dict.get("process_label")
         self.response_code = self.account_dict.get("response_code")
-        self.response_text = self.account_dict.get("response_text")
+        self.default_response_text = self.account_dict.get("default_response_text")
         self.auto_booking = self.account_dict.get("auto_booking")
         self.group = self.account_dict.get("group")
         self.bookable = self.account_dict.get("bookable")
@@ -231,11 +234,19 @@ class AccountClock(Clock):
         self.available_hours = self.account_dict.get("available_hours")
         self.sum_passed_times = self.account_dict.get("sum_passed_times")
 
+        if self.response_text == self.default_response_text_2:
+            self.response_text = self.default_response_text
+
+        self.default_response_text_2 = self.default_response_text        
+
     def get_account_dict(self):
         return(self.account_dict)
 
     def get_id(self):
         return(self.id)
+    
+    def get_main_id(self):
+        return(self.main_id)
 
     def get_name(self):
         return(self.name)
@@ -260,6 +271,12 @@ class AccountClock(Clock):
 
     def get_response_code(self):
         return(self.response_code)
+    
+    def get_default_response_text(self):
+        return(self.default_response_text)
+
+    def get_response_text(self):
+        return(self.response_text)
     
     def get_account_status(self):
         return(self.account_status)
@@ -287,6 +304,9 @@ class AccountClock(Clock):
         
     def get_time_left(self):
             return(0,'')
+    
+    def set_response_text(self,new_response_text):
+        self.response_text = new_response_text
 
     def set_status_open(self):
         self.user_db.account_set_open(self.id)
@@ -404,6 +424,7 @@ class AccountClock(Clock):
             hours = backup_dict.get("hours")
             add_minutes = hours*60
             self.add_time('+', add_minutes)
+            self.response_text =  backup_dict.get("response_text")
         return
 
     def __del__(self):
@@ -438,6 +459,7 @@ class MainAccountClock(AccountClock):
         self.added_time = datetime.timedelta()
         self.total_time = datetime.timedelta()
         self.time_str_list_list = []
+        self.response_text = self.default_response_text
 
         for sub_clock in self.sub_clock_list:
             sub_clock.deep_reset()
@@ -503,17 +525,17 @@ class MainAccountClock(AccountClock):
         info_dict = {self.language_dict["type"]:self.language_dict["main_account"]}
         #############
         if self.id != 0:
-            info_dict.update({self.language_dict["name"]:str(self.name)})
+            info_dict.update({self.language_dict["name"]:'='+str(self.name)})
         else:
-            info_dict.update({self.language_dict["name"]:self.language_dict["without_allocation"]})
+            info_dict.update({self.language_dict["name"]:'='+self.language_dict["without_allocation"]})
         #############
-        info_dict.update({self.language_dict["group"]:str(self.group)})
+        info_dict.update({self.language_dict["group"]:'='+str(self.group)})
         #############
         if self.id != 0:
             info_dict.update({                
-                        self.language_dict["project"]:str(self.project_label),  
-                        self.language_dict["order"]:str(self.order_label),                              
-                        self.language_dict["process"]:str(self.process_label),
+                        self.language_dict["project"]:'='+str(self.project_label),  
+                        self.language_dict["order"]:'='+str(self.order_label),                              
+                        self.language_dict["process"]:'='+str(self.process_label),
                         self.language_dict["description"]:str(self.description_text)           
                         })
         #############
@@ -529,8 +551,8 @@ class MainAccountClock(AccountClock):
                 info_dict.update({self.language_dict["auto_booking"]:self.language_dict["no"]}) 
             #########
             info_dict.update({                     
-                        self.language_dict["response_code"]:str(self.response_code),                            
-                        self.language_dict["response_text"]:str(self.response_text)               
+                        self.language_dict["response_code"]:'='+str(self.response_code),                            
+                        self.language_dict["default_response_text"]:str(self.default_response_text)               
                         })
         #############
         if self.id != 0:
@@ -541,7 +563,7 @@ class MainAccountClock(AccountClock):
         #############
         if self.id != 0:
             if float(self.available_hours) != 0:
-                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.available_hours),2))) + ' ' + self.language_dict["hours"]}) 
+                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.available_hours),3))) + ' ' + self.language_dict["hours"]}) 
             else:
                 info_dict.update({self.language_dict["available_hours"]:" - "}) 
         #############
@@ -565,6 +587,7 @@ class SubAccountClock(AccountClock):
         self.added_time = datetime.timedelta()
         self.total_time = datetime.timedelta()
         self.time_str_list_list = []
+        self.response_text = self.default_response_text
         return
 
     def get_main_name(self):
@@ -594,17 +617,17 @@ class SubAccountClock(AccountClock):
     def get_info_dict(self):
         self.language_dict = self.main_app.data_manager.get_language_dict()
         info_dict = {self.language_dict["type"]:self.language_dict["sub_account"],
-                    self.language_dict["main_account"]:str(self.main_account_clock.get_name()),
-                    self.language_dict["name"]:str(self.name)                       
+                    self.language_dict["main_account"]:'='+str(self.main_account_clock.get_name()),
+                    self.language_dict["name"]:'='+str(self.name)                       
                     }
         #############
-        info_dict.update({self.language_dict["group"]:str(self.group)})
+        info_dict.update({self.language_dict["group"]:'='+str(self.group)})
         #############
         if self.id != 0:
             info_dict.update({                
-                        self.language_dict["project"]:str(self.project_label),  
-                        self.language_dict["order"]:str(self.order_label),                              
-                        self.language_dict["process"]:str(self.process_label)         
+                        self.language_dict["project"]:'='+str(self.project_label),  
+                        self.language_dict["order"]:'='+str(self.order_label),                              
+                        self.language_dict["process"]:'='+str(self.process_label)         
                         })
         info_dict.update({self.language_dict["description"]:str(self.description_text) }) 
         #############
@@ -620,8 +643,8 @@ class SubAccountClock(AccountClock):
                 info_dict.update({self.language_dict["auto_booking"]:self.language_dict["no"]}) 
             #########
             info_dict.update({                     
-                        self.language_dict["response_code"]:str(self.response_code),                            
-                        self.language_dict["response_text"]:str(self.response_text)               
+                        self.language_dict["response_code"]:'='+str(self.response_code),                            
+                        self.language_dict["default_response_text"]:str(self.default_response_text)               
                         })
         #############
         if self.id != 0:
@@ -632,7 +655,7 @@ class SubAccountClock(AccountClock):
         #############
         if self.id != 0:
             if float(self.available_hours) != 0:
-                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.available_hours),2))) + ' ' + self.language_dict["hours"]}) 
+                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.available_hours),3))) + ' ' + self.language_dict["hours"]}) 
             else:
                 info_dict.update({self.language_dict["available_hours"]:" - "}) 
         #############

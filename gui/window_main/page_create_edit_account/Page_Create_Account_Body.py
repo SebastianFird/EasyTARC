@@ -274,7 +274,7 @@ class CreateEditAccountBody:
 
         if self.modus in ['new_order','new_process','edit_main'] and str(self.main_account_dict.get("description_text")) != ' - ':
             self.account_description_text.set(self.main_account_dict.get("description_text"))
-        elif self.modus in ['edit_sub']  and str(self.main_account_dict.get("description_text")) != ' - ':
+        elif self.modus in ['edit_sub']  and str(self.sub_account_dict.get("description_text")) != ' - ':
             self.account_description_text.set(self.sub_account_dict.get("description_text"))
 
         self.textBox_description.configure(highlightthickness = 1)
@@ -290,7 +290,7 @@ class CreateEditAccountBody:
         self.expiration_date_info.pack(side = "left")
         self.expiration_date_ttp = CreateToolTip(self.expiration_date_info, self.data_manager, 0, 30, self.language_dict["create_expiration_date_text"])
 
-        lbl_expiration_date = MyLabel(self.frame_expiration_date,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict['expiration_date'] + ':')
+        lbl_expiration_date = MyLabel(self.frame_expiration_date,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['expiration_date'] + ':')
         lbl_expiration_date.pack(side = "left", padx=10)
 
         self.expiration_year = tk.StringVar()
@@ -336,7 +336,7 @@ class CreateEditAccountBody:
         self.available_hours_info.pack(side = "left")
         self.available_hours_ttp = CreateToolTip(self.available_hours_info, self.data_manager, 0, 30, self.language_dict["create_available_hours_text"])
 
-        lbl_available_hours = MyLabel(self.frame_available_hours,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict['available_hours'] + ':')
+        lbl_available_hours = MyLabel(self.frame_available_hours,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['available_hours'] + ':')
         lbl_available_hours.pack(side = "left", padx=10)
 
         self.available_hours = tk.StringVar()
@@ -372,7 +372,7 @@ class CreateEditAccountBody:
         self.lbl_bookable_info.pack(side = "left")
         self.lbl_bookable_ttp = CreateToolTip(self.lbl_bookable_info, self.data_manager, 0, 30, self.language_dict["create_account_bookable_text"])
 
-        self.lbl_bookable = MyLabel(self.frame_bookable_state,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict['bookable'] + ':')
+        self.lbl_bookable = MyLabel(self.frame_bookable_state,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['bookable'] + ':')
         self.lbl_bookable.pack(side = "left", padx=10)
         self.lbl_bookable_ttp_2 = CreateToolTip(self.lbl_bookable, self.data_manager, 0, 30, self.language_dict["create_account_bookable_text"])
         
@@ -387,7 +387,7 @@ class CreateEditAccountBody:
         self.bookable_btn_info = MyLabel(self.frame_bookable_btn,self.data_manager,anchor='w',justify='left',width=3)
         self.bookable_btn_info.pack(side = "left")
 
-        self.lbl_booking = MyLabel(self.frame_bookable_btn,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict['switch_to'] + ':')
+        self.lbl_booking = MyLabel(self.frame_bookable_btn,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['switch_to'] + ':')
         self.lbl_booking.pack(side = "left", padx=10)
 
         self.btn_bookable = MyButton(self.frame_bookable_btn,self.data_manager, command=self.toggle_bookable, width=26)
@@ -402,7 +402,7 @@ class CreateEditAccountBody:
         self.lbl_checkBox_auto_booking_info.pack(side = "left")
         self.lbl_autobooking_ttp = CreateToolTip(self.lbl_checkBox_auto_booking_info, self.data_manager, 0, 30, self.language_dict["create_account_auto_booking_text"])
 
-        self.lbl_autobooking = MyLabel(self.frame_autobooking,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict['auto_booking'] + ':')
+        self.lbl_autobooking = MyLabel(self.frame_autobooking,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['auto_booking'] + ':')
         self.lbl_autobooking.pack(side = "left", padx=10)
         self.lbl_autobooking_ttp_2 = CreateToolTip(self.lbl_autobooking, self.data_manager, 0, 30, self.language_dict["create_account_auto_booking_text"])
 
@@ -429,7 +429,7 @@ class CreateEditAccountBody:
         self.response_info = MyLabel(self.frame_response,self.data_manager,anchor='w',justify='left',width=3)
         self.response_info.pack(side = "left")
 
-        self.lbl_response = MyLabel(self.frame_response,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict['response_code'] + ':')
+        self.lbl_response = MyLabel(self.frame_response,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['response_code'] + ':')
         self.lbl_response.pack(side = "left", padx=10)
 
         self.account_response = tk.StringVar()
@@ -447,15 +447,23 @@ class CreateEditAccountBody:
         self.response_text_info = MyLabel(self.frame_response_text,self.data_manager,anchor='w',justify='left',width=3)
         self.response_text_info.pack(side = "left")
 
-        lbl_response_text = MyLabel(self.frame_response_text,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict['response_text'] + ':')
+        lbl_response_text = MyLabel(self.frame_response_text,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['default_response_text'] + ':')
         lbl_response_text.pack(side = "left", padx=10)
 
         self.account_response_text = tk.StringVar()
-        self.textBox_text = MyEntry(self.frame_response_text,self.data_manager, textvariable=self.account_response_text, width=36)
-        self.textBox_text.pack(side = "left", padx=10)
+        self.textBox_response_text = MyEntry(self.frame_response_text,self.data_manager, textvariable=self.account_response_text, width=36)
+        self.textBox_response_text.pack(side = "left", padx=10)
 
-        if self.modus in ['new_order','new_process','edit_main','new_sub','edit_sub'] and str(self.main_account_dict.get("response_text")) != ' - ':
-            self.account_response_text.set(self.main_account_dict.get("response_text"))
+        if self.modus in ['new_order','new_process','edit_main'] and str(self.main_account_dict.get("default_response_text")) != ' - ':
+            self.account_response_text.set(self.main_account_dict.get("default_response_text"))
+        elif self.modus in ['new_sub']  and str(self.main_account_dict.get("default_response_text")) != ' - ':
+            self.account_response_text.set(self.main_account_dict.get("default_response_text"))
+        elif self.modus in ['edit_sub']  and str(self.sub_account_dict.get("default_response_text")) != ' - ':
+            self.account_response_text.set(self.sub_account_dict.get("default_response_text"))
+
+        self.textBox_response_text.configure(highlightthickness = 1)
+        if self.style_dict['name'] == 'dark':
+            self.textBox_response_text.configure(borderwidth = 0)
 
         ###############
 
@@ -641,17 +649,21 @@ class CreateEditAccountBody:
 
             self.btn_bookable.configure(state=tk.DISABLED)
             self.checkBox_autobooking.configure(state=tk.DISABLED)
-            self.textBox_text.configure(state=tk.DISABLED)
+            self.textBox_response_text.configure(state=tk.DISABLED)
             self.textBox_response.configure(state=tk.DISABLED)
 
         elif self.account_bookable == 1 and self.modus in ['new_sub','edit_sub']:
             self.btn_bookable.configure(text= self.language_dict['not_bookable'])
             self.lbl_bookable_state.configure(text= self.language_dict['yes'])
-    
+
+            self.textBox_response_text.configure(state=tk.NORMAL)
             self.btn_bookable.configure(state=tk.DISABLED)
             self.checkBox_autobooking.configure(state=tk.DISABLED)
-            self.textBox_text.configure(state=tk.DISABLED)
             self.textBox_response.configure(state=tk.DISABLED)
+
+            self.textBox_response_text.configure(highlightthickness = 1)
+            if self.style_dict['name'] == 'dark':
+                self.textBox_response_text.configure(borderwidth = 0)
 
         elif self.account_bookable == 0 and self.modus in ['new_main','new_order','new_process','edit_main']:
             self.btn_bookable.configure(text= self.language_dict['bookable'])
@@ -661,18 +673,18 @@ class CreateEditAccountBody:
             self.textBox_response.configure(highlightthickness = 0)
             self.textBox_response.configure(borderwidth = 1)
             self.account_response.set("")
-            self.textBox_text.configure(highlightthickness = 0)
-            self.textBox_text.configure(borderwidth = 1)
+            self.textBox_response_text.configure(highlightthickness = 0)
+            self.textBox_response_text.configure(borderwidth = 1)
 
             self.btn_bookable.configure(state=tk.NORMAL)
             self.checkBox_autobooking.configure(state=tk.DISABLED)
-            self.textBox_text.configure(state=tk.DISABLED)
+            self.textBox_response_text.configure(state=tk.DISABLED)
             self.textBox_response.configure(state=tk.DISABLED)
 
         elif self.account_bookable == 1 and self.modus in ['new_main','new_order','new_process','edit_main']:
             self.btn_bookable.configure(state=tk.NORMAL)
             self.checkBox_autobooking.configure(state=tk.NORMAL)
-            self.textBox_text.configure(state=tk.NORMAL)
+            self.textBox_response_text.configure(state=tk.NORMAL)
             self.textBox_response.configure(state=tk.NORMAL)
 
             self.btn_bookable.configure(text= self.language_dict['not_bookable'])
@@ -684,9 +696,9 @@ class CreateEditAccountBody:
             if self.style_dict['name'] == 'dark':
                 self.textBox_response.configure(borderwidth = 0)
 
-            self.textBox_text.configure(highlightthickness = 1)
+            self.textBox_response_text.configure(highlightthickness = 1)
             if self.style_dict['name'] == 'dark':
-                self.textBox_text.configure(borderwidth = 0)
+                self.textBox_response_text.configure(borderwidth = 0)
         return
     
     def toggle_bookable(self):

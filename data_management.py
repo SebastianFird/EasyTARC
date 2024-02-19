@@ -71,6 +71,7 @@ class DataManager:
 
         self.user_db.update_main_account_name(0,self.language_dict['without_allocation'])
         if self.main_app.get_version_update() == True:
+            # old update
             self.user_db.account_set_autobooking(0,0)
             self.user_db.set_booked_accound_time_sum_unbooked(0)
 
@@ -218,6 +219,7 @@ class DataManager:
 
             for clock in clock_list:
                 clock.stop()
+                response_text = clock.get_response_text()
                 duration = clock.get_total_time()
                 days, seconds = duration.days, duration.seconds
                 hours = days * 24 + seconds / 3600
@@ -234,7 +236,8 @@ class DataManager:
                                         "month": month,
                                         "day": day,
                                         "hours": hours,
-                                        "booked": auto_booking
+                                        "booked": auto_booking,
+                                        "response_text": response_text
                                         }
 
                     self.user_db.add_passed_times(passed_time_dict)
@@ -267,7 +270,8 @@ class DataManager:
                             "month": time_dict['month'],
                             "day": time_dict['day'],
                             "hours": time_dict['hours'],
-                            "booked": time_dict['booked']
+                            "booked": time_dict['booked'],
+                            "response_text": time_dict['response_text']
                             }
         self.user_db.add_passed_times(passed_time_dict)    
 
@@ -278,7 +282,8 @@ class DataManager:
                             "month": time_dict['month'],
                             "day": time_dict['day'],
                             "hours": time_dict['hours'],
-                            "booked": time_dict['booked']
+                            "booked": time_dict['booked'],
+                            "response_text": time_dict['response_text']
                             }
         self.user_db.update_passed_times(passed_time_dict)
 
@@ -326,6 +331,7 @@ class DataManager:
             clock_list = clock_list + sub_clock_list
 
             for clock in clock_list:
+                response_text = clock.get_response_text()
                 duration = clock.get_total_time()
                 days, seconds = duration.days, duration.seconds
                 hours = days * 24 + seconds / 3600
@@ -342,7 +348,8 @@ class DataManager:
                                         "month": month,
                                         "day": day,
                                         "hours": hours,
-                                        "booked": auto_booking
+                                        "booked": auto_booking,
+                                        "response_text": response_text
                                         }
 
                     self.user_db.add_backup(backup_dict)
@@ -505,7 +512,7 @@ class DataManager:
     
 #################################################################
 
-    def create_time_account_dict(self,name,description_text,project_label,order_label,process_label,response_code,response_text,auto_booking,kind,main_id,group,bookable,date_expiration,available_hours,status = "open"):
+    def create_time_account_dict(self,name,description_text,project_label,order_label,process_label,response_code,default_response_text,auto_booking,kind,main_id,group,bookable,date_expiration,available_hours,status = "open"):
         account_id = self.user_db.get_new_accountid()
         if kind == 1:
             main_id = account_id
@@ -519,7 +526,7 @@ class DataManager:
                         "order_label":str(order_label),              # order label
                         "process_label":str(process_label),          # process label
                         "response_code":str(response_code),          # response code
-                        "response_text":str(response_text),          # booking default text
+                        "default_response_text":str(default_response_text),          # booking default text
                         "auto_booking":int(auto_booking),            # autobooking on -> 1, off -> 0; if on the system dont show the account for booking
                         "status":str(status),                        # open -> the account can capture time, closed -> the account cant capture time
                         "group":str(group),                          # default -> default group, group on the display
@@ -573,29 +580,35 @@ class DataManager:
             account_id_list.sort()
             account_id_list_2 = account_id_list.copy()
             for account_id in account_id_list_2:
-                record_dict = {"account_id":account_id,               
-                            "account_kind":df.loc[(df['accountid'] == account_id)].account_kind.values.tolist()[0],                    
-                            "main_id":main_id,   
-                            "main_name":main_name_dict[main_id],                    
-                            "name":df.loc[(df['accountid'] == account_id)].name.values.tolist()[0],  
-                            "group":df.loc[(df['accountid'] == account_id)].group_name.values.tolist()[0],                              
-                            "description_text":df.loc[(df['accountid'] == account_id)].description_text.values.tolist()[0],      
-                            "project_label":df.loc[(df['accountid'] == account_id)].project_label.values.tolist()[0], 
-                            "order_label":df.loc[(df['accountid'] == account_id)].order_label.values.tolist()[0],              
-                            "process_label":df.loc[(df['accountid'] == account_id)].process_label.values.tolist()[0],                 
-                            "response_code":df.loc[(df['accountid'] == account_id)].response_code.values.tolist()[0],              
-                            "response_text":df.loc[(df['accountid'] == account_id)].response_text.values.tolist()[0],
-                            "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0],
-                            "auto_booking":df.loc[(df['accountid'] == account_id)].auto_booking.values.tolist()[0], 
-                            "date_expiration":df.loc[(df['accountid'] == account_id)].date_expiration.tolist()[0],
-                            "available_hours":df.loc[(df['accountid'] == account_id)].available_hours.values.tolist()[0], 
-                            "hours":df.loc[(df['accountid'] == account_id)].hours.sum()                  
-                            }
-                unbooked_record_dict_list_sum_list.append(record_dict)
+                response_text_list = df.loc[(df['accountid'] == account_id)].response_text.values.tolist()
+                response_text_list = list(set(response_text_list))
+                response_text_list.sort()
+                response_text_list_2 = response_text_list.copy()
+                for response_text in response_text_list_2:
+                    record_dict = {"account_id":account_id,               
+                                "account_kind":df.loc[(df['accountid'] == account_id)].account_kind.values.tolist()[0],                    
+                                "main_id":main_id,   
+                                "main_name":main_name_dict[main_id],                    
+                                "name":df.loc[(df['accountid'] == account_id)].name.values.tolist()[0],  
+                                "group":df.loc[(df['accountid'] == account_id)].group_name.values.tolist()[0],                              
+                                "description_text":df.loc[(df['accountid'] == account_id)].description_text.values.tolist()[0],      
+                                "project_label":df.loc[(df['accountid'] == account_id)].project_label.values.tolist()[0], 
+                                "order_label":df.loc[(df['accountid'] == account_id)].order_label.values.tolist()[0],              
+                                "process_label":df.loc[(df['accountid'] == account_id)].process_label.values.tolist()[0],                 
+                                "response_code":df.loc[(df['accountid'] == account_id)].response_code.values.tolist()[0],              
+                                "default_response_text":df.loc[(df['accountid'] == account_id)].default_response_text.values.tolist()[0],
+                                "response_text":response_text,
+                                "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0],
+                                "auto_booking":df.loc[(df['accountid'] == account_id)].auto_booking.values.tolist()[0], 
+                                "date_expiration":df.loc[(df['accountid'] == account_id)].date_expiration.tolist()[0],
+                                "available_hours":df.loc[(df['accountid'] == account_id)].available_hours.values.tolist()[0], 
+                                "hours":df.loc[(df['accountid'] == account_id) & (df['response_text'] == response_text)].hours.sum()                  
+                                }
+                    unbooked_record_dict_list_sum_list.append(record_dict)
         return(unbooked_record_dict_list_sum_list)
     
-    def set_unbooked_times_sum_by_account_id(self,account_id):
-        self.user_db.set_unbooked_accound_time_sum_booked(account_id)
+    def set_unbooked_times_sum_by_account_id(self,account_id,response_text):
+        self.user_db.set_unbooked_accound_time_sum_booked(account_id,response_text)
 
     #################################################################
 
@@ -647,7 +660,8 @@ class DataManager:
                                        "order_label":df.loc[(df['accountid'] == account_id)].order_label.values.tolist()[0],  
                                        "process_label":df.loc[(df['accountid'] == account_id)].process_label.values.tolist()[0],  
                                        "response_code":df.loc[(df['accountid'] == account_id)].response_code.values.tolist()[0],   
-                                       "response_text":df.loc[(df['accountid'] == account_id)].response_text.values.tolist()[0], 
+                                       "default_response_text":df.loc[(df['accountid'] == account_id)].default_response_text.values.tolist()[0], 
+                                       "response_text":df.loc[(df['passedid'] == passed_id)].response_text.values.tolist()[0], 
                                        "auto_booking":df.loc[(df['accountid'] == account_id)].auto_booking.values.tolist()[0], 
                                        "status":df.loc[(df['accountid'] == account_id)].status.values.tolist()[0],
                                        "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0],
@@ -713,7 +727,7 @@ class DataManager:
                                             "order_label":df.loc[(df['accountid'] == account_id)].order_label.values.tolist()[0],  
                                             "process_label":df.loc[(df['accountid'] == account_id)].process_label.values.tolist()[0],  
                                             "response_code":df.loc[(df['accountid'] == account_id)].response_code.values.tolist()[0],   
-                                            "response_text":df.loc[(df['accountid'] == account_id)].response_text.values.tolist()[0], 
+                                            "default_response_text":df.loc[(df['accountid'] == account_id)].default_response_text.values.tolist()[0], 
                                             "auto_booking":df.loc[(df['accountid'] == account_id)].auto_booking.values.tolist()[0], 
                                             "status":df.loc[(df['accountid'] == account_id)].status.values.tolist()[0],
                                             "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0],
@@ -780,7 +794,7 @@ class DataManager:
                                                 "order_label":df.loc[(df['accountid'] == account_id)].order_label.values.tolist()[0],  
                                                 "process_label":df.loc[(df['accountid'] == account_id)].process_label.values.tolist()[0],  
                                                 "response_code":df.loc[(df['accountid'] == account_id)].response_code.values.tolist()[0],   
-                                                "response_text":df.loc[(df['accountid'] == account_id)].response_text.values.tolist()[0], 
+                                                "default_response_text":df.loc[(df['accountid'] == account_id)].default_response_text.values.tolist()[0], 
                                                 "auto_booking":df.loc[(df['accountid'] == account_id)].auto_booking.values.tolist()[0], 
                                                 "status":df.loc[(df['accountid'] == account_id)].status.values.tolist()[0],
                                                 "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0],
