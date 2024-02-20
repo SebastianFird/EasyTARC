@@ -214,7 +214,8 @@ class ClockFrame(tk.Frame):
         self.btn_edit_response_text.bind("<Button-3>", self.right_clicked)
         self.lbl_name.bind("<Button-3>", self.right_clicked)
         
-        self.packed = None
+        self.packed_time_col = None
+        self.packed_response_text_col = False
         
         self.update_frame()
         self.update_clock()
@@ -235,10 +236,13 @@ class ClockFrame(tk.Frame):
         self.lbl_passed_time.pack(side='right',padx=3)         
         self.lbl_running_clock.pack(side='right',padx=3)
         if int(self.clock.get_bookable()) == 1: 
-            self.btn_edit_response_text.pack(side='right',padx=(3,20))     
+            self.btn_edit_response_text.pack(side='right',padx=(3,20))
+            self.packed_response_text_col = True 
+        else:
+            self.packed_response_text_col = False    
         self.lbl_name.pack(side='left')
 
-        self.packed = "captured_added_time"
+        self.packed_time_col = "captured_added_time"
 
     def pack_full_time(self):
         self.lbl_add_time.pack_forget()
@@ -253,10 +257,13 @@ class ClockFrame(tk.Frame):
         self.lbl_total_time.pack(side='right',padx=3)          
         self.lbl_running_clock.pack(side='right',padx=3) 
         if int(self.clock.get_bookable()) == 1:
-            self.btn_edit_response_text.pack(side='right',padx=(3,20)) 
+            self.btn_edit_response_text.pack(side='right',padx=(3,20))
+            self.packed_response_text_col = True
+        else:
+            self.packed_response_text_col = False
         self.lbl_name.pack(side='left')
 
-        self.packed = "full_time"
+        self.packed_time_col = "full_time"
 
 ################################################################################################################################
 
@@ -596,7 +603,7 @@ class ClockFrame(tk.Frame):
             else:
                 self.btn_edit_response_text.configure(foreground=background_color)
 
-        if self.capture_tab.get_time_column() != self.packed:
+        if (self.capture_tab.get_time_column() != self.packed_time_col) or (int(self.clock.get_bookable()) == 1 and self.packed_response_text_col == False) or (int(self.clock.get_bookable()) == 0 and self.packed_response_text_col == True):
             if self.capture_tab.get_time_column() == 'full_time':
                 self.pack_full_time()
             else:
