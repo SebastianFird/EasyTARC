@@ -546,7 +546,8 @@ class DataManager:
     #################################################################
 
     def check_unbooked_hours(self):
-        hours = self.user_db.check_unbooked_hours()
+        two_month_limit = True
+        hours = self.user_db.check_unbooked_hours(two_month_limit)
         return(hours)
 
     def get_unbooked_record_dict_list_sum_list(self):

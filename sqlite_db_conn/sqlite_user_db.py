@@ -1189,10 +1189,25 @@ class SqlUserDataManager(SqlManager):
         self.save_and_close_db(conn)
         return(id_list)
     
-    def check_unbooked_hours(self):
+    def check_unbooked_hours(self,two_month_limit=False):
         conn = self.open_db_conn()
         cur = conn.cursor()
-        cur.execute("SELECT SUM(passed_times.hours) FROM passed_times INNER JOIN accounts ON passed_times.accountid = accounts.accountid WHERE passed_times.booked = ? and accounts.bookable = ?", (0,1,))
+
+        if two_month_limit == True:
+            dt = datetime.datetime.now()
+            this_month = int(dt.strftime("%m"))
+            year_1 = int(dt.strftime("%Y"))
+            
+            if this_month == 1:
+                last_month = 12
+                year_2 = year_1 - 1
+            else:
+                last_month = this_month - 1
+                year_2 = year_1
+            cur.execute("SELECT SUM(passed_times.hours) FROM passed_times INNER JOIN accounts ON passed_times.accountid = accounts.accountid WHERE passed_times.booked = ? and accounts.bookable = ? and (( passed_times.month = ? and passed_times.year = ?) or (passed_times.month = ? and passed_times.year = ?))", (0,1,this_month,year_1,last_month,year_2))
+        else:
+            cur.execute("SELECT SUM(passed_times.hours) FROM passed_times INNER JOIN accounts ON passed_times.accountid = accounts.accountid WHERE passed_times.booked = ? and accounts.bookable = ?", (0,1,))
+
         hours = cur.fetchone()[0]
         self.save_and_close_db(conn)
         if hours == None:
