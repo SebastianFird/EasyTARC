@@ -23,6 +23,7 @@ from style_classes import MyLabel
 from style_classes import MyButtonPixel 
 
 from gui.window_main.page_main.tab_accounts.Tab_Accounts_Account import AccountFrame
+from gui.Window_Additionals import EditGroupName
 
 class AccountTotal(tk.Frame):
     def __init__(self, container, main_app, gui, accounts_tab):
@@ -58,24 +59,24 @@ class AccountTotal(tk.Frame):
 
         group_name =' - '
 
-        if self.accounts_tab.last_modus == 'group_name':
-            for account_dict in account_dict_list:
-                if group_name != account_dict['group']:
-                    group_frame = GroupFrame(self.main_frame, self.main_app, self.gui,account_dict['group'])
-                    group_frame.pack(side = "top", fill = "x")
-                    self.group_frame_list.append(group_frame)
+        #if self.accounts_tab.last_modus == 'group_name':
+        for account_dict in account_dict_list:
+            if group_name != account_dict['group']:
+                group_frame = GroupFrame(self.main_frame, self.main_app, self.gui,self,account_dict['group'])
+                group_frame.pack(side = "top", fill = "x")
+                self.group_frame_list.append(group_frame)
 
-                account_frame = AccountFrame(self.main_frame, self.main_app, self.gui,self.accounts_tab,self,account_dict)
-                account_frame.pack(side = "top", fill = "x")
-                self.account_frame_list.append(account_frame)
+            account_frame = AccountFrame(self.main_frame, self.main_app, self.gui,self.accounts_tab,self,account_dict)
+            account_frame.pack(side = "top", fill = "x")
+            self.account_frame_list.append(account_frame)
 
-                group_name = account_dict['group']
+            group_name = account_dict['group']
 
-        else: 
-            for account_dict in account_dict_list:
-                account_frame = AccountFrame(self.main_frame, self.main_app, self.gui,self.accounts_tab,self,account_dict)
-                account_frame.pack(side = "top", fill = "x")
-                self.account_frame_list.append(account_frame)
+        #else: 
+        #    for account_dict in account_dict_list:
+        #        account_frame = AccountFrame(self.main_frame, self.main_app, self.gui,self.accounts_tab,self,account_dict)
+        #        account_frame.pack(side = "top", fill = "x")
+        #        self.account_frame_list.append(account_frame)
 
         self.update()
         return
@@ -103,12 +104,13 @@ class AccountTotal(tk.Frame):
         return
     
 class GroupFrame((tk.Frame)):
-    def __init__(self, container, main_app, gui, group_name):
+    def __init__(self, container, main_app, gui, account_total, group_name):
          
         self.main_app = main_app
         self.data_manager = self.main_app.get_data_manager()
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
+        self.account_total = account_total
 
         MyFrame.__init__(self, container, self.data_manager)
 
@@ -144,10 +146,38 @@ class GroupFrame((tk.Frame)):
             self.separator_frame_1.pack(side = "top",fill='x')
 
 
-        self.lbl_group = MyLabel(self.group_name_frame,self.data_manager,text = '  ' + str(self.group_name) + ':', anchor = 'w', width=50)
+        self.lbl_group = MyLabel(self.group_name_frame,self.data_manager,text = '  ' + str(self.group_name) + ':', anchor = 'w')
         self.lbl_group.configure(font = Font_tuple)
         self.lbl_group.pack(side = "left")
+
+        self.lbl_group_edit = MyLabel(self.group_name_frame,self.data_manager,text=u'\U0001F58D',width=5, anchor = 'w')
+        self.lbl_group_edit.configure(foreground=self.style_dict["background_color_grey"])
+        self.lbl_group_edit.pack(side = "left")
+
+        self.lbl_group_edit.bind("<Enter>", self.enter_group_edit)
+        self.lbl_group_edit.bind("<Leave>", self.leave_group_edit)
+        self.lbl_group_edit.bind("<Button-1>", self.activate_group_edit)
+
+        self.lbl_group.bind("<Enter>", self.enter_group_name)
+        self.lbl_group.bind("<Leave>", self.leave_group_name)
+
         return
+    
+    def enter_group_edit(self,e):
+        self.lbl_group_edit.configure(foreground=self.style_dict["font_color"])
+
+    def leave_group_edit(self,e):
+        self.lbl_group_edit.configure(foreground=self.style_dict["background_color_grey"])
+
+    def activate_group_edit(self,e=None):
+        if self.main_app.get_action_state() == "normal":
+            edit_response_text_window = EditGroupName(self.main_app, self.gui, self.account_total.accounts_tab.main_frame,self.group_name, self.account_total.accounts_tab)
+
+    def enter_group_name(self,e):
+        self.lbl_group_edit.configure(foreground=self.style_dict["highlight_color_grey"])
+        
+    def leave_group_name(self,e):
+        self.lbl_group_edit.configure(foreground=self.style_dict["background_color_grey"])
 
     def update(self):
         return
@@ -161,6 +191,8 @@ class GroupFrame((tk.Frame)):
         self.separator_frame_1.refresh_style()
         self.group_name_frame.refresh_style()
         self.lbl_group.refresh_style()
+        self.lbl_group_edit.refresh_style()
+        self.lbl_group_edit.configure(foreground=self.style_dict["background_color_grey"])
 
         self.update()
         return

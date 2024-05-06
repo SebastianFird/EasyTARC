@@ -92,26 +92,14 @@ class SetupHead:
         self.btn_about_easytarc = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict['about_EasyTARC'],width=15,command=self.show_about)
         self.btn_about_easytarc.pack(side='right',padx = 10,pady=10)
 
-        self.btn_directory = MyButton(self.main_head_frame, self.data_manager,text=u'\U0001F4C1',width=5,command=self.show_directory)
-        self.btn_directory.pack(side='right',padx = 10,pady=10)
-        directory_text = self.language_dict['easytarc_directory']
-        self.btn_directory_ttp = CreateInfo(self.btn_directory, self.data_manager, 30, 25, directory_text)
-        self.btn_directory.bind("<Enter>", self.directory_enter)
-        self.btn_directory.bind("<Leave>", self.directory_leave)
+        self.btn_your_data = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict['your_data'],width=15,command=self.show_your_data)
+        self.btn_your_data.pack(side='right',padx = 10,pady=10)
 
         self.update_main_head()
         return
     
     def update_main_head(self):
         return
-    
-    def directory_enter(self,e):
-        self.btn_directory.configure(background=self.style_dict["selected_color_grey"])
-        self.btn_directory_ttp.scheduleinfo()
-
-    def directory_leave(self,e):
-        self.btn_directory.configure(background=self.style_dict["btn_color_grey"])
-        self.btn_directory_ttp.hideinfo()
 
     def show_release_notes(self):
         text = self.language_dict['release_notes'] + ":"
@@ -131,14 +119,16 @@ class SetupHead:
         text = text + "\n\n" + self.language_dict['release_note_text_14']
         text = text + "\n\n" + self.language_dict['release_note_text_15']
         text = text + "\n\n" + self.language_dict['release_note_text_16']
+        text = text + "\n\n" + self.language_dict['release_note_text_17']
 
         info_window = InfoWindow(self.main_app, self.gui, self.setup_tab.main_frame ,text,600,400)
         return
     
-    def show_directory(self):
-        os.startfile(self.main_app.get_filepath())
-        self.gui.root.iconify()
-        return
+    def show_your_data(self):
+        text = self.language_dict['your_data_text_1'] 
+        text = text + "\n\n" + self.language_dict["your_data_text_2"]
+
+        info_window = InfoWindow(self.main_app, self.gui, self.setup_tab.main_frame ,text,600,400)
     
     def show_tips(self):
         text = self.language_dict["tips_and_tricks_1"]
@@ -166,12 +156,11 @@ class SetupHead:
     def refresh_main_head(self):
         self.main_head_frame.refresh_style()
         self.btn_release_notes.refresh_style()
-        self.btn_directory.refresh_style()
+        self.btn_your_data.refresh_style()
         self.btn_about_easytarc.refresh_style()
         self.btn_tips.refresh_style()
         self.lbl_version.refresh_style()
         self.lbl_config.refresh_style()
-        self.btn_directory_ttp.refresh()
 
         self.lbl_version.configure(background=self.style_dict["header_color_blue"],foreground = self.style_dict["font_color_white"])
         self.lbl_config.configure(background=self.style_dict["header_color_blue"],foreground = self.style_dict["font_color_white"])
@@ -182,8 +171,6 @@ class SetupHead:
         self.lbl_config.configure(text=self.language_dict['configuration'] + ': ' + self.data_manager.user_db.get_db_config())
         self.btn_release_notes.configure(text=self.language_dict['release_notes'])
         self.btn_tips.configure(text=self.language_dict['tips_and_tricks'])
-
-        directory_text = self.language_dict['easytarc_directory']
-        self.btn_directory_ttp.text = directory_text
+        self.btn_your_data.configure(text=self.language_dict['your_data'])
         return
     

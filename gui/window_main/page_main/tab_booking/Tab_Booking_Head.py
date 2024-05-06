@@ -195,7 +195,7 @@ class BookingHead:
         self.lbl_empty4 = MyLabel(self.response_visible_frame, self.data_manager, width=2)
         self.lbl_empty4.pack(side='right',padx=3)
 
-        self.lbl_response = MyLabel(self.response_visible_frame, self.data_manager, text=self.language_dict["response_text"],width=21)
+        self.lbl_response = MyLabel(self.response_visible_frame, self.data_manager, text=self.language_dict["response_text"],width=28)
         self.lbl_response.pack(side='right',padx = 3)
 
         self.lbl_empty5 = MyLabel(self.response_visible_frame, self.data_manager, width=5)
@@ -221,7 +221,7 @@ class BookingHead:
         self.lbl_empty7 = MyLabel(self.passed_time_visible_frame, self.data_manager, width=2)
         self.lbl_empty7.pack(side='right',padx=3)
 
-        self.lbl_passed_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=self.language_dict["hours"],width=9)
+        self.lbl_passed_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=self.language_dict["hours"] + ' [' + self.language_dict["hours_abbreviation"] + ']',width=9)
         self.lbl_passed_time.pack(side='right',padx = 3)
 
         self.lbl_empty8 = MyLabel(self.passed_time_visible_frame, self.data_manager, width=5)

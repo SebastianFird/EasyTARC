@@ -137,6 +137,7 @@ class TabManager:
 
         elif tab == self.tab_name_setup:
             self.setup_tab.activate()
+            self.setup_tab.reload()
             self.active_tab = self.setup_tab
 
     def activate_current_tab(self):

@@ -41,8 +41,12 @@ class WorkWindowBar(WorkWindowCbox):
         self.main_frame_leave = True
         self.pos_moved = False
 
+        self.opacity = 1
+        self.opacity_after_method = None
+
         self.modus = self.main_app.get_setting('bar_work_window_modus')
         self.attach_pos = self.main_app.get_setting('bar_work_window_attach_pos')
+        self.dynamic_opacity = self.main_app.get_setting('bar_work_window_dynamic_opacity')
 
         ###########
         
@@ -79,8 +83,34 @@ class WorkWindowBar(WorkWindowCbox):
 
         self.overrideredirect(1)
         self.attributes('-topmost',True) 
-        self.attributes("-alpha", 1)
+        self.attributes("-alpha", 1) 
         self.save_window_pos()
+
+        self.root.update()
+
+        self.opacity_after_method = self.after(300, lambda:self.delay_opacity())
+
+    def get_dynamic_opacity(self):
+        return(self.main_app.get_setting('bar_work_window_dynamic_opacity'))
+    
+    def change_dynamic_opacity(self):
+        if self.main_app.get_setting('bar_work_window_dynamic_opacity') == 'on':
+            self.main_app.change_settings('bar_work_window_dynamic_opacity','off')
+            self.opacity = 1
+        else:
+            self.main_app.change_settings('bar_work_window_dynamic_opacity','on')
+            self.opacity = float(self.main_app.get_setting('dynamic_opacity'))/100
+        self.attributes("-alpha", self.opacity)
+
+    def delay_opacity(self):
+        if self.main_app.get_setting('bar_work_window_dynamic_opacity') == 'on':
+            self.opacity = float(self.main_app.get_setting('dynamic_opacity'))/100
+        else:
+            self.opacity = 1
+        self.attributes("-alpha", self.opacity)
+
+        self.after_cancel(self.opacity_after_method)
+        self.opacity_after_method = None
         
         
 ##############################################################################################################################
@@ -183,8 +213,21 @@ class WorkWindowBar(WorkWindowCbox):
     def main_enter(self,e):
         self.main_frame_leave = False
 
+        self.data_manager.set_last_tracked_interaction()
+
+        if self.opacity != 1:
+            self.opacity = 1
+            self.attributes("-alpha", self.opacity)
+
     def main_leave(self,e=None):
         self.main_frame_leave = True
+
+        self.data_manager.set_last_tracked_interaction()
+
+        if self.main_app.get_setting('bar_work_window_dynamic_opacity') == 'on':
+            self.opacity = float(self.main_app.get_setting('dynamic_opacity'))/100
+            self.attributes("-alpha", self.opacity)
+
 
         if self.modus == 'dynamic_view':
             if self.after_func_leave != None:

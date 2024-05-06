@@ -17,7 +17,13 @@ __author__ = 'Sebastian Feiert'
 
 import tkinter as tk
 from tkinter import ttk
+import datetime
 from tkinter.font import BOLD, Font
+import pandas as pd
+import decimal
+import json
+import locale
+
 
 from gui.Scroll_Frame import Scroll_Frame
 
@@ -26,13 +32,14 @@ from style_classes import MyLabel
 from style_classes import MyButton
 from style_classes import MyLabelPixel
 from style_classes import MyTipLabel
+from style_classes import MyEntry 
 
 
 class CreateToolTip(object):
     """
     create a tooltip for a given widget
     """
-    def __init__(self, widget, data_manager, rel_x, rey_y, text=''):
+    def __init__(self, widget, data_manager, rel_x, rey_y, text='', highlight=False):
 
         self.widget = widget
         self.data_manager = data_manager
@@ -40,8 +47,9 @@ class CreateToolTip(object):
         self.rel_x = rel_x
         self.rey_y = rey_y
         self.text = text
-
+        self.highlight = highlight
         self.waittime = 500     #miliseconds
+        self.normal_bg = None
 
         self.widget.bind("<Enter>", self.enter)
         self.widget.bind("<Leave>", self.leave)
@@ -52,11 +60,17 @@ class CreateToolTip(object):
     def enter(self, event=None):
         if type(self.widget) == MyButton:
             self.widget.configure(background=self.style_dict["selected_color_grey"])
+        if type(self.widget) == MyLabel and self.highlight == True:
+            self.normal_bg = self.widget.cget("background")
+            self.widget.configure(background=self.style_dict["highlight_color_yellow"])
         self.schedule()
 
     def leave(self, event=None):
         if type(self.widget) == MyButton:
             self.widget.configure(background=self.style_dict["btn_color_grey"])
+        if type(self.widget) == MyLabel and self.highlight == True:
+            if self.normal_bg != None:
+                self.widget.configure(background=self.normal_bg)
         self.unschedule()
         self.hidetip()
 
@@ -273,8 +287,16 @@ class CurrentAddedTimeTip(object):
             full_time_sign = '-'
         else:
             full_time_sign = ''
+
         if abs(self.added_full_time) > 0:
-            self.clock_frame.add_full_time_correction_str('\n' + self.language_dict['correction'] + ': ' + full_time_sign +' '+ str(abs(self.added_full_time)) + ' ' + self.language_dict['min'])
+            event_dict = {
+                "timestamp": datetime.datetime.now(),
+                "kind":"correction",
+                "sign":full_time_sign,
+                "abs_time":str(abs(self.added_full_time)),
+                "unit":"min"
+            }
+            self.clock_frame.clock.append_recording_correction_dict_list(event_dict)
 
         self.unschedule()
         tw = self.tw
@@ -1488,11 +1510,11 @@ class EditResponseText(tk.Toplevel):
         scroll_frame = self.scroll.create_scroll_frame(bodyframe)
 
         frame_dropdown = MyFrame(scroll_frame,self.data_manager)
-        frame_dropdown.pack(side = "top", padx=10, pady=4,fill='x')
+        frame_dropdown.pack(side = "top", padx=15, pady=5,fill='x')
 
-        lbl_dropdown_info = MyLabel(frame_dropdown,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=3)
+        lbl_dropdown_info = MyLabel(frame_dropdown,self.data_manager,text= u'\U00002139',width=3)
         lbl_dropdown_info.pack(side = "left")
-        lbl_dropdown_info_ttp = CreateToolTip(lbl_dropdown_info, self.data_manager, 0, 30, self.language_dict["edit_response_text"])
+        lbl_dropdown_info_ttp = CreateToolTip(lbl_dropdown_info, self.data_manager, 0, 30, self.language_dict["edit_response_text"], True)
 
         self.response_text = tk.StringVar()
         self.response_cbox = ttk.Combobox(frame_dropdown, width = 50, textvariable = self.response_text)
@@ -1506,7 +1528,7 @@ class EditResponseText(tk.Toplevel):
             self.response_text.set(response_text_original)
 
         frame_template = MyFrame(scroll_frame,self.data_manager)
-        frame_template.pack(side = "top", padx=10, pady=4,fill='x')
+        frame_template.pack(side = "top", padx=15, pady=5,fill='x')
 
         lbl_empty = MyLabel(frame_template,self.data_manager,text='',anchor='w',justify='left',width=3)
         lbl_empty.pack(side = "left")
@@ -1518,7 +1540,7 @@ class EditResponseText(tk.Toplevel):
         btn_delete_template.pack(side='left', pady=5, padx=5)
 
         frame_error = MyFrame(scroll_frame,self.data_manager)
-        frame_error.pack(side = "top", padx=10, pady=4,fill='x')
+        frame_error.pack(side = "top", padx=15, pady=15,fill='x')
 
         self.lbl_error_info = MyLabel(frame_error,self.data_manager,anchor='w',justify='left')
         self.lbl_error_info.configure(foreground=self.style_dict["caution_color_red"])
@@ -1585,6 +1607,806 @@ class EditResponseText(tk.Toplevel):
             self.destroy()
         else:
             self.lbl_error_info.configure(text=check_response)
+
+    def get_pos(self, event):
+        self.x_win = self.winfo_x()
+        self.y_win = self.winfo_y()
+        self.start_x = event.x_root
+        self.start_y = event.y_root
+        self.y_win = self.y_win - self.start_y
+        self.x_win = self.x_win - self.start_x
+
+    def move_window(self, event):
+        self.geometry('+{0}+{1}'.format(event.x_root + self.x_win, event.y_root + self.y_win))
+        self.start_x = event.x_root
+        self.start_y = event.y_root
+
+
+class EditGroupName(tk.Toplevel):
+    def __init__(self, main_app, gui, widget, group_name, account_tab = None, *args, **kwargs):
+        tk.Toplevel.__init__(self, widget)
+
+        self.gui = gui
+        self.main_app = main_app
+        self.data_manager = self.main_app.get_data_manager()
+        self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
+        self.widget = widget
+        self.original_group_name = group_name
+        self.account_tab = account_tab
+
+        geo_factor = float(self.main_app.get_setting("geometry_factor"))
+        self.w = int(round(geo_factor*550))
+        self.h = int(round(geo_factor*150))
+
+        self.user_db = self.main_app.data_manager.user_db
+
+        x, y, cx, cy = self.widget.bbox("insert")
+
+        x = x + self.widget.winfo_rootx() + self.widget.winfo_width() / 2 - self.w / 2
+        y = y + cy + self.widget.winfo_rooty() + self.widget.winfo_height() / 2 - self.h / 2
+
+        self.gui.disable_main_window()
+
+        self.wm_geometry('%dx%d+%d+%d' % (self.w, self.h, x, y))
+        self.wm_overrideredirect(1)
+        self.attributes('-topmost', True)
+
+        self.widget_color = self.style_dict["info_color_light_blue"]
+        self.title_fcolor = self.style_dict["font_color"]
+
+        self.scroll = Scroll_Frame(self.main_app,self.gui)
+
+        self.run_main_frame()
+
+    def run_main_frame(self):
+        # Create A Main Frame
+        self.main_frame = MyFrame(self, self.data_manager)
+        self.main_frame.configure(highlightthickness=1, highlightcolor=self.widget_color,
+                                  highlightbackground=self.widget_color)
+        self.main_frame.pack(side="top", fill="both", expand=True)
+
+        self.main_frame.grid_rowconfigure(0, weight=1)
+        self.main_frame.grid_columnconfigure(0, weight=1)
+
+        # make a frame for the title bar
+        self.title_bar = MyFrame(self.main_frame, self.data_manager)
+        self.title_bar.configure(background=self.widget_color)
+        self.title_bar.pack(side='top', fill="x")
+        self.title_bar.bind('<B1-Motion>', self.move_window)
+        self.title_bar.bind('<Button-1>', self.get_pos)
+
+        close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
+        close_button.configure(background=self.widget_color, height=30)
+        close_button.pack(side='right')
+        close_button.bind('<Button-1>', self.return_window)
+
+        def on_enter1(e):
+            close_button.configure(background=self.style_dict["caution_color_red"])
+
+        def on_leave1(e):
+            close_button.configure(background=self.widget_color)
+
+        close_button.bind("<Enter>", on_enter1)
+        close_button.bind("<Leave>", on_leave1)
+
+        lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text=self.language_dict["rename_group"])
+        lbl_name.configure(background=self.widget_color, height=30, foreground=self.title_fcolor)
+        lbl_name.pack(side='left')
+        lbl_name.bind('<B1-Motion>', self.move_window)
+        lbl_name.bind('<Button-1>', self.get_pos)
+
+        def btn_frame():
+            btnframe = MyFrame(self.main_frame,self.data_manager)
+            btnframe.configure(background=self.style_dict["btn_color_grey"])
+
+            btn_save = MyButton(btnframe, self.data_manager, width=20, text=self.language_dict["apply"], command=self.save_group_name)
+            btn_save.pack(side='right', pady=5, padx=5)
+
+            btn_back = MyButton(btnframe, self.data_manager, width=8, text=self.language_dict["back"], command=self.return_window)
+            btn_back.pack(side='right', pady=5, padx=5)
+
+            return(btnframe)
+
+        btnframe = btn_frame()
+        btnframe.pack(side = "bottom", fill = "x")
+
+        self.body_frame()
+
+    def body_frame(self):
+        bodyframe = MyFrame(self.main_frame,self.data_manager)
+        scroll_frame = self.scroll.create_scroll_frame(bodyframe)
+
+        frame_dropdown = MyFrame(scroll_frame,self.data_manager)
+        frame_dropdown.pack(side = "top", padx=15, pady=15,fill='x')
+
+        lbl_dropdown_info = MyLabel(frame_dropdown,self.data_manager,text=u'\U00002139',width=3)
+        lbl_dropdown_info.pack(side = "left")
+        lbl_dropdown_info_ttp = CreateToolTip(lbl_dropdown_info, self.data_manager, 0, 30, self.language_dict["edit_group_name"], True)
+
+        self.group_name = tk.StringVar()
+        self.group_cbox = ttk.Combobox(frame_dropdown, width = 50, textvariable = self.group_name)
+        self.get_all_group_names()
+        self.group_cbox.pack(side="left", padx=10)
+
+        self.group_name.set(self.original_group_name)
+
+        frame_error = MyFrame(scroll_frame,self.data_manager)
+        frame_error.pack(side = "top", padx=10, pady=4,fill='x')
+
+        self.lbl_error_info = MyLabel(frame_error,self.data_manager,anchor='w',justify='left')
+        self.lbl_error_info.configure(foreground=self.style_dict["caution_color_red"])
+        self.lbl_error_info.pack(side = "left", padx=10, pady=5)
+
+        bodyframe.pack(side="top", fill="both", expand=True)
+        return()
+        
+    def get_all_group_names(self):
+        self.group_cbox['values'] = self.data_manager.get_all_account_groups()
+        return
+
+    def check_characters(self,text_list):
+        for text in text_list:
+            if '#' in text:
+                return(self.language_dict['not_allowed_characters']) 
+            if '=' in text:
+                return(self.language_dict['not_allowed_characters'])
+            if ',' in text:
+                return(self.language_dict['not_allowed_characters']) 
+        return(True)
+
+    def return_window(self, *event):
+        self.gui.enable_main_window()
+        self.gui.activate_current_tab()
+        self.destroy()
+
+    def save_group_name(self):
+        group_name = self.group_name.get()
+
+        if self.original_group_name == group_name:
+            self.gui.enable_main_window()
+            self.gui.activate_current_tab()
+            self.destroy()
+
+
+        check_response = self.check_characters([group_name])
+        if check_response == True:
+            self.lbl_error_info.configure(text='')
+            if group_name == '':
+                group_name = ' - '
+
+            self.data_manager.user_db.account_set_group_name(self.original_group_name, group_name)
+
+
+            self.data_manager.update_clocks()
+
+            self.gui.main_window.case_frame.notebook_frame.tab_manager.accounts_tab.reload()
+
+            self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.update_clock_properties()
+            self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.update_work_window_group_main_account_list()
+
+            self.gui.enable_main_window()
+            self.gui.activate_current_tab()
+            self.destroy()
+        else:
+            self.lbl_error_info.configure(text=check_response)
+
+    def get_pos(self, event):
+        self.x_win = self.winfo_x()
+        self.y_win = self.winfo_y()
+        self.start_x = event.x_root
+        self.start_y = event.y_root
+        self.y_win = self.y_win - self.start_y
+        self.x_win = self.x_win - self.start_x
+
+    def move_window(self, event):
+        self.geometry('+{0}+{1}'.format(event.x_root + self.x_win, event.y_root + self.y_win))
+        self.start_x = event.x_root
+        self.start_y = event.y_root
+
+class SleepModeinfo(tk.Toplevel):
+    def __init__(self ,main_app, gui, widget, text_dict, w, h, last_active_clock, time_diff, last_tracked_interaction, restore_btn_text, *args, **kwargs):
+        tk.Toplevel.__init__(self,widget)
+
+        self.gui = gui
+        self.main_app = main_app
+        self.data_manager = self.main_app.get_data_manager()
+        self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
+        self.widget = widget
+
+        geo_factor = float(self.main_app.get_setting("geometry_factor"))
+        self.w = int(round(geo_factor*w))
+        self.h = int(round(geo_factor*h))
+
+        self.last_active_clock = last_active_clock
+        self.restore_time_diff = time_diff
+        self.last_tracked_interaction = last_tracked_interaction
+        self.restore_btn_text = restore_btn_text
+
+        self.text_dict = text_dict
+
+        x, y, cx, cy = self.widget.bbox("insert")
+
+        x = x + self.widget.winfo_rootx() + self.widget.winfo_width()/2 - self.w/2
+        y = y + cy + self.widget.winfo_rooty() + self.widget.winfo_height()/2 - self.h/2
+
+        self.gui.disable_main_window()
+
+        self.wm_geometry('%dx%d+%d+%d' % (self.w, self.h, x, y))
+        self.wm_overrideredirect(1)
+        self.attributes('-topmost',True)
+
+        self.widget_color = self.style_dict["highlight_color_yellow"]
+        self.title_fcolor = self.style_dict["font_color_black"]
+
+        self.scroll = Scroll_Frame(self.main_app,self.gui)
+
+
+        self.run_main_frame()
+
+    def run_main_frame(self):
+
+        # Create A Main Frame
+        self.main_frame = MyFrame(self, self.data_manager)
+        self.main_frame.configure(highlightthickness=1, highlightcolor=self.widget_color,
+                            highlightbackground=self.widget_color)
+        self.main_frame.pack(side = "top", fill = "both", expand = True)
+
+        self.main_frame.grid_rowconfigure(0, weight = 1)
+        self.main_frame.grid_columnconfigure(0, weight = 1)
+
+
+        # make a frame for the title bar
+        self.title_bar = MyFrame(self.main_frame,self.data_manager)
+        self.title_bar.configure(background=self.widget_color)
+        self.title_bar.pack(side='top', fill = "x")
+        self.title_bar.bind('<B1-Motion>', self.move_window)
+        self.title_bar.bind('<Button-1>', self.get_pos)
+
+
+        close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
+        close_button.configure(background=self.widget_color,height=30)
+        close_button.pack(side='right')
+        close_button.bind('<Button-1>', self.close_window)
+
+        def on_enter1(e):
+            close_button.configure(background=self.style_dict["caution_color_red"])
+
+        def on_leave1(e):
+            close_button.configure(background=self.widget_color)
+
+        close_button.bind("<Enter>", on_enter1)
+        close_button.bind("<Leave>", on_leave1)
+
+        lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text = '   EasyTARC   ' + self.language_dict["sleep_mode"])
+        lbl_name.configure(background=self.widget_color,height=30,foreground=self.title_fcolor)
+        lbl_name.pack(side='left')
+        lbl_name.bind('<B1-Motion>', self.move_window)
+        lbl_name.bind('<Button-1>', self.get_pos)
+
+        def btn_frame():
+            btnframe = MyFrame(self.main_frame,self.data_manager)
+            btnframe.configure(background=self.style_dict["btn_color_grey"])
+
+            btn_ok = MyButton(btnframe, self.data_manager,width=8,text=self.language_dict["ok"],command=self.close_window)
+            btn_ok.pack(side = 'right', pady = 5, padx=5)
+
+            btn_restore_recording = MyButton(btnframe, self.data_manager,width=40,text=self.restore_btn_text,command=self.restore_recording)
+            btn_restore_recording.pack(side = 'right', pady = 5, padx=5)
+
+            return(btnframe)
+
+        btnframe = btn_frame()
+        btnframe.pack(side = "bottom", fill = "x")
+            
+        def body_frame():
+            bodyframe = MyFrame(self.main_frame,self.data_manager)
+            scroll_frame = self.scroll.create_scroll_frame(bodyframe)
+
+            font_family = self.main_app.get_setting('font_family')
+            font_size = self.main_app.get_setting('font_size')
+            Font_tuple = (font_family, font_size, "bold")
+
+            row_nbr = 0
+
+            for item in self.text_dict.items():
+
+                key, value = item
+                key_text = str(key)
+                value_text = str(value)
+
+                col_nbr = 0
+
+                lbl_text_col0 = MyLabel(scroll_frame, self.data_manager, text=key_text + ': ',wraplength=self.w/2, anchor='w', justify="left")
+                lbl_text_col0.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5, sticky='w')
+
+                if len(value_text) > 0:
+                    if value_text[0] == '#':
+                        lbl_text_col0.configure(font = Font_tuple)
+                        value_text = value_text[1:]
+
+                col_nbr = col_nbr + 1
+
+                lbl_text_col1 = MyLabel(scroll_frame, self.data_manager, text=value_text,wraplength=self.w/2, anchor='w', justify="left")
+                lbl_text_col1.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5, sticky='w')
+
+                row_nbr = row_nbr + 1
+
+            return(bodyframe)
+
+        bodyframe = body_frame()
+        bodyframe.pack(side = "top", fill = "both", expand = True)
+
+    def close_window(self,*event):
+        self.gui.enable_main_window()
+        self.gui.activate_current_tab()
+        self.destroy()
+    
+    def restore_recording(self,*event):
+        response = self.last_active_clock.add_time('-',self.restore_time_diff.seconds/60)
+        if response == True:
+            event_dict = {
+                "timestamp": datetime.datetime.now(),
+                "kind":"restored",
+                "sign":'',
+                "abs_time":self.last_active_clock.str_timedelta(self.last_active_clock.get_total_time()),
+                "unit":""
+            }
+            self.last_active_clock.append_recording_correction_dict_list(event_dict)
+            self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.activate_clock_by_clock_instance(self.last_active_clock)
+            self.data_manager.append_last_tracked_interaction_list_list([datetime.datetime.now(),self.last_tracked_interaction])
+        self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.update()
+        self.gui.enable_main_window()
+        self.gui.activate_current_tab()
+        self.destroy()
+        return
+
+    def get_pos(self, event):
+        self.x_win = self.winfo_x()
+        self.y_win = self.winfo_y()
+        self.start_x = event.x_root
+        self.start_y = event.y_root
+        self.y_win = self.y_win - self.start_y
+        self.x_win = self.x_win - self.start_x
+
+    def move_window(self, event):
+        self.geometry('+{0}+{1}'.format(event.x_root + self.x_win, event.y_root + self.y_win))
+        self.start_x = event.x_root
+        self.start_y = event.y_root
+
+class EditDataDate(tk.Toplevel):
+    def __init__(self, main_app, gui, widget, data_tab, record_frame_list, *args, **kwargs):
+        tk.Toplevel.__init__(self, widget)
+
+        self.gui = gui
+        self.main_app = main_app
+        self.data_manager = self.main_app.get_data_manager()
+        self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
+        self.widget = widget
+        self.record_frame_list = record_frame_list
+        self.data_tab = data_tab
+
+        geo_factor = float(self.main_app.get_setting("geometry_factor"))
+        self.w = int(round(geo_factor*350))
+        self.h = int(round(geo_factor*150))
+
+        self.user_db = self.main_app.data_manager.user_db
+
+        x, y, cx, cy = self.widget.bbox("insert")
+
+        x = x + self.widget.winfo_rootx() + self.widget.winfo_width() / 2 - self.w / 2
+        y = y + cy + self.widget.winfo_rooty() + self.widget.winfo_height() / 2 - self.h / 2
+
+        self.gui.disable_main_window()
+
+        self.wm_geometry('%dx%d+%d+%d' % (self.w, self.h, x, y))
+        self.wm_overrideredirect(1)
+        self.attributes('-topmost', True)
+
+        self.widget_color = self.style_dict["info_color_light_blue"]
+        self.title_fcolor = self.style_dict["font_color"]
+
+        self.scroll = Scroll_Frame(self.main_app,self.gui)
+
+        self.run_main_frame()
+
+    def run_main_frame(self):
+        # Create A Main Frame
+        self.main_frame = MyFrame(self, self.data_manager)
+        self.main_frame.configure(highlightthickness=1, highlightcolor=self.widget_color,
+                                  highlightbackground=self.widget_color)
+        self.main_frame.pack(side="top", fill="both", expand=True)
+
+        self.main_frame.grid_rowconfigure(0, weight=1)
+        self.main_frame.grid_columnconfigure(0, weight=1)
+
+        # make a frame for the title bar
+        self.title_bar = MyFrame(self.main_frame, self.data_manager)
+        self.title_bar.configure(background=self.widget_color)
+        self.title_bar.pack(side='top', fill="x")
+        self.title_bar.bind('<B1-Motion>', self.move_window)
+        self.title_bar.bind('<Button-1>', self.get_pos)
+
+        close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
+        close_button.configure(background=self.widget_color, height=30)
+        close_button.pack(side='right')
+        close_button.bind('<Button-1>', self.return_window)
+
+        def on_enter1(e):
+            close_button.configure(background=self.style_dict["caution_color_red"])
+
+        def on_leave1(e):
+            close_button.configure(background=self.widget_color)
+
+        close_button.bind("<Enter>", on_enter1)
+        close_button.bind("<Leave>", on_leave1)
+
+        lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text=self.language_dict["change_date"])
+        lbl_name.configure(background=self.widget_color, height=30, foreground=self.title_fcolor)
+        lbl_name.pack(side='left')
+        lbl_name.bind('<B1-Motion>', self.move_window)
+        lbl_name.bind('<Button-1>', self.get_pos)
+
+        def btn_frame():
+            btnframe = MyFrame(self.main_frame,self.data_manager)
+            btnframe.configure(background=self.style_dict["btn_color_grey"])
+
+            btn_save = MyButton(btnframe, self.data_manager, width=20, text=self.language_dict["apply"], command=self.save_new_date)
+            btn_save.pack(side='right', pady=5, padx=5)
+
+            btn_back = MyButton(btnframe, self.data_manager, width=8, text=self.language_dict["back"], command=self.return_window)
+            btn_back.pack(side='right', pady=5, padx=5)
+
+            return(btnframe)
+
+        btnframe = btn_frame()
+        btnframe.pack(side = "bottom", fill = "x")
+
+        self.body_frame()
+
+    def body_frame(self):
+        bodyframe = MyFrame(self.main_frame,self.data_manager)
+        scroll_frame = self.scroll.create_scroll_frame(bodyframe)
+
+        frame_dropdown = MyFrame(scroll_frame,self.data_manager)
+        frame_dropdown.pack(side = "top", padx=15, pady=15,fill='x')
+
+        self.date = tk.StringVar()
+        self.date_cbox = ttk.Combobox(frame_dropdown, width = 25, textvariable = self.date)
+
+        # https://codeigo.com/python/get-the-previous-month-or-day/
+
+        dt_today = datetime.datetime.now()
+        first = dt_today.replace(day=1)
+        last_month = first - datetime.timedelta(days=1)
+        first_last_month = last_month.replace(day=1)
+
+        # https://pynative.com/python-create-list-of-dates-within-range/
+
+        start_date = first_last_month
+        end_date = dt_today
+
+        D = 'D'
+        date_list_range = pd.date_range(start_date, end_date, freq=D)
+
+        date_str_list = date_list_range.strftime("%d.%m.%Y").to_list()
+        date_str_list_reverse = date_str_list[::-1]
+        date_list = date_str_list_reverse
+
+        date_list = [self.record_frame_list[0].record_dict["date_record"].strftime("%d.%m.%Y")] + date_list
+
+        self.date_cbox['values'] = date_list
+        self.date.set(date_list[0])
+        self.date_cbox.pack(side="left", padx=10)
+
+        bodyframe.pack(side="top", fill="both", expand=True)
+        return()
+
+    def return_window(self, *event):
+        self.gui.enable_main_window()
+        self.gui.activate_current_tab()
+        self.destroy()
+
+    def save_new_date(self):
+        new_date = self.date.get()
+
+        new_date = datetime.datetime.strptime(new_date, "%d.%m.%Y")
+        day = int(new_date.strftime("%d"))
+        month = int(new_date.strftime("%m"))
+        year = int(new_date.strftime("%Y"))
+
+        for record_frame in self.record_frame_list:
+            self.data_manager.user_db.change_record_date(record_frame.record_dict["passed_id"],year,month,day)
+
+        self.data_manager.update_clocks()
+        self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.update_clock_properties()
+
+        self.data_tab.reload()
+        self.gui.enable_main_window()
+        self.gui.activate_current_tab()
+        self.destroy()
+
+    def get_pos(self, event):
+        self.x_win = self.winfo_x()
+        self.y_win = self.winfo_y()
+        self.start_x = event.x_root
+        self.start_y = event.y_root
+        self.y_win = self.y_win - self.start_y
+        self.x_win = self.x_win - self.start_x
+
+    def move_window(self, event):
+        self.geometry('+{0}+{1}'.format(event.x_root + self.x_win, event.y_root + self.y_win))
+        self.start_x = event.x_root
+        self.start_y = event.y_root
+
+
+class EditRemainingTime(tk.Toplevel):
+    def __init__(self, main_app, gui, widget, clock, *args, **kwargs):
+        tk.Toplevel.__init__(self, widget)
+
+        self.gui = gui
+        self.main_app = main_app
+        self.data_manager = self.main_app.get_data_manager()
+        self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
+        self.widget = widget
+        self.clock = clock
+
+        geo_factor = float(self.main_app.get_setting("geometry_factor"))
+        self.w = int(round(geo_factor*600))
+        self.h = int(round(geo_factor*400))
+
+        self.user_db = self.main_app.data_manager.user_db
+
+        x, y, cx, cy = self.widget.bbox("insert")
+
+        x = x + self.widget.winfo_rootx() + self.widget.winfo_width() / 2 - self.w / 2
+        y = y + cy + self.widget.winfo_rooty() + self.widget.winfo_height() / 2 - self.h / 2
+
+        self.gui.disable_main_window()
+
+        self.wm_geometry('%dx%d+%d+%d' % (self.w, self.h, x, y))
+        self.wm_overrideredirect(1)
+        self.attributes('-topmost', True)
+
+        self.widget_color = self.style_dict["info_color_light_blue"]
+        self.title_fcolor = self.style_dict["font_color"]
+
+        self.scroll = Scroll_Frame(self.main_app,self.gui)
+
+        self.run_main_frame()
+
+    def run_main_frame(self):
+        # Create A Main Frame
+        self.main_frame = MyFrame(self, self.data_manager)
+        self.main_frame.configure(highlightthickness=1, highlightcolor=self.widget_color,
+                                  highlightbackground=self.widget_color)
+        self.main_frame.pack(side="top", fill="both", expand=True)
+
+        self.main_frame.grid_rowconfigure(0, weight=1)
+        self.main_frame.grid_columnconfigure(0, weight=1)
+
+        # make a frame for the title bar
+        self.title_bar = MyFrame(self.main_frame, self.data_manager)
+        self.title_bar.configure(background=self.widget_color)
+        self.title_bar.pack(side='top', fill="x")
+        self.title_bar.bind('<B1-Motion>', self.move_window)
+        self.title_bar.bind('<Button-1>', self.get_pos)
+
+        close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
+        close_button.configure(background=self.widget_color, height=30)
+        close_button.pack(side='right')
+        close_button.bind('<Button-1>', self.return_window)
+
+        def on_enter1(e):
+            close_button.configure(background=self.style_dict["caution_color_red"])
+
+        def on_leave1(e):
+            close_button.configure(background=self.widget_color)
+
+        close_button.bind("<Enter>", on_enter1)
+        close_button.bind("<Leave>", on_leave1)
+
+        lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text=self.language_dict["edit_remaining_time"])
+        lbl_name.configure(background=self.widget_color, height=30, foreground=self.title_fcolor)
+        lbl_name.pack(side='left')
+        lbl_name.bind('<B1-Motion>', self.move_window)
+        lbl_name.bind('<Button-1>', self.get_pos)
+
+        def btn_frame():
+            btnframe = MyFrame(self.main_frame,self.data_manager)
+            btnframe.configure(background=self.style_dict["btn_color_grey"])
+
+            btn_save = MyButton(btnframe, self.data_manager, width=20, text=self.language_dict["apply"], command=self.save_new_available_hours)
+            btn_save.pack(side='right', pady=5, padx=5)
+
+            btn_back = MyButton(btnframe, self.data_manager, width=8, text=self.language_dict["back"], command=self.return_window)
+            btn_back.pack(side='right', pady=5, padx=5)
+
+            return(btnframe)
+
+        btnframe = btn_frame()
+        btnframe.pack(side = "bottom", fill = "x")
+
+        self.body_frame()
+
+    def body_frame(self):
+        bodyframe = MyFrame(self.main_frame,self.data_manager)
+        scroll_frame = self.scroll.create_scroll_frame(bodyframe)
+
+        time_left,state = self.clock.get_time_left()
+        if state == '+':
+            #########
+            if self.clock.get_clock_kind() == 'main':
+                self.hours_left = round(float(self.clock.float_hourdelta(time_left)),1)
+                recorded_time = self.clock.get_recorded_time_without_timed_sub_clocks()
+                self.hours_used = round(float(self.clock.float_hourdelta(recorded_time)),1)
+            #########
+            else:
+                self.hours_left = round(float(self.clock.float_hourdelta(time_left)),1)
+                recorded_time = self.clock.get_recorded_time()
+                self.hours_used = round(float(self.clock.float_hourdelta(recorded_time)),1)
+            #########
+        elif state == '-':
+            if self.clock.get_clock_kind() == 'main':
+                self.hours_left = round(float(self.clock.float_hourdelta(time_left)),1)              
+                recorded_time = self.clock.get_recorded_time_without_timed_sub_clocks()
+                self.hours_used = round(float(self.clock.float_hourdelta(recorded_time)),1)
+            #########
+            else:
+                self.hours_left = round(float(self.clock.float_hourdelta(time_left)),1)
+                recorded_time = self.clock.get_recorded_time()
+                self.hours_used =round(float(self.clock.float_hourdelta(recorded_time)),1)
+
+        else:
+            state = ' ' 
+            if self.clock.get_clock_kind() == 'main':
+                self.hours_left = 0            
+                recorded_time = self.clock.get_recorded_time_without_timed_sub_clocks()
+                self.hours_used = round(float(self.clock.float_hourdelta(recorded_time)),1)
+            #########
+            else:
+                self.hours_left = 0
+                recorded_time = self.clock.get_recorded_time()
+                self.hours_used =round(float(self.clock.float_hourdelta(recorded_time)),1)
+
+
+        frame_current = MyFrame(scroll_frame,self.data_manager)
+        frame_current.pack(side = "top", padx=15, pady=5,fill='x')
+
+        row_nbr = 0
+
+        self.lbl_name = MyLabel(frame_current,self.data_manager,text=self.language_dict['time_account']+':',anchor='w',justify='left',width = 25)
+        self.lbl_name.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        self.lbl_name_text = MyLabel(frame_current,self.data_manager,text = '  ' +self.clock.get_full_name(), anchor = 'w',width = 50)
+        self.lbl_name_text.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        row_nbr = 1
+
+        self.lbl_available_hours = MyLabel(frame_current,self.data_manager,text=self.language_dict['available_hours']+':',anchor='w',justify='left',width = 25)
+        self.lbl_available_hours.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        self.lbl_available_hours_text = MyLabel(frame_current,self.data_manager,text ='  ' + str(self.clock.get_available_hours()), anchor = 'w',width = 50)
+        self.lbl_available_hours_text.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        row_nbr = 2
+
+        self.lbl_hours_used = MyLabel(frame_current,self.data_manager,text=self.language_dict['hours_used']+':',anchor='w',justify='left',width = 25)
+        self.lbl_hours_used.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        self.lbl_hours_used_text = MyLabel(frame_current,self.data_manager,text = '  ' + str('{:n}'.format(self.hours_used)) +' '+ self.language_dict["hours_abbreviation"], anchor = 'w',width = 50)
+        self.lbl_hours_used_text.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        row_nbr = 3
+
+        self.lbl_hours_left = MyLabel(frame_current,self.data_manager,text=self.language_dict['hours_left']+':',anchor='w',justify='left',width = 25)
+        self.lbl_hours_left.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        self.lbl_hours_left_text = MyLabel(frame_current,self.data_manager,text = str(state) + str('{:n}'.format(self.hours_left)) +' '+ self.language_dict["hours_abbreviation"], anchor = 'w',width = 50)
+        self.lbl_hours_left_text.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        ############
+
+        self.separator_frame = MyFrame(scroll_frame,self.data_manager)
+        self.separator_frame.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame.pack(side = "top",fill='x', pady=10)
+
+        ############
+
+        frame_edit_hours_left = MyFrame(scroll_frame,self.data_manager)
+        frame_edit_hours_left.pack(side = "top", padx=15, pady=5,fill='x')
+
+        row_nbr = 0
+
+        self.lbl_new_hours_left = MyLabel(frame_edit_hours_left,self.data_manager,text=self.language_dict['new_hours_left']+':',anchor='w',justify='left',width = 25)
+        self.lbl_new_hours_left.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        self.new_remaining_hours = tk.StringVar()
+        self.textBox_new_remaining_hours = MyEntry(frame_edit_hours_left,self.data_manager, textvariable=self.new_remaining_hours, width=10)
+        self.textBox_new_remaining_hours.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        btn_preview = MyButton(frame_edit_hours_left, self.data_manager, width=10, text=self.language_dict["preview"], command=self.preview)
+        btn_preview.grid(row=row_nbr, column=2, padx=5, pady=5)
+
+        row_nbr = 1
+
+        self.lbl_new_available_hours = MyLabel(frame_edit_hours_left,self.data_manager,text=self.language_dict['new_available_hours']+':',anchor='w',justify='left',width = 25)
+        self.lbl_new_available_hours.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        self.lbl_new_available_hours_text = MyLabel(frame_edit_hours_left,self.data_manager,text ='  ' , anchor = 'w',width = 10)
+        self.lbl_new_available_hours_text.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        frame_error = MyFrame(scroll_frame,self.data_manager)
+        frame_error.pack(side = "top", padx=15, pady=15,fill='x')
+
+        self.lbl_error_info = MyLabel(frame_error,self.data_manager,anchor='w',justify='left')
+        self.lbl_error_info.configure(foreground=self.style_dict["caution_color_red"])
+        self.lbl_error_info.pack(side = "left", padx=10, pady=5)
+
+        bodyframe.pack(side="top", fill="both", expand=True)
+        return()
+    
+    def preview(self):
+        self.lbl_new_available_hours_text.configure(text='  ')
+        self.lbl_error_info.configure(text='  ')
+        new_remaining_hours = self.new_remaining_hours.get()
+
+        if new_remaining_hours == '' or new_remaining_hours.isspace() == True:
+            new_remaining_hours = '0'
+
+        response = self.check_input(new_remaining_hours) 
+        if response != True:
+            self.lbl_error_info.configure(text=response)
+        else:
+            new_remaining_hours = float(locale.atof(new_remaining_hours, decimal.Decimal))
+            self.lbl_new_available_hours_text.configure(text='  ' + str('{:n}'.format(self.calc_new_available_hours(new_remaining_hours))) +' '+ self.language_dict["hours_abbreviation"])
+        return
+
+    def check_input(self,new_remaining_hours):
+        try:
+            float(locale.atof(new_remaining_hours, decimal.Decimal))
+        except (ValueError,decimal.InvalidOperation):
+            return(self.language_dict['nbr_for_hour_fields'])  
+        
+        new_remaining_hours = float(locale.atof(new_remaining_hours, decimal.Decimal))
+
+
+        if self.calc_new_available_hours(new_remaining_hours) < 0:
+            return(self.language_dict['invalid_remaining_time'])  
+
+        return(True)
+    
+    def calc_new_available_hours(self,new_remaining_hours):
+        adjustment =  new_remaining_hours - self.clock.get_available_hours() + self.hours_used
+        new_available_hours = self.clock.get_available_hours() + adjustment
+        return(new_available_hours)
+
+    def return_window(self, *event):
+        self.gui.enable_main_window()
+        self.gui.activate_current_tab()
+        self.destroy()
+
+    def save_new_available_hours(self):
+        new_remaining_hours = self.new_remaining_hours.get()
+
+        if new_remaining_hours == '' or new_remaining_hours.isspace() == True:
+            new_remaining_hours = '0'
+
+        response = self.check_input(new_remaining_hours) 
+        if response != True:
+            self.lbl_error_info.configure(text=response)
+        else:
+            new_remaining_hours = float(locale.atof(new_remaining_hours, decimal.Decimal))
+            new_available_hours = self.calc_new_available_hours(new_remaining_hours)
+            self.data_manager.user_db.account_set_available_hours(self.clock.get_id(), new_available_hours)
+            self.data_manager.update_clocks()
+            self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.update_clock_properties()
+            self.gui.enable_main_window()
+            self.gui.activate_current_tab()
+            self.destroy()
 
     def get_pos(self, event):
         self.x_win = self.winfo_x()

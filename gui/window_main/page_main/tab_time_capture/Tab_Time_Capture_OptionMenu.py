@@ -16,10 +16,7 @@ limitations under the License.
 __author__ = 'Sebastian Feiert'
 
 import tkinter # Tkinter -> tkinter in Python 3
-from gui.Window_Additionals import InfoWindow
-from gui.Window_Additionals import InfoDictWindow
-from gui.Window_Additionals import  CloseAccountWarning
-
+from gui.Window_Additionals import InfoWindow, EditRemainingTime, InfoDictWindow, CloseAccountWarning
 
 class CaptureOptionMenu(tkinter.Listbox):
 
@@ -50,6 +47,10 @@ class CaptureOptionMenu(tkinter.Listbox):
         if self.selected_clock.get_id() != 0:
             self.optionmenu.add_separator()
             self.optionmenu.add_command(label=self.language_dict["edit_time_account"],command=self.edit_account)
+
+            if float(self.selected_clock.get_available_hours()) != 0:
+                self.optionmenu.add_command(label=self.language_dict["edit_remaining_time"],command=self.edit_remaining_time)
+
             if self.selected_clock.clock_kind == 'main':
                 self.optionmenu.add_command(label=self.language_dict["close_time_account"],command=self.close_account) 
 
@@ -134,6 +135,9 @@ class CaptureOptionMenu(tkinter.Listbox):
         account_tab = self.gui.main_window.case_frame.notebook_frame.tab_manager.accounts_tab
         account_dict = self.selected_clock.get_account_dict()
         account_tab.edit_selected_account(account_dict)
+
+    def edit_remaining_time(self):
+        info_window = EditRemainingTime(self.main_app, self.gui, self.capture_tab.main_frame,self.selected_clock)
 
 
 

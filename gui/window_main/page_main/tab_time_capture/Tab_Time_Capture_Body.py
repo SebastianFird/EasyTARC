@@ -82,7 +82,7 @@ class CaptureBody:
         system_start_time = self.main_app.get_system_start_time()
         if system_start_time != None and load_clocks == True:            
             work_clock = self.data_manager.get_work_clock()
-            deviation_start_time = self.data_manager.start_timestamp - system_start_time
+            deviation_start_time = self.data_manager.get_start_timestamp() - system_start_time
             self.gui.main_window.reminder_frame.add_reminder_frame("system_start_info_1",work_clock.str_timedelta(deviation_start_time),"system_start_info_2")
 
     def forget_backup_request_frame(self):
@@ -198,8 +198,9 @@ class CaptureBody:
         group_frame_list = [ele for ele in self.group_frame_list if ele.get_group_name() == group]
         if group_frame_list != []:
             group_frame = group_frame_list[0]
-            group_frame.create_main_account_frame(main_account_clock)
-            group_frame.arrange_accounts()
+            if main_account_clock not in group_frame.get_main_account_clock_list():
+                group_frame.create_main_account_frame(main_account_clock)   #test
+                group_frame.arrange_accounts()                              #test
         else:
             group_frame = self.create_group_frame(group)
         group_frame.fold_out_group_clocks()
@@ -208,6 +209,29 @@ class CaptureBody:
     def add_sub_account_frame(self,  group, main_id, sub_clock):
         group_frame = [ele for ele in self.group_frame_list if ele.get_group_name() == group][0]
         group_frame.add_sub_account_frame(main_id, sub_clock)
+
+    def activate_clock_by_clock_instance(self, clock):
+        response = False
+        group_frame_list = [ele for ele in self.group_frame_list if ele.get_group_name() == clock.get_group()]
+        if group_frame_list != []:
+            group_frame = group_frame_list[0]
+            group_frame.fold_out_group_clocks()
+
+            main_account_frame_list = [ele for ele in group_frame.main_account_frame_list if ele.main_account_clock.get_id() == clock.get_main_id()]
+            if main_account_frame_list != []:
+                main_account_frame = main_account_frame_list[0]
+
+                if clock.get_clock_kind() == "main":
+                    response = main_account_frame.main_clock_frame.activate_clock()
+
+                else:
+                    main_account_frame.fold_out_sub_clocks()
+                    sub_clock_frame_list = [ele for ele in main_account_frame.sub_clock_frame_list if ele.clock.get_id() == clock.get_id()]
+                    if sub_clock_frame_list != []:
+                        sub_clock_frame = sub_clock_frame_list[0]
+                        main_account_frame.show_sub_clock(sub_clock_frame)
+                        response = sub_clock_frame.activate_clock()
+        return(response)
 
 #################################################################
 

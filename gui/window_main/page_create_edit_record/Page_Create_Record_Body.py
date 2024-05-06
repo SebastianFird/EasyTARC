@@ -67,9 +67,9 @@ class CreateEditRecordBody:
         self.frame_account = MyFrame(self.main_frame,self.data_manager)
         self.frame_account.pack(side = "top", padx=10, pady=5,fill='x')
 
-        self.lbl_account_info = MyLabel(self.frame_account,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=3)
+        self.lbl_account_info = MyLabel(self.frame_account,self.data_manager,text=u'\U00002139',width=3)
         self.lbl_account_info.pack(side = "left")
-        self.lbl_account_info_ttp = CreateToolTip(self.lbl_account_info, self.data_manager, 0, 30, self.language_dict["create_record_account_text"])
+        self.lbl_account_info_ttp = CreateToolTip(self.lbl_account_info, self.data_manager, 0, 30, self.language_dict["create_record_account_text"], True)
 
         self.lbl_account = MyLabel(self.frame_account,self.data_manager,width=15,anchor='w',justify='left',text= self.language_dict['time_account'] + ':')
         self.lbl_account.pack(side = "left", padx=10)
@@ -164,7 +164,7 @@ class CreateEditRecordBody:
         self.lbl_time_info = MyLabel(self.frame_time,self.data_manager,text=' ',anchor='w',justify='left',width=3)
         self.lbl_time_info.pack(side = "left")
 
-        self.lbl_time = MyLabel(self.frame_time,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict['hours'] + ':')
+        self.lbl_time = MyLabel(self.frame_time,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict['hours']  + ' [' + self.language_dict["hours_abbreviation"] + ']' + ':')
         self.lbl_time.pack(side = "left", padx=10)
 
         self.time = tk.StringVar()
@@ -172,7 +172,7 @@ class CreateEditRecordBody:
         self.textBox_time.pack(side="left", padx=10)
 
         if self.modus in  ['edit_record']:
-            self.time.set(str('{:n}'.format(round(self.record_dict['hours'],3))))    
+            self.time.set(str('{:n}'.format(round(self.record_dict['hours'],3))))    # round_time
 
         self.textBox_time.configure(highlightthickness = 1, state=tk.NORMAL)
         if self.style_dict['name'] == 'dark':
@@ -183,9 +183,9 @@ class CreateEditRecordBody:
         self.frame_status = MyFrame(self.main_frame,self.data_manager)
         self.frame_status.pack(side = "top", padx=10, pady=5,fill='x')
 
-        self.lbl_status_info = MyLabel(self.frame_status,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=3)
+        self.lbl_status_info = MyLabel(self.frame_status,self.data_manager,text= u'\U00002139',width=3)
         self.lbl_status_info.pack(side = "left")
-        self.lbl_status_info_ttp = CreateToolTip(self.lbl_status_info, self.data_manager, 0, 30, self.language_dict["booked_status_info"])
+        self.lbl_status_info_ttp = CreateToolTip(self.lbl_status_info, self.data_manager, 0, 30, self.language_dict["booked_status_info"], True)
 
         self.lbl_status = MyLabel(self.frame_status,self.data_manager,width=15,anchor='w',justify='left',text= self.language_dict['status'] + ':')
         self.lbl_status.pack(side = "left", padx=10)
@@ -231,9 +231,9 @@ class CreateEditRecordBody:
         frame_dropdown = MyFrame(self.main_frame,self.data_manager)
         frame_dropdown.pack(side = "top", padx=10, pady=4,fill='x')
 
-        lbl_dropdown_info = MyLabel(frame_dropdown,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=3)
+        lbl_dropdown_info = MyLabel(frame_dropdown,self.data_manager,text= u'\U00002139',width=3)
         lbl_dropdown_info.pack(side = "left")
-        lbl_dropdown_info_ttp = CreateToolTip(lbl_dropdown_info, self.data_manager, 0, 30, self.language_dict["edit_response_text"])
+        lbl_dropdown_info_ttp = CreateToolTip(lbl_dropdown_info, self.data_manager, 0, 30, self.language_dict["edit_response_text"], True)
 
         self.lbl_response_text = MyLabel(frame_dropdown,self.data_manager,width=15,anchor='w',justify='left',text= self.language_dict['response_text'] + ':')
         self.lbl_response_text.pack(side = "left", padx=10)

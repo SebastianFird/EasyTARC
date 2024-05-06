@@ -17,6 +17,7 @@ __author__ = 'Sebastian Feiert'
     
 import tkinter as tk
 from tkinter import ttk
+import datetime
 
 from gui.Scroll_Frame import Scroll_Frame
 from gui.window_main.page_main.tab_time_capture.Tab_Time_Capture_Body import CaptureBody
@@ -27,7 +28,7 @@ class CaptureTab(Scroll_Frame):
         super().__init__(main_app, gui)
         self.case_frame_manager = case_frame_manager
 
-        self.time_column = 'full_time'
+        self.time_column = self.main_app.get_setting('time_view_capture_tab')
         self.selected_clock_frame = None
 
         # run the main frame of this layer
@@ -146,7 +147,11 @@ class CaptureTab(Scroll_Frame):
 
     def change_time_column(self):
         if self.time_column == 'full_time':
-            self.time_column = 'single_time'
+            self.time_column = 'single_times'
+        elif self.time_column == 'single_times':
+            self.time_column = 'progress'
+        elif self.time_column == 'progress':
+            self.time_column = 'scheduled'
         else:
             self.time_column = 'full_time'
         self.update()

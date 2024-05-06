@@ -271,8 +271,9 @@ class CreateEditAccount(tk.Frame):
 
         new_main_list = ['new_main','new_order','new_process']
         edit_main_list = ['edit_main']
-        sub_list = ['new_sub','edit_sub']
-
+        new_sub_list = ['new_sub']
+        edit_sub_list = ['edit_sub']
+        
         if self.modus in new_main_list:
             if name == '' or name == 'Zeitkonto'or name == 'Neues Hauptkonto' or name == 'Time account' or name == 'New main-account' or name == 'Ohne Zuordnung' or name == 'Without allocation':
                 return(self.language_dict['no_falid_name'])              
@@ -288,11 +289,7 @@ class CreateEditAccount(tk.Frame):
             except ValueError:
                 pass
 
-            name_list = self.data_manager.user_db.get_account_name_list()
-            if self.modus == 'edit':
-                original_name = self.main_account_dict.get("name")
-                name_list = [ele for ele in name_list if ele != original_name]
-
+            name_list = self.data_manager.user_db.get_account_name_list("main")
             if name in name_list:
                 return(self.language_dict['name_already_exists'])                          
             else:
@@ -315,7 +312,7 @@ class CreateEditAccount(tk.Frame):
             except ValueError:
                 pass
 
-            name_list = self.data_manager.user_db.get_account_name_list()
+            name_list = self.data_manager.user_db.get_account_name_list("main")
             original_name = self.main_account_dict.get("name")
             name_list = [ele for ele in name_list if ele != original_name]
 
@@ -326,9 +323,34 @@ class CreateEditAccount(tk.Frame):
 
         #############################################
 
-        elif self.modus in sub_list:
+        elif self.modus in new_sub_list:
             if  name.isspace() == True:
                 return(self.language_dict['not_only_spaces'])
+            
+            name_list = self.data_manager.user_db.get_account_name_list("sub",self.main_account_dict['account_id'])
+            if name in name_list:
+                return(self.language_dict['name_already_exists'])
+            else:
+                pass
+
+            try:
+                float(name)
+                return(self.language_dict['not_only_numbers'])
+            except ValueError:
+                pass
+
+        elif self.modus in edit_sub_list:
+            if  name.isspace() == True:
+                return(self.language_dict['not_only_spaces'])
+            
+            name_list = self.data_manager.user_db.get_account_name_list("sub",self.main_account_dict['account_id'])
+            original_name = self.sub_account_dict.get("name")
+            name_list = [ele for ele in name_list if ele != original_name]
+
+            if name in name_list:
+                return(self.language_dict['name_already_exists'])
+            else:
+                pass
 
             try:
                 float(name)

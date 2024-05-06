@@ -68,7 +68,7 @@ class BookingRecordFrame(tk.Frame):
         self.btn_copy_response_text.bind("<Leave>", self.leave_copy_response_text)
         self.btn_copy_response_text.bind('<Button-1>',self.activate_copy_response_text)
 
-        self.textBox_response_text = MyText(self, self.data_manager,width=20,height=1,borderwidth=1)
+        self.textBox_response_text = MyText(self, self.data_manager,width=30,height=1,borderwidth=1)
         self.textBox_response_text.pack(side='right',padx=3)
         if str(self.record_dict['response_text']) != ' - ':
             self.textBox_response_text.insert(1.0, str(self.record_dict['response_text']))
@@ -96,7 +96,7 @@ class BookingRecordFrame(tk.Frame):
 
         self.textBox_passed_time = MyText(self, self.data_manager,width=8,height=1,borderwidth=1)
         self.textBox_passed_time.pack(side='right',padx=3)
-        self.textBox_passed_time.insert(1.0, str('{:n}'.format(round(self.record_dict['hours'],3))))
+        self.textBox_passed_time.insert(1.0, str('{:n}'.format(round(self.record_dict['hours'],3)))) # round_time
         self.textBox_passed_time.configure(state=tk.DISABLED,inactiveselectbackground=self.textBox_passed_time.cget("selectbackground"))
 
         self.lbl_empty3 = MyLabel(self, self.data_manager, width=5)
@@ -135,7 +135,7 @@ class BookingRecordFrame(tk.Frame):
         self.lbl_name = MyLabel(self, self.data_manager, text = name_text, anchor='w')
         self.lbl_name.pack(side='left',padx=3)
 
-        info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project"] + ': ' + str(self.record_dict['project_label']) + '\n' + self.language_dict["order"] + ': ' + str(self.record_dict['order_label']) + '\n' + self.language_dict["process"] + ': ' +str(self.record_dict['process_label'])
+        info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project"] + ': ' + str(self.record_dict['project_label']) + '   ' + self.language_dict["order"] + ': ' + str(self.record_dict['order_label']) + '   ' + self.language_dict["process"] + ': ' + str(self.record_dict['process_label'])  + '\n' + self.language_dict["description"]  + ': ' + str(self.record_dict['description_text']) 
         self.account_info_ttp = CreateToolTip(self.lbl_name, self.data_manager, 30, 25, info_text)
 
         self.on_record = False
@@ -193,7 +193,7 @@ class BookingRecordFrame(tk.Frame):
 
     def activate_copy_hours(self,e=None):
         self.gui.main_window.clipboard_clear()
-        self.gui.main_window.clipboard_append(str('{:n}'.format(round(self.record_dict['hours'],3))))
+        self.gui.main_window.clipboard_append(str('{:n}'.format(round(self.record_dict['hours'],3)))) # round_time
         self.btn_copy_hours_ttp.showresponse()
         self.booking_tab.reset_clicked_record_frame_list()
         self.activate_record(e)
@@ -349,7 +349,7 @@ class BookingRecordFrame(tk.Frame):
 
         self.lbl_name .configure(text = name_text)
 
-        info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project"] + ': ' + str(self.record_dict['project_label']) + '\n' + self.language_dict["order"] + ': ' + str(self.record_dict['order_label']) + '\n' + self.language_dict["process"] + ': ' +str(self.record_dict['process_label'])
+        info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project"] + ': ' + str(self.record_dict['project_label']) + '   ' + self.language_dict["order"] + ': ' + str(self.record_dict['order_label']) + '   ' + self.language_dict["process"] + ': ' + str(self.record_dict['process_label'])  + '\n' + self.language_dict["description"]  + ': ' + str(self.record_dict['description_text']) 
         self.account_info_ttp = CreateToolTip(self.lbl_name, self.data_manager, 30, 25, info_text)
 
         self.update()

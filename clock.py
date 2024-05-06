@@ -214,8 +214,21 @@ class AccountClock(Clock):
         self.default_response_text_2 = self.default_response_text
         self.response_text = self.default_response_text
 
+        self.recording_correction_dict_list = []
+
         if load_backup == True:
-            self.load_backup_time()
+            added_minutes_from_backup = self.load_backup_time()
+        else:
+            added_minutes_from_backup = 0
+
+        event_dict = {
+            "timestamp": datetime.datetime.now(),
+            "kind":"start",
+            "sign":'',
+            "abs_time":self.str_timedelta(datetime.timedelta(hours = 0,minutes = added_minutes_from_backup,seconds=0)),
+            "unit":""
+        }
+        self.recording_correction_dict_list.append(event_dict)
 
     def reload_account_dict(self):
         account_dict = self.user_db.get_account_details(self.id)
@@ -250,6 +263,9 @@ class AccountClock(Clock):
 
     def get_name(self):
         return(self.name)
+    
+    def get_description(self):
+        return(self.description_text)
 
     def get_full_name(self):
         return(self.name)
@@ -328,9 +344,9 @@ class AccountClock(Clock):
                 self.added_time = self.added_time + add_time
                 self.previous_total_time = self.previous_total_time + add_time
                 self.total_time = self.total_time + add_time
-                return(True)
+                response = True
             else:
-                return(False)
+                response = False
 
         elif self.running == True and sign == '-' and add_time <= self.total_time:
             result = work_clock.add_time(sign,add_minutes)
@@ -338,29 +354,32 @@ class AccountClock(Clock):
                 self.added_time = self.added_time - add_time
                 self.previous_total_time = self.previous_total_time - add_time
                 self.total_time = self.total_time - add_time
-                return(True)
+                response = True
             else:
-                return(False)
+                response = False
 
         elif self.running == False and sign == '+':
             result = work_clock.add_time(sign,add_minutes)
             if result == True:
                 self.added_time = self.added_time + add_time
                 self.total_time = self.total_time + add_time
-                return(True)
+                response = True
             else:
-                return(False)
+                response = False
 
         elif self.running == False and sign == '-' and add_time <= self.total_time:
             result = work_clock.add_time(sign,add_minutes)
             if result == True:
                 self.added_time = self.added_time - add_time
                 self.total_time = self.total_time - add_time
-                return(True)
+                response = True
             else:
-                return(False)
+                response = False
         else:
-            return(False)
+            response = False
+        
+        data_manager.set_last_tracked_interaction()
+        return(response)
 
     def get_added_time(self):
         zero_time = datetime.timedelta()
@@ -394,6 +413,7 @@ class AccountClock(Clock):
             self.previous_total_time = self.total_time
         else:
             pass
+        data_manager.set_last_tracked_interaction()
 
     def reset_time(self):
         data_manager = self.main_app.data_manager
@@ -406,6 +426,16 @@ class AccountClock(Clock):
                 self.passed_time = datetime.timedelta(hours = 0,minutes = 0,seconds=0)
                 self.added_time = datetime.timedelta(hours = 0,minutes = 0,seconds=0)
                 self.total_time = datetime.timedelta(hours = 0,minutes = 0,seconds=0)
+
+                event_dict = {
+                    "timestamp": datetime.datetime.now(),
+                    "kind":"reset",
+                    "sign":'',
+                    "abs_time":self.str_timedelta(datetime.timedelta(hours = 0,minutes = 0,seconds=0)),
+                    "unit":""
+                }
+                self.recording_correction_dict_list.append(event_dict)
+        data_manager.set_last_tracked_interaction()
 
     def get_passed_time(self):
         if self.running == True:
@@ -425,8 +455,16 @@ class AccountClock(Clock):
             add_minutes = hours*60
             self.add_time('+', add_minutes)
             self.response_text =  backup_dict.get("response_text")
-        return
+        else:
+            add_minutes = 0
+        return(add_minutes)
+    
+    def append_recording_correction_dict_list(self,event_dict):
+        self.recording_correction_dict_list.append(event_dict)
 
+    def get_recording_correction_dict_list(self):
+        return(self.recording_correction_dict_list)
+    
     def __del__(self):
         return
 
@@ -482,33 +520,56 @@ class MainAccountClock(AccountClock):
         self.sub_clock_list.append(sub_clock)
         return(sub_clock)
 
-    def get_total_time_sum(self):
-        time_sum = self.get_total_time()
-        for sub_clock in self.sub_clock_list:
-            time_sum = time_sum + sub_clock.get_total_time()
-        return(time_sum)
-    
     def get_sub_time_sum(self):
         time_sum = datetime.timedelta()
         for sub_clock in self.sub_clock_list:
             time_sum = time_sum + sub_clock.get_total_time()
         return(time_sum)
     
-    def get_db_total_passed_time_sum(self):
+    def get_total_time_sum(self):
+        time_sum = self.get_total_time()
+        for sub_clock in self.sub_clock_list:
+            time_sum = time_sum + sub_clock.get_total_time()
+        return(time_sum)
+    
+    ############################################################
+
+    def get_recorded_time(self):
+        passed_time_sum = self.get_sum_db_passed_times()
+        total_time = self.get_total_time()
+        if passed_time_sum != 0:
+            recorded_time = datetime.timedelta(hours=passed_time_sum) + total_time
+        else:
+            recorded_time = total_time
+        return(recorded_time)
+
+    def get_total_time_sum_without_timed_sub_clocks(self):
+        time_sum = self.get_total_time()
+        for sub_clock in self.sub_clock_list:
+            if sub_clock.get_available_hours() == 0:
+                time_sum = time_sum + sub_clock.get_total_time()
+        return(time_sum)
+    
+    def get_db_total_passed_time_sum_without_timed_sub_clocks(self):
         passed_time_sum = self.get_sum_db_passed_times()
         for sub_clock in self.sub_clock_list:
-            passed_time_sum = passed_time_sum + sub_clock.get_sum_db_passed_times()
+            if sub_clock.get_available_hours() == 0:
+                passed_time_sum = passed_time_sum + sub_clock.get_sum_db_passed_times()
         return(passed_time_sum)
+    
+    def get_recorded_time_without_timed_sub_clocks(self):
+        passed_time_sum = self.get_db_total_passed_time_sum_without_timed_sub_clocks()
+        total_time = self.get_total_time_sum_without_timed_sub_clocks()
+        if passed_time_sum != 0:
+            recorded_time = datetime.timedelta(hours=passed_time_sum) + total_time
+        else:
+            recorded_time = total_time
+        return(recorded_time)
     
     def get_time_left(self):
         if self.available_hours != 0:
             available_time = datetime.timedelta(hours=self.available_hours)
-            passed_time_sum = self.get_db_total_passed_time_sum()
-            total_time = self.get_total_time_sum()
-            if passed_time_sum != 0:
-                recorded_time = datetime.timedelta(hours=passed_time_sum) + total_time
-            else:
-                recorded_time = total_time
+            recorded_time = self.get_recorded_time_without_timed_sub_clocks()
 
             if available_time > recorded_time:
                 time_left = available_time - recorded_time
@@ -518,6 +579,8 @@ class MainAccountClock(AccountClock):
                 return(time_left,'-')
         else:
             return(0,'')
+        
+    ############################################################
 
     def get_info_dict(self):
         self.language_dict = self.main_app.data_manager.get_language_dict()
@@ -563,7 +626,7 @@ class MainAccountClock(AccountClock):
         #############
         if self.id != 0:
             if float(self.available_hours) != 0:
-                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.available_hours),3))) + ' ' + self.language_dict["hours"]}) 
+                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.available_hours),3))) + ' ' + self.language_dict["hours"]}) # round_time
             else:
                 info_dict.update({self.language_dict["available_hours"]:" - "}) 
         #############
@@ -610,6 +673,33 @@ class SubAccountClock(AccountClock):
         time_sum = self.main_account_clock.get_sub_time_sum()
         return(time_sum)
     
+    ############################################################
+
+    def get_recorded_time(self):
+        passed_time_sum = self.get_sum_db_passed_times()
+        total_time = self.get_total_time()
+        if passed_time_sum != 0:
+            recorded_time = datetime.timedelta(hours=passed_time_sum) + total_time
+        else:
+            recorded_time = total_time
+        return(recorded_time)
+    
+    def get_time_left(self):
+        if self.available_hours != 0:
+            available_time = datetime.timedelta(hours=self.available_hours)
+            recorded_time = self.get_recorded_time()
+
+            if available_time > recorded_time:
+                time_left = available_time - recorded_time
+                return(time_left,'+')
+            else:
+                time_left = recorded_time - available_time
+                return(time_left,'-')
+        else:
+            return(0,'')
+        
+    ############################################################
+    
     def set_status_hidden(self):
         self.user_db.account_set_hidden(self.id)
         self.account_status = 'hidden'
@@ -655,7 +745,7 @@ class SubAccountClock(AccountClock):
         #############
         if self.id != 0:
             if float(self.available_hours) != 0:
-                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.available_hours),3))) + ' ' + self.language_dict["hours"]}) 
+                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.available_hours),3))) + ' ' + self.language_dict["hours"]})  # round_time
             else:
                 info_dict.update({self.language_dict["available_hours"]:" - "}) 
         #############

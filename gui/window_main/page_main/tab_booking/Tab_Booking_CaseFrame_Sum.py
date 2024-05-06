@@ -80,8 +80,9 @@ class BookingBySum(tk.Frame):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
 
+        self.main_frame.refresh_style()
         self.sum_list_frame.refresh_style()
-
+        
         for record_frame in self.record_frame_list:
             record_frame.refresh()
 

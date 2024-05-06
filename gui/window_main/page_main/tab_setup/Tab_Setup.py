@@ -67,7 +67,9 @@ class SetupTab(Scroll_Frame):
         scroll_frame = self.create_scroll_frame(self.main_frame)
         self.body = SetupBody(scroll_frame, self.main_app, self.gui, self)
         return
-        
+    
+    def reload(self):
+        self.body.reload_settings()
 
     def refresh_body(self):
         # configure style and language of main frame head

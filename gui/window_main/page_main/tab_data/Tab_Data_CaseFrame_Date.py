@@ -103,6 +103,10 @@ class DataDayFrame:
 
         self.date_frame = DataDateFrame(self.main_frame, self.main_app, self.gui, self, self.date_record)
 
+        work_time = 0
+        bookable_time = 0
+        booking_rate = 0
+        
         fold_out = False
         for record_dict in self.day_record_list:
             record_frame = DataRecordFrame(self.main_frame, self.main_app, self.gui,self.data_tab,self.data_category,record_dict,self)
@@ -110,6 +114,22 @@ class DataDayFrame:
             self.record_frame_list.append(record_frame)
             if record_dict['booked'] == 0 and record_dict['bookable'] != 0:
                 fold_out = True
+
+            work_time = work_time + record_dict['hours']            
+            if record_dict['bookable'] == 1:
+                bookable_time = bookable_time + record_dict['hours']
+
+        if work_time != 0 and bookable_time != 0:
+            booking_rate = (bookable_time / work_time)*100 
+        else:
+            booking_rate = 0
+
+        if work_time != 0:
+            self.date_frame.set_work_time(work_time)
+            if self.main_app.get_setting('booking_rate_details') == 'on':
+                self.date_frame.set_booking_rate(booking_rate)
+
+
         if fold_out == True:
             self.fold_out_day_records()
         else:
@@ -207,9 +227,17 @@ class DataDateFrame:
             6:self.language_dict["sunday"],
         }
         date_info = date_str + '   -   ' + weekdy_dict[weekday_nbr]
-        self.lbl_date = MyLabel(self.date_frame,self.data_manager,text = date_info, anchor = 'w', width=30)
+        self.lbl_date = MyLabel(self.date_frame,self.data_manager,text = date_info, anchor = 'w', width=25)
         self.lbl_date.configure(font = Font_tuple)
         self.lbl_date.pack(side = "left")
+
+        self.lbl_work_time = MyLabel(self.date_frame,self.data_manager, anchor = 'e', width=6)
+        self.lbl_work_time.configure(font = Font_tuple)
+        self.lbl_work_time.pack(side = "left")
+
+        self.lbl_booking_rate = MyLabel(self.date_frame,self.data_manager, anchor = 'e', width=6)
+        self.lbl_booking_rate.configure(font = Font_tuple)
+        self.lbl_booking_rate.pack(side = "left")
 
         #############
 
@@ -231,6 +259,14 @@ class DataDateFrame:
         #############
 
         return
+    
+    def set_work_time(self, work_time):
+        self.work_time = work_time
+        self.lbl_work_time.configure(text = str('{:n}'.format(round(self.work_time,1))) + ' ' + self.language_dict["hours_abbreviation"])
+
+    def set_booking_rate(self, booking_rate):
+        self.booking_rate = booking_rate
+        self.lbl_booking_rate.configure(text = str('{:n}'.format(round(self.booking_rate))) + ' %')
 
     def update(self):
         return
@@ -249,9 +285,13 @@ class DataDateFrame:
         self.date_frame.refresh_style()
         self.lbl_view_records.refresh_style()
         self.lbl_date.refresh_style()
+        self.lbl_work_time.refresh_style()
+        self.lbl_booking_rate.refresh_style()
 
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
         self.lbl_date.configure(font = Font_tuple)
+        self.lbl_work_time.configure(font = Font_tuple)
+        self.lbl_booking_rate.configure(font = Font_tuple)
         self.lbl_view_records.configure(foreground=self.style_dict["highlight_color_grey"])
 
         date_str = self.date_record.strftime('%d.%m.%Y')
@@ -268,4 +308,5 @@ class DataDateFrame:
         }
         date_info = date_str + '   -   ' + weekdy_dict[weekday_nbr]
         self.lbl_date.configure(text = date_info)
+        self.lbl_work_time.configure(text = '   -   ' + str('{:n}'.format(round(self.work_time,1))) + self.language_dict["hours_abbreviation"])
         return

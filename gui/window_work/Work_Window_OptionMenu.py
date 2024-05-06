@@ -60,8 +60,12 @@ class WorkWindowOptionMenu(tkinter.Listbox):
 
             ##########                
 
-            if self.work_window.ww_kind == 'ww_bar' or self.work_window.ww_kind == 'ww_list':                
-                self.optionmenu.add_command(label=self.language_dict["set_as_default_window"],command=self.set_as_default)
+            if self.work_window.ww_kind == 'ww_bar' or self.work_window.ww_kind == 'ww_list':
+                if self.work_window.get_dynamic_opacity() == 'on':
+                    self.optionmenu.add_command(label=self.language_dict["dynamic_opacity"] + " " + self.language_dict["deactivate"],command=self.set_dynamic_opacity) 
+                else:
+                    self.optionmenu.add_command(label=self.language_dict["dynamic_opacity"] + " " + self.language_dict["activate"],command=self.set_dynamic_opacity)
+
                 self.optionmenu.add_separator()
 
             ##########
@@ -80,6 +84,17 @@ class WorkWindowOptionMenu(tkinter.Listbox):
                 else:
                     self.optionmenu.add_command(label=self.language_dict["dynamic_view"],command=self.set_dynamic_view)
 
+                self.optionmenu.add_separator()
+
+            ##########
+
+            if self.work_window.ww_kind == 'ww_bar' or self.work_window.ww_kind == 'ww_list':         
+                if self.main_app.get_setting('work_window_default') == 'list_work_window' and self.work_window.ww_kind == 'ww_list':
+                    self.optionmenu.add_command(label=self.language_dict["default_work_window"] + " (" + self.language_dict["active"] + ")",command=self.set_as_default)
+                elif self.main_app.get_setting('work_window_default') == 'bar_work_window' and self.work_window.ww_kind == 'ww_bar':
+                    self.optionmenu.add_command(label=self.language_dict["default_work_window"] + " (" + self.language_dict["active"] + ")",command=self.set_as_default)
+                else:
+                    self.optionmenu.add_command(label=self.language_dict["default_work_window"],command=self.set_as_default)
                 self.optionmenu.add_separator()
 
             ##########
@@ -108,6 +123,17 @@ class WorkWindowOptionMenu(tkinter.Listbox):
 
             ##########
 
+            if self.work_window.ww_kind == 'ww_bar' or self.work_window.ww_kind == 'ww_list':         
+                if self.main_app.get_setting('work_window_default') == 'list_work_window' and self.work_window.ww_kind == 'ww_list':
+                    self.optionmenu.add_command(label=self.language_dict["default_work_window"] + " (" + self.language_dict["active"] + ")",command=self.set_as_default)
+                elif self.main_app.get_setting('work_window_default') == 'bar_work_window' and self.work_window.ww_kind == 'ww_bar':
+                    self.optionmenu.add_command(label=self.language_dict["default_work_window"] + " (" + self.language_dict["active"] + ")",command=self.set_as_default)
+                else:
+                    self.optionmenu.add_command(label=self.language_dict["default_work_window"],command=self.set_as_default)
+                self.optionmenu.add_separator()
+
+            ##########
+
             if self.work_window.ww_kind == 'ww_bar' or self.work_window.ww_kind == 'ww_list':
                 if self.work_window.modus == 'control_view':
                     self.optionmenu.add_command(label=self.language_dict["control_view"] + " (" + self.language_dict["active"] + ")",command=self.set_control_view) 
@@ -125,9 +151,15 @@ class WorkWindowOptionMenu(tkinter.Listbox):
 
             ##########
 
-            if self.work_window.ww_kind == 'ww_bar' or self.work_window.ww_kind == 'ww_list':                
-                self.optionmenu.add_command(label=self.language_dict["set_as_default_window"],command=self.set_as_default)
+
+            if self.work_window.ww_kind == 'ww_bar' or self.work_window.ww_kind == 'ww_list':
+                if self.work_window.get_dynamic_opacity() == 'on':
+                    self.optionmenu.add_command(label=self.language_dict["dynamic_opacity"] + " " + self.language_dict["deactivate"],command=self.set_dynamic_opacity) 
+                else:
+                    self.optionmenu.add_command(label=self.language_dict["dynamic_opacity"] + " " + self.language_dict["activate"],command=self.set_dynamic_opacity)
+
                 self.optionmenu.add_separator()
+
 
             ##########
 
@@ -202,6 +234,12 @@ class WorkWindowOptionMenu(tkinter.Listbox):
             self.main_app.change_settings('list_work_window_modus',"control_view")
             self.work_window.set_modus("control_view")
         return
+    
+    def set_dynamic_opacity(self):
+        if self.work_window.ww_kind == 'ww_bar' or self.work_window.ww_kind == 'ww_list':
+            self.work_window.change_dynamic_opacity()
+        return
+
     
     def set_info_view(self):
         if self.work_window.ww_kind == 'ww_bar':

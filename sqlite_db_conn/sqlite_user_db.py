@@ -51,27 +51,6 @@ class SqlUserDataManager(SqlManager):
         print('start_db')
         try:
             test_id = self.get_new_accountid()
-            try:
-                if self.main_app.get_version_update() == True:
-                    print('test_sql_update')
-
-                    if self.check_column_name_accounts_project_nbr() == True:
-                        print('1_7_0_sql_update')
-                        self.update_1_7_0()
-
-                    if self.check_column_name_accounts_a_group() == True:
-                        print('1_7_2_sql_update')
-                        self.update_1_7_2()
-
-
-                    if self.check_column_name_accounts_response_text() == True:
-                        print('1_9_3_sql_update')
-                        self.update_1_9_3()
-            except:
-                self.root = NewRoot()
-                messagebox.showinfo('EasyTARC','sql_updates_failed')
-                return(False)
-
             return(True)
         except:
             return(False)
@@ -235,500 +214,7 @@ class SqlUserDataManager(SqlManager):
     
 ####################################################################################################################
 
-    def check_column_name_accounts_project_nbr(self):
-        conn = self.open_db_conn()
-        cur = conn.cursor()
-
-        info = cur.execute("select * from accounts")
-        columns = [item[0] for item in info.description]
-        self.save_and_close_db(conn)
-        if 'project_nbr' in columns:
-            return(True)
-        else:
-            return(False)
-        
-    def update_1_7_0(self):
-        conn = self.open_db_conn()
-        cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS new_table_accounts (
-            accountid INT PRIMARY KEY,
-            account_kind INT,
-            main_id INT,
-            name TEXT,
-            description_text TEXT,
-            project_label TEXT,
-            order_label TEXT,
-            process_label TEXT,
-            response_code TEXT,
-            response_text TEXT,
-            auto_booking INT,
-            status TEXT,
-            a_group TEXT,
-            bookable INT,
-            a_year INT,
-            a_month INT,
-            a_day INT
-            );
-            """)
-
-        cur = conn.cursor()
-        cur.execute("""INSERT INTO new_table_accounts (
-                    accountid ,
-                    account_kind ,
-                    main_id ,
-                    name ,
-                    description_text ,
-                    project_label ,
-                    order_label ,
-                    process_label ,
-                    response_code ,
-                    response_text ,
-                    auto_booking ,
-                    status ,
-                    a_group ,
-                    bookable ,
-                    a_year ,
-                    a_month ,
-                    a_day 
-                    )
-                    SELECT 
-                    accountid ,
-                    account_kind ,
-                    main_id ,
-                    name ,
-                    description_text ,
-                    project_nbr ,
-                    order_nbr ,
-                    process_nbr ,
-                    response_nbr ,
-                    default_text ,
-                    auto_booking ,
-                    status ,
-                    a_group ,
-                    bookable ,
-                    a_year ,
-                    a_month ,
-                    a_day 
-                    FROM accounts;
-                    """)
-        
-        cur = conn.cursor()
-        cur.execute("DROP TABLE accounts;")
-
-        cur = conn.cursor()
-        cur.execute("ALTER TABLE new_table_accounts RENAME TO accounts;")
-
-        cur = conn.cursor()
-        cur.execute("""UPDATE accounts SET project_label = ? WHERE project_label = ?""",(' - ','0',))
-
-        cur = conn.cursor()
-        cur.execute("""UPDATE accounts SET order_label = ? WHERE order_label = ?""",(' - ','0',))
-
-        cur = conn.cursor()
-        cur.execute("""UPDATE accounts SET process_label = ? WHERE process_label = ?""",(' - ','0',))
-
-        cur = conn.cursor()
-        cur.execute("""UPDATE accounts SET response_code = ? WHERE response_code = ?""",(' - ','0',))
-
-        cur = conn.cursor()
-        cur.execute("""UPDATE accounts SET description_text = ? WHERE description_text = ?""",(' - ','',))
-
-        cur = conn.cursor()
-        cur.execute("""UPDATE accounts SET response_text = ? WHERE response_text = ?""",(' - ','',))
-
-        cur = conn.cursor()
-        cur.execute("""UPDATE accounts SET group_name = ? WHERE group_name = ?""",(' - ','default',))
-
-        cur = conn.cursor()
-        cur.execute("""UPDATE accounts SET status = ? WHERE status = ?""",('open','current',))
-
-        cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS groups(
-            groupid INT PRIMARY KEY,
-            fold_up_groups TEXT
-            );
-            """)
-        
-        cur = conn.cursor()
-        cur.execute("INSERT INTO groups VALUES(?, ?);", (1,''))
-
-        self.save_and_close_db(conn)
-
-    ####################################################################################################################
-
-    def check_column_name_accounts_a_group(self):
-        conn = self.open_db_conn()
-        cur = conn.cursor()
-
-        info = cur.execute("select * from accounts")
-        columns = [item[0] for item in info.description]
-        self.save_and_close_db(conn)
-        if 'a_group' in columns:
-            return(True)
-        else:
-            return(False)
-
-    def update_1_7_2(self):
-        conn = self.open_db_conn()
-        cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS new_table_accounts (
-            accountid INT PRIMARY KEY,
-            account_kind INT,
-            main_id INT,
-            name TEXT,
-            description_text TEXT,
-            project_label TEXT,
-            order_label TEXT,
-            process_label TEXT,
-            response_code TEXT,
-            response_text TEXT,
-            auto_booking INT,
-            status TEXT,
-            group_name TEXT,
-            bookable INT,
-            expiration_year INT,
-            expiration_month INT,
-            expiration_day INT,
-            available_hours REAL
-            );
-            """)
-
-        cur = conn.cursor()
-        cur.execute("""INSERT INTO new_table_accounts (
-                    accountid ,
-                    account_kind ,
-                    main_id ,
-                    name ,
-                    description_text ,
-                    project_label ,
-                    order_label ,
-                    process_label ,
-                    response_code ,
-                    response_text ,
-                    auto_booking ,
-                    status ,
-                    group_name ,
-                    bookable ,
-                    expiration_year,
-                    expiration_month,
-                    expiration_day
-                    )
-                    SELECT 
-                    accountid ,
-                    account_kind ,
-                    main_id ,
-                    name ,
-                    description_text ,
-                    project_label ,
-                    order_label ,
-                    process_label ,
-                    response_code ,
-                    response_text ,
-                    auto_booking ,
-                    status ,
-                    a_group ,
-                    bookable ,
-                    a_year ,
-                    a_month ,
-                    a_day 
-                    FROM accounts;
-                    """)
-        
-        cur = conn.cursor()
-        cur.execute("DROP TABLE accounts;")
-
-        cur = conn.cursor()
-        cur.execute("ALTER TABLE new_table_accounts RENAME TO accounts;")
-
-        cur = conn.cursor()
-        cur.execute("""UPDATE accounts SET expiration_year = ?""",(2000,))
-
-        cur = conn.cursor()
-        cur.execute("""UPDATE accounts SET expiration_month = ?""",(1,))
-
-        cur = conn.cursor()
-        cur.execute("""UPDATE accounts SET expiration_day = ?""",(1,))
-
-        cur = conn.cursor()
-        cur.execute("""UPDATE accounts SET available_hours = ?""",(0,))
-
-        #############################################
-
-        cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS new_table_passed_times (
-            passedid INT PRIMARY KEY,
-            accountid INT,
-            year INT,
-            month INT,
-            day INT,
-            hours REAL,
-            booked INT
-            );
-            """)
-
-        cur = conn.cursor()
-        cur.execute("""INSERT INTO new_table_passed_times (
-                    passedid,
-                    accountid,
-                    year,
-                    month,
-                    day,
-                    hours,
-                    booked
-                    )
-                    SELECT 
-                    passedid,
-                    accountid,
-                    year,
-                    month,
-                    day,
-                    hours,
-                    booked
-                    FROM passed_times;
-                    """)
-        
-        cur = conn.cursor()
-        cur.execute("DROP TABLE passed_times;")
-
-        cur = conn.cursor()
-        cur.execute("ALTER TABLE new_table_passed_times RENAME TO passed_times;")
-
-        #############################################
-
-        cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS new_table_backup_current_times (
-            backupid INT PRIMARY KEY,
-            accountid INT,
-            year INT,
-            month INT,
-            day INT,
-            hours REAL,
-            booked INT
-            );
-            """)
-
-        cur = conn.cursor()
-        cur.execute("""INSERT INTO new_table_backup_current_times (
-                    backupid,
-                    accountid,
-                    year,
-                    month,
-                    day,
-                    hours,
-                    booked
-                    )
-                    SELECT 
-                    backupid,
-                    accountid,
-                    year,
-                    month,
-                    day,
-                    hours,
-                    booked
-                    FROM backup_current_times;
-                    """)
-        
-        cur = conn.cursor()
-        cur.execute("DROP TABLE backup_current_times;")
-
-        cur = conn.cursor()
-        cur.execute("ALTER TABLE new_table_backup_current_times RENAME TO backup_current_times;")
-
-        self.save_and_close_db(conn)
-
-    ####################################################################################################################
-
-    def check_column_name_accounts_response_text(self):
-        conn = self.open_db_conn()
-        cur = conn.cursor()
-
-        info = cur.execute("select * from accounts")
-        columns = [item[0] for item in info.description]
-        print(columns)
-        self.save_and_close_db(conn)
-        if 'response_text' in columns:
-            return(True)
-        else:
-            return(False)
-        
-    def update_1_9_3(self):
-
-        conn = self.open_db_conn()
-        cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS new_table_accounts (
-            accountid INT PRIMARY KEY,
-            account_kind INT,
-            main_id INT,
-            name TEXT,
-            description_text TEXT,
-            project_label TEXT,
-            order_label TEXT,
-            process_label TEXT,
-            response_code TEXT,
-            default_response_text TEXT,
-            auto_booking INT,
-            status TEXT,
-            group_name TEXT,
-            bookable INT,
-            expiration_year INT,
-            expiration_month INT,
-            expiration_day INT,
-            available_hours REAL
-            );
-            """)
-
-        cur = conn.cursor()
-        cur.execute("""INSERT INTO new_table_accounts (
-                    accountid,
-                    account_kind,
-                    main_id,
-                    name,
-                    description_text,
-                    project_label,
-                    order_label,
-                    process_label,
-                    response_code,
-                    default_response_text,
-                    auto_booking,
-                    status,
-                    group_name,
-                    bookable,
-                    expiration_year,
-                    expiration_month,
-                    expiration_day,
-                    available_hours
-                    )
-                    SELECT 
-                    accountid,
-                    account_kind,
-                    main_id,
-                    name,
-                    description_text,
-                    project_label,
-                    order_label,
-                    process_label,
-                    response_code,
-                    response_text,
-                    auto_booking,
-                    status,
-                    group_name,
-                    bookable,
-                    expiration_year,
-                    expiration_month,
-                    expiration_day,
-                    available_hours
-                    FROM accounts;
-                    """)
-        
-        cur = conn.cursor()
-        cur.execute("DROP TABLE accounts;")
-
-        cur = conn.cursor()
-        cur.execute("ALTER TABLE new_table_accounts RENAME TO accounts;")
-
-        #############################################
-
-        cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS new_table_passed_times (
-            passedid INT PRIMARY KEY,
-            accountid INT,
-            year INT,
-            month INT,
-            day INT,
-            hours REAL,
-            booked INT,
-            response_text TEXT
-            );
-            """)
-
-        cur = conn.cursor()
-        cur.execute("""INSERT INTO new_table_passed_times (
-                    passedid,
-                    accountid,
-                    year,
-                    month,
-                    day,
-                    hours,
-                    booked
-                    )
-                    SELECT 
-                    passedid,
-                    accountid,
-                    year,
-                    month,
-                    day,
-                    hours,
-                    booked
-                    FROM passed_times;
-                    """)
-        
-        cur = conn.cursor()
-        cur.execute("DROP TABLE passed_times;")
-
-        cur = conn.cursor()
-        cur.execute("ALTER TABLE new_table_passed_times RENAME TO passed_times;")
-
-        cur = conn.cursor()
-        cur.execute("""UPDATE passed_times
-                    SET response_text = (SELECT default_response_text FROM accounts WHERE passed_times.accountid = accounts.accountid)
-                    WHERE EXISTS (SELECT 1 FROM accounts WHERE passed_times.accountid = accounts.accountid);""")
-
-        #############################################
-
-        cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS new_table_backup_current_times (
-            backupid INT PRIMARY KEY,
-            accountid INT,
-            year INT,
-            month INT,
-            day INT,
-            hours REAL,
-            booked INT,
-            response_text TEXT
-            );
-            """)
-
-        cur = conn.cursor()
-        cur.execute("""INSERT INTO new_table_backup_current_times (
-                    backupid,
-                    accountid,
-                    year,
-                    month,
-                    day,
-                    hours,
-                    booked
-                    )
-                    SELECT 
-                    backupid,
-                    accountid,
-                    year,
-                    month,
-                    day,
-                    hours,
-                    booked
-                    FROM backup_current_times;
-                    """)
-        
-        cur = conn.cursor()
-        cur.execute("DROP TABLE backup_current_times;")
-
-        cur = conn.cursor()
-        cur.execute("ALTER TABLE new_table_backup_current_times RENAME TO backup_current_times;")
-
-        cur = conn.cursor()
-        cur.execute("""UPDATE backup_current_times
-                    SET response_text = (SELECT default_response_text FROM accounts WHERE backup_current_times.accountid = accounts.accountid)
-                    WHERE EXISTS (SELECT 1 FROM accounts WHERE backup_current_times.accountid = accounts.accountid);""")
-        
-        cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS response_text_templates(
-            templateid INT PRIMARY KEY,
-            main_id INT,
-            template_text TEXT
-            );
-            """)
-
-        self.save_and_close_db(conn)
+    # Possible database updates
 
 ####################################################################################################################
 
@@ -934,10 +420,16 @@ class SqlUserDataManager(SqlManager):
         self.save_and_close_db(conn)
         return(name_dict)
 
-    def get_account_name_list(self):
+    def get_account_name_list(self,kind='all',main_account_id=0):
         conn = self.open_db_conn()
         cur = conn.cursor()
-        name_list = [name[0] for name in cur.execute("SELECT name FROM accounts")]
+        if kind == 'all':
+            name_list = [name[0] for name in cur.execute("SELECT name FROM accounts")]
+        elif kind == 'main':
+            name_list = [name[0] for name in cur.execute("SELECT name FROM accounts WHERE account_kind = ?", (1,))]
+        elif kind == 'sub':
+            name_list = [name[0] for name in cur.execute("SELECT name FROM accounts WHERE main_id = ? and account_kind = ?", (main_account_id,0,))]
+
         self.save_and_close_db(conn)
         return(name_list)
 
@@ -1057,6 +549,8 @@ class SqlUserDataManager(SqlManager):
             query = cur.execute("SELECT * FROM accounts WHERE order_label LIKE  ?", ('%'+str(search_input)+'%',))
         elif modus == 'process_label':
             query = cur.execute("SELECT * FROM accounts WHERE process_label LIKE  ?", ('%'+str(search_input)+'%',))
+        elif modus == 'response_code':
+            query = cur.execute("SELECT * FROM accounts WHERE response_code LIKE  ?", ('%'+str(search_input)+'%',))
         else:
             return
         
@@ -1076,6 +570,13 @@ class SqlUserDataManager(SqlManager):
 
         self.save_and_close_db(conn)
         return(main_df)
+    
+    def get_all_account_groups(self):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        group_list = [group[0] for group in cur.execute("SELECT group_name FROM accounts")]
+        self.save_and_close_db(conn)
+        return(group_list)
     
     def get_all_active_account_groups(self):
         conn = self.open_db_conn()
@@ -1127,10 +628,17 @@ class SqlUserDataManager(SqlManager):
         self.save_and_close_db(conn)
         return()
     
-    def account_set_autobooking(self,account_id,auto_booking):
+    def account_set_group_name(self,old_group_name,new_group_name):
         conn = self.open_db_conn()
         cur = conn.cursor()
-        cur.execute("UPDATE accounts SET auto_booking = ? WHERE accountid = ?", (auto_booking,account_id,))
+        cur.execute("UPDATE accounts SET group_name = ? WHERE group_name = ?", (new_group_name,old_group_name,))
+        self.save_and_close_db(conn)
+        return()
+    
+    def account_set_available_hours(self,account_id,available_hours):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        cur.execute("UPDATE accounts SET available_hours = ? WHERE accountid = ?", (available_hours,account_id,))
         self.save_and_close_db(conn)
         return()
 
@@ -1268,13 +776,6 @@ class SqlUserDataManager(SqlManager):
         cur.execute("UPDATE passed_times SET booked = ? WHERE accountid = ? AND response_text = ?", (1,account_id,response_text))
         self.save_and_close_db(conn)
         return()
-    
-    def set_booked_accound_time_sum_unbooked(self,account_id):
-        conn = self.open_db_conn()
-        cur = conn.cursor()
-        cur.execute("UPDATE passed_times SET booked = ? WHERE accountid = ?", (0,account_id))
-        self.save_and_close_db(conn)
-        return()
 
     def set_unbooked_time_booked(self,passed_id):
         conn = self.open_db_conn()
@@ -1295,6 +796,79 @@ class SqlUserDataManager(SqlManager):
         cur.execute("UPDATE passed_times SET hours = ? WHERE passedid = ?", (passed_time_dict["hours"],passed_time_dict["passed_id"]))
         cur.execute("UPDATE passed_times SET booked = ? WHERE passedid = ?", (passed_time_dict["booked"],passed_time_dict["passed_id"]))
         cur.execute("UPDATE passed_times SET response_text = ? WHERE passedid = ?", (passed_time_dict["response_text"],passed_time_dict["passed_id"]))
+        self.save_and_close_db(conn)
+
+    def change_record_date(self,passed_id,year,month,day):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        cur.execute("UPDATE passed_times SET year = ?, month = ?, day = ? WHERE passedid = ?", (year,month,day,passed_id))
+        self.save_and_close_db(conn)
+        return()
+
+################################################
+
+    def simplify_passed_times(self):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+
+        dt = datetime.datetime.now()
+        this_month = int(dt.strftime("%m"))
+        year_1 = int(dt.strftime("%Y"))
+            
+        if this_month == 1:
+            last_month = 12
+            year_2 = year_1 - 1
+        else:
+            last_month = this_month - 1
+            year_2 = year_1
+
+        
+        id_list = [passedid[0] for passedid in cur.execute("SELECT passedid FROM passed_times WHERE passed_times.day != 1 AND NOT ((passed_times.month == ? AND passed_times.year == ?) OR (passed_times.month == ? AND passed_times.year == ?))", (this_month, year_1, last_month, year_2))]
+        print(id_list)
+        if id_list != []:
+
+            cur = conn.cursor()
+            cur.execute("""UPDATE passed_times
+                            SET hours = (
+                                SELECT SUM(hours)
+                                FROM passed_times AS sub
+                                WHERE sub.year = passed_times.year
+                                    AND sub.month = passed_times.month
+                                    AND sub.accountid = passed_times.accountid
+                                    AND sub.response_text = passed_times.response_text
+                                    AND sub.booked = passed_times.booked
+                                    AND NOT (
+                                        (sub.month == ? AND sub.year == ?)
+                                        OR (sub.month == ? AND sub.year == ?)
+                                    )
+                            )
+                            WHERE ROWID IN (
+                                SELECT MIN(ROWID)
+                                FROM passed_times
+                                GROUP BY accountid, response_text, month, year, booked
+                            )
+                                AND NOT (
+                                        (passed_times.month == ? AND passed_times.year == ?)
+                                        OR (passed_times.month == ? AND passed_times.year == ?)
+                                    )
+                        """, (this_month, year_1, last_month, year_2,this_month, year_1, last_month, year_2,))
+
+            cur = conn.cursor()
+            cur.execute("""DELETE FROM passed_times
+                            WHERE NOT (
+                                (passed_times.month == ? AND passed_times.year == ?)
+                                OR (passed_times.month == ? AND passed_times.year == ?)
+                            )
+                            AND ROWID NOT IN (
+                                SELECT MIN(ROWID)
+                                FROM passed_times
+                                GROUP BY accountid, response_text, month, year
+                            )
+                        """, (this_month, year_1, last_month, year_2))
+
+            cur = conn.cursor()
+            cur.execute("UPDATE passed_times SET day = 1 WHERE NOT ((passed_times.month == ? AND passed_times.year == ?) OR (passed_times.month == ? AND passed_times.year == ?))", (this_month, year_1, last_month, year_2))
+
         self.save_and_close_db(conn)
 
 ################################################

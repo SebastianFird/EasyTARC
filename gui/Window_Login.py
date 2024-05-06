@@ -25,7 +25,6 @@ from gui.window_main.Window_Main_CaseFrame_Manager import CaseFrameManagerMW
 from gui.window_main.Window_Main_Status import MainWindowStatus
 from gui.window_main.Window_Main_Reminder import MainWindowReminder
 from gui.Window_Additionals import InfoWindow
-from gui.window_main.Window_Main_OptionMenu import MainWindowOptionMenu
 from gui.Window_Additionals import CreateInfo
 from gui.Window_Additionals import CreateToolTip
 from gui.Window_Additionals import CreateToolResponse
@@ -144,7 +143,7 @@ class LoginWindow(tk.Frame):
         self.lbl_description_info = MyLabel(self.short_description_frame,self.data_manager,text='',anchor='w',justify='left',width=4)
         self.lbl_description_info.pack(side = "left")
 
-        self.lbl_short_description = MyLabel(self.short_description_frame, self.data_manager, text=self.language_dict['easy_tarc_short_description'],anchor='w',justify='left')
+        self.lbl_short_description = MyLabel(self.short_description_frame, self.data_manager, text=self.language_dict['easy_tarc_short_description'] + '\n\n' + self.language_dict['info_description_1'] + u'\U00002139' + self.language_dict['info_description_2'],anchor='w',justify='left')
         self.lbl_short_description.configure(font=self.Font_tuple_small)
         self.lbl_short_description.pack(side='left',pady=20)
 
@@ -169,13 +168,12 @@ class LoginWindow(tk.Frame):
         self.permission_request_frame = MyFrame(self.permission_frame,self.data_manager)
         self.permission_request_frame.pack(side = "top", fill = "x" )
 
-        self.lbl_permission_request_info = MyLabel(self.permission_request_frame,self.data_manager,text='   ' + u'\U00002139',anchor='w',justify='left',width=4)
+        self.lbl_permission_request_info = MyLabel(self.permission_request_frame,self.data_manager,text= u'\U00002139',width=3)
         self.lbl_permission_request_info.pack(side = "left")
-        self.lbl_permission_request_info_ttp = CreateToolTip(self.lbl_permission_request_info, self.data_manager, 0, 30, self.language_dict["permission_request_info"])
+        self.lbl_permission_request_info_ttp = CreateToolTip(self.lbl_permission_request_info, self.data_manager, 0, 30, self.language_dict["permission_request_info"], True)
 
         self.lbl_permission_request = MyLabel(self.permission_request_frame,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict["permission_request_code"] + ':')
         self.lbl_permission_request.pack(side = "left", padx=5)
-        self.lbl_permission_request_ttp = CreateToolTip(self.lbl_permission_request, self.data_manager, 0, 30, self.language_dict["permission_request_info"])
 
         self.permission_request = tk.StringVar()
         self.textBox_permission_request = MyEntry(self.permission_request_frame, self.data_manager, textvariable=self.permission_request, width=35)
@@ -199,13 +197,12 @@ class LoginWindow(tk.Frame):
         self.permission_response_frame = MyFrame(self.permission_frame,self.data_manager)
         self.permission_response_frame.pack(side = "top", fill = "x" )
 
-        self.lbl_permission_response_info = MyLabel(self.permission_response_frame,self.data_manager,text='   ' + u'\U00002139',anchor='w',justify='left',width=4)
+        self.lbl_permission_response_info = MyLabel(self.permission_response_frame,self.data_manager,text= u'\U00002139',width=3)
         self.lbl_permission_response_info.pack(side = "left")
-        self.lbl_permission_response_info_ttp = CreateToolTip(self.lbl_permission_response_info, self.data_manager, 0, 30, self.language_dict["permission_response_info"])
+        self.lbl_permission_response_info_ttp = CreateToolTip(self.lbl_permission_response_info, self.data_manager, 0, 30, self.language_dict["permission_response_info"], True)
 
         self.lbl_permission_response = MyLabel(self.permission_response_frame,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict["permission_response_code"] + ':')
         self.lbl_permission_response.pack(side = "left", padx=5)
-        self.lbl_permission_response_ttp = CreateToolTip(self.lbl_permission_response, self.data_manager, 0, 30, self.language_dict["permission_response_info"])
 
         self.permission_response = tk.StringVar()
         self.textBox_permission_response = MyEntry(self.permission_response_frame, self.data_manager, textvariable=self.permission_response, width=35)
@@ -255,7 +252,7 @@ class LoginWindow(tk.Frame):
         self.option_frame = MyFrame(self.db_config_frame,self.data_manager)
         self.option_frame.pack(side = "top", fill = "x" )
 
-        self.lbl_option_info = MyLabel(self.option_frame,self.data_manager,text='   ' + u'\U00002139',anchor='w',justify='left',width=4)
+        self.lbl_option_info = MyLabel(self.option_frame,self.data_manager,text=u'\U00002139',width=3)
         self.lbl_option_info.pack(side = "left")
         
         self.lbl_option = MyLabel(self.option_frame,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict["options"] + ':')
@@ -267,12 +264,10 @@ class LoginWindow(tk.Frame):
         
         if self.main_app.get_restricted_data_access() == True:
             db_config_list = [self.language_dict['database_username_encrypted'],self.language_dict['database_password_encrypted']] 
-            self.lbl_option_info_ttp = CreateToolTip(self.lbl_option_info, self.data_manager, 0, 30, self.language_dict["db_config_info_2"])
-            self.lbl_option_ttp = CreateToolTip(self.lbl_option, self.data_manager, 0, 30, self.language_dict["db_config_info_2"])
+            self.lbl_option_info_ttp = CreateToolTip(self.lbl_option_info, self.data_manager, 0, 30, self.language_dict["db_config_info_2"], True)
         else:
             db_config_list = [self.language_dict['database_unencrypted'],self.language_dict['database_password_encrypted'],self.language_dict['database_username_encrypted']]  
-            self.lbl_option_info_ttp = CreateToolTip(self.lbl_option_info, self.data_manager, 0, 30, self.language_dict["db_config_info"])
-            self.lbl_option_ttp = CreateToolTip(self.lbl_option, self.data_manager, 0, 30, self.language_dict["db_config_info"])
+            self.lbl_option_info_ttp = CreateToolTip(self.lbl_option_info, self.data_manager, 0, 30, self.language_dict["db_config_info"], True)
 
         self.db_config_cbox['values'] = db_config_list
         self.clicked_db_config_option.set(self.db_config_cbox['values'][0])

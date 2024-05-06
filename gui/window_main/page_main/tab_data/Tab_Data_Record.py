@@ -70,7 +70,7 @@ class DataRecordFrame(tk.Frame):
         self.lbl_empty0 = MyLabel(self, self.data_manager, text='', width=2)
         self.lbl_empty0.pack(side='right',padx=3)
 
-        self.lbl_passed_time = MyLabel(self, self.data_manager,width=8,text=str('{:n}'.format(round(self.record_dict['hours'],3))))
+        self.lbl_passed_time = MyLabel(self, self.data_manager,width=9,text=str('{:n}'.format(round(self.record_dict['hours'],3)))) # round_time
         self.lbl_passed_time.pack(side='right',padx=3)
 
         self.lbl_empty1 = MyLabel(self, self.data_manager, text='', width=2)
@@ -104,7 +104,7 @@ class DataRecordFrame(tk.Frame):
         self.lbl_name.pack(side='left',padx=10,pady=10)
 
         if self.record_dict['account_id'] != 0:
-            info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project"] + ': ' + str(self.record_dict['project_label']) + '\n' + self.language_dict["order"] + ': ' + str(self.record_dict['order_label']) + '\n' + self.language_dict["process"] + ': ' +str(self.record_dict['process_label'])
+            info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project"] + ': ' + str(self.record_dict['project_label']) + '   ' + self.language_dict["order"] + ': ' + str(self.record_dict['order_label']) + '   ' + self.language_dict["process"] + ': ' + str(self.record_dict['process_label'])  + '\n' + self.language_dict["description"]  + ': ' + str(self.record_dict['description_text']) 
         else:
             info_text = self.language_dict["without_allocation"]
         self.account_info_ttp = CreateToolTip(self.lbl_name, self.data_manager, 30, 25, info_text)
@@ -269,7 +269,7 @@ class DataRecordFrame(tk.Frame):
         self.lbl_name.configure(text = name_text)
 
         if self.record_dict['account_id'] != 0:
-            info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project"] + ': ' + str(self.record_dict['project_label']) + '\n' + self.language_dict["order"] + ': ' + str(self.record_dict['order_label']) + '\n' + self.language_dict["process"] + ': ' +str(self.record_dict['process_label'])
+            info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project"] + ': ' + str(self.record_dict['project_label']) + '   ' + self.language_dict["order"] + ': ' + str(self.record_dict['order_label']) + '   ' + self.language_dict["process"] + ': ' + str(self.record_dict['process_label'])  + '\n' + self.language_dict["description"]  + ': ' + str(self.record_dict['description_text']) 
         else:
             info_text = self.language_dict["without_allocation"]
         self.account_info_ttp.text = info_text

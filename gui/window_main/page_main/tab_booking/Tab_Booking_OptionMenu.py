@@ -17,6 +17,7 @@ __author__ = 'Sebastian Feiert'
 
 import tkinter # Tkinter -> tkinter in Python 3
 from gui.Window_Additionals import InfoDictWindow
+import json
 
 
 class BookingOptionMenu(tkinter.Listbox):
@@ -49,6 +50,8 @@ class BookingOptionMenu(tkinter.Listbox):
         else:  
             self.optionmenu.add_command(label=self.language_dict["select_all"],command=self.select_all)
 
+        self.optionmenu.add_command(label=self.language_dict["copie_data"],command=self.copie_data)
+
     def popup(self, event):
         try:
             self.build_options()
@@ -66,6 +69,38 @@ class BookingOptionMenu(tkinter.Listbox):
 
     def select_all(self):
         self.booking_tab.get_clicked_record_frame_list()[0].activate_all_records()
+
+    def copie_data(self):
+        booking_dict = {}
+        clicked_record_frame_list = self.booking_tab.get_clicked_record_frame_list()
+
+        counter = 1
+
+        for clicked_record_frame  in clicked_record_frame_list:
+            record_dict = clicked_record_frame.record_dict
+
+            if record_dict['account_kind'] == 0:
+                name_text = record_dict['name'] + " (" + self.language_dict["main_account"] + ": " +  record_dict['main_name'] +")"
+            else:
+                name_text = record_dict['name']
+
+            data_dict = {
+                "Name":name_text,
+                "Booking-ID":record_dict['response_code'],
+                "Hours":str("{:n}".format(round(record_dict['hours'],3))),
+                "Booking text":record_dict['response_text'],
+                }
+            
+            booking_dict.update({str(counter):data_dict})
+
+            counter = counter + 1
+
+        booking_dict = json.dumps(booking_dict)
+
+        self.gui.main_window.clipboard_clear()
+        self.gui.main_window.clipboard_append(booking_dict)
+
+
 
     def show_clock_info(self):
         if self.record_dict['account_kind'] == 1:
@@ -113,7 +148,7 @@ class BookingOptionMenu(tkinter.Listbox):
         #############
         if self.record_dict['account_id'] != 0:
             if float(self.record_dict['available_hours']) != 0:
-                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.record_dict['available_hours']),3))) + ' ' + self.language_dict["hours"]}) 
+                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.record_dict['available_hours']),3))) + ' ' + self.language_dict["hours"]})  # round_time
             else:
                 info_dict.update({self.language_dict["available_hours"]:" - "})         
         #############

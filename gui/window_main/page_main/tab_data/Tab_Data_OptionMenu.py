@@ -16,7 +16,7 @@ limitations under the License.
 __author__ = 'Sebastian Feiert'
 
 import tkinter # Tkinter -> tkinter in Python 3
-from gui.Window_Additionals import InfoDictWindow, DeleteRecordWarning
+from gui.Window_Additionals import InfoDictWindow, DeleteRecordWarning, EditDataDate
 
 
 class DataOptionMenu(tkinter.Listbox):
@@ -49,8 +49,8 @@ class DataOptionMenu(tkinter.Listbox):
             self.optionmenu.add_command(label=self.language_dict["delete"],command=self.ask_delete_record)
             self.optionmenu.add_separator()
 
-        if self.data_tab.data_kind == 'default_list':
-            self.optionmenu.add_command(label=self.language_dict["select_day"],command=self.select_all)
+        self.optionmenu.add_command(label=self.language_dict["select_day"],command=self.select_all)
+        self.optionmenu.add_command(label=self.language_dict["change_date"],command=self.change_date)
 
 
 
@@ -77,6 +77,10 @@ class DataOptionMenu(tkinter.Listbox):
 
     def edit_record(self):
         self.data_tab.edit_record(self.record_dict)
+        return
+    
+    def change_date(self):
+        EditDataDate(self.main_app,self.gui,self.data_tab.main_frame, self.data_tab,self.data_tab.get_clicked_record_frame_list())
         return
 
     def show_clock_info(self):
@@ -125,7 +129,7 @@ class DataOptionMenu(tkinter.Listbox):
         #############
         if self.record_dict['account_id'] != 0:
             if float(self.record_dict['available_hours']) != 0:
-                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.record_dict['available_hours']),3))) + ' ' + self.language_dict["hours"]}) 
+                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.record_dict['available_hours']),3))) + ' ' + self.language_dict["hours"]}) # round_time
             else:
                 info_dict.update({self.language_dict["available_hours"]:" - "}) 
         #############

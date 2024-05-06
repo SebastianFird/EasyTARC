@@ -174,8 +174,8 @@ class AccountsOptionMenu(tkinter.Listbox):
                 info_dict.update({self.language_dict["name"]:self.language_dict["without_allocation"]})
             
             info_dict.update({self.language_dict["time_sum"]:"#"})
-            info_dict.update({self.language_dict["without_sub_accounts"]:str('{:n}'.format(round(float(report_dict['single']),3))) + ' ' + self.language_dict["hours"]})
-            info_dict.update({self.language_dict["with_sub_accounts"]:str('{:n}'.format(round(float(report_dict['overall']),3))) + ' ' + self.language_dict["hours"]})
+            info_dict.update({self.language_dict["without_sub_accounts"]:str('{:n}'.format(round(float(report_dict['single']),3))) + ' ' + self.language_dict["hours"]})  # round_time
+            info_dict.update({self.language_dict["with_sub_accounts"]:str('{:n}'.format(round(float(report_dict['overall']),3))) + ' ' + self.language_dict["hours"]})   # round_time
         else:
             report_dict = self.data_manager.get_time_account_report(0,self.account_dict['account_id'])
 
@@ -184,7 +184,7 @@ class AccountsOptionMenu(tkinter.Listbox):
 
             info_dict.update({self.language_dict["name"]:self.account_dict['name']})
             
-            info_dict.update({self.language_dict["time_sum"]:"#"+str('{:n}'.format(round(float(report_dict['single']),3))) + ' ' + self.language_dict["hours"]})
+            info_dict.update({self.language_dict["time_sum"]:"#"+str('{:n}'.format(round(float(report_dict['single']),3))) + ' ' + self.language_dict["hours"]}) # round_time
         
         info_window = InfoDictWindow(self.main_app, self.gui, self.account_tab.main_frame ,info_dict,400,280)
 
@@ -237,7 +237,7 @@ class AccountsOptionMenu(tkinter.Listbox):
         #############
         if self.account_dict['account_id'] != 0:
             if float(self.account_dict['available_hours']) != 0:
-                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.account_dict['available_hours']),3))) + ' ' + self.language_dict["hours"]}) 
+                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.account_dict['available_hours']),3))) + ' ' + self.language_dict["hours"]}) # round_time
             else:
                 info_dict.update({self.language_dict["available_hours"]:" - "}) 
 

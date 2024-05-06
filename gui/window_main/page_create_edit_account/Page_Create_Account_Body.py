@@ -106,13 +106,13 @@ class CreateEditAccountBody:
         self.frame_name = MyFrame(self.frame_left,self.data_manager)
         self.frame_name.pack(side = "top", padx=10, pady=4,fill='x')
 
-        self.lbl_name_info = MyLabel(self.frame_name,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=3)
+        self.lbl_name_info = MyLabel(self.frame_name,self.data_manager,text= u'\U00002139',width=3)
         self.lbl_name_info.pack(side = "left")
 
         if self.modus in ['new_main','new_order','new_process','edit_main']:
-            self.lbl_name_ttp = CreateToolTip(self.lbl_name_info, self.data_manager, 0, 30, self.language_dict["create_account_name_text_A"])
+            self.lbl_name_ttp = CreateToolTip(self.lbl_name_info, self.data_manager, 0, 30, self.language_dict["create_account_name_text_A"], True)
         elif self.modus in ['new_sub','edit_sub']:
-            self.lbl_name_ttp = CreateToolTip(self.lbl_name_info, self.data_manager, 0, 30, self.language_dict["create_account_name_text_B"])
+            self.lbl_name_ttp = CreateToolTip(self.lbl_name_info, self.data_manager, 0, 30, self.language_dict["create_account_name_text_B"], True)
 
         self.lbl_name = MyLabel(self.frame_name,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict['name'] + ':')
         self.lbl_name.pack(side = "left", padx=10)
@@ -135,17 +135,16 @@ class CreateEditAccountBody:
         self.frame_group = MyFrame(self.frame_left,self.data_manager)
         self.frame_group.pack(side = "top", padx=10, pady=4,fill='x')
 
-        self.lbl_group_info = MyLabel(self.frame_group,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=3)
+        self.lbl_group_info = MyLabel(self.frame_group,self.data_manager,text= u'\U00002139',width=3)
         self.lbl_group_info.pack(side = "left")
-        self.lbl_group_ttp = CreateToolTip(self.lbl_group_info, self.data_manager, 0, 30, self.language_dict["create_account_group_text"])
+        self.lbl_group_ttp = CreateToolTip(self.lbl_group_info, self.data_manager, 0, 30, self.language_dict["create_account_group_text"], True)
 
         self.lbl_group = MyLabel(self.frame_group,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict['group'] + ':')
         self.lbl_group.pack(side = "left", padx=10)
-        self.lbl_group_ttp_2 = CreateToolTip(self.lbl_group, self.data_manager, 0, 30, self.language_dict["create_account_group_text"])
 
         self.account_group = tk.StringVar()
         self.group_cbox = ttk.Combobox(self.frame_group, width = 25, textvariable = self.account_group)
-        self.group_cbox['values'] = self.data_manager.get_all_active_account_groups()
+        self.group_cbox['values'] = self.data_manager.get_all_account_groups(True)
         self.group_cbox.pack(side="left", padx=10)
 
         self.lbl_highlight = MyLabel(self.frame_group,self.data_manager,text='  '+u'\U0001F808'+' ')
@@ -179,13 +178,12 @@ class CreateEditAccountBody:
         self.frame_project = MyFrame(self.frame_left,self.data_manager)
         self.frame_project.pack(side = "top", padx=10, pady=4,fill='x')
 
-        self.lbl_project_info = MyLabel(self.frame_project,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=3)
+        self.lbl_project_info = MyLabel(self.frame_project,self.data_manager,text= u'\U00002139',width=3)
         self.lbl_project_info.pack(side = "left")
-        self.lbl_project_ttp = CreateToolTip(self.lbl_project_info, self.data_manager, 0, 30, self.language_dict["create_account_project_label_text"])
+        self.lbl_project_ttp = CreateToolTip(self.lbl_project_info, self.data_manager, 0, 30, self.language_dict["create_account_project_label_text"], True)
 
         self.lbl_project = MyLabel(self.frame_project,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict["project"] + ':')
         self.lbl_project.pack(side = "left", padx=10)
-        self.lbl_project_ttp_2 = CreateToolTip(self.lbl_project, self.data_manager, 0, 30, self.language_dict["create_account_project_label_text"])
 
         self.account_project = tk.StringVar()
         self.textBox_project = MyEntry(self.frame_project, self.data_manager, textvariable=self.account_project, width=36)
@@ -206,13 +204,12 @@ class CreateEditAccountBody:
         self.frame_order = MyFrame(self.frame_left,self.data_manager)
         self.frame_order.pack(side = "top", padx=10, pady=4,fill='x')
 
-        self.lbl_order_info = MyLabel(self.frame_order,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=3)
+        self.lbl_order_info = MyLabel(self.frame_order,self.data_manager,text=u'\U00002139',width=3)
         self.lbl_order_info.pack(side = "left")
-        self.lbl_order_ttp = CreateToolTip(self.lbl_order_info, self.data_manager, 0, 30, self.language_dict["create_account_order_label_text"])
+        self.lbl_order_ttp = CreateToolTip(self.lbl_order_info, self.data_manager, 0, 30, self.language_dict["create_account_order_label_text"], True)
 
         self.lbl_order = MyLabel(self.frame_order,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict["order"] + ':')
         self.lbl_order.pack(side = "left", padx=10)
-        self.lbl_order_ttp_2 = CreateToolTip(self.lbl_order, self.data_manager, 0, 30, self.language_dict["create_account_order_label_text"])
 
         self.account_order = tk.StringVar()
         self.textBox_order = MyEntry(self.frame_order, self.data_manager, textvariable=self.account_order, width=36)
@@ -233,13 +230,12 @@ class CreateEditAccountBody:
         self.frame_process = MyFrame(self.frame_left,self.data_manager)
         self.frame_process.pack(side = "top", padx=10, pady=4,fill='x')
 
-        self.lbl_process_info = MyLabel(self.frame_process,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=3)
+        self.lbl_process_info = MyLabel(self.frame_process,self.data_manager,text=u'\U00002139',width=3)
         self.lbl_process_info.pack(side = "left")
-        self.lbl_process_ttp = CreateToolTip(self.lbl_process_info, self.data_manager, 0, 30, self.language_dict["create_account_process_label_text"])
+        self.lbl_process_ttp = CreateToolTip(self.lbl_process_info, self.data_manager, 0, 30, self.language_dict["create_account_process_label_text"], True)
 
         self.lbl_process = MyLabel(self.frame_process,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict["process"] + ':')
         self.lbl_process.pack(side = "left", padx=10)
-        self.lbl_process_ttp_2 = CreateToolTip(self.lbl_process, self.data_manager, 0, 30, self.language_dict["create_account_process_label_text"])
 
         self.account_process = tk.StringVar()
         self.textBox_process = MyEntry(self.frame_process, self.data_manager, textvariable=self.account_process, width=36)
@@ -260,13 +256,12 @@ class CreateEditAccountBody:
         self.frame_description = MyFrame(self.frame_left,self.data_manager)
         self.frame_description.pack(side = "top", padx=10, pady=4,fill='x')
 
-        self.lbl_description_info = MyLabel(self.frame_description,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=3)
+        self.lbl_description_info = MyLabel(self.frame_description,self.data_manager,text=u'\U00002139',width=3)
         self.lbl_description_info.pack(side = "left")
-        self.lbl_description_ttp = CreateToolTip(self.lbl_description_info, self.data_manager, 0, 30, self.language_dict["create_account_description_text"])
+        self.lbl_description_ttp = CreateToolTip(self.lbl_description_info, self.data_manager, 0, 30, self.language_dict["create_account_description_text"], True)
 
         self.lbl_description = MyLabel(self.frame_description,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict['description'] + ':')
         self.lbl_description.pack(side = "left", padx=10)
-        self.lbl_description_ttp_2 = CreateToolTip(self.lbl_description, self.data_manager, 0, 30, self.language_dict["create_account_description_text"])
 
         self.account_description_text = tk.StringVar()
         self.textBox_description = MyEntry(self.frame_description,self.data_manager, textvariable=self.account_description_text, width=36)
@@ -286,9 +281,9 @@ class CreateEditAccountBody:
         self.frame_expiration_date = MyFrame(self.frame_right,self.data_manager)
         self.frame_expiration_date.pack(side = "top", padx=10, pady=4,fill='x')
 
-        self.expiration_date_info = MyLabel(self.frame_expiration_date,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=3)
+        self.expiration_date_info = MyLabel(self.frame_expiration_date,self.data_manager,text= u'\U00002139',width=3)
         self.expiration_date_info.pack(side = "left")
-        self.expiration_date_ttp = CreateToolTip(self.expiration_date_info, self.data_manager, 0, 30, self.language_dict["create_expiration_date_text"])
+        self.expiration_date_ttp = CreateToolTip(self.expiration_date_info, self.data_manager, 0, 30, self.language_dict["create_expiration_date_text"], True)
 
         lbl_expiration_date = MyLabel(self.frame_expiration_date,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['expiration_date'] + ':')
         lbl_expiration_date.pack(side = "left", padx=10)
@@ -317,26 +312,26 @@ class CreateEditAccountBody:
         self.lbl_expiration_date_highlight.pack(side = "left")
         
 
-        if self.modus in ['new_sub','edit_sub']:
-            self.expiration_year_cbox.configure(state=tk.DISABLED)
-            self.expiration_month_cbox.configure(state=tk.DISABLED)
-            self.expiration_day_cbox.configure(state=tk.DISABLED)
-        else:
-            self.lbl_expiration_date_highlight.configure(foreground=self.style_dict["highlight_color_yellow"])
-            self.update_expiration_year()
-            self.update_expiration_month()
-            self.update_expiration_day()
+        #if self.modus in ['new_sub','edit_sub']:
+        #    self.expiration_year_cbox.configure(state=tk.DISABLED)
+        #    self.expiration_month_cbox.configure(state=tk.DISABLED)
+        #    self.expiration_day_cbox.configure(state=tk.DISABLED)
+        #else:
+        self.lbl_expiration_date_highlight.configure(foreground=self.style_dict["highlight_color_yellow"])
+        self.update_expiration_year()
+        self.update_expiration_month()
+        self.update_expiration_day()
 
         ###################################
             
         self.frame_available_hours = MyFrame(self.frame_right,self.data_manager)
         self.frame_available_hours.pack(side = "top", padx=10, pady=4,fill='x')
 
-        self.available_hours_info = MyLabel(self.frame_available_hours,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=3)
+        self.available_hours_info = MyLabel(self.frame_available_hours,self.data_manager,text= u'\U00002139',width=3)
         self.available_hours_info.pack(side = "left")
-        self.available_hours_ttp = CreateToolTip(self.available_hours_info, self.data_manager, 0, 30, self.language_dict["create_available_hours_text"])
+        self.available_hours_ttp = CreateToolTip(self.available_hours_info, self.data_manager, 0, 30, self.language_dict["create_available_hours_text"], True)
 
-        lbl_available_hours = MyLabel(self.frame_available_hours,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['available_hours'] + ':')
+        lbl_available_hours = MyLabel(self.frame_available_hours,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['available_hours'] + ' [' + self.language_dict["hours_abbreviation"] + ']' + ':')
         lbl_available_hours.pack(side = "left", padx=10)
 
         self.available_hours = tk.StringVar()
@@ -344,14 +339,18 @@ class CreateEditAccountBody:
         self.textBox_available_hours.pack(side = "left", padx=10)
 
         if self.modus in ['edit_main'] and self.main_account_dict["available_hours"] != 0:
-            self.available_hours.set(str('{:n}'.format(round(self.main_account_dict["available_hours"],3))))   
+            self.available_hours.set(str('{:n}'.format(round(self.main_account_dict["available_hours"],3)))) # round_time
 
-        if self.modus in ['new_sub','edit_sub']:
-            self.textBox_available_hours.configure(state=tk.DISABLED)
-        else:
-            self.textBox_available_hours.configure(highlightthickness = 1)
-            if self.style_dict['name'] == 'dark':
-                self.textBox_available_hours.configure(borderwidth = 0)
+        elif self.modus in ['edit_sub'] and self.sub_account_dict["available_hours"] != 0:
+            self.available_hours.set(str('{:n}'.format(round(self.sub_account_dict["available_hours"],3))))   # round_time
+
+        #if self.modus in ['new_sub','edit_sub']:
+        #    self.textBox_available_hours.configure(state=tk.DISABLED)
+        #else:
+
+        self.textBox_available_hours.configure(highlightthickness = 1)
+        if self.style_dict['name'] == 'dark':
+            self.textBox_available_hours.configure(borderwidth = 0)
 
         ###################################
 
@@ -368,13 +367,12 @@ class CreateEditAccountBody:
         self.frame_bookable_state = MyFrame(self.frame_right,self.data_manager)
         self.frame_bookable_state.pack(side = "top", padx=10, pady=4,fill='x')
 
-        self.lbl_bookable_info = MyLabel(self.frame_bookable_state,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=3)
+        self.lbl_bookable_info = MyLabel(self.frame_bookable_state,self.data_manager,text= u'\U00002139',width=3)
         self.lbl_bookable_info.pack(side = "left")
-        self.lbl_bookable_ttp = CreateToolTip(self.lbl_bookable_info, self.data_manager, 0, 30, self.language_dict["create_account_bookable_text"])
+        self.lbl_bookable_ttp = CreateToolTip(self.lbl_bookable_info, self.data_manager, 0, 30, self.language_dict["create_account_bookable_text"], True)
 
         self.lbl_bookable = MyLabel(self.frame_bookable_state,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['bookable'] + ':')
         self.lbl_bookable.pack(side = "left", padx=10)
-        self.lbl_bookable_ttp_2 = CreateToolTip(self.lbl_bookable, self.data_manager, 0, 30, self.language_dict["create_account_bookable_text"])
         
         self.lbl_bookable_state = MyLabel(self.frame_bookable_state,self.data_manager,width=25)
         self.lbl_bookable_state.pack(side = "left", padx=10)
@@ -398,13 +396,12 @@ class CreateEditAccountBody:
         self.frame_autobooking = MyFrame(self.frame_right,self.data_manager)
         self.frame_autobooking.pack(side = "top", padx=10, pady=4,fill='x')
 
-        self.lbl_checkBox_auto_booking_info = MyLabel(self.frame_autobooking,self.data_manager,text=' ' + u'\U00002139',anchor='w',justify='left',width=3)
+        self.lbl_checkBox_auto_booking_info = MyLabel(self.frame_autobooking,self.data_manager,text= u'\U00002139',width=3)
         self.lbl_checkBox_auto_booking_info.pack(side = "left")
-        self.lbl_autobooking_ttp = CreateToolTip(self.lbl_checkBox_auto_booking_info, self.data_manager, 0, 30, self.language_dict["create_account_auto_booking_text"])
+        self.lbl_autobooking_ttp = CreateToolTip(self.lbl_checkBox_auto_booking_info, self.data_manager, 0, 30, self.language_dict["create_account_auto_booking_text"], True)
 
         self.lbl_autobooking = MyLabel(self.frame_autobooking,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['auto_booking'] + ':')
         self.lbl_autobooking.pack(side = "left", padx=10)
-        self.lbl_autobooking_ttp_2 = CreateToolTip(self.lbl_autobooking, self.data_manager, 0, 30, self.language_dict["create_account_auto_booking_text"])
 
         self.account_autobooking = tk.StringVar()
         self.checkBox_autobooking = MyCheckbutton(self.frame_autobooking, self.data_manager,
@@ -460,10 +457,6 @@ class CreateEditAccountBody:
             self.account_response_text.set(self.main_account_dict.get("default_response_text"))
         elif self.modus in ['edit_sub']  and str(self.sub_account_dict.get("default_response_text")) != ' - ':
             self.account_response_text.set(self.sub_account_dict.get("default_response_text"))
-
-        self.textBox_response_text.configure(highlightthickness = 1)
-        if self.style_dict['name'] == 'dark':
-            self.textBox_response_text.configure(borderwidth = 0)
 
         ###############
 
@@ -568,9 +561,9 @@ class CreateEditAccountBody:
         elif self.modus in ['edit_sub'] and int(self.sub_account_dict["date_expiration"].strftime("%Y")) != 2000:
             expiration_year = self.sub_account_dict["date_expiration"].strftime("%Y")
             expiration_year_list = [expiration_year,'']
-        elif self.modus in ['new_sub'] and int(self.main_account_dict["date_expiration"].strftime("%Y")) != 2000:
-            expiration_year = self.main_account_dict["date_expiration"].strftime("%Y")
-            expiration_year_list = [expiration_year,'']
+        #elif self.modus in ['new_sub'] and int(self.main_account_dict["date_expiration"].strftime("%Y")) != 2000:
+        #    expiration_year = self.main_account_dict["date_expiration"].strftime("%Y")
+        #    expiration_year_list = [expiration_year,'']
         else:
             expiration_year_list = ['']
 
@@ -592,9 +585,9 @@ class CreateEditAccountBody:
         elif self.modus in ['edit_sub'] and int(self.sub_account_dict["date_expiration"].strftime("%Y")) != 2000:
             expiration_month = self.language_dict['month_' + self.sub_account_dict["date_expiration"].strftime("%m")]
             expiration_month_list = [expiration_month,'']
-        elif self.modus in ['new_sub'] and int(self.main_account_dict["date_expiration"].strftime("%Y")) != 2000:
-            expiration_month = self.language_dict['month_' + self.main_account_dict["date_expiration"].strftime("%m")]
-            expiration_month_list = [expiration_month,'']
+        #elif self.modus in ['new_sub'] and int(self.main_account_dict["date_expiration"].strftime("%Y")) != 2000:
+        #    expiration_month = self.language_dict['month_' + self.main_account_dict["date_expiration"].strftime("%m")]
+        #    expiration_month_list = [expiration_month,'']
         else:
             expiration_month_list = ['']
 
@@ -627,9 +620,9 @@ class CreateEditAccountBody:
         elif self.modus in ['edit_sub'] and int(self.sub_account_dict["date_expiration"].strftime("%Y")) != 2000:
             expiration_day = self.sub_account_dict["date_expiration"].strftime("%d")
             expiration_day_list = [expiration_day,'']
-        elif self.modus in ['new_sub'] and int(self.main_account_dict["date_expiration"].strftime("%Y")) != 2000:
-            expiration_day = self.main_account_dict["date_expiration"].strftime("%d")
-            expiration_day_list = [expiration_day,'']
+        #elif self.modus in ['new_sub'] and int(self.main_account_dict["date_expiration"].strftime("%Y")) != 2000:
+        #    expiration_day = self.main_account_dict["date_expiration"].strftime("%d")
+        #    expiration_day_list = [expiration_day,'']
         else:
             expiration_day_list = ['']
         

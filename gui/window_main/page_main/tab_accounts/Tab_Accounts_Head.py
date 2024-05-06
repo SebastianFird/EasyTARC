@@ -133,7 +133,7 @@ class AccountsHead:
             self.textBox_search_var.configure(state=tk.NORMAL)
     
     def updt_search_cblist(self):
-        self.search_cbox['values'] = [self.language_dict["name"],self.language_dict["group"],self.language_dict["project"],self.language_dict["order"],self.language_dict["process"],self.language_dict["open"],self.language_dict["closed"],self.language_dict["bookable"],self.language_dict["not_bookable"],self.language_dict["auto_booking"],self.language_dict["all"]]
+        self.search_cbox['values'] = [self.language_dict["name"],self.language_dict["group"],self.language_dict["project"],self.language_dict["order"],self.language_dict["process"],self.language_dict["response_code"],self.language_dict["open"],self.language_dict["closed"],self.language_dict["bookable"],self.language_dict["not_bookable"],self.language_dict["auto_booking"],self.language_dict["all"]]
         self.search_cbox.current(0)
 
     def hit_enter_textBox(self,event=None):
@@ -155,6 +155,10 @@ class AccountsHead:
 
         elif self.search_cbox.get() == self.language_dict["process"]:
             modus = 'process_label'
+            search_input = self.search_var.get()
+
+        elif self.search_cbox.get() == self.language_dict["response_code"]:
+            modus = 'response_code'
             search_input = self.search_var.get()
 
         elif self.search_cbox.get() == self.language_dict["open"]:
@@ -309,6 +313,7 @@ class AccountsHead:
         self.search_var.set(new_group)
         self.hit_enter_textBox()
         self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.update_work_window_group_main_account_list()
+        self.gui.root.deiconify()
         return
     
     def show_info(self,text):

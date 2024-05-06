@@ -19,6 +19,7 @@ import tkinter as tk
 from tkinter import messagebox
 
 from gui.window_main.page_main.tab_time_capture.Tab_Time_Capture_Body_Accounts import MainAccountFrame
+from gui.Window_Additionals import EditGroupName
 
 from style_classes import MyFrame
 from style_classes import MyLabel
@@ -88,9 +89,17 @@ class GroupFrame((tk.Frame)):
         self.group_name_frame = MyFrame(self.group_frame,self.data_manager)
         self.group_name_frame.pack(side = "top",fill='x')
 
-        self.lbl_group = MyLabel(self.group_name_frame,self.data_manager,text = '  ' + str(self.group_name) + ':', anchor = 'w')
+        self.lbl_group = MyLabel(self.group_name_frame,self.data_manager,text = '  ' + str(self.group_name) + ':   ', anchor = 'w')
         self.lbl_group.configure(font = Font_tuple, foreground=self.style_dict["highlight_color_grey"])
         self.lbl_group.pack(side = "left")
+
+        self.lbl_group_edit = MyLabel(self.group_name_frame,self.data_manager,text=u'\U0001F58D',width=5, anchor = 'w')
+        self.lbl_group_edit.configure(foreground=self.style_dict["background_color_grey"])
+        self.lbl_group_edit.pack(side = "left")
+
+        self.lbl_group_edit.bind("<Enter>", self.enter_group_edit)
+        self.lbl_group_edit.bind("<Leave>", self.leave_group_edit)
+        self.lbl_group_edit.bind("<Button-1>", self.activate_group_edit)
 
         self.lbl_group.bind("<Enter>", self.enter_view_group)
         self.lbl_group.bind("<Leave>", self.leave_view_group)
@@ -99,7 +108,18 @@ class GroupFrame((tk.Frame)):
     
 ##################################################
 
+    def enter_group_edit(self,e):
+        self.lbl_group_edit.configure(foreground=self.style_dict["font_color"])
+
+    def leave_group_edit(self,e):
+        self.lbl_group_edit.configure(foreground=self.style_dict["background_color_grey"])
+
+    def activate_group_edit(self,e=None):
+        if self.main_app.get_action_state() == "normal":
+            edit_response_text_window = EditGroupName(self.main_app, self.gui, self.capture_body.capture_tab.main_frame,self.group_name)
+
     def enter_view_group(self,e):
+        self.lbl_group_edit.configure(foreground=self.style_dict["highlight_color_grey"])
         for main_account_frame in self.main_account_frame_list:
             if main_account_frame.main_account_clock.str_timedelta(main_account_frame.main_account_clock.get_total_time_sum()) != "00:00:00":
                 return
@@ -108,13 +128,14 @@ class GroupFrame((tk.Frame)):
                     self.lbl_group.configure(foreground=self.style_dict["font_color"])
                 else:
                     self.lbl_group.configure(foreground=self.style_dict["highlight_color_grey"])
-
+        
     def leave_view_group(self,e):
+        self.lbl_group_edit.configure(foreground=self.style_dict["background_color_grey"])
         if self.tree_view == False:
             self.lbl_group.configure(foreground=self.style_dict["highlight_color_grey"])
         else:
             self.lbl_group.configure(foreground=self.style_dict["font_color"])
-
+        
     def clicked_view_group(self,e):
         self.fold_group_clocks()
 
@@ -250,6 +271,7 @@ class GroupFrame((tk.Frame)):
             self.group_frame.refresh_style()
             self.group_name_frame.refresh_style()
             self.lbl_group.refresh_style()
+            self.lbl_group_edit.refresh_style()
 
             self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
 
@@ -258,6 +280,8 @@ class GroupFrame((tk.Frame)):
                 self.lbl_group.configure(foreground=self.style_dict["font_color"])
             else:
                 self.lbl_group.configure(foreground=self.style_dict["highlight_color_grey"])
+            
+            self.lbl_group_edit.configure(foreground=self.style_dict["background_color_grey"])
             
         for main_account_frame in self.main_account_frame_list:
             main_account_frame.refresh()

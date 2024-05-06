@@ -113,9 +113,11 @@ class WorkWindowBox(WorkWindowCbox):
 
     def main_enter(self,e):
         self.main_frame_leave = False
+        self.data_manager.set_last_tracked_interaction()
 
     def main_leave(self,e=None):
         self.main_frame_leave = True
+        self.data_manager.set_last_tracked_interaction()
 
     def update(self):
         self.updt_selectable_account_clock_cblist()

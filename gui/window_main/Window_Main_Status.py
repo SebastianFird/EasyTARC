@@ -21,7 +21,9 @@ import datetime
 import ctypes
 
 from gui.Window_Additionals import InfoDictWindow
+from gui.Window_Additionals import SleepModeinfo
 from gui.Window_Additionals import CreateToolTip
+from gui.window_main.Window_Main_Status_OptionMenu import MainWindowStatusOptionMenu
 
 from style_classes import MyFrame
 from style_classes import MyLabel
@@ -41,11 +43,14 @@ class MainWindowStatus(tk.Frame):
         self.gui = gui
         self.main_window = main_window
         self.reminder_frame_list = []
+        self.refresh_rate_counter = 0
 
         self.after_func = None
 
         # run the main frame of this layer
         self.create_main_frame(container)
+
+        self.option_menu = MainWindowStatusOptionMenu(self.main_frame,self.main_app,self.gui)
 
 #################################################################
         
@@ -59,7 +64,7 @@ class MainWindowStatus(tk.Frame):
         self.lbl_backup.pack(side = "right")
         self.lbl_backup_ttp = CreateToolTip(self.lbl_backup, self.data_manager, -350, 30, self.language_dict["data_are_stored_temporarily"])
 
-        self.lbl_btn_info = MyLabel(self.main_frame, self.data_manager, text=u'\U00002139',width=5)
+        self.lbl_btn_info = MyLabel(self.main_frame, self.data_manager, text=u'\U0001F4CA',width=5)  #1F4CA #U00002139 # U0001F4C8 # U0001F4CA
         self.lbl_btn_info.configure(foreground=self.style_dict["font_color"])
         self.lbl_btn_info.pack(side = "right")
         self.lbl_btn_info.bind('<Button-1>', self.info_work_time)
@@ -80,6 +85,14 @@ class MainWindowStatus(tk.Frame):
         self.lbl_worktime_name.configure(foreground=self.style_dict["font_color"])
         self.lbl_worktime_name.pack(side = "right")
 
+        self.lbl_rate = MyLabel(self.main_frame, self.data_manager, width=5, anchor='w')
+        self.lbl_rate.configure(foreground=self.style_dict["font_color"])
+        self.lbl_rate.pack(side = "right")
+
+        self.lbl_rate_name = MyLabel(self.main_frame, self.data_manager, width=7, anchor='e')
+        self.lbl_rate_name.configure(foreground=self.style_dict["font_color"])
+        self.lbl_rate_name.pack(side = "right")
+
         self.lbl_current = MyLabel(self.main_frame, self.data_manager, text=self.language_dict["current"] + ': ', width=10, anchor='center')
         self.lbl_current.configure(foreground=self.style_dict["font_color"])
         self.lbl_current.pack(side = "left")
@@ -92,6 +105,16 @@ class MainWindowStatus(tk.Frame):
 
         self.lbl_btn_info.bind("<Enter>", self.info_enter)
         self.lbl_btn_info.bind("<Leave>", self.info_leave)
+
+        self.lbl_pausetime.bind("<Button-3>", self.right_clicked)
+        self.lbl_pausetime_name.bind("<Button-3>", self.right_clicked)
+        self.lbl_worktime.bind("<Button-3>", self.right_clicked)
+        self.lbl_worktime_name.bind("<Button-3>", self.right_clicked)
+        self.lbl_rate.bind("<Button-3>", self.right_clicked)
+        self.lbl_rate_name.bind("<Button-3>", self.right_clicked)
+        self.lbl_current.bind("<Button-3>", self.right_clicked)
+        self.lbl_status_text.bind("<Button-3>", self.right_clicked)
+        self.main_frame.bind("<Button-3>", self.right_clicked)
 
         self.start_auto_update_status_frame()
 
@@ -125,6 +148,76 @@ class MainWindowStatus(tk.Frame):
         pausetime = pause_clock.str_timedelta(pause_clock.get_total_time())
         self.lbl_pausetime.configure(text=str(pausetime))
 
+        main_account_clock_list = self.data_manager.get_main_account_clock_list()
+
+        ################
+
+        if self.main_app.get_setting('booking_rate_details') == 'on':
+            self.lbl_rate_name.configure(text=self.language_dict["rate"] + ': ')
+            if main_account_clock_list != [] and self.refresh_rate_counter >= 3:
+                self.refresh_rate_counter = 0
+                work_time_q = work_clock.get_total_time()
+                activated_main_account_clock_list = [ele for ele in main_account_clock_list if ele.str_timedelta(ele.get_total_time_sum()) != '00:00:00']
+                activated_main_account_clock_not_bookable_list = [ele for ele in activated_main_account_clock_list if ele.get_bookable() == 0]
+                if activated_main_account_clock_not_bookable_list != []:
+                    q_not_bookable_time = datetime.timedelta(hours = 0)
+                    for main_account_clock in activated_main_account_clock_not_bookable_list:
+                        q_not_bookable_time = q_not_bookable_time + main_account_clock.get_total_time_sum()
+                    if str(work_time) != '00:00:00':
+                        bookingrate = (1 - (q_not_bookable_time / work_time_q))*100 
+                    else:
+                        bookingrate = 0
+                    self.lbl_rate.configure(text=str(round(bookingrate)) + ' %')
+                else:
+                    self.lbl_rate.configure(text='100 %')
+            else:
+                self.refresh_rate_counter = self.refresh_rate_counter + 1
+        else:
+            self.lbl_rate.configure(text='')
+            self.lbl_rate_name.configure(text='')
+
+        ################
+
+        if self.main_app.get_setting('sleep_mode') == 'on':
+            if work_clock.get_runninig() == True:   
+
+                recording_period = datetime.datetime.now() - self.data_manager.get_start_timestamp()
+                recording_period = recording_period - pause_clock.get_total_time()
+
+                last_tracked_interaction = self.data_manager.get_last_tracked_interaction()
+
+                without_interaction_period = datetime.datetime.now() - last_tracked_interaction
+
+                recording_period_hours = recording_period.seconds/3600
+                without_interaction_hours = without_interaction_period.seconds/3600
+
+                if recording_period_hours >= float(self.main_app.get_setting("sleep_mode_recording_period_hours")) and without_interaction_hours >= float(self.main_app.get_setting("sleep_mode_without_interaction_hours")):
+
+                    self.gui.unminimize()
+                    self.gui.root.deiconify()
+
+                    self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.head.activate_pause()
+                    self.data_manager.set_sleep_mode_timestamp()
+                    sleep_mode_timestamp = self.data_manager.get_sleep_mode_timestamp() 
+                    
+                    time_diff = sleep_mode_timestamp -last_tracked_interaction
+
+                    last_active_clock = self.data_manager.get_last_active_clock()
+
+                    info_dict = {self.language_dict["sleep_mode"]:"#"}
+                    info_dict.update({self.language_dict["auto_activation_pause"]:sleep_mode_timestamp.strftime('%d.%m.%Y') + '      ' + sleep_mode_timestamp.strftime('%H:%M') + ' ' + self.language_dict["o_clock"]})
+                    info_dict.update({self.language_dict["last_interaction"]:last_tracked_interaction.strftime('%d.%m.%Y') + '      ' + last_tracked_interaction.strftime('%H:%M') + ' ' + self.language_dict["o_clock"]})
+                    info_dict.update({self.language_dict["last_active_clock"]:last_active_clock.get_full_name()})
+                    info_dict.update({self.language_dict["next_steps"]:"#"})
+                    info_dict.update({self.language_dict["restore_step_1"]:self.language_dict["restore_step_1_text"]})
+                    info_dict.update({self.language_dict["restore_step_2"]:self.language_dict["restore_step_2_text"]})
+                    info_dict.update({self.language_dict["restore_step_3"]:self.language_dict["restore_step_3_text"]})
+                    info_dict.update({self.language_dict["restore_step_4"]:self.language_dict["restore_step_4_text"]})
+                    restore_btn_text = last_tracked_interaction.strftime('%d.%m.%Y') + ' ' + last_tracked_interaction.strftime('%H:%M') + ' ' + self.language_dict["o_clock"] + ' ' + self.language_dict["restore"] 
+
+                    info_window_sleep_mode = SleepModeinfo(self.main_app, self.gui ,self.main_window,info_dict,500,300,last_active_clock,time_diff,last_tracked_interaction,restore_btn_text)
+
+        ################
 
         if self.main_app.get_action_state() == 'disabled':
             background_color=self.style_dict["titlebar_color"]
@@ -152,6 +245,8 @@ class MainWindowStatus(tk.Frame):
         self.lbl_status_text.configure(background=background_color)
         self.lbl_current.configure(background=background_color)
         self.lbl_worktime_name.configure(background=background_color)
+        self.lbl_rate.configure(background=background_color)
+        self.lbl_rate_name.configure(background=background_color)
         self.lbl_backup.configure(background=background_color)
         self.lbl_worktime.configure(background=background_color)
         self.lbl_pausetime_name.configure(background=background_color)
@@ -160,6 +255,9 @@ class MainWindowStatus(tk.Frame):
             self.lbl_btn_info.configure(background=background_color)
  
         self.after_func = self.main_frame.after(1000, lambda:self.auto_update_status_frame())
+
+    def right_clicked(self,e):
+        self.option_menu.popup(e)
 
     def refresh(self):
         self.style_dict = self.data_manager.get_style_dict()
@@ -172,6 +270,8 @@ class MainWindowStatus(tk.Frame):
         self.lbl_pausetime_name.refresh_style()
         self.lbl_worktime.refresh_style()
         self.lbl_worktime_name.refresh_style()
+        self.lbl_rate.refresh_style()
+        self.lbl_rate_name.refresh_style()
         self.lbl_backup.refresh_style()
         self.lbl_status_text.refresh_style()
         self.lbl_backup.configure(foreground=self.style_dict["selected_color_grey"])
@@ -180,6 +280,7 @@ class MainWindowStatus(tk.Frame):
         self.lbl_pausetime_name.configure(text= self.language_dict["break_time"] + ': ')
         self.lbl_worktime_name.configure(text=self.language_dict["working_time"] + ': ')
         self.lbl_current.configure(text=self.language_dict["current"] + ': ')
+        self.lbl_rate_name.configure(text=self.language_dict["rate"] + ': ')
 
         self.start_auto_update_status_frame()
         return
@@ -198,7 +299,7 @@ class MainWindowStatus(tk.Frame):
         if system_start_time != None:
             info_dict.update({self.language_dict["system_start_time"]:str(system_start_time.strftime('%H:%M'))+ ' ' + self.language_dict["o_clock"]})
 
-        info_dict.update({self.language_dict["recording_start"]:str(self.data_manager.start_timestamp.strftime('%H:%M')) + ' ' + self.language_dict["o_clock"]})
+        info_dict.update({self.language_dict["recording_start"]:str(self.data_manager.get_start_timestamp().strftime('%H:%M')) + ' ' + self.language_dict["o_clock"]})
 
         pause_shift_list_list = pause_clock.get_time_str_list_list()
         if pause_shift_list_list != []:
@@ -208,12 +309,22 @@ class MainWindowStatus(tk.Frame):
                 info_dict.update({self.language_dict["break"] + ' ' + str(pause_counter):pause_text})
                 pause_counter = pause_counter + 1
 
-        end_timestamp = self.data_manager.end_timestamp
+        end_timestamp = self.data_manager.get_end_timestamp()
         if end_timestamp != None:
-            info_dict.update({self.language_dict["recording_closed"]:str(self.data_manager.end_timestamp.strftime('%H:%M')) + ' '+ self.language_dict["o_clock"]})
-            recording_period = self.data_manager.end_timestamp - self.data_manager.start_timestamp
+            info_dict.update({self.language_dict["recording_closed"]:str(self.data_manager.get_end_timestamp().strftime('%H:%M')) + ' '+ self.language_dict["o_clock"]})
+            recording_period = self.data_manager.get_end_timestamp() - self.data_manager.get_start_timestamp()
         else:
-            recording_period = datetime.datetime.now() - self.data_manager.start_timestamp
+            recording_period = datetime.datetime.now() - self.data_manager.get_start_timestamp()
+
+        last_tracked_interaction_list_list = self.data_manager.get_last_tracked_interaction_list_list()
+
+        if last_tracked_interaction_list_list != []:
+            info_dict.update({self.language_dict["restored_times"]:'#'})
+            for last_tracked_interaction_list in last_tracked_interaction_list_list:
+                timestamp_restoring = last_tracked_interaction_list[0]
+                restored_timestamp = last_tracked_interaction_list [1]
+                info_dict.update({self.language_dict["execution"]+'\n'+timestamp_restoring.strftime('%d.%m.%Y') +' ' + timestamp_restoring.strftime('%H:%M') + ' ' + self.language_dict["o_clock"]:self.language_dict["restored"]+'\n'+restored_timestamp.strftime('%d.%m.%Y') +' ' + restored_timestamp.strftime('%H:%M') + ' ' + self.language_dict["o_clock"]})
+
 
         work_time = work_clock.str_timedelta(work_clock.get_total_time())
         work_time_q = work_clock.get_total_time()
@@ -243,10 +354,13 @@ class MainWindowStatus(tk.Frame):
                     bookingrate = 0
                 info_dict.update({self.language_dict["bookable_time"]:work_clock.str_timedelta(work_time_q-q_not_bookable_time)})
                 info_dict.update({self.language_dict["rate"]:str(round(bookingrate)) + ' %   '})
+            else:
+                info_dict.update({self.language_dict["bookable_time"]:work_clock.str_timedelta(work_time_q)})
+                info_dict.update({self.language_dict["rate"]:'100 %   '})
+
 
         info_dict.update({self.language_dict["database"]:'#'})
         info_dict.update({self.language_dict["data"]:self.language_dict["save_info"]})
-        info_dict.update({self.language_dict["status"]:self.language_dict["data_are_stored_temporarily"]})
 
         info_window = InfoDictWindow(self.main_app, self.gui ,self.main_window,info_dict,500,300)
         return

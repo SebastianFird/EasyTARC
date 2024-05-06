@@ -165,7 +165,7 @@ class DataHead:
         self.lbl_empty3 = MyLabel(self.passed_time_visible_frame, self.data_manager, width=2)
         self.lbl_empty3.pack(side='right',padx=3)
 
-        self.lbl_passed_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=self.language_dict["hours"],width=8)
+        self.lbl_passed_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=self.language_dict["hours"] + ' [' + self.language_dict["hours_abbreviation"] + ']',width=9)
         self.lbl_passed_time.pack(side='right',padx = 3)
 
         self.lbl_empty4 = MyLabel(self.passed_time_visible_frame, self.data_manager, width=2)

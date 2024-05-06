@@ -43,6 +43,8 @@ class ClockFrame(tk.Frame):
         self.image_dict = self.data_manager.get_image_dict()
 
         self.frame_deleted = False
+        self.date_expired = False
+        self.hours_used_up = False
 
         self.clock = clock
         self.capture_body = capture_body
@@ -54,8 +56,6 @@ class ClockFrame(tk.Frame):
         MyFrame.__init__(self, container, self.data_manager)
 
         self.option_menu = CaptureOptionMenu(self,self.main_app,self.gui, self.capture_tab)
-
-        self.full_time_correction_str = ''
 
 ################################################################################################################################
 
@@ -137,14 +137,13 @@ class ClockFrame(tk.Frame):
 
 ##################################################
 
-        sign, added_minutes = self.clock.get_added_time()
-        self.lbl_add_time = MyLabel(self, self.data_manager, width=9, anchor='w')
-        if added_minutes == "00:00:00":
+        sign, added_time = self.clock.get_added_time()
+        self.lbl_add_time = MyLabel(self, self.data_manager, width=13, anchor='w')
+        if added_time == "00:00:00":
             self.lbl_add_time.configure(text='')
-            self.add_full_time_correction_str(self.language_dict["start"] + ': ' + str(added_minutes))
+            sign = ' '
         else:
-            self.lbl_add_time.configure(text = sign + ' ' + str(added_minutes))
-            self.add_full_time_correction_str(self.language_dict["start"] + ': ' + sign + ' ' + str(added_minutes))
+            self.lbl_add_time.configure(text = sign + ' ' + str(added_time))
 
         self.lbl_add_time_ttp = CreateInfo(self.lbl_add_time, self.data_manager, 30, 25)
         self.lbl_add_time.bind("<Enter>", self.correction_time_enter)
@@ -152,12 +151,27 @@ class ClockFrame(tk.Frame):
 
         passed_time = self.clock.str_timedelta(self.clock.get_passed_time())
         self.lbl_passed_time = MyLabel(self, self.data_manager, width=8, anchor='w',text = passed_time)
-        self.lbl_passed_time_ttp = TimeTip(self.lbl_passed_time, self.data_manager, 50, 30, self.clock,'single_time')
+        self.lbl_passed_time_ttp = TimeTip(self.lbl_passed_time, self.data_manager, 50, 30, self.clock,'single_times')
 
         ############
 
-        self.lbl_hours_left = MyLabel(self, self.data_manager, width=9, anchor='w')
-        self.lbl_hours_left_ttp = CreateToolTip(self.lbl_hours_left, self.data_manager, 30, 25)
+        self.lbl_hours_used = MyLabel(self, self.data_manager, width=7, anchor='e')
+        self.lbl_hours_used_ttp = CreateToolTip(self.lbl_hours_used, self.data_manager, 30, 25,'')
+
+        self.lbl_prozent_progress= MyLabel(self, self.data_manager, width=5, anchor='e')
+        self.lbl_prozent_progress_ttp = CreateToolTip(self.lbl_prozent_progress, self.data_manager, 30, 25,'')
+
+        ############
+
+        self.lbl_hours_left = MyLabel(self, self.data_manager, width=7, anchor='e')
+        self.lbl_hours_left_ttp = CreateToolTip(self.lbl_hours_left, self.data_manager, 30, 25,'')
+
+        self.lbl_duration_to_expiration = MyLabel(self, self.data_manager, width=5, anchor='e')
+        self.lbl_duration_to_expiration_ttp = CreateToolTip(self.lbl_duration_to_expiration, self.data_manager, 30, 25,'')
+
+        ############
+
+        self.lbl_empty_time = MyLabel(self, self.data_manager, width=13, anchor='w')
 
         total_time = self.clock.str_timedelta(self.clock.get_total_time())
         self.lbl_total_time = MyLabel(self, self.data_manager, width=8, anchor='w',text = total_time)
@@ -176,8 +190,6 @@ class ClockFrame(tk.Frame):
         self.btn_edit_response_text.bind("<Leave>", self.leave_edit_response_text)
         
 ##################################################
-        
-        self.update_hours_left()
 
         if self.clock.get_id() != 0:
             name_text =  self.clock.get_name()
@@ -201,7 +213,11 @@ class ClockFrame(tk.Frame):
         self.lbl_add_time.bind("<Button-1>", self.clock_frame_clicked)
         self.lbl_total_time.bind("<Button-1>", self.clock_frame_clicked)
         self.lbl_running_clock.bind("<Button-1>", self.clock_frame_clicked)
+        self.lbl_hours_used.bind("<Button-1>", self.clock_frame_clicked)
+        self.lbl_prozent_progress.bind("<Button-1>", self.clock_frame_clicked)
         self.lbl_hours_left.bind("<Button-1>", self.clock_frame_clicked)
+        self.lbl_duration_to_expiration.bind("<Button-1>", self.clock_frame_clicked)
+        self.lbl_empty_time.bind("<Button-1>", self.clock_frame_clicked)
         self.lbl_name.bind("<Button-1>", self.clock_frame_clicked)
 
         self.bind("<Button-3>", self.right_clicked)
@@ -210,7 +226,11 @@ class ClockFrame(tk.Frame):
         self.lbl_add_time.bind("<Button-3>", self.right_clicked)
         self.lbl_total_time.bind("<Button-3>", self.right_clicked)
         self.lbl_running_clock.bind("<Button-3>", self.right_clicked)
+        self.lbl_hours_used.bind("<Button-3>", self.right_clicked)
+        self.lbl_prozent_progress.bind("<Button-3>", self.right_clicked)
         self.lbl_hours_left.bind("<Button-3>", self.right_clicked)
+        self.lbl_duration_to_expiration.bind("<Button-3>", self.right_clicked)
+        self.lbl_empty_time.bind("<Button-3>", self.right_clicked)
         self.btn_edit_response_text.bind("<Button-3>", self.right_clicked)
         self.lbl_name.bind("<Button-3>", self.right_clicked)
         
@@ -226,14 +246,19 @@ class ClockFrame(tk.Frame):
     def pack_captured_added_time(self):
         self.lbl_add_time.pack_forget()
         self.lbl_passed_time.pack_forget()
+        self.lbl_hours_used.pack_forget()
+        self.lbl_prozent_progress.pack_forget()
         self.lbl_hours_left.pack_forget()
+        self.lbl_duration_to_expiration.pack_forget()
+        self.lbl_empty_time.pack_forget()
         self.lbl_total_time.pack_forget()
         self.lbl_running_clock.pack_forget()
         self.btn_edit_response_text.pack_forget()
         self.lbl_name.pack_forget()
 
         self.lbl_add_time.pack(side='right',padx=3)            
-        self.lbl_passed_time.pack(side='right',padx=3)         
+        self.lbl_passed_time.pack(side='right',padx=3) 
+
         self.lbl_running_clock.pack(side='right',padx=3)
         if int(self.clock.get_bookable()) == 1: 
             self.btn_edit_response_text.pack(side='right',padx=(3,20))
@@ -242,19 +267,24 @@ class ClockFrame(tk.Frame):
             self.packed_response_text_col = False    
         self.lbl_name.pack(side='left')
 
-        self.packed_time_col = "captured_added_time"
+        self.packed_time_col = "single_times"
 
     def pack_full_time(self):
         self.lbl_add_time.pack_forget()
         self.lbl_passed_time.pack_forget()
+        self.lbl_hours_used.pack_forget()
+        self.lbl_prozent_progress.pack_forget()
         self.lbl_hours_left.pack_forget()
+        self.lbl_duration_to_expiration.pack_forget()
+        self.lbl_empty_time.pack_forget()
         self.lbl_total_time.pack_forget()
         self.lbl_running_clock.pack_forget()
         self.btn_edit_response_text.pack_forget()
         self.lbl_name.pack_forget()
  
-        self.lbl_hours_left.pack(side='right',padx=3)
-        self.lbl_total_time.pack(side='right',padx=3)          
+        self.lbl_empty_time.pack(side='right',padx=3)   
+        self.lbl_total_time.pack(side='right',padx=1)   
+
         self.lbl_running_clock.pack(side='right',padx=3) 
         if int(self.clock.get_bookable()) == 1:
             self.btn_edit_response_text.pack(side='right',padx=(3,20))
@@ -264,6 +294,62 @@ class ClockFrame(tk.Frame):
         self.lbl_name.pack(side='left')
 
         self.packed_time_col = "full_time"
+
+    def pack_scheduled(self):
+        self.lbl_add_time.pack_forget()
+        self.lbl_passed_time.pack_forget()
+        self.lbl_hours_used.pack_forget()
+        self.lbl_prozent_progress.pack_forget()
+        self.lbl_hours_left.pack_forget()
+        self.lbl_duration_to_expiration.pack_forget()
+        self.lbl_empty_time.pack_forget()
+        self.lbl_total_time.pack_forget()
+        self.lbl_running_clock.pack_forget()
+        self.btn_edit_response_text.pack_forget()
+        self.lbl_name.pack_forget()
+ 
+        self.lbl_hours_left.pack(side='right',padx=1)
+        self.lbl_duration_to_expiration.pack(side='right',padx=5)
+
+        self.lbl_total_time.pack(side='right',padx=1)          
+        self.lbl_running_clock.pack(side='right',padx=3) 
+        if int(self.clock.get_bookable()) == 1:
+            self.btn_edit_response_text.pack(side='right',padx=(3,20))
+            self.packed_response_text_col = True
+        else:
+            self.packed_response_text_col = False
+        self.lbl_name.pack(side='left')
+
+        self.packed_time_col = "scheduled"
+
+    def pack_progess(self):
+        self.lbl_add_time.pack_forget()
+        self.lbl_passed_time.pack_forget()
+        self.lbl_hours_used.pack_forget()
+        self.lbl_prozent_progress.pack_forget()
+        self.lbl_hours_left.pack_forget()
+        self.lbl_duration_to_expiration.pack_forget()
+        self.lbl_empty_time.pack_forget()
+        self.lbl_total_time.pack_forget()
+        self.lbl_running_clock.pack_forget()
+        self.btn_edit_response_text.pack_forget()
+        self.lbl_name.pack_forget()
+ 
+        self.lbl_hours_used.pack(side='right',padx=1)
+        self.lbl_prozent_progress.pack(side='right',padx=5)
+    
+        self.lbl_total_time.pack(side='right',padx=1)          
+        self.lbl_running_clock.pack(side='right',padx=3) 
+        if int(self.clock.get_bookable()) == 1:
+            self.btn_edit_response_text.pack(side='right',padx=(3,20))
+            self.packed_response_text_col = True
+        else:
+            self.packed_response_text_col = False
+        self.lbl_name.pack(side='left')
+
+        self.packed_time_col = "progress"
+
+
 
 ################################################################################################################################
 
@@ -323,6 +409,9 @@ class ClockFrame(tk.Frame):
             self.capture_tab.set_selected_clock_frame(self)
             self.capture_body.capture_tab.head.update()
             self.update_clock()
+            return(True)
+        else:
+            return(False)
 
 ##################################################
 
@@ -410,11 +499,20 @@ class ClockFrame(tk.Frame):
 
 ##################################################
 
-    def add_full_time_correction_str(self,full_time_correction):
-        self.full_time_correction_str = self.full_time_correction_str + full_time_correction
-
     def correction_time_enter(self,e=None):
-        self.lbl_add_time_ttp.scheduleinfo(self.full_time_correction_str)
+        info_correction_text = ''
+        recording_correction_dict_list = self.clock.get_recording_correction_dict_list()
+        for recording_correction_dict in recording_correction_dict_list:
+            timestamp = recording_correction_dict['timestamp']
+            kind = recording_correction_dict['kind']
+            sign = recording_correction_dict['sign']
+            abs_time = recording_correction_dict['abs_time']
+            unit = recording_correction_dict['unit']
+            if info_correction_text != '':
+                info_correction_text = info_correction_text + '\n'
+
+            info_correction_text = info_correction_text + timestamp.strftime('%H:%M') + ' ' + self.language_dict[kind] + ': ' + sign + ' ' + abs_time + ' '+ self.language_dict[unit]
+        self.lbl_add_time_ttp.scheduleinfo(info_correction_text)
 
     def correction_time_leave(self,e=None):
         self.lbl_add_time_ttp.hideinfo()
@@ -466,7 +564,7 @@ class ClockFrame(tk.Frame):
 
     def show_state(self):
         if self.clock.get_runninig() == True and self.main_app.get_action_state() == "normal":
-            self.lbl_running_clock.configure(text = u'\U000023F1') 
+            self.lbl_running_clock.configure(text = u'\U0001F550') 
             if int(self.clock.get_bookable()) == 1:
                 self.lbl_activate_clock.configure(image=self.image_dict['photo_btn_on'])
                 self.lbl_activate_clock.image = self.image_dict['photo_btn_on']
@@ -485,14 +583,14 @@ class ClockFrame(tk.Frame):
     def auto_clock(self,i=1):
         passed_time = self.clock.str_timedelta(self.clock.get_passed_time())
         self.lbl_passed_time.configure(text = passed_time)
-        sign, added_minutes = self.clock.get_added_time()
-        if added_minutes == "00:00:00":
+        sign, added_time = self.clock.get_added_time()
+        if added_time == "00:00:00":
             self.lbl_add_time.configure(text='')
         else:
-            self.lbl_add_time.configure(text = sign + ' ' + str(added_minutes))
+            self.lbl_add_time.configure(text = sign + ' ' + str(added_time))
 
         if i > 60:
-            self.update_hours_left()
+            self.update_remaining_hours()
             i=1
         else:
             i = i + 1
@@ -504,66 +602,203 @@ class ClockFrame(tk.Frame):
             self.after_func = self.after(1000, lambda:self.auto_clock(i))
         else:
             self.show_state()
+    
+    def update_remaining_hours(self):
+        time_left,state = self.clock.get_time_left()
+        if state == '+':
+            self.hours_used_up = False
+            font_color = self.style_dict["highlight_color_grey"]
 
-    def update_hours_left(self):
+            #########
 
-        if self.clock  == self.main_account_frame.main_account_clock:
-            time_left,state= self.clock.get_time_left()
-            if state == '+':
-                font_appearance = "normal"
-                font_color = self.style_dict["highlight_color_grey"]
-                self.lbl_hours_left.configure(text = '(' + str('{:n}'.format(round(float(self.clock.float_hourdelta(time_left)),1))) + self.language_dict["hours_abbreviation"] + ')')
-                info_text = self.language_dict["hours_left"]
-            elif state == '-':
-                font_appearance = "normal"
-                font_color = self.style_dict["caution_color_red"]
-                self.lbl_hours_left.configure(text = '(' + str('-'+'{:n}'.format(round(float(self.clock.float_hourdelta(time_left)),1))) + self.language_dict["hours_abbreviation"] + ')')
-                info_text = self.language_dict["hours_left"]
+            if self.clock.get_clock_kind() == 'main':
+                self.lbl_hours_left.configure(text = str('{:n}'.format(round(float(self.clock.float_hourdelta(time_left)),1))) +' '+ self.language_dict["hours_abbreviation"])
+                recorded_time = self.clock.get_recorded_time_without_timed_sub_clocks()
+                hours_used = str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"]
+                prozent = round(100*(float(self.clock.float_hourdelta(recorded_time))/float(self.clock.get_available_hours())))
+                self.lbl_prozent_progress.configure(text = str('{:n}'.format(prozent)) + ' %')
+
+                if self.clock.get_sub_clock_list() != []:
+                    recorded_time_only_main = self.clock.get_recorded_time()
+                    additional_text ='\n\n' + self.language_dict["main_share_of_available_hours"] + ' ' + str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time_only_main)),1))) +' '+ self.language_dict["hours_abbreviation"] + ' / ' + str('{:n}'.format(round(self.clock.get_available_hours(),1))) +' ' + self.language_dict["hours_abbreviation"] +' '
+                    hours_used_ttp = self.language_dict["hours_used"] + '\n\n' + self.language_dict["share_of_the_main_account"] + ': ' + str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time_only_main)),1))) +' '+ self.language_dict["hours_abbreviation"]
+                else:
+                    additional_text = ''
+                    hours_used_ttp = self.language_dict["hours_used"]
+
+            #########
+
             else:
-                font_appearance = "normal"
-                font_color = self.style_dict["highlight_color_grey"]
-                self.lbl_hours_left.configure(text ='')
-                info_text = self.language_dict[""]
+                self.lbl_hours_left.configure(text = '*' + str('{:n}'.format(round(float(self.clock.float_hourdelta(time_left)),1))) + ' ' + self.language_dict["hours_abbreviation"])
+                recorded_time = self.clock.get_recorded_time()
+                hours_used = '*'+str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"]
+                hours_used_ttp = self.language_dict["hours_used"] 
+                prozent = round(100*(float(self.clock.float_hourdelta(recorded_time))/float(self.clock.get_available_hours())))
+                self.lbl_prozent_progress.configure(text = '*' + str('{:n}'.format(prozent)) + ' %')
+                additional_text = ''
 
-            self.lbl_hours_left_ttp.text = info_text
-            font_family = self.main_app.get_setting('font_family')
-            font_size = self.main_app.get_setting('font_size')
-            Font_tuple = (font_family, font_size, font_appearance)
-            self.lbl_hours_left.configure(foreground=font_color, font = Font_tuple)
+            #########
+            
+            hours_left_info_text = self.language_dict["hours_left"] + additional_text
+            prozent_progress_info_text = self.language_dict["hours_used"] + ':\n '+ str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"] + ' / ' + str('{:n}'.format(round(self.clock.get_available_hours(),1))) +' ' + self.language_dict["hours_abbreviation"] +' ' + additional_text
+
+        ####################
+
+        elif state == '-':
+            self.hours_used_up = True
+            font_color = self.style_dict["caution_color_red"]
+
+            #########
+
+            if self.clock.get_clock_kind() == 'main':
+                self.lbl_hours_left.configure(text = str('-'+'{:n}'.format(round(float(self.clock.float_hourdelta(time_left)),1))) + ' '+ self.language_dict["hours_abbreviation"])                
+                recorded_time = self.clock.get_recorded_time_without_timed_sub_clocks()
+                hours_used = str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"]
+                prozent = round(100*(float(self.clock.float_hourdelta(recorded_time))/float(self.clock.get_available_hours())))
+                self.lbl_prozent_progress.configure(text = str('{:n}'.format(prozent)) + ' %')
+                if self.clock.get_sub_clock_list() != []:
+                    recorded_time_only_main = self.clock.get_recorded_time()
+                    additional_text ='\n\n' + self.language_dict["main_share_of_available_hours"] + ' ' + str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time_only_main)),1))) + ' ' + self.language_dict["hours_abbreviation"] + ' / ' + str('{:n}'.format(round(self.clock.get_available_hours(),1))) +' ' + self.language_dict["hours_abbreviation"] +' '
+                    hours_used_ttp = self.language_dict["hours_used"] + '\n\n' + self.language_dict["share_of_the_main_account"] + ': ' + str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time_only_main)),1))) +' '+ self.language_dict["hours_abbreviation"]
+                else:
+                    additional_text = ''
+                    hours_used_ttp = self.language_dict["hours_used"]
+
+            #########
+
+            else:
+                recorded_time = self.clock.get_recorded_time()
+                hours_used = '*'+str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"]
+                hours_used_ttp = self.language_dict["hours_used"] 
+                self.lbl_hours_left.configure(text = '*' + str('-'+'{:n}'.format(round(float(self.clock.float_hourdelta(time_left)),1))) + ' ' + self.language_dict["hours_abbreviation"])
+                prozent = round(100*(float(self.clock.float_hourdelta(recorded_time))/float(self.clock.get_available_hours())))
+                self.lbl_prozent_progress.configure(text = '*' + str('{:n}'.format(prozent)) + ' %')
+                additional_text = ''
+
+            #########
+                    
+            hours_left_info_text = self.language_dict["hours_left"] + additional_text
+            prozent_progress_info_text = self.language_dict["hours_used"] + ':\n '+ str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"] + ' / ' + str('{:n}'.format(round(self.clock.get_available_hours(),1))) +' ' + self.language_dict["hours_abbreviation"] +' ' + additional_text
+
+        ####################
 
         else:
-            self.main_account_frame.main_clock_frame.update_hours_left()
+            self.hours_used_up = False
+            font_color = self.style_dict["highlight_color_grey"]
+
+            #########
+
+            if self.clock.get_clock_kind() == 'sub':
+                self.main_account_frame.main_clock_frame.update_remaining_hours()
+                recorded_time = self.clock.get_recorded_time()
+                hours_used = '('+str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"]+')' 
+                hours_used_ttp = self.language_dict["hours_used_sub_info"] 
+                time_left,state = self.main_account_frame.main_account_clock.get_time_left()
+                if state != '':
+                    self.lbl_hours_left.configure(text =u'\U00002139') 
+                    self.lbl_prozent_progress.configure(text =u'\U00002139') 
+
+                    hours_left_info_text = self.language_dict["available_hours_see_main"] + '\n\n' + self.language_dict["sub_share_of_available_hours"] + ' ' + str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"] + ' / ' + str('{:n}'.format(round(self.main_account_frame.main_account_clock.get_available_hours(),1))) + ' ' + self.language_dict["hours_abbreviation"] +' '
+                    prozent_progress_info_text = hours_left_info_text
+                else:
+                    self.lbl_hours_left.configure(text ='') 
+                    self.lbl_prozent_progress.configure(text ='') 
+                    hours_left_info_text = self.language_dict[""]
+                    prozent_progress_info_text = self.language_dict[""]
+
+            #########
+
+            else:
+                self.lbl_hours_left.configure(text ='') 
+                self.lbl_prozent_progress.configure(text ='') 
+                hours_left_info_text = self.language_dict[""]
+                prozent_progress_info_text = self.language_dict[""]
+                recorded_time = self.clock.get_recorded_time_without_timed_sub_clocks()
+                hours_used = str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"] 
+                if self.clock.get_sub_clock_list() != []:
+                    recorded_time_only_main = self.clock.get_recorded_time()
+                    hours_used_ttp = self.language_dict["hours_used"] + '\n\n' + self.language_dict["share_of_the_main_account"] + ': ' + str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time_only_main)),1))) +' '+ self.language_dict["hours_abbreviation"]
+                else:
+                    hours_used_ttp = self.language_dict["hours_used"]
+            #########
+            
+        self.lbl_hours_left.configure(foreground=font_color)  
+        self.lbl_hours_left_ttp.text = hours_left_info_text
+             
+        self.lbl_prozent_progress.configure(foreground=font_color)
+        self.lbl_prozent_progress_ttp.text = prozent_progress_info_text 
+
+        if self.clock.get_id() != 0:
+            self.lbl_hours_used.configure(foreground=self.style_dict["highlight_color_grey"])
+            self.lbl_hours_used.configure(text = hours_used)
+            self.lbl_hours_used_ttp.text = hours_used_ttp
+
+        self.check_highlight_name()
 
     def update_clock(self):
         self.show_state()
         if self.after_func != None:
             self.after_cancel(self.after_func)
         self.auto_clock()
-        self.update_hours_left()
+        self.update_remaining_hours()
 
 ################################################################################################################################
         
     def check_date_expiration(self):
         today = datetime.datetime.now().date()
 
-        font_family = self.main_app.get_setting('font_family')
-        font_size = self.main_app.get_setting('font_size')
-
-        if today > self.clock.get_date_expiration() and self.clock.get_id() != 0 and int(self.clock.get_date_expiration().strftime("%Y")) != 2000:
-            font_color = self.style_dict["caution_color_red"]
-            info_text = self.language_dict["name"] + ': ' + str(self.clock.get_name()) + '\n' + self.language_dict["time_account_date_expiration"]
-            Font_tuple = (font_family, font_size, "bold")
-            self.main_account_frame.account_date_expiration = True  
+        if today > self.clock.get_date_expiration() and self.clock.get_id() != 0 and int(self.clock.get_date_expiration().strftime("%Y")) != 2000:            
+            self.date_expired = True
+            duration_to_expiration = '0 ' + self.language_dict["days"]
+            duration_to_expiration_ttp  = self.language_dict["expiration_date"] + ' ' + self.clock.get_date_expiration().strftime('%d.%m.%Y')
+            font_color=self.style_dict["caution_color_red"]
+            
         else:
+            self.date_expired = False
             if self.clock.get_id() != 0:
-                info_text = self.language_dict["name"] + ': ' + str(self.clock.get_name()) + '\n' + self.language_dict["project"]  + ': ' + str(self.clock.get_project_label()) + '\n' + self.language_dict["order"] + ': ' + str(self.clock.get_order_label()) + '\n' + self.language_dict["process"] + ': ' + str(self.clock.get_process_label())
+                if int(self.clock.get_date_expiration().strftime("%Y")) != 2000:
+                    duration = self.clock.get_date_expiration() - today
+                    days = duration.days
+                    if days > 7:
+                        weeks = round(days/7)
+                        duration_to_expiration = str(weeks) + ' ' + self.language_dict["weeks"]
+                    else:
+                        duration_to_expiration = str(days) + ' ' + self.language_dict["days"]
+                    duration_to_expiration_ttp  = self.language_dict["expiration_date"] + ' ' +  self.clock.get_date_expiration().strftime('%d.%m.%Y')
+                    font_color=self.style_dict["highlight_color_grey"]
+                else:
+                    font_color=self.style_dict["highlight_color_grey"]
+                    duration_to_expiration = ''
+                    duration_to_expiration_ttp = ''
             else:
                 info_text = self.language_dict["without_allocation"]
-            Font_tuple = (font_family, font_size, "normal")
-            font_color = self.style_dict["font_color"]
+                font_color=self.style_dict["highlight_color_grey"]
+                duration_to_expiration = ''
+                duration_to_expiration_ttp = ''
 
-        self.lbl_name.configure(foreground=font_color, font= Font_tuple)
+        self.lbl_duration_to_expiration.configure(text=duration_to_expiration, foreground=font_color)
+        self.lbl_duration_to_expiration_ttp.text = duration_to_expiration_ttp
+
+        self.check_highlight_name()
+
+
+################################################################################################################################
+
+    def check_highlight_name(self):
+
+        if self.date_expired == True or self.hours_used_up == True:
+            font_color = self.style_dict["caution_color_red"]
+            info_text = self.language_dict["name"] + ': ' + str(self.clock.get_name()) + '\n' + self.language_dict["project"]  + ': ' + str(self.clock.get_project_label()) + '   ' + self.language_dict["order"] + ': ' + str(self.clock.get_order_label()) + '   ' + self.language_dict["process"] + ': ' + str(self.clock.get_process_label()) + '\n' + self.language_dict["description"]  + ': ' + str(self.clock.get_description()) + '\n' + self.language_dict["account_date_expiration_or_hours_used_up"] 
+            self.main_account_frame.account_date_expiration_or_hours_used_up = True
+        else:
+            font_color = self.style_dict["font_color"]
+            info_text = self.language_dict["name"] + ': ' + str(self.clock.get_name()) + '\n' + self.language_dict["project"]  + ': ' + str(self.clock.get_project_label()) + '   ' + self.language_dict["order"] + ': ' + str(self.clock.get_order_label()) + '   ' + self.language_dict["process"] + ': ' + str(self.clock.get_process_label()) + '\n' + self.language_dict["description"]  + ': ' + str(self.clock.get_description()) 
+            self.main_account_frame.account_date_expiration_or_hours_used_up = False
+
+        self.lbl_name.configure(foreground=font_color)
         self.account_info_ttp.text = info_text
+        
+################################################################################################################################
 
     def update_frame(self):
         if self.data_manager.get_selected_clock() == self.clock:
@@ -586,7 +821,11 @@ class ClockFrame(tk.Frame):
         self.lbl_passed_time.configure(background=background_color)
         self.lbl_total_time.configure(background=background_color)
         self.lbl_running_clock.configure(background=background_color)
+        self.lbl_hours_used.configure(background=background_color)
+        self.lbl_prozent_progress.configure(background=background_color)
         self.lbl_hours_left.configure(background=background_color)
+        self.lbl_duration_to_expiration.configure(background=background_color)
+        self.lbl_empty_time.configure(background=background_color)  
         self.lbl_add_time.configure(background=background_color)
         self.btn_minus.configure(background=background_color)
         self.btn_minus_minus.configure(background=background_color)
@@ -606,8 +845,12 @@ class ClockFrame(tk.Frame):
         if (self.capture_tab.get_time_column() != self.packed_time_col) or (int(self.clock.get_bookable()) == 1 and self.packed_response_text_col == False) or (int(self.clock.get_bookable()) == 0 and self.packed_response_text_col == True):
             if self.capture_tab.get_time_column() == 'full_time':
                 self.pack_full_time()
-            else:
+            elif self.capture_tab.get_time_column() == 'single_times':
                 self.pack_captured_added_time()
+            elif self.capture_tab.get_time_column() == 'scheduled':
+                self.pack_scheduled()
+            else:
+                self.pack_progess()
         return()
 
 ################################################################################################################################
@@ -629,7 +872,10 @@ class ClockFrame(tk.Frame):
         self.lbl_total_time_ttp.refresh()
         self.option_menu.refresh()
         self.lbl_current_added_time_ttp.refresh()
+        self.lbl_hours_used_ttp.refresh()
+        self.lbl_prozent_progress_ttp.refresh()
         self.lbl_hours_left_ttp.refresh()
+        self.lbl_duration_to_expiration_ttp.refresh()
         self.btn_minus_ttp.refresh()
         self.btn_minus_minus_ttp.refresh()
         self.btn_plus_plus_ttp.refresh()
@@ -650,7 +896,11 @@ class ClockFrame(tk.Frame):
         self.lbl_passed_time.refresh_style()
         self.lbl_total_time.refresh_style()
         self.lbl_running_clock.refresh_style()
+        self.lbl_hours_used.refresh_style()
+        self.lbl_prozent_progress.refresh_style()
         self.lbl_hours_left.refresh_style()
+        self.lbl_duration_to_expiration.refresh_style()
+        self.lbl_empty_time.refresh_style()
         self.btn_edit_response_text.refresh_style()
 
         self.lbl_name.refresh_style()
@@ -666,7 +916,7 @@ class ClockFrame(tk.Frame):
 
         self.lbl_view_sub_clocks.configure(foreground=self.style_dict["highlight_color_grey"])
 
-        self.update_hours_left()
+        self.update_remaining_hours()
 
         if self.clock.get_id() != 0:
             name_text =  self.clock.get_name()

@@ -134,7 +134,7 @@ class CaptureHead:
             self.lbl_activate_pause.configure(image=self.image_dict['photo_btn_off_head'])
             self.lbl_activate_pause.image = self.image_dict['photo_btn_off_head']
 
-    def activate_pause(self,e):
+    def activate_pause(self,e=None):
         if self.main_app.get_action_state() == "normal":
             self.pause_clock.start()
             self.lbl_activate_pause.configure(image=self.image_dict['photo_btn_pause_head'])
@@ -176,8 +176,9 @@ class CaptureHead:
         self.update()
         self.capture_tab.body.update()
         fold_up_list = self.capture_tab.body.get_fold_up_list()
-        self.data_manager.set_end_of_work(fold_up_list)
-        self.info_end_of_work()
+        response = self.data_manager.set_end_of_work(fold_up_list)
+        self.main_app.change_settings("time_view_capture_tab",self.capture_tab.get_time_column())
+        self.info_end_of_work(response)
 
     def start_new_recording(self):
         self.data_manager.deep_reset_clocks()
@@ -186,7 +187,7 @@ class CaptureHead:
         load_clocks = False
         self.capture_tab.body.start_recording(load_clocks)
 
-    def info_end_of_work(self,event=None):
+    def info_end_of_work(self,response):
         if self.main_app.get_action_state() == 'disabled':
             return
         
@@ -195,12 +196,13 @@ class CaptureHead:
 
         info_dict = {self.language_dict["session_data"]:"#"}
 
+
         system_start_time = self.main_app.get_system_start_time()
         
         if system_start_time != None:
             info_dict.update({self.language_dict["system_start_time"]:str(system_start_time.strftime('%H:%M'))+ ' ' + self.language_dict["o_clock"]})
 
-        info_dict.update({self.language_dict["recording_start"]:str(self.data_manager.start_timestamp.strftime('%H:%M')) + ' ' + self.language_dict["o_clock"]})
+        info_dict.update({self.language_dict["recording_start"]:str(self.data_manager.get_start_timestamp().strftime('%H:%M')) + ' ' + self.language_dict["o_clock"]})
 
         pause_shift_list_list = pause_clock.get_time_str_list_list()
         if pause_shift_list_list != []:
@@ -210,12 +212,21 @@ class CaptureHead:
                 info_dict.update({self.language_dict["break"] + ' ' + str(pause_counter):pause_text})
                 pause_counter = pause_counter + 1
 
-        end_timestamp = self.data_manager.end_timestamp
+        end_timestamp = self.data_manager.get_end_timestamp()
         if end_timestamp != None:
-            info_dict.update({self.language_dict["recording_closed"]:str(self.data_manager.end_timestamp.strftime('%H:%M')) + ' '+ self.language_dict["o_clock"]})
-            recording_period = self.data_manager.end_timestamp - self.data_manager.start_timestamp
+            info_dict.update({self.language_dict["recording_closed"]:str(self.data_manager.get_end_timestamp().strftime('%H:%M')) + ' '+ self.language_dict["o_clock"]})
+            recording_period = self.data_manager.get_end_timestamp() - self.data_manager.get_start_timestamp()
         else:
-            recording_period = datetime.datetime.now() - self.data_manager.start_timestamp
+            recording_period = datetime.datetime.now() - self.data_manager.get_start_timestamp()
+
+        last_tracked_interaction_list_list = self.data_manager.get_last_tracked_interaction_list_list()
+
+        if last_tracked_interaction_list_list != []:
+            info_dict.update({self.language_dict["restored_times"]:'#'})
+            for last_tracked_interaction_list in last_tracked_interaction_list_list:
+                timestamp_restoring = last_tracked_interaction_list[0]
+                restored_timestamp = last_tracked_interaction_list [1]
+                info_dict.update({self.language_dict["execution"]+'\n'+timestamp_restoring.strftime('%d.%m.%Y') +' ' + timestamp_restoring.strftime('%H:%M') + ' ' + self.language_dict["o_clock"]:self.language_dict["restored"]+'\n'+restored_timestamp.strftime('%d.%m.%Y') +' ' + restored_timestamp.strftime('%H:%M') + ' ' + self.language_dict["o_clock"]})
 
         work_time = work_clock.str_timedelta(work_clock.get_total_time())
         work_time_q = work_clock.get_total_time()
@@ -246,8 +257,15 @@ class CaptureHead:
                 info_dict.update({self.language_dict["rate"]:str(round(bookingrate)) + ' %   '})
 
         info_dict.update({self.language_dict["database"]:'#'})
+
         info_dict.update({self.language_dict["data"]:self.language_dict["save_info"]})
-        info_dict.update({self.language_dict["status"]:self.language_dict["data_are_stored_temporarily"]})
+
+        if response == "second_back_up_done":
+            info_dict.update({self.language_dict["back_up_2"]:u'\U00002713'})
+        elif response == "no_back_up_folder":
+            info_dict.update({self.language_dict["back_up_2"]:self.language_dict["no_folder"]})
+        else:
+            info_dict.update({self.language_dict["back_up_2"]:self.language_dict["failed"]})
 
 
         info_window = Endofworkinfo(self.main_app, self.gui ,self.gui.main_window,info_dict,500,300)
@@ -347,27 +365,43 @@ class CaptureHead:
 
         self.passed_time_visible_frame = MyFrame(self.passed_time_frame,self.data_manager)
         self.passed_time_visible_frame.pack(side = "top",fill='y')
+        self.on_switch_time = False
+        self.passed_time_visible_frame.bind("<Enter>", self.btn_switch_time_enter)
+        self.passed_time_visible_frame.bind("<Leave>", self.btn_switch_time_leave)
 
         if self.capture_tab.get_time_column() ==  'full_time':
             time_column = self.language_dict['total_time']
-            lbl_switch = u'\U000025D0'
-        else:
+            lbl_switch = u'\U0001F570'
+            time_col_info = self.language_dict['total_time_info']
+        elif self.capture_tab.get_time_column() ==  'single_times':
             time_column = self.language_dict['single_times']
-            lbl_switch = u'\U000025D1'
+            lbl_switch = '+/- ' # U000000B1 #U00023F3
+            time_col_info = self.language_dict['single_times_info']
+        elif self.capture_tab.get_time_column() ==  'scheduled':
+            time_column = self.language_dict['remaining_time']
+            lbl_switch = u'\U0001F4C6'
+            time_col_info = self.language_dict['remaining_time_info']
+        else:
+            time_column = self.language_dict['progress']
+            lbl_switch = u'\U000023F3'
+            time_col_info = self.language_dict['progress_info']
+
 
         self.lbl_switch_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=lbl_switch,width=3)
         self.lbl_switch_time.configure(foreground=self.style_dict["highlight_color_grey"])
-        self.on_switch_time = False
-        self.lbl_switch_time.bind("<Enter>", self.btn_switch_time_enter)
-        self.lbl_switch_time.bind("<Leave>", self.btn_switch_time_leave)
         self.lbl_switch_time.bind("<Button-1>", self.activate_btn_switch_time)
         self.lbl_switch_time.pack(side='right',padx = 3)
 
-        self.lbl_empty4 = MyLabel(self.passed_time_visible_frame, self.data_manager, width=1)
-        self.lbl_empty4.pack(side='right',padx = 3)
-
-        self.lbl_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=time_column,width=18)
+        self.lbl_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=time_column,width=20)
+        self.lbl_time.bind("<Button-1>", self.activate_btn_switch_time)
         self.lbl_time.pack(side='right',padx = 3)
+
+        self.lbl_time_col_info = MyLabel(self.passed_time_visible_frame, self.data_manager, text= u'\U00002139', width=3)
+        self.lbl_time_col_info.bind("<Button-1>", self.activate_btn_switch_time)
+        self.lbl_time_col_info.pack(side='right',padx = 3)
+
+        self.lbl_time_col_info_ttp = CreateToolTip(self.lbl_time_col_info, self.data_manager, 30, 25,'', True)
+        self.lbl_time_col_info_ttp.text = time_col_info
 
         ################
 
@@ -410,12 +444,24 @@ class CaptureHead:
     def update_table_head(self):
         if self.capture_tab.get_time_column() ==  'full_time':
             time_column = self.language_dict['total_time']
-            lbl_switch = u'\U000025D0'
-        else:
+            lbl_switch = u'\U0001F570'
+            time_col_info = self.language_dict['total_time_info']
+        elif self.capture_tab.get_time_column() ==  'single_times':
             time_column = self.language_dict['single_times']
-            lbl_switch = u'\U000025D1'
+            lbl_switch = '+/- ' # U000000B1 #U00023F3
+            time_col_info = self.language_dict['single_times_info']
+        elif self.capture_tab.get_time_column() ==  'scheduled':
+            time_column = self.language_dict['remaining_time']
+            lbl_switch = u'\U0001F4C6'
+            time_col_info = self.language_dict['remaining_time_info']
+        else:
+            time_column = self.language_dict['progress']
+            lbl_switch = u'\U000023F3'
+            time_col_info = self.language_dict['progress_info']
+
         self.lbl_time.configure(text=time_column)
         self.lbl_switch_time.configure(text=lbl_switch)
+        self.lbl_time_col_info_ttp.text = time_col_info
 
         if self.on_switch_time == True:
             self.lbl_switch_time.configure(foreground=self.style_dict["font_color"])
@@ -445,10 +491,12 @@ class CaptureHead:
         self.lbl_empty3.refresh_style()
         self.name_frame.refresh_style()
         self.name_invisible_frame.refresh_style()
-        self.lbl_empty4.refresh_style()
+        self.lbl_time_col_info.refresh_style()
         self.lbl_empty5.refresh_style()
         self.name_visible_frame.refresh_style()
         self.lbl_name.refresh_style()
+
+        self.lbl_time_col_info_ttp.refresh()
 
         self.table_head_frame.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.separator_frame_0.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)

@@ -75,6 +75,8 @@ class BookingByDate(tk.Frame):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
 
+        self.main_frame.refresh_style()
+
         for day_frame in self.day_frame_list:
             day_frame.refresh()
 
@@ -149,6 +151,8 @@ class BookingDayFrame:
         # configure style and language of main frame
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
+
+        self.main_frame.refresh_style()
 
         self.date_frame.refresh()
         for record_frame in self.record_frame_list:

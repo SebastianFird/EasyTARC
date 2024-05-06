@@ -52,7 +52,6 @@ class BookingBody:
         self.language_dict = self.data_manager.get_language_dict()
 
         self.case_frame.refresh()
-
         self.main_frame.refresh_style()
         return
 

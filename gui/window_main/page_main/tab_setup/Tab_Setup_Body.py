@@ -17,13 +17,19 @@ __author__ = 'Sebastian Feiert'
 
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog
 
+import decimal
+import json
+import locale
+import datetime
 import os
 import shutil
+import webbrowser
 import subprocess
 from pyshortcuts import make_shortcut
 from gui.Window_Additionals import InfoWindow
-
+from gui.Window_Additionals import CreateToolTip
 
 from style_classes import MyFrame
 from style_classes import MyLabel
@@ -66,173 +72,395 @@ class SetupBody:
         self.head_appearance_frame = MyFrame(self.main_frame,self.data_manager)
         self.head_appearance_frame.pack(side = "top",fill='x')
 
-        self.lbl_category_appearance = MyLabel(self.head_appearance_frame,self.data_manager,text = self.language_dict['appearance'], anchor = 'w', width=35)
+        self.lbl_category_appearance = MyLabel(self.head_appearance_frame,self.data_manager,text = self.language_dict['appearance']+ ':', anchor = 'w', width=35)
         self.lbl_category_appearance.configure(font = Font_tuple)
-        self.lbl_category_appearance.pack(side = "left")
+        self.lbl_category_appearance.pack(side = "left", padx=15)
 
         self.appearance_frame = MyFrame(self.main_frame,self.data_manager)
         self.appearance_frame.pack(side = "top", fill = 'x')
 
+        #########
+
         row_nbr = 0
 
-        self.lbl_style = MyLabel(self.appearance_frame,self.data_manager,text = '   ' + self.language_dict['style'], anchor = 'w', width=20)
-        self.lbl_style.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_style_info = MyLabel(self.appearance_frame,self.data_manager,text = '', anchor = 'w', width=3)
+        self.lbl_style_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        self.lbl_style = MyLabel(self.appearance_frame,self.data_manager,text = self.language_dict['style'], anchor = 'w', width=25)
+        self.lbl_style.grid(row=row_nbr, column=1, padx=5, pady=5)
 
         clicked_style = tk.StringVar()
-        self.styles_cbox = ttk.Combobox(self.appearance_frame, state="readonly", width = 40, textvariable = clicked_style, postcommand = self.updt_style_cblist)
-        self.styles_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.styles_cbox = ttk.Combobox(self.appearance_frame, state="readonly", width = 30, textvariable = clicked_style, postcommand = self.updt_style_cblist)
+        self.styles_cbox.grid(row=row_nbr, column=2, padx=5, pady=5)
         self.styles_cbox.bind('<Button-1>', self.btn_style_cbox_reset)
 
         self.updt_style_cblist()
 
         self.btn_set_style = MyButton(self.appearance_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_style(clicked_style.get()))
-        self.btn_set_style.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.btn_set_style.grid(row=row_nbr, column=3, padx=5, pady=5)
+
+        #########
+
+        row_nbr = 1
+
+        self.lbl_font_size_info = MyLabel(self.appearance_frame,self.data_manager,text = '', anchor = 'w', width=3)
+        self.lbl_font_size_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        self.lbl_font_size = MyLabel(self.appearance_frame,self.data_manager,text = self.language_dict['font_size'], anchor = 'w', width=25)
+        self.lbl_font_size.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        clicked_font_size = tk.StringVar()
+        self.font_size_cbox = ttk.Combobox(self.appearance_frame, state="readonly", width = 30, textvariable = clicked_font_size, postcommand = self.updt_fs_cblist)
+        self.font_size_cbox.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.font_size_cbox.bind('<Button-1>', self.btn_fs_cbox_reset)
+
+        self.updt_fs_cblist()
+
+        self.btn_set_font_size = MyButton(self.appearance_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_font_size(clicked_font_size.get()))
+        self.btn_set_font_size.grid(row=row_nbr, column=3, padx=5, pady=5)
+
+        #########
+
+        row_nbr = 2
+
+        self.lbl_language_info = MyLabel(self.appearance_frame,self.data_manager,text = '', anchor = 'w', width=3)
+        self.lbl_language_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        self.lbl_language = MyLabel(self.appearance_frame,self.data_manager,text = self.language_dict['language'], anchor = 'w', width=25)
+        self.lbl_language.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        clicked_language = tk.StringVar()
+        self.language_cbox = ttk.Combobox(self.appearance_frame, state="readonly", width = 30, textvariable = clicked_language, postcommand = self.updt_language_cblist)
+        self.language_cbox.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.language_cbox.bind('<Button-1>', self.btn_language_cbox_reset)
+
+        self.updt_language_cblist()
+
+        self.btn_set_language = MyButton(self.appearance_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_language(clicked_language.get()))
+        self.btn_set_language.grid(row=row_nbr, column=3, padx=5, pady=5)
+
+        #########################
+
+        self.separator_frame_1 = MyFrame(self.main_frame,self.data_manager)
+        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_1.pack(side = "top",fill='x', pady=10)
+
+        #########################
+
+        self.head_link_frame = MyFrame(self.main_frame,self.data_manager)
+        self.head_link_frame.pack(side = "top",fill='x')
+
+        self.lbl_category_link = MyLabel(self.head_link_frame,self.data_manager,text = self.language_dict['app_links'] + ':', anchor = 'w', width=35)
+        self.lbl_category_link.configure(font = Font_tuple)
+        self.lbl_category_link.pack(side = "left", padx=15)
+
+        self.link_frame = MyFrame(self.main_frame,self.data_manager)
+        self.link_frame.pack(side = "top", fill = 'x')
+
+        #########
+
+        row_nbr = 0
+
+        self.lbl_start_up_link_info = MyLabel(self.link_frame,self.data_manager,text = '', anchor = 'w', width=3)
+        self.lbl_start_up_link_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        self.lbl_start_up_link = MyLabel(self.link_frame,self.data_manager,text = self.language_dict['start_up_link'], anchor = 'w', width=25)
+        self.lbl_start_up_link.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        self.btn_start_up_directory = MyButton(self.link_frame, self.data_manager,text=u'\U0001F4C1',width=3,command=self.show_start_up_directory)
+        self.btn_start_up_directory.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.btn_start_up_directory_ttp = CreateToolTip(self.btn_start_up_directory, self.data_manager, 0, 30, str(os.environ["APPDATA"] + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"))
+
+        self.btn_set_start_up_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['add'],width=15,command=self.set_start_up_link)
+        self.btn_set_start_up_link.grid(row=row_nbr, column=3, padx=5, pady=5)
+
+        self.btn_remove_start_up_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['remove'],width=12,command=self.remove_start_up_link)
+        self.btn_remove_start_up_link.grid(row=row_nbr, column=4, padx=5, pady=5)
+
+        #########
+
+        row_nbr = 1
+
+        self.lbl_desktop_link_info = MyLabel(self.link_frame,self.data_manager,text = '', anchor = 'w', width=3)
+        self.lbl_desktop_link_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        self.lbl_desktop_link = MyLabel(self.link_frame,self.data_manager,text = self.language_dict['desktop_link'], anchor = 'w', width=25)
+        self.lbl_desktop_link.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        self.btn_desktop_directory = MyButton(self.link_frame, self.data_manager,text=u'\U0001F4C1',width=3,command=self.show_desktop_directory)
+        self.btn_desktop_directory.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.btn_desktop_directory_ttp = CreateToolTip(self.btn_desktop_directory, self.data_manager, 0, 30, str(os.path.join(os.environ["USERPROFILE"], "Desktop")))
+
+        self.btn_set_desktop_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['add'],width=15,command=self.set_desktop_link)
+        self.btn_set_desktop_link.grid(row=row_nbr, column=3, padx=5, pady=5)
+
+        self.btn_remove_desktop_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['remove'],width=12,command=self.remove_desktop_link)
+        self.btn_remove_desktop_link.grid(row=row_nbr, column=4, padx=5, pady=5)
+
 
         #########################
 
         self.separator_frame_2 = MyFrame(self.main_frame,self.data_manager)
         self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_2.pack(side = "top",fill='x')
+        self.separator_frame_2.pack(side = "top",fill='x', pady=10)
 
         #########################
 
-        self.head_font_frame = MyFrame(self.main_frame,self.data_manager)
-        self.head_font_frame.pack(side = "top",fill='x')
+        self.head_folder_frame = MyFrame(self.main_frame,self.data_manager)
+        self.head_folder_frame.pack(side = "top",fill='x')
 
-        self.lbl_category_font = MyLabel(self.head_font_frame,self.data_manager,text = self.language_dict['font'], anchor = 'w', width=35)
-        self.lbl_category_font.configure(font = Font_tuple)
-        self.lbl_category_font.pack(side = "left")
+        self.lbl_category_folder = MyLabel(self.head_folder_frame,self.data_manager,text = self.language_dict['folder']+ ':', anchor = 'w', width=35)
+        self.lbl_category_folder.configure(font = Font_tuple)
+        self.lbl_category_folder.pack(side = "left", padx=15)
 
-        self.font_frame = MyFrame(self.main_frame,self.data_manager)
-        self.font_frame.pack(side = "top", fill = 'x')
+        self.folder_frame = MyFrame(self.main_frame,self.data_manager)
+        self.folder_frame.pack(side = "top", fill = 'x')
 
-        row_nbr = 0
-
-        self.lbl_font_size = MyLabel(self.font_frame,self.data_manager,text = '   ' + self.language_dict['size'], anchor = 'w', width=20)
-        self.lbl_font_size.grid(row=row_nbr, column=0, padx=5, pady=5)
-
-        clicked_font_size = tk.StringVar()
-        self.font_size_cbox = ttk.Combobox(self.font_frame, state="readonly", width = 40, textvariable = clicked_font_size, postcommand = self.updt_fs_cblist)
-        self.font_size_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
-        self.font_size_cbox.bind('<Button-1>', self.btn_fs_cbox_reset)
-
-        self.updt_fs_cblist()
-
-        self.btn_set_font_size = MyButton(self.font_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_font_size(clicked_font_size.get()))
-        self.btn_set_font_size.grid(row=row_nbr, column=2, padx=5, pady=5)
-
-        #########################
-
-        self.separator_frame_0 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_0.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_0.pack(side = "top",fill='x')
-
-        #########################
-
-        self.head_language_frame = MyFrame(self.main_frame,self.data_manager)
-        self.head_language_frame.pack(side = "top",fill='x')
-
-        self.lbl_category_language = MyLabel(self.head_language_frame,self.data_manager,text = self.language_dict['language'], anchor = 'w', width=35)
-        self.lbl_category_language.configure(font = Font_tuple)
-        self.lbl_category_language.pack(side = "left")
-
-        self.language_frame = MyFrame(self.main_frame,self.data_manager)
-        self.language_frame.pack(side = "top", fill = 'x')
+        #########
 
         row_nbr = 0
 
-        self.lbl_language = MyLabel(self.language_frame,self.data_manager,text = '   ' + self.language_dict['language'], anchor = 'w', width=20)
-        self.lbl_language.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_easytarc_folder_info = MyLabel(self.folder_frame,self.data_manager,text = '', anchor = 'w', width=3)
+        self.lbl_easytarc_folder_info.grid(row=row_nbr, column=0, padx=5, pady=5)
 
-        clicked_language = tk.StringVar()
-        self.language_cbox = ttk.Combobox(self.language_frame, state="readonly", width = 40, textvariable = clicked_language, postcommand = self.updt_language_cblist)
-        self.language_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
-        self.language_cbox.bind('<Button-1>', self.btn_language_cbox_reset)
+        self.lbl_easytarc_folder = MyLabel(self.folder_frame,self.data_manager,text = "EasyTARC", anchor = 'w', width=25)
+        self.lbl_easytarc_folder.grid(row=row_nbr, column=1, padx=5, pady=5)
 
-        self.updt_language_cblist()
+        self.btn_open_easytarc_folder = MyButton(self.folder_frame, self.data_manager,text=u'\U0001F4C1',width=3,command=self.show_easytarc_directory)
+        self.btn_open_easytarc_folder.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.btn_open_easytarc_folder_ttp = CreateToolTip(self.btn_open_easytarc_folder, self.data_manager, 0, 30, str(self.main_app.get_filepath()))
 
-        self.btn_set_language = MyButton(self.language_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_language(clicked_language.get()))
-        self.btn_set_language.grid(row=row_nbr, column=2, padx=5, pady=5)
-
-
-        ######################
-
-        self.separator_frame_1 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_1.pack(side = "top",fill='x')
-
-        #########################
-        
-        self.head_db_frame = MyFrame(self.main_frame,self.data_manager)
-        if self.main_app.get_restricted_data_access() == False:
-            self.head_db_frame.pack(side = "top",fill='x')
-
-        self.lbl_category_db = MyLabel(self.head_db_frame,self.data_manager,text = self.language_dict['database'], anchor = 'w', width=35)
-        self.lbl_category_db.configure(font = Font_tuple)
-        self.lbl_category_db.pack(side = "left")
-
-        self.db_frame = MyFrame(self.main_frame,self.data_manager)
-        if self.main_app.get_restricted_data_access() == False:
-            self.db_frame.pack(side = "top", fill = 'x')
-
-        row_nbr = 0
-
-        self.lbl_export = MyLabel(self.db_frame,self.data_manager,text = '   ' + self.language_dict['export'], anchor = 'w', width=20)
-        self.lbl_export.grid(row=row_nbr, column=0, padx=5, pady=5)
-
-        clicked_db_export = tk.StringVar()
-        self.db_export_cbox = ttk.Combobox(self.db_frame, state="readonly", width = 40, textvariable = clicked_db_export, postcommand = self.updt_db_export_cblist)
-        self.db_export_cbox.grid(row=row_nbr, column=1, padx=5, pady=5)
-        self.db_export_cbox.bind('<Button-1>', self.btn_db_export_cbox_reset)
-
-        self.updt_db_export_cblist()
-
-        self.btn_set_db_export = MyButton(self.db_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.export_database(clicked_db_export.get()))
-        self.btn_set_db_export.grid(row=row_nbr, column=2, padx=5, pady=5)
-
-        ######################
-
-        self.separator_frame_3 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_3.pack(side = "top",fill='x')
-
-        self.head_link_frame = MyFrame(self.main_frame,self.data_manager)
-        self.head_link_frame.pack(side = "top",fill='x')
-
-        self.lbl_category_link = MyLabel(self.head_link_frame,self.data_manager,text = self.language_dict['app_links'], anchor = 'w', width=35)
-        self.lbl_category_link.configure(font = Font_tuple)
-        self.lbl_category_link.pack(side = "left")
-
-        self.link_frame = MyFrame(self.main_frame,self.data_manager)
-        self.link_frame.pack(side = "top", fill = 'x')
-
-        row_nbr = 0
-
-        self.lbl_start_up_link = MyLabel(self.link_frame,self.data_manager,text = '   ' + self.language_dict['start_up_link'], anchor = 'w', width=20)
-        self.lbl_start_up_link.grid(row=row_nbr, column=0, padx=5, pady=5)
-
-        self.btn_set_start_up_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['add'],width=12,command=self.set_start_up_link)
-        self.btn_set_start_up_link.grid(row=row_nbr, column=1, padx=5, pady=5)
-
-        self.btn_remove_start_up_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['remove'],width=12,command=self.remove_start_up_link)
-        self.btn_remove_start_up_link.grid(row=row_nbr, column=2, padx=10, pady=5)
-
-        self.btn_start_up_directory = MyButton(self.link_frame, self.data_manager,text=u'\U0001F4C1',width=5,command=self.show_start_up_directory)
-        self.btn_start_up_directory.grid(row=row_nbr, column=3, padx=10, pady=5)
+        #########
 
         row_nbr = 1
 
-        self.lbl_desktop_link = MyLabel(self.link_frame,self.data_manager,text = '   ' + self.language_dict['desktop_link'], anchor = 'w', width=20)
-        self.lbl_desktop_link.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_back_up_folder_info = MyLabel(self.folder_frame,self.data_manager,text=u'\U00002139',width=3)
+        self.lbl_back_up_folder_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_back_up_folder_info_ttp = CreateToolTip(self.lbl_back_up_folder_info, self.data_manager, 0, 30, self.language_dict['back_up_folder_info'], True)
 
-        self.btn_set_desktop_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['add'],width=12,command=self.set_desktop_link)
-        self.btn_set_desktop_link.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.lbl_back_up_folder = MyLabel(self.folder_frame,self.data_manager,text = self.language_dict['back_up_2'], anchor = 'w', width=25)
+        self.lbl_back_up_folder.grid(row=row_nbr, column=1, padx=5, pady=5)
 
-        self.btn_remove_desktop_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['remove'],width=12,command=self.remove_desktop_link)
-        self.btn_remove_desktop_link.grid(row=row_nbr, column=2, padx=10, pady=5)
+        self.btn_open_back_up_folder = MyButton(self.folder_frame, self.data_manager,text=u'\U0001F4C1',width=3,command=self.show_second_back_up_directory)
+        self.btn_open_back_up_folder.grid(row=row_nbr, column=2, padx=5, pady=5)
 
-        self.btn_desktop_directory = MyButton(self.link_frame, self.data_manager,text=u'\U0001F4C1',width=5,command=self.show_desktop_directory)
-        self.btn_desktop_directory.grid(row=row_nbr, column=3, padx=10, pady=5)
+        if self.main_app.get_setting("sec_back_up_path") != '':
+            back_up_folder_path = self.main_app.get_setting("sec_back_up_path")
+        else:
+            back_up_folder_path = self.language_dict['no_folder']
+        self.btn_open_back_up_folder_ttp = CreateToolTip(self.btn_open_back_up_folder, self.data_manager, 0, 30, back_up_folder_path)
+
+        self.btn_choose_back_up_folder = MyButton(self.folder_frame, self.data_manager, text=self.language_dict['choose_folder'],width=15,command=self.choose_second_back_up_folder)
+        self.btn_choose_back_up_folder.grid(row=row_nbr, column=3, padx=5, pady=5)
+
+        self.btn_remove_back_up_folder = MyButton(self.folder_frame, self.data_manager, text=self.language_dict['remove'],width=12,command=self.remove_back_up_folder)
+        self.btn_remove_back_up_folder.grid(row=row_nbr, column=4, padx=5, pady=5)
+
+        #########################
+
+        self.separator_frame_3 = MyFrame(self.main_frame,self.data_manager)
+        self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_3.pack(side = "top",fill='x', pady=10)
+
+        #########################
+
+        self.head_websites_frame = MyFrame(self.main_frame,self.data_manager)
+        self.head_websites_frame.pack(side = "top",fill='x')
+
+        self.lbl_category_websites = MyLabel(self.head_websites_frame,self.data_manager,text = self.language_dict['websites']+ ':', anchor = 'w', width=35)
+        self.lbl_category_websites.configure(font = Font_tuple)
+        self.lbl_category_websites.pack(side = "left", padx=15)
+
+        self.websites_frame = MyFrame(self.main_frame,self.data_manager)
+        self.websites_frame.pack(side = "top", fill = 'x')
+
+        #########
+
+        row_nbr = 0
+
+        self.lbl_web_link_1_info = MyLabel(self.websites_frame,self.data_manager,text = '', anchor = 'w', width=3)
+        self.lbl_web_link_1_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        self.lbl_web_link_1_name = MyLabel(self.websites_frame,self.data_manager,text = str(self.main_app.get_setting("web_link_1_name")), anchor = 'w', width=25)
+        self.lbl_web_link_1_name.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        self.btn_web_link_1 = MyButton(self.websites_frame, self.data_manager, text=self.language_dict['open_up'],width=12,command=lambda:self.open_url(self.main_app.get_setting("web_link_1_url")))
+        self.btn_web_link_1.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.btn_web_link_1_ttp = CreateToolTip(self.btn_web_link_1, self.data_manager, 0, 30, str(self.main_app.get_setting("web_link_1_url")))
+
+        #########
+
+        row_nbr = 1
+
+        self.lbl_web_link_2_info = MyLabel(self.websites_frame,self.data_manager,text = '', anchor = 'w', width=3)
+        self.lbl_web_link_2_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        self.lbl_web_link_2_name = MyLabel(self.websites_frame,self.data_manager,text = str(self.main_app.get_setting("web_link_2_name")), anchor = 'w', width=25)
+        self.lbl_web_link_2_name.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        self.btn_web_link_2 = MyButton(self.websites_frame, self.data_manager, text=self.language_dict['open_up'],width=12,command=lambda:self.open_url(self.main_app.get_setting("web_link_1_url")))
+        self.btn_web_link_2.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.btn_web_link_2_ttp = CreateToolTip(self.btn_web_link_2, self.data_manager, 0, 30, str(self.main_app.get_setting("web_link_2_url")))
+
+        #########################
+
+        self.separator_frame_4 = MyFrame(self.main_frame,self.data_manager)
+        self.separator_frame_4.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_4.pack(side = "top",fill='x', pady=10)
+
+        #########################
+
+        self.head_sleep_mode_frame = MyFrame(self.main_frame,self.data_manager)
+        self.head_sleep_mode_frame.pack(side = "top",fill='x')
+
+        self.lbl_category_sleep_mode = MyLabel(self.head_sleep_mode_frame,self.data_manager,text = self.language_dict['sleep_mode']+ ':', anchor = 'w', width=35)
+        self.lbl_category_sleep_mode.configure(font = Font_tuple)
+        self.lbl_category_sleep_mode.pack(side = "left", padx=15)
+
+        self.sleep_mode_frame = MyFrame(self.main_frame,self.data_manager)
+        self.sleep_mode_frame.pack(side = "top", fill = 'x')
+
+        #########
+
+        row_nbr = 0
+
+        self.lbl_sleep_mode_info = MyLabel(self.sleep_mode_frame,self.data_manager,text=u'\U00002139',width=3)
+        self.lbl_sleep_mode_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_sleep_mode_info_ttp = CreateToolTip(self.lbl_sleep_mode_info, self.data_manager, 0, 30, self.language_dict['sleep_mode_info'], True)
+
+        self.lbl_sleep_mode = MyLabel(self.sleep_mode_frame,self.data_manager,text = self.language_dict['status'], anchor = 'w', width=25)
+        self.lbl_sleep_mode.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        clicked_sleep_mode = tk.StringVar()
+        self.sleep_mode_cbox = ttk.Combobox(self.sleep_mode_frame, state="readonly", width = 30, textvariable = clicked_sleep_mode, postcommand = self.updt_sleep_mode_cblist)
+        self.sleep_mode_cbox.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.sleep_mode_cbox.bind('<Button-1>', self.btn_sleep_mode_cbox_reset)
+
+        self.updt_sleep_mode_cblist()
+
+        self.btn_set_sleep_mode = MyButton(self.sleep_mode_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_sleep_mode(clicked_sleep_mode.get()))
+        self.btn_set_sleep_mode.grid(row=row_nbr, column=3, padx=5, pady=5)
+
+        #########
+
+        row_nbr = 1
+
+        self.lbl_sleep_mode_period_info = MyLabel(self.sleep_mode_frame,self.data_manager,text= u'\U00002139',width=3)
+        self.lbl_sleep_mode_period_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_sleep_mode_period_info_ttp = CreateToolTip(self.lbl_sleep_mode_period_info, self.data_manager, 0, 30, self.language_dict['sleep_mode_period_info'], True)
+
+        self.lbl_sleep_mode_period = MyLabel(self.sleep_mode_frame,self.data_manager,text = self.language_dict['recording_period'] + ' [' + self.language_dict['hours_abbreviation'] + ']', anchor = 'w', width=20)
+        self.lbl_sleep_mode_period.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        clicked_sleep_mode_period = tk.StringVar()
+        self.sleep_mode_period_cbox = ttk.Combobox(self.sleep_mode_frame, state="readonly", width = 30, textvariable = clicked_sleep_mode_period, postcommand = self.updt_sleep_mode_period_cblist)
+        self.sleep_mode_period_cbox.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.sleep_mode_period_cbox.bind('<Button-1>', self.btn_sleep_mode_period_cbox_reset)
+
+        self.updt_sleep_mode_period_cblist()
+
+        self.btn_set_sleep_mode_period = MyButton(self.sleep_mode_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_sleep_mode_period(clicked_sleep_mode_period.get()))
+        self.btn_set_sleep_mode_period.grid(row=row_nbr, column=3, padx=5, pady=5)
+
+        #########
+
+        row_nbr = 2
+
+        self.lbl_sleep_mode_interaction_info = MyLabel(self.sleep_mode_frame,self.data_manager,text=u'\U00002139',width=3)
+        self.lbl_sleep_mode_interaction_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_sleep_mode_interaction_info_ttp = CreateToolTip(self.lbl_sleep_mode_interaction_info, self.data_manager, 0, 30, self.language_dict['sleep_mode_interaction_info'], True)
+
+        self.lbl_sleep_mode_interaction = MyLabel(self.sleep_mode_frame,self.data_manager,text = self.language_dict['last_interaction'] + ' [' + self.language_dict['hours_abbreviation'] + ']', anchor = 'w', width=20) 
+        self.lbl_sleep_mode_interaction.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        clicked_sleep_mode_interaction = tk.StringVar()
+        self.sleep_mode_interaction_cbox = ttk.Combobox(self.sleep_mode_frame, state="readonly", width = 30, textvariable = clicked_sleep_mode_interaction, postcommand = self.updt_sleep_mode_interaction_cblist)
+        self.sleep_mode_interaction_cbox.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.sleep_mode_interaction_cbox.bind('<Button-1>', self.btn_sleep_mode_interaction_cbox_reset)
+
+        self.updt_sleep_mode_interaction_cblist()
+
+        self.btn_set_sleep_mode_interaction = MyButton(self.sleep_mode_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_sleep_mode_interaction(clicked_sleep_mode_interaction.get()))
+        self.btn_set_sleep_mode_interaction.grid(row=row_nbr, column=3, padx=5, pady=5)
+
+
+        #########################
+
+        self.separator_frame_5 = MyFrame(self.main_frame,self.data_manager)
+        self.separator_frame_5.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_5.pack(side = "top",fill='x', pady=10)
+
+        #########################
+
+        self.head_rate_frame = MyFrame(self.main_frame,self.data_manager)
+        self.head_rate_frame.pack(side = "top",fill='x')
+
+        self.lbl_category_rate = MyLabel(self.head_rate_frame,self.data_manager,text = self.language_dict['rate']+ ':', anchor = 'w', width=35)
+        self.lbl_category_rate.configure(font = Font_tuple)
+        self.lbl_category_rate.pack(side = "left", padx=15)
+
+        self.rate_frame = MyFrame(self.main_frame,self.data_manager)
+        self.rate_frame.pack(side = "top", fill = 'x')
+
+        #########
+
+        row_nbr = 0
+
+        self.lbl_rate_info = MyLabel(self.rate_frame,self.data_manager,text = '', anchor = 'w', width=3)
+        self.lbl_rate_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        self.lbl_rate = MyLabel(self.rate_frame,self.data_manager,text = self.language_dict['display'], anchor = 'w', width=25)
+        self.lbl_rate.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        clicked_rate = tk.StringVar()
+        self.rate_cbox = ttk.Combobox(self.rate_frame, state="readonly", width = 30, textvariable = clicked_rate, postcommand = self.updt_rate_cblist)
+        self.rate_cbox.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.rate_cbox.bind('<Button-1>', self.btn_rate_cbox_reset)
+
+        self.updt_rate_cblist()
+
+        self.btn_set_rate = MyButton(self.rate_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_rate(clicked_rate.get()))
+        self.btn_set_rate.grid(row=row_nbr, column=3, padx=5, pady=5)
+
+        #########################
+
+        self.separator_frame_6 = MyFrame(self.main_frame,self.data_manager)
+        self.separator_frame_6.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_6.pack(side = "top",fill='x', pady=10)
+
+        #########################
+
+        self.head_workwindow_frame = MyFrame(self.main_frame,self.data_manager)
+        self.head_workwindow_frame.pack(side = "top",fill='x')
+
+        self.lbl_category_workwindow = MyLabel(self.head_workwindow_frame,self.data_manager,text = self.language_dict['working_window']+ ':', anchor = 'w', width=35)
+        self.lbl_category_workwindow.configure(font = Font_tuple)
+        self.lbl_category_workwindow.pack(side = "left", padx=15)
+
+        self.workwindow_frame = MyFrame(self.main_frame,self.data_manager)
+        self.workwindow_frame.pack(side = "top", fill = 'x')
+
+        #########
+
+        row_nbr = 0
+
+        self.lbl_dynamic_opacity_frame_info = MyLabel(self.workwindow_frame,self.data_manager,text= u'\U00002139',width=3)
+        self.lbl_dynamic_opacity_frame_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_dynamic_opacity_info_ttp = CreateToolTip(self.lbl_dynamic_opacity_frame_info, self.data_manager, 0, 30, self.language_dict['dynamic_opacity_info'], True)
+
+        self.lbl_dynamic_opacity = MyLabel(self.workwindow_frame,self.data_manager,text = self.language_dict['dynamic_opacity']+ ' [%]', anchor = 'w', width=25)
+        self.lbl_dynamic_opacity.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        clicked_dynamic_opacity = tk.StringVar()
+        self.dynamic_opacity_cbox = ttk.Combobox(self.workwindow_frame, state="readonly", width = 30, textvariable = clicked_dynamic_opacity, postcommand = self.updt_dynamic_opacity_cblist)
+        self.dynamic_opacity_cbox.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.dynamic_opacity_cbox.bind('<Button-1>', self.btn_dynamic_opacity_cbox_reset)
+
+        self.updt_dynamic_opacity_cblist()
+
+        self.btn_set_dynamic_opacity = MyButton(self.workwindow_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_dynamic_opacity(clicked_dynamic_opacity.get()))
+        self.btn_set_dynamic_opacity.grid(row=row_nbr, column=3, padx=5, pady=5)
+
 
         return
     
@@ -256,7 +484,7 @@ class SetupBody:
         self.btn_set_style.configure(text=u'\U00002713') 
         return
     
-###############################
+#########
 
     def updt_language_cblist(self):
         language_name = self.language_dict['language_name']
@@ -275,7 +503,7 @@ class SetupBody:
         self.btn_set_language.configure(text=u'\U00002713') 
         return
 
-###############################
+#########
 
     def updt_fs_cblist(self):
         font_size = self.main_app.get_setting('font_size')
@@ -302,25 +530,9 @@ class SetupBody:
         self.gui.refresh()
         self.btn_set_font_size.configure(text=u'\U00002713') 
 
-###############################
-
-    def updt_db_export_cblist(self):
-        self.db_export_cbox['values'] = ['export decrypted copy']
-        self.db_export_cbox.current(0)
-
-    def btn_db_export_cbox_reset(self,event):
-        self.btn_set_db_export.configure(text=self.language_dict['apply']) 
-        return
-    
-    def export_database(self,db_export): 
-        if db_export == 'export decrypted copy':
-            self.data_manager.user_db.copy_and_save_decrypted_db()
-        else:
-            return
-        self.btn_set_db_export.configure(text=u'\U00002713') 
 
 ###############################
-        
+
     def set_start_up_link(self):
         file_path = os.path.join(self.main_app.get_filepath(), self.main_app.get_name() +'.exe')  
         startup_folder = os.environ["APPDATA"] + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
@@ -398,6 +610,158 @@ class SetupBody:
         os.startfile(os.path.join(os.environ["USERPROFILE"], "Desktop") )
         self.gui.root.iconify()
         return
+    
+###############################
+
+    def show_easytarc_directory(self):
+        os.startfile(self.main_app.get_filepath())
+        self.gui.root.iconify()
+        return
+    
+#########
+
+    def show_second_back_up_directory(self):
+        if self.main_app.get_setting("sec_back_up_path") != '':
+            try:
+                os.startfile(self.main_app.get_setting("sec_back_up_path"))
+                self.gui.root.iconify()
+            except:
+                pass
+        
+    def choose_second_back_up_folder(self):
+        current_directory = filedialog.askdirectory()
+        self.main_app.change_settings("sec_back_up_path",current_directory)
+        self.refresh_back_up_folder_path()
+
+    def remove_back_up_folder(self):
+        self.main_app.change_settings("sec_back_up_path","")
+        self.refresh_back_up_folder_path()
+
+    def refresh_back_up_folder_path(self):
+        if self.main_app.get_setting("sec_back_up_path") != '':
+            back_up_folder_path = self.main_app.get_setting("sec_back_up_path")
+        else:
+            back_up_folder_path = self.language_dict['no_folder']
+        self.btn_open_back_up_folder_ttp.text = back_up_folder_path
+    
+###############################
+
+    def open_url(self,url):
+        if url != '':
+            webbrowser.open_new(url)
+            self.gui.root.iconify()
+
+###############################
+
+    def updt_sleep_mode_cblist(self):
+        sleep_mode = self.main_app.get_setting('sleep_mode')
+        self.sleep_mode_cbox['values'] = [self.language_dict['on'],self.language_dict['off']]
+        if self.language_dict[sleep_mode] == self.language_dict['on']:
+            self.sleep_mode_cbox.current(0)
+        else:
+            self.sleep_mode_cbox.current(1)
+
+    def btn_sleep_mode_cbox_reset(self,event):
+        self.btn_set_sleep_mode.configure(text=self.language_dict['apply']) 
+        return
+    
+    def set_sleep_mode(self,sleep_mode):
+        self.main_app.change_settings('sleep_mode',self.language_dict[sleep_mode])
+        self.btn_set_sleep_mode.configure(text=u'\U00002713') 
+
+
+###############################
+
+    def updt_sleep_mode_period_cblist(self):
+        sleep_mode_period = self.main_app.get_setting('sleep_mode_recording_period_hours')
+        sleep_mode_period_list = ['0,02','0,5','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16']
+        self.sleep_mode_period_cbox['values'] = sleep_mode_period_list
+        counter = 0
+        for value in sleep_mode_period_list:
+            if value == str('{:n}'.format(float(sleep_mode_period))):
+                self.sleep_mode_period_cbox.current(counter)
+            counter = counter + 1
+
+    def btn_sleep_mode_period_cbox_reset(self,event):
+        self.btn_set_sleep_mode_period.configure(text=self.language_dict['apply']) 
+        return
+    
+    def set_sleep_mode_period(self,sleep_mode_period):
+        self.main_app.change_settings('sleep_mode_recording_period_hours',str(float(locale.atof(sleep_mode_period, decimal.Decimal))))
+        self.btn_set_sleep_mode_period.configure(text=u'\U00002713') 
+
+
+###############################
+
+    def updt_sleep_mode_interaction_cblist(self):
+        sleep_mode_interaction = self.main_app.get_setting('sleep_mode_without_interaction_hours')
+        sleep_mode_interaction_list = ['0,02','0,5','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16']
+        self.sleep_mode_interaction_cbox['values'] = sleep_mode_interaction_list
+        counter = 0
+        for value in sleep_mode_interaction_list:
+            if value == str('{:n}'.format(float(sleep_mode_interaction))):
+                self.sleep_mode_interaction_cbox.current(counter)
+            counter = counter + 1
+
+    def btn_sleep_mode_interaction_cbox_reset(self,event):
+        self.btn_set_sleep_mode_interaction.configure(text=self.language_dict['apply']) 
+        return
+    
+    def set_sleep_mode_interaction(self,sleep_mode_interaction):
+        self.main_app.change_settings('sleep_mode_without_interaction_hours',str(float(locale.atof(sleep_mode_interaction, decimal.Decimal))))
+        self.btn_set_sleep_mode_interaction.configure(text=u'\U00002713') 
+
+
+###############################
+
+    def updt_rate_cblist(self):
+        rate = self.main_app.get_setting('booking_rate_details')
+        self.rate_cbox['values'] = [self.language_dict['on'],self.language_dict['off']]
+        if self.language_dict[rate] == self.language_dict['on']:
+            self.rate_cbox.current(0)
+        else:
+            self.rate_cbox.current(1)
+
+    def btn_rate_cbox_reset(self,event):
+        self.btn_set_rate.configure(text=self.language_dict['apply']) 
+        return
+    
+    def set_rate(self,rate):
+        self.main_app.change_settings('booking_rate_details',self.language_dict[rate])
+        self.btn_set_rate.configure(text=u'\U00002713') 
+
+###############################
+
+    def updt_dynamic_opacity_cblist(self):
+        dynamic_opacity = self.main_app.get_setting('dynamic_opacity')
+        dynamic_opacity_list = ['40','45','50','55','60','65','70','75','80','85','90','95']
+        self.dynamic_opacity_cbox['values'] = dynamic_opacity_list
+        counter = 0
+        for value in dynamic_opacity_list:
+            if value == str('{:n}'.format(float(dynamic_opacity))):
+                self.dynamic_opacity_cbox.current(counter)
+            counter = counter + 1
+
+    def btn_dynamic_opacity_cbox_reset(self,event):
+        self.btn_set_dynamic_opacity.configure(text=self.language_dict['apply']) 
+        return
+    
+    def set_dynamic_opacity(self,dynamic_opacity):
+        self.main_app.change_settings('dynamic_opacity',str(float(locale.atof(dynamic_opacity, decimal.Decimal))))
+        self.btn_set_dynamic_opacity.configure(text=u'\U00002713') 
+
+
+###############################
+
+    def reload_settings(self):
+        self.updt_fs_cblist()
+        self.updt_language_cblist()
+        self.updt_style_cblist()
+        self.updt_sleep_mode_cblist()
+        self.updt_sleep_mode_period_cblist()
+        self.updt_sleep_mode_interaction_cblist()
+        self.updt_rate_cblist()
+        self.updt_dynamic_opacity_cblist()
 
     def refresh(self):
         # configure style and language of main frame
@@ -407,38 +771,27 @@ class SetupBody:
         self.main_frame.refresh_style()
 
         self.head_appearance_frame.refresh_style()
-        self.appearance_frame.refresh_style()
         self.lbl_category_appearance.refresh_style()
+        self.appearance_frame.refresh_style()
+        self.lbl_style_info.refresh_style()
         self.lbl_style.refresh_style()
         self.btn_set_style.refresh_style()
-        self.separator_frame_0.refresh_style()
-
-        self.head_language_frame.refresh_style()
-        self.language_frame.refresh_style()
-        self.lbl_category_language.refresh_style()
+        self.lbl_language_info.refresh_style()
         self.lbl_language.refresh_style()
         self.btn_set_language.refresh_style()
-
-        self.separator_frame_1.refresh_style()
-        self.separator_frame_2.refresh_style()
-        self.separator_frame_3.refresh_style()
-        self.head_font_frame.refresh_style()
-        self.font_frame.refresh_style()
-        self.lbl_category_font.refresh_style()
+        self.lbl_font_size_info.refresh_style()
         self.lbl_font_size.refresh_style()
         self.btn_set_font_size.refresh_style()
-        
-        self.head_db_frame.refresh_style()
-        self.lbl_category_db.refresh_style()
-        self.db_frame.refresh_style()
-        self.lbl_export.refresh_style()
-        self.btn_set_db_export.refresh_style()
+
+        self.separator_frame_1.refresh_style()
 
         self.head_link_frame.refresh_style()
         self.lbl_category_link.refresh_style()
         self.link_frame.refresh_style()
+        self.lbl_start_up_link_info.refresh_style()
         self.lbl_start_up_link.refresh_style()
         self.btn_set_start_up_link.refresh_style()
+        self.lbl_desktop_link_info.refresh_style()
         self.lbl_desktop_link.refresh_style()
         self.btn_set_desktop_link.refresh_style()
         self.btn_remove_start_up_link.refresh_style()
@@ -446,35 +799,99 @@ class SetupBody:
         self.btn_desktop_directory.refresh_style()
         self.btn_start_up_directory.refresh_style()
 
+        self.btn_desktop_directory_ttp.refresh()
+        self.btn_start_up_directory_ttp.refresh()
+
+        self.separator_frame_2.refresh_style()
+
+        self.head_folder_frame.refresh_style()
+        self.lbl_category_folder.refresh_style()
+        self.folder_frame.refresh_style()
+        self.lbl_easytarc_folder_info.refresh_style()
+        self.lbl_easytarc_folder.refresh_style()
+        self.btn_open_easytarc_folder.refresh_style()
+        self.lbl_back_up_folder_info.refresh_style()
+        self.lbl_back_up_folder.refresh_style()
+        self.btn_choose_back_up_folder.refresh_style()
+        self.btn_remove_back_up_folder.refresh_style()
+        self.btn_open_back_up_folder.refresh_style()
+
+        self.btn_open_easytarc_folder_ttp.refresh()
+        self.btn_open_back_up_folder_ttp.refresh()
+        self.lbl_back_up_folder_info_ttp.refresh()
+        self.refresh_back_up_folder_path()
+
+        self.separator_frame_3.refresh_style()
+
+        self.head_websites_frame.refresh_style()
+        self.lbl_category_websites.refresh_style()
+        self.websites_frame.refresh_style()
+        self.lbl_web_link_1_info.refresh_style()
+        self.lbl_web_link_1_name.refresh_style()
+        self.btn_web_link_1.refresh_style()
+        self.lbl_web_link_2_info.refresh_style()
+        self.lbl_web_link_2_name.refresh_style()
+        self.btn_web_link_2.refresh_style()
+
+        self.btn_web_link_1_ttp.refresh()
+        self.btn_web_link_2_ttp.refresh()
+
+        self.separator_frame_4.refresh_style()
+
+        self.head_sleep_mode_frame.refresh_style()
+        self.lbl_category_sleep_mode.refresh_style()
+        self.sleep_mode_frame.refresh_style()
+        self.lbl_sleep_mode_info.refresh_style()
+        self.lbl_sleep_mode.refresh_style()
+        self.btn_set_sleep_mode.refresh_style()
+        self.lbl_sleep_mode_period_info.refresh_style()
+        self.lbl_sleep_mode_period.refresh_style()
+        self.btn_set_sleep_mode_period.refresh_style()
+        self.lbl_sleep_mode_interaction_info.refresh_style()
+        self.lbl_sleep_mode_interaction.refresh_style()
+        self.btn_set_sleep_mode_interaction.refresh_style()
+
+        self.lbl_sleep_mode_info_ttp.refresh()
+        self.lbl_sleep_mode_period_info_ttp.refresh()
+        self.lbl_sleep_mode_interaction_info_ttp.refresh()
+
+        self.separator_frame_5.refresh_style()
+
+        self.head_rate_frame.refresh_style()
+        self.lbl_category_rate.refresh_style()
+        self.rate_frame.refresh_style()
+        self.lbl_rate_info.refresh_style()
+        self.lbl_rate.refresh_style()
+        self.btn_set_rate.refresh_style()
+
+        self.separator_frame_6.refresh_style()
+
+        self.head_workwindow_frame.refresh_style()
+        self.lbl_category_workwindow.refresh_style()
+        self.workwindow_frame.refresh_style()
+        self.lbl_dynamic_opacity_frame_info.refresh_style()
+        self.lbl_dynamic_opacity.refresh_style()
+        self.btn_set_dynamic_opacity.refresh_style()
+
+        self.lbl_dynamic_opacity_info_ttp.refresh()
+
         font_family = self.main_app.get_setting('font_family')
         font_size = self.main_app.get_setting('font_size')
         Font_tuple = (font_family, font_size, "bold")
 
         self.lbl_category_appearance.configure(font = Font_tuple)
-        self.lbl_category_language.configure(font = Font_tuple)
-        self.lbl_category_font.configure(font = Font_tuple)
-        self.lbl_category_db.configure(font = Font_tuple)
-        self.lbl_category_link.configure(font = Font_tuple)
-
-        self.separator_frame_0.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-
-        #language
-        self.btn_set_style.configure(text=self.language_dict['apply'])
-        self.btn_set_language.configure(text=self.language_dict['apply'])
-        self.btn_set_font_size.configure(text=self.language_dict['apply'])
-        self.btn_set_db_export.configure(text=self.language_dict['apply'])
-        self.lbl_category_appearance.configure(text = self.language_dict['appearance'])
+        self.lbl_category_appearance.configure(text = self.language_dict['appearance']+ ':')
         self.lbl_style.configure(text = '   ' + self.language_dict['style'])
-        self.lbl_category_language.configure(text = self.language_dict['language'])
+        self.btn_set_style.configure(text=self.language_dict['apply'])
         self.lbl_language.configure(text = '   ' + self.language_dict['language'])
-        self.lbl_export.configure(text = '   ' + self.language_dict['export'])
-        self.lbl_category_db.configure(text = self.language_dict['database'])
-        self.lbl_font_size.configure(text = '   ' + self.language_dict['size'])
-        self.lbl_category_font.configure(text = self.language_dict['font'])
-        self.lbl_category_link.configure(text = self.language_dict['app_links'])
+        self.btn_set_language.configure(text=self.language_dict['apply'])
+        self.lbl_font_size.configure(text = '   ' + self.language_dict['font_size'])
+        self.btn_set_font_size.configure(text=self.language_dict['apply'])
+        
+        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+
+        self.lbl_category_link.configure(font = Font_tuple)
+        self.lbl_category_link.configure(text = self.language_dict['app_links']+ ':')
         self.lbl_start_up_link.configure(text = '   ' + self.language_dict['start_up_link'])
         self.btn_set_start_up_link.configure(text=self.language_dict['add'])
         self.lbl_desktop_link.configure(text = '   ' + self.language_dict['desktop_link'])
@@ -482,9 +899,54 @@ class SetupBody:
         self.btn_remove_start_up_link.configure(text=self.language_dict['remove'])
         self.btn_remove_desktop_link.configure(text=self.language_dict['remove'])
 
-        self.updt_db_export_cblist()
-        self.updt_fs_cblist()
-        self.updt_language_cblist()
-        self.updt_style_cblist()
+        self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+
+        self.lbl_category_folder.configure(font = Font_tuple)
+        self.lbl_category_folder.configure(text=self.language_dict['folder']+':')
+        self.lbl_back_up_folder.configure(text=self.language_dict['back_up_2'])
+        self.btn_remove_back_up_folder.configure(text=self.language_dict['remove'])
+        self.btn_choose_back_up_folder.configure(text=self.language_dict['choose_folder'])
+
+        self.lbl_back_up_folder_info_ttp.text = self.language_dict['back_up_folder_info']
+
+        self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+
+        self.lbl_category_websites.configure(font = Font_tuple)
+        self.lbl_category_websites.configure(text=self.language_dict['websites']+':')
+        self.btn_web_link_1.configure(text=self.language_dict['open_up'])
+        self.btn_web_link_2.configure(text=self.language_dict['open_up'])
+
+        self.separator_frame_4.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+
+        self.lbl_category_sleep_mode.configure(font = Font_tuple)
+        self.lbl_category_sleep_mode.configure(text=self.language_dict['sleep_mode']+':')
+        self.lbl_sleep_mode.configure(text=self.language_dict['status'])
+        self.btn_set_sleep_mode.configure(text=self.language_dict['apply'])
+        self.lbl_sleep_mode_period.configure(text=self.language_dict['recording_period']+ ' [' + self.language_dict['hours_abbreviation'] + ']')
+        self.btn_set_sleep_mode_period.configure(text=self.language_dict['apply'])
+        self.lbl_sleep_mode_interaction.configure(text=self.language_dict['last_interaction']+ ' [' + self.language_dict['hours_abbreviation'] + ']')
+        self.btn_set_sleep_mode_interaction.configure(text=self.language_dict['apply'])
+
+        self.lbl_sleep_mode_info_ttp.text = self.language_dict['sleep_mode_info']
+        self.lbl_sleep_mode_period_info_ttp.text = self.language_dict['sleep_mode_period_info']
+        self.lbl_sleep_mode_interaction_info_ttp.text = self.language_dict['sleep_mode_interaction_info']
+
+        self.separator_frame_5.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+
+        self.lbl_category_rate.configure(font = Font_tuple)
+        self.lbl_category_rate.configure(text=self.language_dict['rate']+':')
+        self.lbl_rate.configure(text=self.language_dict['display'])
+        self.btn_set_rate.configure(text=self.language_dict['apply'])
+
+        self.separator_frame_6.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+
+        self.lbl_category_workwindow.configure(font = Font_tuple)
+        self.lbl_category_workwindow.configure(text=self.language_dict['working_window']+':')
+        self.lbl_dynamic_opacity.configure(text=self.language_dict['dynamic_opacity']+ ' [%]')
+        self.btn_set_dynamic_opacity.configure(text=self.language_dict['apply'])
+
+        self.lbl_dynamic_opacity_info_ttp.text = self.language_dict['dynamic_opacity_info']
+
+        self.reload_settings()
         return
 

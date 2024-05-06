@@ -51,6 +51,8 @@ class DataManager:
         self.main_account_clock_list = []
         self.work_window_group_main_account_list = []
 
+        self.last_tracked_interaction_list_list = []
+
         self.times_saved = False
         self.backup_found = False
 
@@ -70,10 +72,6 @@ class DataManager:
     def start_data_management(self):
 
         self.user_db.update_main_account_name(0,self.language_dict['without_allocation'])
-        if self.main_app.get_version_update() == True:
-            # old update
-            self.user_db.account_set_autobooking(0,0)
-            self.user_db.set_booked_accound_time_sum_unbooked(0)
 
         #######
 
@@ -102,7 +100,32 @@ class DataManager:
     def set_start_timestamp(self):
         self.start_timestamp = datetime.datetime.now()
         self.end_timestamp = None
+        self.set_last_tracked_interaction()
+
+    def get_start_timestamp(self):
+        return(self.start_timestamp)
     
+    def get_end_timestamp(self):
+        return(self.end_timestamp)
+    
+    def set_last_tracked_interaction(self):
+        self.last_tracked_interaction = datetime.datetime.now()
+
+    def get_last_tracked_interaction(self):
+        return(self.last_tracked_interaction)
+    
+    def set_sleep_mode_timestamp(self):
+        self.sleep_mode_timestamp = datetime.datetime.now()
+
+    def get_sleep_mode_timestamp(self):
+        return(self.sleep_mode_timestamp)
+    
+    def append_last_tracked_interaction_list_list(self,last_tracked_interaction_list):
+        self.last_tracked_interaction_list_list.append(last_tracked_interaction_list)
+
+    def get_last_tracked_interaction_list_list(self):
+        return(self.last_tracked_interaction_list_list)
+
     def load_main_account_clock(self, account_id):
         account_dict = self.user_db.get_account_details(account_id)
         account_clock = self.create_main_account_clock(account_dict)
@@ -249,16 +272,30 @@ class DataManager:
         self.user_db.groups_set_fold_up_list(fold_up_list)
         self.times_saved = True
 
-        path = os.path.abspath(os.getcwd())
+        self.user_db.simplify_passed_times()
+
+        path_easytarc = os.path.abspath(os.getcwd())
 
         if os.path.isfile('database' + '\\' + 'EasyTARC_Database_User' + '_backup' + self.user_db.get_db_name_ending()) == True: # 'database' + '\\' + 'EasyTARC_Database_User' + self.main_app.get_db_name_ending()
             if os.path.isfile('database' + '\\' + 'EasyTARC_Database_User' + '_backup_2' + self.user_db.get_db_name_ending()) == True:
-                os.remove(path+'\\' + 'database' + '\\' + 'EasyTARC_Database_User' + '_backup_2' + self.user_db.get_db_name_ending())
+                os.remove(path_easytarc+'\\' + 'database' + '\\' + 'EasyTARC_Database_User' + '_backup_2' + self.user_db.get_db_name_ending())
             os.rename('database' + '\\' + 'EasyTARC_Database_User' + '_backup' + self.user_db.get_db_name_ending(),'database' + '\\' + 'EasyTARC_Database_User' + '_backup_2' + self.user_db.get_db_name_ending())
         
-        shutil.copy(path+'\\'+ 'database' + '\\' + 'EasyTARC_Database_User' +self.user_db.get_db_name_ending(), path+'\\' + 'database' + '\\' + 'EasyTARC_Database_User' + '_backup' + self.user_db.get_db_name_ending())
+        shutil.copy(path_easytarc+'\\'+ 'database' + '\\' + 'EasyTARC_Database_User' +self.user_db.get_db_name_ending(), path_easytarc+'\\' + 'database' + '\\' + 'EasyTARC_Database_User' + '_backup' + self.user_db.get_db_name_ending())
 
-        return
+        if self.main_app.get_setting('sec_back_up_path') != '':
+            try:
+                shutil.copy(path_easytarc+'\\'+ 'login.json', self.main_app.get_setting('sec_back_up_path') + '\\' + 'login.json')
+                shutil.copy(path_easytarc+'\\'+ 'database' + '\\' + 'EasyTARC_Database_User' + self.user_db.get_db_name_ending(), self.main_app.get_setting('sec_back_up_path') + '\\' + 'EasyTARC_Database_User' + self.user_db.get_db_name_ending())
+                if os.path.isfile('database' + '\\' + 'EasyTARC_Database_User' + '_backup_2' + self.user_db.get_db_name_ending()) == True:
+                    shutil.copy(path_easytarc+'\\'+ 'database' + '\\' + 'EasyTARC_Database_User' + '_backup_2' + self.user_db.get_db_name_ending(), self.main_app.get_setting('sec_back_up_path') + '\\' + 'EasyTARC_Database_User' + '_backup_2' + self.user_db.get_db_name_ending())
+                return("second_back_up_done")
+            except:
+                return("second_back_up_failed")
+        else:
+            return("no_back_up_folder")
+
+
 
 #################################################################
 
@@ -869,10 +906,10 @@ class DataManager:
             df = self.user_db.get_sub_accounts_by_search_name(df,id_list)
         df = df.fillna('')
 
-        if modus == "group_name":
-            account_dict_list = self.create_account_dict_list_group_list(df)
-        else:
-            account_dict_list = self.create_account_dict_list(df)
+        #if modus == "group_name":
+        account_dict_list = self.create_account_dict_list_group_list(df)
+        #else:
+        #account_dict_list = self.create_account_dict_list(df)
         return(account_dict_list)
     
     def export_passed_times_df(self, path):
@@ -909,8 +946,8 @@ class DataManager:
         df['bookable'] = df['bookable'].replace([1], 'yes')
         df['bookable'] = df['bookable'].replace([0], 'no')
 
-        df['available_hours'] = df['available_hours'].replace([0], '')
-        df['date_expiration'] = df['date_expiration'].replace([pd.to_datetime(datetime.datetime(2000, 1, 1))], '')
+        df['available_hours'] = df['available_hours'].replace([0], ' - ')
+        df['date_expiration'] = df['date_expiration'].replace([pd.to_datetime(datetime.datetime(2000, 1, 1))], ' - ')
 
         df = df.drop(columns=['status'])
         df = df.rename(columns={'group_name': 'group','accountid': 'id','account_kind': 'kind'})
@@ -928,39 +965,40 @@ class DataManager:
         df['weekday'] = df['weekday'].replace(5, 'Saturday')
         df['weekday'] = df['weekday'].replace(6, 'Sunday')
 
-        df = df[['month','date','date_record','weekday','id','name','kind','main_account','combined name','description_text','group','project_label','order_label','process_label','response_code','hours','booked','bookable','date_expiration','available_hours']]
+        df = df[['month','date','weekday','id','name','kind','main_account','combined name','description_text','group','project_label','order_label','process_label','response_code','response_text','hours','booked','bookable','date_expiration','available_hours']]
         dt = datetime.datetime.now()
         str_today = dt.strftime("%Y") + "_" + dt.strftime("%m") + "_" + dt.strftime("%d")
         save_str = path + '\Export_' + self.main_app.get_name() + '_' + str_today + '.xlsx'
 
         writer = pd.ExcelWriter(save_str)
 
-        if self.main_app.get_restricted_data_access() == False:
-            df.to_excel(writer,'Overview', index=False)
+        df.to_excel(writer,self.language_dict['overview'], index=False)
 
-        if self.main_app.get_restricted_data_access() == False:
-            df_2 = df
-        else:
-            df_2 = df.loc[df['date_record'] >= pd.to_datetime(datetime.datetime(int(dt.strftime("%Y")), 1, 1))].copy()
-
-        df_pivot_1 = pd.pivot_table(df_2, values = 'hours', index=['month','date','weekday'], columns = 'booked', aggfunc='sum' , fill_value=0)
+        df_pivot_1 = pd.pivot_table(df, values = 'hours', index=['month','date','weekday'], columns = 'booked', aggfunc='sum' , fill_value=0)
         try:
-            df_pivot_1['Sum'] = df_pivot_1['booked'] + df_pivot_1['not booked']
+            df_pivot_1['Sum [h]'] = df_pivot_1['booked'] + df_pivot_1['not booked']
+            df_pivot_1['Rate [%]'] = round((100*(df_pivot_1['booked'] / df_pivot_1['Sum'])))
         except KeyError:
             pass
-        df_pivot_1.to_excel(writer,dt.strftime("%Y") + '_pivot_booked_day')
+        df_pivot_1.to_excel(writer,self.language_dict['rate'])
 
-        df_pivot_2 = pd.pivot_table(df_2, values = 'hours', index=['month','project_label','order_label','process_label','main_account','name'], aggfunc='sum' , fill_value=0)
-        df_pivot_2.to_excel(writer,dt.strftime("%Y") + '_pivot_accounts_month')
+        df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['month','project_label','order_label','process_label','main_account','name','response_text'], aggfunc='sum' , fill_value=0)
+
+        df_pivot_2['Percent of Month'] = round((df_pivot_2.hours / df_pivot_2.groupby(by=["month"]).hours.transform(sum) * 100),2)
+
+        df_pivot_2.to_excel(writer,self.language_dict['pivot_accounts_month'])
 
 
-        df_pivot_3 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','name','available_hours','date_expiration'], aggfunc='sum' , fill_value=0)
-        df_pivot_3.to_excel(writer,'Total_pivot_accounts')
+        df_pivot_3 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','name','available_hours','date_expiration','response_text'], aggfunc='sum' , fill_value=0)
+        df_pivot_3.to_excel(writer,self.language_dict['pivot_accounts_total'])
         
         writer.save()
-    
-    def get_all_active_account_groups(self):
-        group_list = self.user_db.get_all_active_account_groups()
+        
+    def get_all_account_groups(self,only_active=False):
+        if only_active == True:
+            group_list = self.user_db.get_all_active_account_groups()
+        else:
+            group_list = self.user_db.get_all_account_groups()
         group_list = [ele for ele in group_list if ele != ' - ']
         group_list = list(set(group_list))
         return(group_list)

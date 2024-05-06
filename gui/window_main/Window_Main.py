@@ -25,7 +25,6 @@ from gui.window_main.Window_Main_CaseFrame_Manager import CaseFrameManagerMW
 from gui.window_main.Window_Main_Status import MainWindowStatus
 from gui.window_main.Window_Main_Reminder import MainWindowReminder
 from gui.Window_Additionals import InfoWindow
-from gui.window_main.Window_Main_OptionMenu import MainWindowOptionMenu
 from gui.Window_Additionals import CreateInfo
 from gui.Window_Additionals import CreateToolTip
 
@@ -79,6 +78,9 @@ class MainWindow(tk.Frame):
         self.main_frame.pack(side = "top", fill = "both",expand = True)
         self.main_frame.configure(highlightbackground=self.style_dict["window_border_color"], highlightcolor=self.style_dict["window_border_color"], highlightthickness=1)
 
+        self.main_frame.bind("<Leave>", self.main_leave)
+        self.main_frame.bind("<Enter>", self.main_enter)
+
         self.status_frame = MainWindowStatus(self.main_frame, self.main_app,self.gui,self)
 
         self.reminder_frame = MainWindowReminder(self.main_frame, self.main_app,self.gui,self)
@@ -87,6 +89,12 @@ class MainWindow(tk.Frame):
         self.case_frame.pack(side = "top", fill = "both", expand = True)
 
 ##################################################
+
+    def main_enter(self,e):
+        self.data_manager.set_last_tracked_interaction()
+
+    def main_leave(self,e=None):
+        self.data_manager.set_last_tracked_interaction()
         
     def reset_window_pos(self):
         geo_factor = float(self.main_app.get_setting("geometry_factor"))

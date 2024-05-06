@@ -66,6 +66,9 @@ class WorkWindowList(tk.Toplevel):
         self.win_y_pos = None
         self.pos_moved = False
 
+        self.opacity = 1
+        self.opacity_after_method = None
+
         self.modus = self.main_app.get_setting('list_work_window_modus')
         self.ww_bar_attach_pos = self.main_app.get_setting('bar_work_window_attach_pos')
 
@@ -116,6 +119,32 @@ class WorkWindowList(tk.Toplevel):
         self.attributes('-topmost',True) 
         self.attributes("-alpha", 1)
         self.save_window_pos()
+
+        self.root.update()
+
+        self.opacity_after_method = self.after(300, lambda:self.delay_opacity())
+
+    def get_dynamic_opacity(self):
+        return(self.main_app.get_setting('list_work_window_dynamic_opacity'))
+    
+    def change_dynamic_opacity(self):
+        if self.main_app.get_setting('list_work_window_dynamic_opacity') == 'on':
+            self.main_app.change_settings('list_work_window_dynamic_opacity','off')
+            self.opacity = 1
+        else:
+            self.main_app.change_settings('list_work_window_dynamic_opacity','on')
+            self.opacity = float(self.main_app.get_setting('dynamic_opacity'))/100
+        self.attributes("-alpha", self.opacity)
+
+    def delay_opacity(self):
+        if self.main_app.get_setting('list_work_window_dynamic_opacity') == 'on':
+            self.opacity = float(self.main_app.get_setting('dynamic_opacity'))/100
+        else:
+            self.opacity = 1
+        self.attributes("-alpha", self.opacity)
+
+        self.after_cancel(self.opacity_after_method)
+        self.opacity_after_method = None
 
         
 
@@ -232,6 +261,13 @@ class WorkWindowList(tk.Toplevel):
             self.main_frame.after_cancel(self.after_func_leave)
             self.after_func_leave = None
 
+        self.data_manager.set_last_tracked_interaction()
+
+        if self.opacity != 1:
+            self.opacity = 1
+            self.attributes("-alpha", self.opacity)
+
+
     def main_leave(self,e=None):
         if self.modus == 'dynamic_view':
             if self.after_func_leave != None:
@@ -239,10 +275,16 @@ class WorkWindowList(tk.Toplevel):
                 self.after_func_leave = None
             self.after_func_leave = self.main_frame.after(3000,self.show_vertical_frame)
 
+        self.data_manager.set_last_tracked_interaction()
+
+        if self.main_app.get_setting('list_work_window_dynamic_opacity') == 'on':
+            self.opacity = float(self.main_app.get_setting('dynamic_opacity'))/100
+            self.attributes("-alpha", self.opacity)
+
+
     def canvas_enter(self,e):
         if self.expand_frame_displayed == False and self.modus == 'dynamic_view':
             self.show_expand_frame()
-
 
     def update(self):
         self.active_clock = self.data_manager.get_active_clock()
