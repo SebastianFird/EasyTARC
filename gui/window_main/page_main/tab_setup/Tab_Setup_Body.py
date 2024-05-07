@@ -298,7 +298,7 @@ class SetupBody:
         self.lbl_web_link_2_name = MyLabel(self.websites_frame,self.data_manager,text = str(self.main_app.get_setting("web_link_2_name")), anchor = 'w', width=25)
         self.lbl_web_link_2_name.grid(row=row_nbr, column=1, padx=5, pady=5)
 
-        self.btn_web_link_2 = MyButton(self.websites_frame, self.data_manager, text=self.language_dict['open_up'],width=12,command=lambda:self.open_url(self.main_app.get_setting("web_link_1_url")))
+        self.btn_web_link_2 = MyButton(self.websites_frame, self.data_manager, text=self.language_dict['open_up'],width=12,command=lambda:self.open_url(self.main_app.get_setting("web_link_2_url")))
         self.btn_web_link_2.grid(row=row_nbr, column=2, padx=5, pady=5)
         self.btn_web_link_2_ttp = CreateToolTip(self.btn_web_link_2, self.data_manager, 0, 30, str(self.main_app.get_setting("web_link_2_url")))
 

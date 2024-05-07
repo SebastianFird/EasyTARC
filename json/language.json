@@ -396,11 +396,11 @@
         "new_hours_left":"Neu verbleibende Stunden",
         "new_available_hours":"Neues Stundenvolumen",
         "preview":"Vorschau",
+        "percent_progress":"Prozentualer Fortschritt",
         "invalid_remaining_time":"Die Eingabe ist ungültig, da das Stundenvolumen negativ wäre.",
         "total_time_info":"Die Ansicht Gesamtzeit zeigt auch die Zeit die letztendlich\nerfasst und gespeichert wird.\n\nKlicke auf 'Gesamtzeit' um die Ansicht zu wechseln.",
         "single_times_info":"Die Ansicht Einzelzeiten zeigt wie sich die Gesamtzeit zusammensetzt.\nLinks die erfasste Zeit durch Aktivierung des Zeitkontos und rechts\ndie durchgeführten Korrekturen. Durch das Hovern über den\n Korrekturen wird der Verlauf dieser angezeigt.\n\nKlicke auf 'Einzelzeiten' um die Ansicht zu wechseln.",
-        "remaining_time_info":"Die Ansicht Restdauer zeigt zum einen die Gesamtzeit und\nzum anderen sie liefert Hintergrundinfos zur Restdauer des\nZeitkontos. Wenn du ein Stundenvolumen und eine Gültigkeit für das\nZeitkonto hinterlegt hast, wird links die verbleibende Zeit bis zum\nEnde der Gültigkeit angezeigt und auf der rechten Seite werden die\nverbleibenden Stunden angezeigt.\nHover über den Werten für mehr Infos.\n\nKlicke auf 'Restdauer' um die Ansicht zu wechseln.",
-        "progress_info":"Die Ansicht Fortschritt zeigt zum einen die Gesamtzeit und\nzum anderen sie liefert Hintergrundinfos zum Forschritt des\nZeitkontos. Wenn du ein Stundenvolumen für das Zeitkonto angelegt\nhast wird links der prozentuale Fortschritt angezeigt.\nAuf der rechten Seite werden die bereits verbrauchten Stunden\nangezeigt. Hover über den Werten für mehr Infos.\n\nKlicke auf 'Fortschritt' um die Ansicht zu wechseln."
+        "progress_info":"Die Ansicht Fortschritt zeigt den zeitlichen Abstand zu dem\nangegebenen Gültigkeits-Datum, die verbleibenden Stunden,\nden  prozenutalen Fortschritt und die verbrauchten Stunden.\nHover über den Werten für mehr Infos.\n\nKlicke auf 'Fortschritt' um die Ansicht zu wechseln."
     },
     "english": 
     {
@@ -800,9 +800,9 @@
         "new_available_hours":"new available hours",
         "preview":"Preview",
         "invalid_remaining_time":"The entry is invalid as the available hours would be negative.",
+        "percent_progress":"Percentage progress",
         "total_time_info":"The Total time view shows the time that is actually\nrecorded and saved.\n\nClick on 'Total time' to change the view.",
         "single_times_info":"The single times view shows how the total time is made up.\nOn the left the recorded time by activating the time account\nand on the right the corrections made. By hovering over the\n corrections, the history of these is displayed.\n\nClick on 'Single times' to change the view.",
-        "remaining_time_info":"The Remaining time view shows the total time and provides\nbackground information on the remaining time of the time account.\nIf you have defined available hours and a validity for the time account,\nthe remaining time until the end of the validity is displayed on the left\nand the remaining hours are displayed on the right.nHover over the\nvalues for more information.\n\nClick on 'Remaining time' to change the view.",
-        "progress_info":"The Progress view shows the total time and provides background\ninformation on the progress of the time account. If you have added available\nhours to the time account, the percentage progress is displayed on the left.\nOn the right-hand side, the hours already used are displayed. Hover over the\nvalues for more information.\n\nClick on 'Progress' to change the view."
+        "progress_info":"The Progress view shows the time interval to the\nspecified validity date, the remaining hours,\nthe percentage progress and the hours used.\nHover over the values for more information.\n\nClick on 'Progress' to change the view."
     }
 }

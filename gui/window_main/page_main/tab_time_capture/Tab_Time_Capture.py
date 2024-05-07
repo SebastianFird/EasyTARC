@@ -150,8 +150,6 @@ class CaptureTab(Scroll_Frame):
             self.time_column = 'single_times'
         elif self.time_column == 'single_times':
             self.time_column = 'progress'
-        elif self.time_column == 'progress':
-            self.time_column = 'scheduled'
         else:
             self.time_column = 'full_time'
         self.update()

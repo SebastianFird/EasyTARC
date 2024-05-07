@@ -377,22 +377,19 @@ class CaptureHead:
             time_column = self.language_dict['single_times']
             lbl_switch = '+/- ' # U000000B1 #U00023F3
             time_col_info = self.language_dict['single_times_info']
-        elif self.capture_tab.get_time_column() ==  'scheduled':
-            time_column = self.language_dict['remaining_time']
-            lbl_switch = u'\U0001F4C6'
-            time_col_info = self.language_dict['remaining_time_info']
         else:
             time_column = self.language_dict['progress']
-            lbl_switch = u'\U000023F3'
+            lbl_switch = u'\U000023F3' + ' ' + u'\U0001F4C6' + ' '
             time_col_info = self.language_dict['progress_info']
 
 
-        self.lbl_switch_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=lbl_switch,width=3)
+
+        self.lbl_switch_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=lbl_switch,width=5)
         self.lbl_switch_time.configure(foreground=self.style_dict["highlight_color_grey"])
         self.lbl_switch_time.bind("<Button-1>", self.activate_btn_switch_time)
         self.lbl_switch_time.pack(side='right',padx = 3)
 
-        self.lbl_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=time_column,width=20)
+        self.lbl_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=time_column,width=23)
         self.lbl_time.bind("<Button-1>", self.activate_btn_switch_time)
         self.lbl_time.pack(side='right',padx = 3)
 
@@ -450,13 +447,9 @@ class CaptureHead:
             time_column = self.language_dict['single_times']
             lbl_switch = '+/- ' # U000000B1 #U00023F3
             time_col_info = self.language_dict['single_times_info']
-        elif self.capture_tab.get_time_column() ==  'scheduled':
-            time_column = self.language_dict['remaining_time']
-            lbl_switch = u'\U0001F4C6'
-            time_col_info = self.language_dict['remaining_time_info']
         else:
             time_column = self.language_dict['progress']
-            lbl_switch = u'\U000023F3'
+            lbl_switch = u'\U000023F3' + ' ' + u'\U0001F4C6' + ' '
             time_col_info = self.language_dict['progress_info']
 
         self.lbl_time.configure(text=time_column)

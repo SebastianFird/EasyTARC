@@ -955,7 +955,7 @@ class DataManager:
         ######
 
         df['date'] = df['date_record'].dt.date
-        df['month'] = df['date_record'].dt.strftime('%m-%Y')
+        df['month'] = df['date_record'].dt.strftime('%Y-%m')
         df['weekday'] = df['date_record'].dt.dayofweek
         df['weekday'] = df['weekday'].replace(0, 'Monday')
         df['weekday'] = df['weekday'].replace(1, 'Tuesday')

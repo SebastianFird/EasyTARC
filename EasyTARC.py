@@ -58,7 +58,7 @@ class App():
         
         self.authorisation = Authorisation()
 
-        self.version = '1.9.4'
+        self.version = '1.9.5'
         self.old_version = None
         self.version_update = False
 
