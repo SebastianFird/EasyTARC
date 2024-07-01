@@ -375,7 +375,7 @@ class LoginWindow(tk.Frame):
         try:
             clipboard = str(self.clipboard_get())
             self.permission_response.set(clipboard)
-            if clipboard == self.main_app.authorisation.create_user_permission_hash(self.main_app.sign_up_dict['sign_up_str_format']):
+            if clipboard == self.main_app.authorisation_old.create_user_permission_hash(self.main_app.sign_up_dict['sign_up_str_format']):
                 self.textBox_permission_response.configure(state=tk.DISABLED)
                 self.lbl_permission_note_info.configure(text ='   ' +  u'\U00002713',foreground=self.style_dict["highlight_color_green"])
                 self.lbl_permission_note.configure(text = self.language_dict["authorised"])
@@ -400,7 +400,7 @@ class LoginWindow(tk.Frame):
         self.main_app.sign_up_dict['sign_up_db_config'] = self.language_dict[self.clicked_db_config_option.get()]
 
         if self.main_app.get_restricted_user_group() == True:
-            if self.permission_response.get() == self.main_app.authorisation.create_user_permission_hash(self.main_app.sign_up_dict['sign_up_str_format']):
+            if self.permission_response.get() == self.main_app.authorisation_old.create_user_permission_hash(self.main_app.sign_up_dict['sign_up_str_format']):
                 self.main_app.sign_up_dict['sign_up_permission'] = self.permission_response.get()
                 self.lbl_sign_up_faild_info.configure(text ='')
             else:

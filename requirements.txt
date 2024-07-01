@@ -2,7 +2,6 @@ pyinstaller
 Pillow==9.5.0
 pyinstaller-versionfile 
 pyshortcuts 
-pillow  
 pandas
 cryptography
 openpyxl

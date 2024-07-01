@@ -326,9 +326,9 @@ class ClockFrame(tk.Frame):
         if self.clock.get_response_texts() == " - " or self.clock.get_bookable() == 0:
             self.entered_response_text.set("")
 
-        if self.clock.get_bookable() == 1:
-            if self.entered_response_text.get() not in self.clock.get_response_text_list():
-                self.entered_response_text.set(self.clock.get_default_response_text())
+        #if self.clock.get_bookable() == 1:
+        #    if self.entered_response_text.get() not in self.clock.get_response_text_list():
+        #        self.entered_response_text.set(self.clock.get_default_response_text())
 
         if self.entered_response_text.get() not in self.clock.get_response_text_list() and self.clock.get_response_texts() != " - ":
             self.btn_edit_response_text.configure(foreground=self.style_dict["highlight_color_grey"])

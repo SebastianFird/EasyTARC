@@ -1007,7 +1007,7 @@ class DataManager:
         df_pivot_2.to_excel(writer,self.language_dict['pivot_accounts_month_with_sub_accounts'])
 
         df_pivot_3 = pd.pivot_table(df, values = 'hours', index=['month','project_label','order_label','process_label','main_account','response_text'], aggfunc='sum' , fill_value=0)
-        df_pivot_3['Percent of Month'] = round((df_pivot_2.hours / df_pivot_2.groupby(by=["month"]).hours.transform(sum) * 100),2)
+        df_pivot_3['Percent of Month'] = round((df_pivot_3.hours / df_pivot_3.groupby(by=["month"]).hours.transform(sum) * 100),2)
         df_pivot_3.to_excel(writer,self.language_dict['pivot_accounts_month_without_sub_accounts'])
 
         df_pivot_4 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','name','available_hours','date_expiration','response_text'], aggfunc='sum' , fill_value=0)
