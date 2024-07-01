@@ -17,6 +17,7 @@ __author__ = 'Sebastian Feiert'
 
 import tkinter # Tkinter -> tkinter in Python 3
 from gui.Window_Additionals import InfoWindow, EditRemainingTime, InfoDictWindow, CloseAccountWarning
+import json
 
 class CaptureOptionMenu(tkinter.Listbox):
 
@@ -39,38 +40,22 @@ class CaptureOptionMenu(tkinter.Listbox):
     def build_options(self):
         self.selected_clock = self.data_manager.get_selected_clock()
         self.optionmenu.delete(0, "end")
-
-        #self.optionmenu.add_command(label="Info zum Menü",command=self.show_info)
         
         self.optionmenu.add_command(label=self.language_dict["info_about_the_time_account"],command=self.show_clock_info)
 
         if self.selected_clock.get_id() != 0:
+            self.optionmenu.add_command(label=self.language_dict["copy_reference_data"],command=self.copy_reference_data_to_clipboard) 
+
             self.optionmenu.add_separator()
             self.optionmenu.add_command(label=self.language_dict["edit_time_account"],command=self.edit_account)
-
-            if float(self.selected_clock.get_available_hours()) != 0:
-                self.optionmenu.add_command(label=self.language_dict["edit_remaining_time"],command=self.edit_remaining_time)
 
             if self.selected_clock.clock_kind == 'main':
                 self.optionmenu.add_command(label=self.language_dict["close_time_account"],command=self.close_account) 
 
         if self.selected_clock.clock_kind == 'main' and self.selected_clock.get_id() != 0:
             self.optionmenu.add_separator()
-            self.optionmenu.add_command(label=self.language_dict["new_order"],command=self.create_order_account)
-            self.optionmenu.add_command(label=self.language_dict["new_process"],command=self.create_process_account)
+            self.optionmenu.add_command(label=self.language_dict["duplicate_main_account"],command=self.duplicate_main_account)
             self.optionmenu.add_command(label=self.language_dict["new_sub_account"],command=self.create_sub_account)
-
-        if self.selected_clock.clock_kind == 'sub':
-           self.optionmenu.add_separator()
-           self.optionmenu.add_command(label=self.language_dict["hide"],command=self.unpack_sub_clock)
-
-        if self.selected_clock.clock_kind == 'main' and self.selected_clock.get_id() != 0:
-            self.optionmenu.add_separator()
-            self.optionmenu.add_command(label=self.language_dict["show_all_sub_accounts"],command=self.pack_all_sub_account)
-
-        self.optionmenu.add_separator()
-        self.optionmenu.add_command(label=self.language_dict["reset_time"],command=self.reset_clock)
-
 
     def popup(self, event):
         try:
@@ -95,35 +80,36 @@ class CaptureOptionMenu(tkinter.Listbox):
     def create_sub_account(self):
         self.capture_tab.create_sub_account()
 
-    def create_order_account(self):
-        self.capture_tab.create_order_account()
+    def copy_reference_data_to_clipboard(self):
 
-    def create_process_account(self):
-        self.capture_tab.create_process_account()
+        project_label = str(self.selected_clock.get_project_label())
+        if project_label == ' - ':
+            project_label = ''
+        order_label = str(self.selected_clock.get_order_label())
+        if order_label == ' - ':
+            order_label = ''
+        process_label = str(self.selected_clock.get_process_label())
+        if process_label == ' - ':
+            process_label = ''
+        response_code = str(self.selected_clock.get_response_code())
+        if response_code == ' - ':
+            response_code = ''
 
-    def reset_clock(self):
-        if self.selected_clock.get_runninig() == False:
-            self.capture_tab.reset_captured_time()
-        else:
-            text = '\n' + self.language_dict["record_info_text_1"] + '\n'
+        refernce_dict = {
+            self.main_app.get_setting("project_label_map"):project_label,
+            self.main_app.get_setting("order_label_map"):order_label,
+            self.main_app.get_setting("process_label_map"):process_label,
+            self.main_app.get_setting("response_code_map"):response_code
+            }
+        
+        refernce_dict = json.dumps(refernce_dict)
 
-            info_window = InfoWindow(self.main_app, self.gui, self.capture_tab.main_frame ,text,400,180)
+        self.gui.main_window.clipboard_clear()
+        self.gui.main_window.clipboard_append(refernce_dict)
+        return
 
-    def unpack_sub_clock(self):
-        if self.selected_clock.get_id() != 0 and ((self.selected_clock.get_runninig() == False and self.selected_clock.get_total_time().seconds == 0) or (self.main_app.get_action_state() == "endofwork")):
-            self.capture_tab.unpack_sub_clock(self.clock_frame)
-        else:
-            text = '\n' + self.language_dict["record_info_text_3"] + '\n'
-
-            info_window = InfoWindow(self.main_app, self.gui, self.capture_tab.main_frame ,text,400,180)
-
-    def pack_all_sub_account(self):
-        if self.selected_clock.get_sub_clock_list() != []:
-            self.capture_tab.pack_all_sub_account(self.clock_frame)
-        else:
-            text = '\n' + self.language_dict["record_info_text_4"] + '\n'
-
-            info_window = InfoWindow(self.main_app, self.gui, self.capture_tab.main_frame ,text,400,180)
+    def duplicate_main_account(self):
+        self.capture_tab.duplicate_main_account()
 
     def close_account(self):
         account_tab = self.gui.main_window.case_frame.notebook_frame.tab_manager.accounts_tab
@@ -136,8 +122,6 @@ class CaptureOptionMenu(tkinter.Listbox):
         account_dict = self.selected_clock.get_account_dict()
         account_tab.edit_selected_account(account_dict)
 
-    def edit_remaining_time(self):
-        info_window = EditRemainingTime(self.main_app, self.gui, self.capture_tab.main_frame,self.selected_clock)
 
 
 

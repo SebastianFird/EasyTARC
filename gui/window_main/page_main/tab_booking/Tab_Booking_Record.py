@@ -57,6 +57,23 @@ class BookingRecordFrame(tk.Frame):
         self.lbl_empty1 = MyLabel(self, self.data_manager, width=5)
         self.lbl_empty1.pack(side='right',padx=3)
 
+        self.btn_copy_hours = MyLabel(self, self.data_manager, text=u'\U0000274F', width=2)
+        self.btn_copy_hours.configure(foreground=self.style_dict["highlight_color_grey"])
+        self.btn_copy_hours.pack(side='right',padx=3)
+        self.btn_copy_hours_ttp = CreateToolResponse(self.btn_copy_hours, self.data_manager, 10, 10, self.language_dict["copied"])
+
+        self.btn_copy_hours.bind('<Button-1>',self.activate_copy_hours)
+        self.btn_copy_hours.bind("<Enter>", self.enter_copy_hours)
+        self.btn_copy_hours.bind("<Leave>", self.leave_copy_hours)
+
+        self.textBox_passed_time = MyText(self, self.data_manager,width=8,height=1,borderwidth=1)
+        self.textBox_passed_time.pack(side='right',padx=3)
+        self.textBox_passed_time.insert(1.0, str('{:n}'.format(round(self.record_dict['hours'],3)))) # round_time
+        self.textBox_passed_time.configure(state=tk.DISABLED,inactiveselectbackground=self.textBox_passed_time.cget("selectbackground"))
+
+        self.lbl_empty3 = MyLabel(self, self.data_manager, width=7)
+        self.lbl_empty3.pack(side='right',padx=3)
+
         ###########################
 
         self.btn_copy_response_text = MyLabel(self, self.data_manager, text=u'\U0000274F', width=2)
@@ -68,7 +85,7 @@ class BookingRecordFrame(tk.Frame):
         self.btn_copy_response_text.bind("<Leave>", self.leave_copy_response_text)
         self.btn_copy_response_text.bind('<Button-1>',self.activate_copy_response_text)
 
-        self.textBox_response_text = MyText(self, self.data_manager,width=30,height=1,borderwidth=1)
+        self.textBox_response_text = MyText(self, self.data_manager,width=40,height=1,borderwidth=1)
         self.textBox_response_text.pack(side='right',padx=3)
         if str(self.record_dict['response_text']) != ' - ':
             self.textBox_response_text.insert(1.0, str(self.record_dict['response_text']))
@@ -85,57 +102,40 @@ class BookingRecordFrame(tk.Frame):
 
         ###########################
 
-        self.btn_copy_hours = MyLabel(self, self.data_manager, text=u'\U0000274F', width=2)
-        self.btn_copy_hours.configure(foreground=self.style_dict["highlight_color_grey"])
-        self.btn_copy_hours.pack(side='right',padx=3)
-        self.btn_copy_hours_ttp = CreateToolResponse(self.btn_copy_hours, self.data_manager, 10, 10, self.language_dict["copied"])
+        self.lbl_empty5 = MyLabel(self, self.data_manager, width=2)
+        self.lbl_empty5.pack(side='left',padx=3)
 
-        self.btn_copy_hours.bind('<Button-1>',self.activate_copy_hours)
-        self.btn_copy_hours.bind("<Enter>", self.enter_copy_hours)
-        self.btn_copy_hours.bind("<Leave>", self.leave_copy_hours)
-
-        self.textBox_passed_time = MyText(self, self.data_manager,width=8,height=1,borderwidth=1)
-        self.textBox_passed_time.pack(side='right',padx=3)
-        self.textBox_passed_time.insert(1.0, str('{:n}'.format(round(self.record_dict['hours'],3)))) # round_time
-        self.textBox_passed_time.configure(state=tk.DISABLED,inactiveselectbackground=self.textBox_passed_time.cget("selectbackground"))
-
-        self.lbl_empty3 = MyLabel(self, self.data_manager, width=5)
-        self.lbl_empty3.pack(side='right',padx=3)
-        
-        ###########################
+        self.textBox_response_code = MyText(self, self.data_manager,width=15,height=1,borderwidth=1)
+        self.textBox_response_code.pack(side='left',padx=3)
+        if str(self.record_dict['response_code']) != ' - ':
+            self.textBox_response_code.insert(1.0, str(self.record_dict['response_code']))
+        self.textBox_response_code.configure(state=tk.DISABLED,inactiveselectbackground=self.textBox_passed_time.cget("selectbackground"))
 
         self.btn_copy_response_code = MyLabel(self, self.data_manager, text=u'\U0000274F', width=2)
         self.btn_copy_response_code.configure(foreground=self.style_dict["highlight_color_grey"])
-        self.btn_copy_response_code.pack(side='right',padx=3)
+        self.btn_copy_response_code.pack(side='left',padx=3)
         self.btn_copy_response_code_ttp = CreateToolResponse(self.btn_copy_response_code, self.data_manager, 10, 10, self.language_dict["copied"])
 
         self.btn_copy_response_code.bind('<Button-1>',self.activate_copy_response_code)
         self.btn_copy_response_code.bind("<Enter>", self.enter_copy_response_code)
         self.btn_copy_response_code.bind("<Leave>", self.leave_copy_response_code)
 
-        self.textBox_response_code = MyText(self, self.data_manager,width=15,height=1,borderwidth=1)
-        self.textBox_response_code.pack(side='right',padx=3)
-        if str(self.record_dict['response_code']) != ' - ':
-            self.textBox_response_code.insert(1.0, str(self.record_dict['response_code']))
-        self.textBox_response_code.configure(state=tk.DISABLED,inactiveselectbackground=self.textBox_passed_time.cget("selectbackground"))
-
         self.lbl_empty4 = MyLabel(self, self.data_manager, width=5)
-        self.lbl_empty4.pack(side='right',padx=3)
+        self.lbl_empty4.pack(side='left',padx=3)
 
         ###########################
 
-        self.lbl_empty5 = MyLabel(self, self.data_manager, width=2)
-        self.lbl_empty5.pack(side='left',padx=3)
-
         if self.record_dict['account_kind'] == 0:
-            name_text = '     ' + self.record_dict['name'] + '   (' + self.language_dict["main_account"] + ': ' +  self.record_dict['main_name'] +')'
+            name_text_1 = self.record_dict['main_name'] + '   ' u'\U00002B9E' + '   ' +  self.record_dict['name']
+            name_text_2 = self.record_dict['name'] + '   (' + self.language_dict["main_account"] + ': ' +  self.record_dict['main_name'] +')'
         else:
-            name_text = self.record_dict['name']
+            name_text_1 = self.record_dict['name']
+            name_text_2 = name_text_1
 
-        self.lbl_name = MyLabel(self, self.data_manager, text = name_text, anchor='w')
+        self.lbl_name = MyLabel(self, self.data_manager, text = name_text_1, anchor='w')
         self.lbl_name.pack(side='left',padx=3)
 
-        info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project"] + ': ' + str(self.record_dict['project_label']) + '   ' + self.language_dict["order"] + ': ' + str(self.record_dict['order_label']) + '   ' + self.language_dict["process"] + ': ' + str(self.record_dict['process_label'])  + '\n' + self.language_dict["description"]  + ': ' + str(self.record_dict['description_text']) 
+        info_text = self.language_dict["name"] + ': ' + name_text_2 + '\n' + self.language_dict["project"] + ': ' + str(self.record_dict['project_label']) + '   ' + self.language_dict["order"] + ': ' + str(self.record_dict['order_label']) + '   ' + self.language_dict["process"] + ': ' + str(self.record_dict['process_label'])  + '\n' + self.language_dict["description"]  + ': ' + str(self.record_dict['description_text']) 
         self.account_info_ttp = CreateToolTip(self.lbl_name, self.data_manager, 30, 25, info_text)
 
         self.on_record = False

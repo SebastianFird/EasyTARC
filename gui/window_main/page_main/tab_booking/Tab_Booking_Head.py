@@ -177,32 +177,6 @@ class BookingHead:
 
         ################
 
-        self.response_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.response_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.response_frame.pack(side = "right")
-
-        self.response_invisible_frame = MyFrame(self.response_frame,self.data_manager)
-        self.response_invisible_frame.configure(height=0)
-        self.response_invisible_frame.pack(side = "top")
-
-        self.lbl_empty3 = MyLabelPixel(self.response_invisible_frame,self.data_manager, anchor='w')
-        self.lbl_empty3.set_photo_width(1)
-        self.lbl_empty3.pack(side = "right")
-
-        self.response_visible_frame = MyFrame(self.response_frame,self.data_manager)
-        self.response_visible_frame.pack(side = "top",fill='y')
-
-        self.lbl_empty4 = MyLabel(self.response_visible_frame, self.data_manager, width=2)
-        self.lbl_empty4.pack(side='right',padx=3)
-
-        self.lbl_response = MyLabel(self.response_visible_frame, self.data_manager, text=self.language_dict["response_text"],width=28)
-        self.lbl_response.pack(side='right',padx = 3)
-
-        self.lbl_empty5 = MyLabel(self.response_visible_frame, self.data_manager, width=5)
-        self.lbl_empty5.pack(side='right',padx=3)
-
-        ################
-
         self.passed_time_frame = MyFrame(self.table_head_frame,self.data_manager)
         self.passed_time_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.passed_time_frame.pack(side = "right")
@@ -229,9 +203,35 @@ class BookingHead:
 
         ################
 
+        self.response_frame = MyFrame(self.table_head_frame,self.data_manager)
+        self.response_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.response_frame.pack(side = "right")
+
+        self.response_invisible_frame = MyFrame(self.response_frame,self.data_manager)
+        self.response_invisible_frame.configure(height=0)
+        self.response_invisible_frame.pack(side = "top")
+
+        self.lbl_empty3 = MyLabelPixel(self.response_invisible_frame,self.data_manager, anchor='w')
+        self.lbl_empty3.set_photo_width(1)
+        self.lbl_empty3.pack(side = "right")
+
+        self.response_visible_frame = MyFrame(self.response_frame,self.data_manager)
+        self.response_visible_frame.pack(side = "top",fill='y')
+
+        self.lbl_empty4 = MyLabel(self.response_visible_frame, self.data_manager, width=2)
+        self.lbl_empty4.pack(side='right',padx=3)
+
+        self.lbl_response = MyLabel(self.response_visible_frame, self.data_manager, text=self.language_dict["response_text"],width=38)
+        self.lbl_response.pack(side='right',padx = 3)
+
+        self.lbl_empty5 = MyLabel(self.response_visible_frame, self.data_manager, width=5)
+        self.lbl_empty5.pack(side='right',padx=3)
+
+        ################
+
         self.response_code_frame = MyFrame(self.table_head_frame,self.data_manager)
         self.response_code_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.response_code_frame.pack(side = "right")
+        self.response_code_frame.pack(side = "left")
 
         self.response_code_invisible_frame = MyFrame(self.response_code_frame,self.data_manager)
         self.response_code_invisible_frame.configure(height=0)
@@ -239,19 +239,19 @@ class BookingHead:
 
         self.lbl_empty9 = MyLabelPixel(self.response_code_invisible_frame,self.data_manager, anchor='w')
         self.lbl_empty9.set_photo_width(1)
-        self.lbl_empty9.pack(side = "right")
+        self.lbl_empty9.pack(side = "left")
 
         self.response_code_visible_frame = MyFrame(self.response_code_frame,self.data_manager)
         self.response_code_visible_frame.pack(side = "top",fill='y')
 
         self.lbl_empty10 = MyLabel(self.response_code_visible_frame, self.data_manager, width=2)
-        self.lbl_empty10.pack(side='right',padx=3)
+        self.lbl_empty10.pack(side='left',padx=3)
 
         self.lbl_response_code = MyLabel(self.response_code_visible_frame, self.data_manager, text=self.language_dict["response_code"],width=16)
-        self.lbl_response_code.pack(side='right',padx = 3)
+        self.lbl_response_code.pack(side='left',padx = 3)
 
         self.lbl_empty11 = MyLabel(self.response_code_visible_frame, self.data_manager, width=5)
-        self.lbl_empty11.pack(side='right',padx=3)
+        self.lbl_empty11.pack(side='left',padx=3)
 
         ################
 

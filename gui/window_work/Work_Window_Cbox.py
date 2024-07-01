@@ -92,7 +92,7 @@ class WorkWindowCbox(tk.Toplevel):
     def account_clock_enter(self,e):
         self.on_activate_account_clock = True
         account_clock_full_name = self.clicked_selectable_account_clock.get()
-        active_clock_full_name = self.data_manager.get_active_clock().get_ww_full_name()
+        active_clock_full_name = self.data_manager.get_active_clock().get_status_full_name()
         if account_clock_full_name != active_clock_full_name:
             self.lbl_activate_account_clock.configure(image=self.image_dict['photo_btn_highlight'])
             self.lbl_activate_account_clock.image = self.image_dict['photo_btn_highlight']
@@ -100,7 +100,7 @@ class WorkWindowCbox(tk.Toplevel):
     def account_clock_leave(self,e):
         self.on_activate_account_clock = False
         account_clock_full_name = self.clicked_selectable_account_clock.get()
-        active_clock_full_name = self.data_manager.get_active_clock().get_ww_full_name()
+        active_clock_full_name = self.data_manager.get_active_clock().get_status_full_name()
         if account_clock_full_name != active_clock_full_name:
             self.lbl_activate_account_clock.configure(image=self.image_dict['photo_btn_off'])
             self.lbl_activate_account_clock.image = self.image_dict['photo_btn_off']
@@ -110,7 +110,7 @@ class WorkWindowCbox(tk.Toplevel):
             account_clock_full_name = self.clicked_selectable_account_clock.get()
             if account_clock_full_name == '':
                 return
-            account_clock = [ele for ele in self.selectable_account_clock_list if ele.get_ww_full_name() == account_clock_full_name][0]
+            account_clock = [ele for ele in self.selectable_account_clock_list if ele.get_status_full_name() == account_clock_full_name][0]
             account_clock.start()
 
             if int(account_clock.get_bookable()) == 1:
@@ -123,13 +123,13 @@ class WorkWindowCbox(tk.Toplevel):
 
     def updt_selectable_account_clock_cblist(self,e=None):
         self.selectable_account_clock_list = self.get_selectable_account_clock_list()
-        cbox_account_clock_full_name_list  = [ele.get_ww_full_name() for ele in self.selectable_account_clock_list]
+        cbox_account_clock_full_name_list  = [ele.get_status_full_name() for ele in self.selectable_account_clock_list]
         self.selectable_account_clock_cbox['values'] = cbox_account_clock_full_name_list
         if self.selectable_account_clock_list != []:
             self.selectable_account_clock_cbox.current(0)
             account_clock_full_name = self.clicked_selectable_account_clock.get()
 
-            account_clock = [ele for ele in self.selectable_account_clock_list if ele.get_ww_full_name() == account_clock_full_name][0]
+            account_clock = [ele for ele in self.selectable_account_clock_list if ele.get_status_full_name() == account_clock_full_name][0]
             if account_clock.get_response_text() == ' - ':
                 response_text = ''
             else:
@@ -162,7 +162,7 @@ class WorkWindowCbox(tk.Toplevel):
         active_clock = self.data_manager.get_active_clock()
         last_selected_account_clock_full_name = self.clicked_selectable_account_clock.get()
 
-        last_selected_account_clock_list = [ele for ele in current_account_clock_list if ele.get_ww_full_name() == last_selected_account_clock_full_name]
+        last_selected_account_clock_list = [ele for ele in current_account_clock_list if ele.get_status_full_name() == last_selected_account_clock_full_name]
         if last_selected_account_clock_list != []:
             last_selected_account_clock = last_selected_account_clock_list[0]
         else:
@@ -202,7 +202,7 @@ class WorkWindowCbox(tk.Toplevel):
         account_clock_full_name = self.clicked_selectable_account_clock.get()
 
         if self.selectable_account_clock_list != []:
-            account_clock = [ele for ele in self.selectable_account_clock_list if ele.get_ww_full_name() == account_clock_full_name][0]
+            account_clock = [ele for ele in self.selectable_account_clock_list if ele.get_status_full_name() == account_clock_full_name][0]
             if account_clock.get_response_text() == ' - ':
                 response_text = ''
             else:
@@ -236,7 +236,7 @@ class WorkWindowCbox(tk.Toplevel):
                 self.lbl_activate_default.image = self.image_dict['photo_btn_off']
 
         if self.selectable_account_clock_list != []:
-            account_clock = [ele for ele in self.selectable_account_clock_list if ele.get_ww_full_name() == account_clock_full_name][0]
+            account_clock = [ele for ele in self.selectable_account_clock_list if ele.get_status_full_name() == account_clock_full_name][0]
             if account_clock.get_runninig() == True:
                 if int(account_clock.get_bookable()) == 1:
                     self.lbl_activate_account_clock.configure(image=self.image_dict['photo_btn_on'])

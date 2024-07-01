@@ -178,7 +178,7 @@ class LoginWindow(tk.Frame):
         self.permission_request = tk.StringVar()
         self.textBox_permission_request = MyEntry(self.permission_request_frame, self.data_manager, textvariable=self.permission_request, width=35)
         self.textBox_permission_request.pack(side="left", padx=5)
-        self.request_str = self.main_app.authorisation.create_user_request_hash(self.main_app.sign_up_dict['sign_up_str_format'])
+        self.request_str = self.main_app.authorisation_old.create_user_request_hash(self.main_app.sign_up_dict['sign_up_str_format'])
         self.permission_request.set(self.request_str)
         self.textBox_permission_request.configure(state=tk.DISABLED)
 

@@ -112,8 +112,11 @@ class TabManager:
         self.setup_tab = SetupTab(self.frame_settings, self.main_app, self.gui, self.case_frame_manager)
 
         self.notebook.bind('<<NotebookTabChanged>>', self.on_tab_change)
+        self.active_tab = self.capture_tab
 
-    def on_tab_change(self,event):
+        self.activate_current_tab()
+
+    def on_tab_change(self,event=None):
         tab = event.widget.tab('current')['text']
         if tab == self.tab_name_capture:
             self.capture_tab.activate()

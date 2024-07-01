@@ -223,13 +223,12 @@ class CaptureBody:
 
                 if clock.get_clock_kind() == "main":
                     response = main_account_frame.main_clock_frame.activate_clock()
-
                 else:
                     main_account_frame.fold_out_sub_clocks()
                     sub_clock_frame_list = [ele for ele in main_account_frame.sub_clock_frame_list if ele.clock.get_id() == clock.get_id()]
                     if sub_clock_frame_list != []:
                         sub_clock_frame = sub_clock_frame_list[0]
-                        main_account_frame.show_sub_clock(sub_clock_frame)
+                        main_account_frame.fold_out_sub_clocks()
                         response = sub_clock_frame.activate_clock()
         return(response)
 

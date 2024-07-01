@@ -128,7 +128,7 @@ class BookingDayFrame:
     def fold_up_day_records(self):
         if self.record_frame_list != []:
             self.tree_view = False
-            self.date_frame.lbl_view_records.configure(text = ' ' + u'\U00002B9E')
+            self.date_frame.update()
             for record_frame in self.record_frame_list:
                 record_frame.pack_forget()
         return
@@ -136,7 +136,7 @@ class BookingDayFrame:
     def fold_out_day_records(self):
         if self.record_frame_list != []:
             self.tree_view = True
-            self.date_frame.lbl_view_records.configure(text = ' ' + u'\U00002B9F')
+            self.date_frame.update()
             for record_frame in self.record_frame_list:
                 record_frame.pack(side="top", fill="x")
         return
@@ -192,10 +192,6 @@ class BookingDateFrame:
         self.date_frame = MyFrame(self.main_frame,self.data_manager)
         self.date_frame.pack(side = "top",fill='x')
 
-        self.lbl_view_records = MyLabel(self.date_frame, self.data_manager, anchor='w',width = 2, text = '  ')
-        self.lbl_view_records.configure(foreground=self.style_dict["highlight_color_grey"])
-        self.lbl_view_records.pack(side='left')
-
         date_str = self.date_record.strftime('%d.%m.%Y')
         weekday_nbr = self.date_record.dayofweek
 
@@ -216,25 +212,32 @@ class BookingDateFrame:
         #############
 
         def enter_view_records(e):
-            self.lbl_view_records.configure(foreground=self.style_dict["font_color"])
+            if self.day_frame.tree_view == True:
+                self.lbl_date.configure(foreground=self.style_dict["highlight_color_grey"])
+            else:
+                self.lbl_date.configure(foreground=self.style_dict["font_color"])
 
 
         def leave_view_records(e):
-            self.lbl_view_records.configure(foreground=self.style_dict["highlight_color_grey"])
+            self.update()
 
-        self.lbl_view_records.bind("<Enter>", enter_view_records)
-        self.lbl_view_records.bind("<Leave>", leave_view_records)
+        self.lbl_date.bind("<Enter>", enter_view_records)
+        self.lbl_date.bind("<Leave>", leave_view_records)
 
         def clicked_view_records(e):
             self.day_frame.fold_day_records()
 
-        self.lbl_view_records.bind("<Button-1>", clicked_view_records)
+        self.lbl_date.bind("<Button-1>", clicked_view_records)
 
         #############
 
         return
 
     def update(self):
+        if self.day_frame.tree_view == True:
+            self.lbl_date.configure(foreground=self.style_dict["font_color"])
+        else:
+            self.lbl_date.configure(foreground=self.style_dict["highlight_color_grey"])
         return
 
     def refresh(self):
@@ -249,12 +252,10 @@ class BookingDateFrame:
         self.main_frame.refresh_style()
         self.separator_frame_1.refresh_style()
         self.date_frame.refresh_style()
-        self.lbl_view_records.refresh_style()
         self.lbl_date.refresh_style()
 
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
         self.lbl_date.configure(font = Font_tuple)
-        self.lbl_view_records.configure(foreground=self.style_dict["highlight_color_grey"])
 
         date_str = self.date_record.strftime('%d.%m.%Y')
         weekday_nbr = self.date_record.dayofweek
@@ -270,6 +271,7 @@ class BookingDateFrame:
         }
         date_info = date_str + '   -   ' + weekdy_dict[weekday_nbr]
         self.lbl_date.configure(text = date_info)
+        self.update()
 
         return
     

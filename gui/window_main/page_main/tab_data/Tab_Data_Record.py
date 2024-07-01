@@ -52,8 +52,8 @@ class DataRecordFrame(tk.Frame):
         self.lbl_status = MyLabel(self, self.data_manager,width=2)
         self.lbl_status.pack(side='right',padx=3)
 
-        if self.record_dict['auto_booking'] == 1 and self.record_dict['bookable'] == 1:
-            self.lbl_status_name.configure(text = self.language_dict["auto_booking"], anchor='w')
+        if self.record_dict['external_booking'] == 1 and self.record_dict['bookable'] == 1:
+            self.lbl_status_name.configure(text = self.language_dict["external_booking"], anchor='w')
             self.lbl_status.configure(text = u'\U00002713',foreground=self.style_dict["highlight_color_green"])
         elif self.record_dict['booked'] == 1 and self.record_dict['bookable'] == 1:
             self.lbl_status_name.configure(text = self.language_dict["booked"], anchor='w')
@@ -76,7 +76,7 @@ class DataRecordFrame(tk.Frame):
         self.lbl_empty1 = MyLabel(self, self.data_manager, text='', width=2)
         self.lbl_empty1.pack(side='right',padx=3)
 
-        self.lbl_response_text = MyLabel(self, self.data_manager,width=28,text=str(self.record_dict['response_text']), anchor='w')
+        self.lbl_response_text = MyLabel(self, self.data_manager,width=40,text=str(self.record_dict['response_text']), anchor='w')
         if self.record_dict['bookable'] == 1:
             self.lbl_response_text.pack(side='right',padx=3)
         if str(self.record_dict['response_text']) == ' - ':
@@ -90,21 +90,24 @@ class DataRecordFrame(tk.Frame):
 
         ##########################
 
-        self.lbl_empty2 = MyLabel(self, self.data_manager, text='', width=2)
+        self.lbl_empty2 = MyLabel(self, self.data_manager, text='', width=1)
         self.lbl_empty2.pack(side='left',padx=3)
 
         if self.record_dict['account_id'] == 0:
-             name_text = self.language_dict["without_allocation"]
+             name_text_1 = self.language_dict["without_allocation"]
+             name_text_2 = name_text_1
         elif self.record_dict['account_kind'] == 0:
-            name_text = '     ' + self.record_dict['name'] + '   (' + self.language_dict["main_account"] + ': ' +  self.record_dict['main_name'] +')'
+            name_text_1 = self.record_dict['main_name'] + '   ' u'\U00002B9E' + '   ' +  self.record_dict['name']
+            name_text_2 = self.record_dict['name'] + '   (' + self.language_dict["main_account"] + ': ' +  self.record_dict['main_name'] +')'
         else:
-            name_text = self.record_dict['name']
+            name_text_1 = self.record_dict['name']
+            name_text_2 = name_text_1
         
-        self.lbl_name = MyLabel(self, self.data_manager, text = name_text, anchor='w')
+        self.lbl_name = MyLabel(self, self.data_manager, text = name_text_1, anchor='w')
         self.lbl_name.pack(side='left',padx=10,pady=10)
 
         if self.record_dict['account_id'] != 0:
-            info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project"] + ': ' + str(self.record_dict['project_label']) + '   ' + self.language_dict["order"] + ': ' + str(self.record_dict['order_label']) + '   ' + self.language_dict["process"] + ': ' + str(self.record_dict['process_label'])  + '\n' + self.language_dict["description"]  + ': ' + str(self.record_dict['description_text']) 
+            info_text = self.language_dict["name"] + ': ' + name_text_2 + '\n' + self.language_dict["project"] + ': ' + str(self.record_dict['project_label']) + '   ' + self.language_dict["order"] + ': ' + str(self.record_dict['order_label']) + '   ' + self.language_dict["process"] + ': ' + str(self.record_dict['process_label'])  + '\n' + self.language_dict["description"]  + ': ' + str(self.record_dict['description_text']) 
         else:
             info_text = self.language_dict["without_allocation"]
         self.account_info_ttp = CreateToolTip(self.lbl_name, self.data_manager, 30, 25, info_text)
@@ -197,7 +200,7 @@ class DataRecordFrame(tk.Frame):
         self.data_tab.activate_all_record_frames(new_clicked_record_frame_list)
 
     def right_clicked(self,e=None):
-        if self.main_app.get_action_state() == "normal" or self.main_app.get_action_state() == "endofwork":
+        if self.main_app.get_action_state() == "normal":
             if self not in self.data_tab.get_clicked_record_frame_list():
                 self.data_tab.reset_clicked_record_frame_list()
                 new_clicked_record_frame_list = [self]
@@ -247,8 +250,8 @@ class DataRecordFrame(tk.Frame):
         self.lbl_response_text.refresh_style()
         self.lbl_empty3.refresh_style()
 
-        if self.record_dict['auto_booking'] == 1 and self.record_dict['account_id'] != 0:
-            self.lbl_status_name.configure(text = self.language_dict["auto_booking"], anchor='w')
+        if self.record_dict['external_booking'] == 1 and self.record_dict['account_id'] != 0:
+            self.lbl_status_name.configure(text = self.language_dict["external_booking"], anchor='w')
             self.lbl_status.configure(text = u'\U00002713',foreground=self.style_dict["highlight_color_green"])
         elif self.record_dict['booked'] == 1 and self.record_dict['account_id'] != 0:
             self.lbl_status_name.configure(text = self.language_dict["booked"], anchor='w')

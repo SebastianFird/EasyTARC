@@ -60,11 +60,17 @@ class AccountsOptionMenu(tkinter.Listbox):
             else:
                 self.optionmenu.add_command(label=self.language_dict["delete"],command=lambda:self.show_info(self.language_dict["edit_delete_info_text"]))
 
-            self.optionmenu.add_separator()
-            self.optionmenu.add_command(label=self.language_dict["export_time_account"],command=self.export_time_accounts)
+            if self.account_dict['account_kind'] == 1:
+                self.optionmenu.add_separator()
+                self.optionmenu.add_command(label=self.language_dict["export_time_account"],command=self.export_time_accounts)
         else:
-            self.optionmenu.add_command(label=self.language_dict["export_time_accounts"],command=self.export_time_accounts)
-
+            main_account = False
+            for clicked_account_frame in clicked_account_frame_list:
+                if clicked_account_frame.account_dict['account_kind'] == 1:
+                    main_account = True
+            if main_account == True:
+                self.optionmenu.add_command(label=self.language_dict["export_time_accounts"],command=self.export_time_accounts)
+        
         self.optionmenu.add_separator()
         self.optionmenu.add_command(label=self.language_dict["select_all"],command=self.select_all)
 
@@ -219,14 +225,14 @@ class AccountsOptionMenu(tkinter.Listbox):
             info_dict.update({self.language_dict["bookable"]:self.language_dict["no"]}) 
         #############
         if self.account_dict['bookable'] == 1:
-            if self.account_dict['auto_booking'] == 1:
-                info_dict.update({self.language_dict["auto_booking"]:self.language_dict["yes"]}) 
+            if self.account_dict['external_booking'] == 1:
+                info_dict.update({self.language_dict["external_booking"]:self.language_dict["yes"]}) 
             else:
-                info_dict.update({self.language_dict["auto_booking"]:self.language_dict["no"]}) 
+                info_dict.update({self.language_dict["external_booking"]:self.language_dict["no"]}) 
             #########
             info_dict.update({                     
                         self.language_dict["response_code"]:'='+self.account_dict['response_code'],                            
-                        self.language_dict["default_response_text"]:self.account_dict['default_response_text']              
+                        self.language_dict["response_texts"]:'='+self.account_dict['response_texts']              
                         })
         #############
         if self.account_dict['account_id'] != 0:
@@ -237,7 +243,7 @@ class AccountsOptionMenu(tkinter.Listbox):
         #############
         if self.account_dict['account_id'] != 0:
             if float(self.account_dict['available_hours']) != 0:
-                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.account_dict['available_hours']),3))) + ' ' + self.language_dict["hours"]}) # round_time
+                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.account_dict['available_hours']),3))) + ' ' + self.language_dict["hours_abbreviation"]}) # round_time
             else:
                 info_dict.update({self.language_dict["available_hours"]:" - "}) 
 

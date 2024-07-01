@@ -25,6 +25,7 @@ import os
 from gui.Scroll_Frame import Scroll_Frame
 from gui.window_main.page_main.tab_data.Tab_Data_Body import DataBody
 from gui.window_main.page_main.tab_data.Tab_Data_Head import DataHead
+from gui.Window_Additionals import InfoWindow
 
 class DataTab(Scroll_Frame):
     def __init__(self, container, main_app, gui, case_frame_manager):
@@ -158,7 +159,11 @@ class DataTab(Scroll_Frame):
         self.reload()
 
     def add_new_record(self):
-        self.case_frame_manager.add_new_record('new_record')
+        if self.main_app.get_action_state() == "normal":
+            self.case_frame_manager.add_new_record('new_record')
+        else:
+            text = self.language_dict["locked_function"]
+            info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,350,200)
 
     def edit_record(self,record_dict):
         self.case_frame_manager.add_new_record('edit_record',record_dict)

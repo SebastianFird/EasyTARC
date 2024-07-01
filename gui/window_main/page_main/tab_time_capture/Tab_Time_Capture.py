@@ -116,42 +116,18 @@ class CaptureTab(Scroll_Frame):
         if selected_clock.clock_kind == 'main' and selected_clock.get_id() != 0:
             self.case_frame_manager.add_new_account('new_sub',selected_clock,selected_clock.get_account_dict())
 
-    def create_order_account(self):
+    def duplicate_main_account(self):
         selected_clock = self.data_manager.get_selected_clock()
         if selected_clock.clock_kind == 'main' and selected_clock.get_id() != 0:
-            self.case_frame_manager.add_new_account('new_order',selected_clock,selected_clock.get_account_dict())
-
-    def create_process_account(self):
-        selected_clock = self.data_manager.get_selected_clock()
-        if selected_clock.clock_kind == 'main' and selected_clock.get_id() != 0:
-            self.case_frame_manager.add_new_account('new_process',selected_clock,selected_clock.get_account_dict())
-
-    def reset_captured_time(self):
-        selected_clock = self.data_manager.get_selected_clock()
-        selected_clock.reset_time()
-        self.update_selected_clock_frame()
-    
-    def unpack_sub_clock(self, clock_frame):
-        clock_frame.main_account_frame.hide_sub_clock(clock_frame)
-        self.set_selected_clock_frame_none()
-        return
-    
-    def pack_all_sub_account(self, clock_frame):
-        clock_frame.main_account_frame.show_all_sub_clocks()
-        return
+            self.case_frame_manager.add_new_account('duplicate_main_account',selected_clock,selected_clock.get_account_dict())
     
 #################################################################
 
     def get_time_column(self):
         return(self.time_column)
 
-    def change_time_column(self):
-        if self.time_column == 'full_time':
-            self.time_column = 'single_times'
-        elif self.time_column == 'single_times':
-            self.time_column = 'progress'
-        else:
-            self.time_column = 'full_time'
+    def change_time_column(self,time_column):
+        self.time_column = time_column
         self.update()
 
 

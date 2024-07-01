@@ -117,9 +117,13 @@ class CreateEditRecord(tk.Frame):
         
     def check_characters(self,text_list):
         for text in text_list:
+            if ';' in text:
+                return(self.language_dict['not_allowed_characters']) 
             if '#' in text:
                 return(self.language_dict['not_allowed_characters']) 
             if '=' in text:
+                return(self.language_dict['not_allowed_characters']) 
+            if '/' in text:
                 return(self.language_dict['not_allowed_characters']) 
         return(True)
 

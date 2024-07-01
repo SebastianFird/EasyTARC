@@ -105,23 +105,6 @@ class MainAccountFrame(tk.Frame):
                     sub_clock_frame.pack(side="top", fill="x")
         return
     
-    def hide_sub_clock(self,sub_clock_frame):
-        sub_clock_frame.clock.set_status_hidden()
-        sub_clock_frame.pack_forget()
-        return
-    
-    def show_sub_clock(self,sub_clock_frame):
-        sub_clock_frame.clock.set_status_open()
-        self.fold_out_sub_clocks()
-        return
-    
-    def show_all_sub_clocks(self):
-        if self.main_account_clock.get_sub_clock_list() != []:
-            for sub_clock_frame in self.sub_clock_frame_list:
-                sub_clock_frame.clock.set_status_open()
-            self.fold_out_sub_clocks()
-        return
-    
     def check_close_clock(self):
         response = True
         for clock_frame in self.clock_frame_list:

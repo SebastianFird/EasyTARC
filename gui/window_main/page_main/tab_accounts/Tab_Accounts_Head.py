@@ -59,13 +59,11 @@ class AccountsHead:
         self.main_frame.pack(side = "top", fill = "x")
 
         self.create_main_head()
-        self.create_table_head()
         self.update()
         return
 
     def update(self):
         self.update_main_head()
-        self.update_table_head()
         return
 
     def refresh(self):
@@ -74,7 +72,6 @@ class AccountsHead:
         self.language_dict = self.data_manager.get_language_dict()
 
         self.refresh_main_head()
-        self.refresh_table_head()
         return
 
 #################################################################
@@ -120,8 +117,8 @@ class AccountsHead:
             self.search_var.set(self.language_dict["not_bookable_time_accounts"])
             self.textBox_search_var.configure(state=tk.DISABLED)
 
-        elif self.search_cbox.get() == self.language_dict["auto_booking"]:
-            self.search_var.set(self.language_dict["auto_booking_time_accounts"])
+        elif self.search_cbox.get() == self.language_dict["external_booking"]:
+            self.search_var.set(self.language_dict["external_booking_time_accounts"])
             self.textBox_search_var.configure(state=tk.DISABLED)
 
         elif self.search_cbox.get() == self.language_dict["all"]:
@@ -133,7 +130,7 @@ class AccountsHead:
             self.textBox_search_var.configure(state=tk.NORMAL)
     
     def updt_search_cblist(self):
-        self.search_cbox['values'] = [self.language_dict["name"],self.language_dict["group"],self.language_dict["project"],self.language_dict["order"],self.language_dict["process"],self.language_dict["response_code"],self.language_dict["open"],self.language_dict["closed"],self.language_dict["bookable"],self.language_dict["not_bookable"],self.language_dict["auto_booking"],self.language_dict["all"]]
+        self.search_cbox['values'] = [self.language_dict["name"],self.language_dict["group"],self.language_dict["project"],self.language_dict["order"],self.language_dict["process"],self.language_dict["response_code"],self.language_dict["response_text"],self.language_dict["open"],self.language_dict["closed"],self.language_dict["bookable"],self.language_dict["not_bookable"],self.language_dict["external_booking"],self.language_dict["all"]]
         self.search_cbox.current(0)
 
     def hit_enter_textBox(self,event=None):
@@ -161,6 +158,10 @@ class AccountsHead:
             modus = 'response_code'
             search_input = self.search_var.get()
 
+        elif self.search_cbox.get() == self.language_dict["response_text"]:
+            modus = 'response_texts'
+            search_input = self.search_var.get()
+
         elif self.search_cbox.get() == self.language_dict["open"]:
             modus = 'open'
             search_input = None
@@ -177,8 +178,8 @@ class AccountsHead:
             modus = 'not_bookable'
             search_input = None
 
-        elif self.search_cbox.get() == self.language_dict["auto_booking"]:
-            modus = 'auto_booking'
+        elif self.search_cbox.get() == self.language_dict["external_booking"]:
+            modus = 'external_booking'
             search_input = None
 
         elif self.search_cbox.get() == self.language_dict["all"]:
@@ -222,8 +223,9 @@ class AccountsHead:
                 order_label = time_accounts_import_dict[key]['order_label'] 
                 process_label = time_accounts_import_dict[key]['process_label'] 
                 response_code = time_accounts_import_dict[key]['response_code'] 
-                default_response_text = time_accounts_import_dict[key]['default_response_text'] 
-                auto_booking = time_accounts_import_dict[key]['auto_booking'] 
+                response_texts_main = time_accounts_import_dict[key]['response_texts_main'] 
+                response_texts = time_accounts_import_dict[key]['response_texts'] 
+                external_booking = time_accounts_import_dict[key]['external_booking'] 
                 bookable = time_accounts_import_dict[key]['bookable'] 
                 available_hours = time_accounts_import_dict[key]['available_hours'] 
                 status = time_accounts_import_dict[key]['status'] 
@@ -279,8 +281,9 @@ class AccountsHead:
                                 "order_label":str(order_label),              # order label
                                 "process_label":str(process_label),          # process label
                                 "response_code":str(response_code),          # response code
-                                "default_response_text":str(default_response_text),          # booking default text
-                                "auto_booking":int(auto_booking),            # autobooking on -> 1, off -> 0; if on the system dont show the account for booking
+                                "response_texts_main":int(response_texts_main),          
+                                "response_texts":str(response_texts),
+                                "external_booking":int(external_booking),            # external_booking on -> 1, off -> 0; if on the system dont show the account for booking
                                 "status":str(status),                        # open -> the account can capture time, closed -> the account cant capture time
                                 "group":str(group),                          # default -> default group, group on the display
                                 "bookable":int(bookable),                    # 1 -> part of the booking time, 0 -> part of the non booking time
@@ -357,220 +360,4 @@ class AccountsHead:
         return
 
 #################################################################
-
-    def create_table_head(self):
-
-        self.table_head_frame = MyFrame(self.main_frame,self.data_manager)
-        self.table_head_frame.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.table_head_frame.pack(side = "top", fill = "x")
-
-        self.separator_frame_0 = MyFrame(self.table_head_frame,self.data_manager)
-        self.separator_frame_0.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.separator_frame_0.pack(side = "right")
-
-        self.lbl_empty0 = MyLabelPixel(self.separator_frame_0, self.data_manager)
-        self.lbl_empty0.set_photo_width(10)
-        self.lbl_empty0.configure(background=self.style_dict["selected_color_grey"])
-        self.lbl_empty0.pack(side='right')
-
-        ################
-
-        self.action_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.action_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.action_frame.pack(side = "right")
-
-        self.action_invisible_frame = MyFrame(self.action_frame,self.data_manager)
-        self.action_invisible_frame.configure(height=0)
-        self.action_invisible_frame.pack(side = "top")
-
-        self.lbl_empty1 = MyLabelPixel(self.action_invisible_frame,self.data_manager, anchor='w')
-        self.lbl_empty1.set_photo_width(1)
-        self.lbl_empty1.pack(side = "right")
-
-        self.action_visible_frame = MyFrame(self.action_frame,self.data_manager)
-        self.action_visible_frame.pack(side = "top",fill='y')
-
-        self.lbl_empty2 = MyLabel(self.action_visible_frame, self.data_manager, text='', width=5)
-        self.lbl_empty2.pack(side='right',padx=3)
-
-        self.lbl_action_name = MyLabel(self.action_visible_frame, self.data_manager, text=self.language_dict["action"], width=10)
-        self.lbl_action_name.pack(side='right',padx=3)
-
-        self.lbl_empty3 = MyLabel(self.action_visible_frame, self.data_manager, text='', width=5)
-        self.lbl_empty3.pack(side='right',padx=3)
-
-        ################
-
-        self.status_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.status_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.status_frame.pack(side = "right")
-
-        self.status_invisible_frame = MyFrame(self.status_frame,self.data_manager)
-        self.status_invisible_frame.configure(height=0)
-        self.status_invisible_frame.pack(side = "top")
-
-        self.lbl_empty4 = MyLabelPixel(self.status_invisible_frame,self.data_manager, anchor='w')
-        self.lbl_empty4.set_photo_width(1)
-        self.lbl_empty4.pack(side = "right")
-
-        self.status_visible_frame = MyFrame(self.status_frame,self.data_manager)
-        self.status_visible_frame.pack(side = "top",fill='y')
-
-        self.lbl_status_name = MyLabel(self.status_visible_frame, self.data_manager, text=self.language_dict["status"], width=17)
-        self.lbl_status_name.pack(side='right',padx=3)
-
-        self.lbl_status = MyLabel(self.status_visible_frame, self.data_manager,width=0)
-        self.lbl_status.pack(side='right',padx = 3)
-
-        ################
-
-        self.process_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.process_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.process_frame.pack(side = "right")
-
-        self.process_invisible_frame = MyFrame(self.process_frame,self.data_manager)
-        self.process_invisible_frame.configure(height=0)
-        self.process_invisible_frame.pack(side = "top")
-
-        self.lbl_empty5 = MyLabelPixel(self.process_invisible_frame,self.data_manager, anchor='w')
-        self.lbl_empty5.set_photo_width(1)
-        self.lbl_empty5.pack(side = "right")
-
-        self.process_visible_frame = MyFrame(self.process_frame,self.data_manager)
-        self.process_visible_frame.pack(side = "top",fill='y')
-
-        self.lbl_process = MyLabel(self.process_visible_frame, self.data_manager, text=self.language_dict["process"], width=15)
-        self.lbl_process.pack(side='right',padx=3)
-
-        ################
-
-        self.order_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.order_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.order_frame.pack(side = "right")
-
-        self.order_invisible_frame = MyFrame(self.order_frame,self.data_manager)
-        self.order_invisible_frame.configure(height=0)
-        self.order_invisible_frame.pack(side = "top")
-
-        self.lbl_empty6 = MyLabelPixel(self.order_invisible_frame,self.data_manager, anchor='w')
-        self.lbl_empty6.set_photo_width(1)
-        self.lbl_empty6.pack(side = "right")
-
-        self.order_visible_frame = MyFrame(self.order_frame,self.data_manager)
-        self.order_visible_frame.pack(side = "top",fill='y')
-
-        self.lbl_order = MyLabel(self.order_visible_frame, self.data_manager, text=self.language_dict["order"], width=15)
-        self.lbl_order.pack(side='right',padx=3)
-
-        ################
-
-        self.project_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.project_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.project_frame.pack(side = "right")
-
-        self.project_invisible_frame = MyFrame(self.project_frame,self.data_manager)
-        self.project_invisible_frame.configure(height=0)
-        self.project_invisible_frame.pack(side = "top")
-
-        self.lbl_empty7 = MyLabelPixel(self.project_invisible_frame,self.data_manager, anchor='w')
-        self.lbl_empty7.set_photo_width(1)
-        self.lbl_empty7.pack(side = "right")
-
-        self.project_visible_frame = MyFrame(self.project_frame,self.data_manager)
-        self.project_visible_frame.pack(side = "top",fill='y')
-
-        self.lbl_project = MyLabel(self.project_visible_frame, self.data_manager, text=self.language_dict["project"], width=15)
-        self.lbl_project.pack(side='right',padx=3)
-        ################
-
-        self.name_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.name_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.name_frame.pack(side = "left",fill='x',expand=True)
-
-        self.name_invisible_frame = MyFrame(self.name_frame,self.data_manager)
-        self.name_invisible_frame.configure(height=0)
-        self.name_invisible_frame.pack(side = "top")
-
-        self.lbl_empty8 = MyLabelPixel(self.name_invisible_frame,self.data_manager, anchor='w')
-        self.lbl_empty8.set_photo_width(1)
-        self.lbl_empty8.pack(side = "left")
-
-        self.name_visible_frame = MyFrame(self.name_frame,self.data_manager)
-        self.name_visible_frame.pack(side = "top")
-
-        self.lbl_name = MyLabel(self.name_visible_frame, self.data_manager, text=self.language_dict["name"])
-        self.lbl_name.pack(side='left',padx = 3)
-
-        self.update_table_head()     
-        return   
-
-    def update_table_head(self):
-        return
-    
-    def refresh_table_head(self):
-        self.table_head_frame.refresh_style()
-        self.separator_frame_0.refresh_style()
-
-        self.action_frame.refresh_style()
-        self.action_invisible_frame.refresh_style()
-        self.action_visible_frame.refresh_style()
-        self.lbl_action_name.refresh_style()
-
-        self.status_frame.refresh_style()
-        self.status_invisible_frame.refresh_style()
-        self.status_visible_frame.refresh_style()
-        self.lbl_status_name.refresh_style()
-        self.lbl_status.refresh_style()
-
-        self.process_frame.refresh_style()
-        self.process_invisible_frame.refresh_style()
-        self.process_visible_frame.refresh_style()
-        self.lbl_process.refresh_style()
-
-        self.order_frame.refresh_style()
-        self.order_invisible_frame.refresh_style()
-        self.order_visible_frame.refresh_style()
-        self.lbl_order.refresh_style()
-
-        self.project_frame.refresh_style()
-        self.project_invisible_frame.refresh_style()
-        self.project_visible_frame.refresh_style()
-        self.lbl_project.refresh_style()
-
-        self.name_frame.refresh_style()
-        self.name_invisible_frame.refresh_style()
-        self.name_visible_frame.refresh_style()
-        self.lbl_name.refresh_style()
-
-        self.lbl_empty0.refresh_style()
-        self.lbl_empty1.refresh_style()
-        self.lbl_empty2.refresh_style()
-        self.lbl_empty3.refresh_style()
-        self.lbl_empty4.refresh_style()
-        self.lbl_empty5.refresh_style()
-        self.lbl_empty6.refresh_style()
-        self.lbl_empty7.refresh_style()
-        self.lbl_empty8.refresh_style()
- 
-        self.table_head_frame.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.separator_frame_0.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.lbl_empty0.configure(background=self.style_dict["selected_color_grey"])
-
-        self.action_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.status_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.process_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.order_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.project_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.name_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-
-        self.lbl_action_name.configure(text=self.language_dict["action"])
-        self.lbl_status_name.configure(text=self.language_dict["status"])
-        self.lbl_process.configure(text=self.language_dict["process"])
-        self.lbl_order.configure(text=self.language_dict["order"])
-        self.lbl_project.configure(text=self.language_dict["project"])
-        self.lbl_name.configure(text=self.language_dict["name"])
-
-        self.update_table_head()
-        return
-
 

@@ -72,7 +72,7 @@ class SetupBody:
         self.head_appearance_frame = MyFrame(self.main_frame,self.data_manager)
         self.head_appearance_frame.pack(side = "top",fill='x')
 
-        self.lbl_category_appearance = MyLabel(self.head_appearance_frame,self.data_manager,text = self.language_dict['appearance']+ ':', anchor = 'w', width=35)
+        self.lbl_category_appearance = MyLabel(self.head_appearance_frame,self.data_manager,text = self.language_dict['appearance'], anchor = 'w', width=35)
         self.lbl_category_appearance.configure(font = Font_tuple)
         self.lbl_category_appearance.pack(side = "left", padx=15)
 
@@ -150,7 +150,7 @@ class SetupBody:
         self.head_link_frame = MyFrame(self.main_frame,self.data_manager)
         self.head_link_frame.pack(side = "top",fill='x')
 
-        self.lbl_category_link = MyLabel(self.head_link_frame,self.data_manager,text = self.language_dict['app_links'] + ':', anchor = 'w', width=35)
+        self.lbl_category_link = MyLabel(self.head_link_frame,self.data_manager,text = self.language_dict['app_links'], anchor = 'w', width=35)
         self.lbl_category_link.configure(font = Font_tuple)
         self.lbl_category_link.pack(side = "left", padx=15)
 
@@ -167,15 +167,20 @@ class SetupBody:
         self.lbl_start_up_link = MyLabel(self.link_frame,self.data_manager,text = self.language_dict['start_up_link'], anchor = 'w', width=25)
         self.lbl_start_up_link.grid(row=row_nbr, column=1, padx=5, pady=5)
 
+        self.lbl_status_start_up_link = MyLabel(self.link_frame, self.data_manager,width=3)
+        self.lbl_status_start_up_link.grid(row=row_nbr, column=2, padx=5, pady=5)
+
         self.btn_start_up_directory = MyButton(self.link_frame, self.data_manager,text=u'\U0001F4C1',width=3,command=self.show_start_up_directory)
-        self.btn_start_up_directory.grid(row=row_nbr, column=2, padx=5, pady=5)
-        self.btn_start_up_directory_ttp = CreateToolTip(self.btn_start_up_directory, self.data_manager, 0, 30, str(os.environ["APPDATA"] + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"))
+        self.btn_start_up_directory.grid(row=row_nbr, column=3, padx=5, pady=5)
+        self.btn_start_up_directory_ttp = CreateToolTip(self.btn_start_up_directory, self.data_manager, 0, 30, "")
 
         self.btn_set_start_up_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['add'],width=15,command=self.set_start_up_link)
-        self.btn_set_start_up_link.grid(row=row_nbr, column=3, padx=5, pady=5)
+        self.btn_set_start_up_link.grid(row=row_nbr, column=4, padx=5, pady=5)
 
         self.btn_remove_start_up_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['remove'],width=12,command=self.remove_start_up_link)
-        self.btn_remove_start_up_link.grid(row=row_nbr, column=4, padx=5, pady=5)
+        self.btn_remove_start_up_link.grid(row=row_nbr, column=5, padx=5, pady=5)
+
+        self.update_start_up_link_status()
 
         #########
 
@@ -187,16 +192,20 @@ class SetupBody:
         self.lbl_desktop_link = MyLabel(self.link_frame,self.data_manager,text = self.language_dict['desktop_link'], anchor = 'w', width=25)
         self.lbl_desktop_link.grid(row=row_nbr, column=1, padx=5, pady=5)
 
+        self.lbl_status_desktop_link = MyLabel(self.link_frame, self.data_manager,width=3)
+        self.lbl_status_desktop_link.grid(row=row_nbr, column=2, padx=5, pady=5)
+
         self.btn_desktop_directory = MyButton(self.link_frame, self.data_manager,text=u'\U0001F4C1',width=3,command=self.show_desktop_directory)
-        self.btn_desktop_directory.grid(row=row_nbr, column=2, padx=5, pady=5)
-        self.btn_desktop_directory_ttp = CreateToolTip(self.btn_desktop_directory, self.data_manager, 0, 30, str(os.path.join(os.environ["USERPROFILE"], "Desktop")))
+        self.btn_desktop_directory.grid(row=row_nbr, column=3, padx=5, pady=5)
+        self.btn_desktop_directory_ttp = CreateToolTip(self.btn_desktop_directory, self.data_manager, 0, 30, '')
 
         self.btn_set_desktop_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['add'],width=15,command=self.set_desktop_link)
-        self.btn_set_desktop_link.grid(row=row_nbr, column=3, padx=5, pady=5)
+        self.btn_set_desktop_link.grid(row=row_nbr, column=4, padx=5, pady=5)
 
         self.btn_remove_desktop_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['remove'],width=12,command=self.remove_desktop_link)
-        self.btn_remove_desktop_link.grid(row=row_nbr, column=4, padx=5, pady=5)
+        self.btn_remove_desktop_link.grid(row=row_nbr, column=5, padx=5, pady=5)
 
+        self.update_desktop_link_status()
 
         #########################
 
@@ -209,7 +218,7 @@ class SetupBody:
         self.head_folder_frame = MyFrame(self.main_frame,self.data_manager)
         self.head_folder_frame.pack(side = "top",fill='x')
 
-        self.lbl_category_folder = MyLabel(self.head_folder_frame,self.data_manager,text = self.language_dict['folder']+ ':', anchor = 'w', width=35)
+        self.lbl_category_folder = MyLabel(self.head_folder_frame,self.data_manager,text = self.language_dict['folder'], anchor = 'w', width=35)
         self.lbl_category_folder.configure(font = Font_tuple)
         self.lbl_category_folder.pack(side = "left", padx=15)
 
@@ -226,8 +235,12 @@ class SetupBody:
         self.lbl_easytarc_folder = MyLabel(self.folder_frame,self.data_manager,text = "EasyTARC", anchor = 'w', width=25)
         self.lbl_easytarc_folder.grid(row=row_nbr, column=1, padx=5, pady=5)
 
+        self.lbl_status_easytarc_folder = MyLabel(self.folder_frame, self.data_manager,width=3)
+        self.lbl_status_easytarc_folder.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.lbl_status_easytarc_folder.configure(text = u'\U00002713',foreground=self.style_dict["highlight_color_green"])
+
         self.btn_open_easytarc_folder = MyButton(self.folder_frame, self.data_manager,text=u'\U0001F4C1',width=3,command=self.show_easytarc_directory)
-        self.btn_open_easytarc_folder.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.btn_open_easytarc_folder.grid(row=row_nbr, column=3, padx=5, pady=5)
         self.btn_open_easytarc_folder_ttp = CreateToolTip(self.btn_open_easytarc_folder, self.data_manager, 0, 30, str(self.main_app.get_filepath()))
 
         #########
@@ -241,20 +254,21 @@ class SetupBody:
         self.lbl_back_up_folder = MyLabel(self.folder_frame,self.data_manager,text = self.language_dict['back_up_2'], anchor = 'w', width=25)
         self.lbl_back_up_folder.grid(row=row_nbr, column=1, padx=5, pady=5)
 
-        self.btn_open_back_up_folder = MyButton(self.folder_frame, self.data_manager,text=u'\U0001F4C1',width=3,command=self.show_second_back_up_directory)
-        self.btn_open_back_up_folder.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.lbl_status_back_up_folder = MyLabel(self.folder_frame, self.data_manager,width=3)
+        self.lbl_status_back_up_folder.grid(row=row_nbr, column=2, padx=5, pady=5)
 
-        if self.main_app.get_setting("sec_back_up_path") != '':
-            back_up_folder_path = self.main_app.get_setting("sec_back_up_path")
-        else:
-            back_up_folder_path = self.language_dict['no_folder']
-        self.btn_open_back_up_folder_ttp = CreateToolTip(self.btn_open_back_up_folder, self.data_manager, 0, 30, back_up_folder_path)
+        self.btn_open_back_up_folder = MyButton(self.folder_frame, self.data_manager,text=u'\U0001F4C1',width=3,command=self.show_second_back_up_directory)
+        self.btn_open_back_up_folder.grid(row=row_nbr, column=3, padx=5, pady=5)
+        self.btn_open_back_up_folder_ttp = CreateToolTip(self.btn_open_back_up_folder, self.data_manager, 0, 30, '')
 
         self.btn_choose_back_up_folder = MyButton(self.folder_frame, self.data_manager, text=self.language_dict['choose_folder'],width=15,command=self.choose_second_back_up_folder)
-        self.btn_choose_back_up_folder.grid(row=row_nbr, column=3, padx=5, pady=5)
+        self.btn_choose_back_up_folder.grid(row=row_nbr, column=4, padx=5, pady=5)
 
         self.btn_remove_back_up_folder = MyButton(self.folder_frame, self.data_manager, text=self.language_dict['remove'],width=12,command=self.remove_back_up_folder)
-        self.btn_remove_back_up_folder.grid(row=row_nbr, column=4, padx=5, pady=5)
+        self.btn_remove_back_up_folder.grid(row=row_nbr, column=5, padx=5, pady=5)
+
+        self.refresh_back_up_folder_path()
+        
 
         #########################
 
@@ -267,7 +281,7 @@ class SetupBody:
         self.head_websites_frame = MyFrame(self.main_frame,self.data_manager)
         self.head_websites_frame.pack(side = "top",fill='x')
 
-        self.lbl_category_websites = MyLabel(self.head_websites_frame,self.data_manager,text = self.language_dict['websites']+ ':', anchor = 'w', width=35)
+        self.lbl_category_websites = MyLabel(self.head_websites_frame,self.data_manager,text = self.language_dict['websites'], anchor = 'w', width=35)
         self.lbl_category_websites.configure(font = Font_tuple)
         self.lbl_category_websites.pack(side = "left", padx=15)
 
@@ -279,28 +293,67 @@ class SetupBody:
         row_nbr = 0
 
         self.lbl_web_link_1_info = MyLabel(self.websites_frame,self.data_manager,text = '', anchor = 'w', width=3)
-        self.lbl_web_link_1_info.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         self.lbl_web_link_1_name = MyLabel(self.websites_frame,self.data_manager,text = str(self.main_app.get_setting("web_link_1_name")), anchor = 'w', width=25)
-        self.lbl_web_link_1_name.grid(row=row_nbr, column=1, padx=5, pady=5)
-
+        
         self.btn_web_link_1 = MyButton(self.websites_frame, self.data_manager, text=self.language_dict['open_up'],width=12,command=lambda:self.open_url(self.main_app.get_setting("web_link_1_url")))
-        self.btn_web_link_1.grid(row=row_nbr, column=2, padx=5, pady=5)
+        
         self.btn_web_link_1_ttp = CreateToolTip(self.btn_web_link_1, self.data_manager, 0, 30, str(self.main_app.get_setting("web_link_1_url")))
+
+        if str(self.main_app.get_setting("web_link_1_url")) != '':
+            self.lbl_web_link_1_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+            self.lbl_web_link_1_name.grid(row=row_nbr, column=1, padx=5, pady=5)
+            self.btn_web_link_1.grid(row=row_nbr, column=2, padx=5, pady=5)
+            row_nbr = row_nbr + 1
+
 
         #########
 
-        row_nbr = 1
-
         self.lbl_web_link_2_info = MyLabel(self.websites_frame,self.data_manager,text = '', anchor = 'w', width=3)
-        self.lbl_web_link_2_info.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         self.lbl_web_link_2_name = MyLabel(self.websites_frame,self.data_manager,text = str(self.main_app.get_setting("web_link_2_name")), anchor = 'w', width=25)
-        self.lbl_web_link_2_name.grid(row=row_nbr, column=1, padx=5, pady=5)
 
         self.btn_web_link_2 = MyButton(self.websites_frame, self.data_manager, text=self.language_dict['open_up'],width=12,command=lambda:self.open_url(self.main_app.get_setting("web_link_2_url")))
-        self.btn_web_link_2.grid(row=row_nbr, column=2, padx=5, pady=5)
+
         self.btn_web_link_2_ttp = CreateToolTip(self.btn_web_link_2, self.data_manager, 0, 30, str(self.main_app.get_setting("web_link_2_url")))
+
+        if str(self.main_app.get_setting("web_link_2_url")) != '':
+            self.lbl_web_link_2_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+            self.lbl_web_link_2_name.grid(row=row_nbr, column=1, padx=5, pady=5)
+            self.btn_web_link_2.grid(row=row_nbr, column=2, padx=5, pady=5)
+            row_nbr = row_nbr + 1
+
+        #########
+
+        self.lbl_web_link_3_info = MyLabel(self.websites_frame,self.data_manager,text = '', anchor = 'w', width=3)
+
+        self.lbl_web_link_3_name = MyLabel(self.websites_frame,self.data_manager,text = str(self.main_app.get_setting("web_link_3_name")), anchor = 'w', width=25)
+
+        self.btn_web_link_3 = MyButton(self.websites_frame, self.data_manager, text=self.language_dict['open_up'],width=12,command=lambda:self.open_url(self.main_app.get_setting("web_link_3_url")))
+
+        self.btn_web_link_3_ttp = CreateToolTip(self.btn_web_link_3, self.data_manager, 0, 30, str(self.main_app.get_setting("web_link_3_url")))
+
+        if str(self.main_app.get_setting("web_link_3_url")) != '':
+            self.lbl_web_link_3_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+            self.lbl_web_link_3_name.grid(row=row_nbr, column=1, padx=5, pady=5)
+            self.btn_web_link_3.grid(row=row_nbr, column=2, padx=5, pady=5)
+            row_nbr = row_nbr + 1
+
+        #########
+
+        self.lbl_web_link_4_info = MyLabel(self.websites_frame,self.data_manager,text = '', anchor = 'w', width=3)
+
+        self.lbl_web_link_4_name = MyLabel(self.websites_frame,self.data_manager,text = str(self.main_app.get_setting("web_link_4_name")), anchor = 'w', width=25)
+
+        self.btn_web_link_4 = MyButton(self.websites_frame, self.data_manager, text=self.language_dict['open_up'],width=12,command=lambda:self.open_url(self.main_app.get_setting("web_link_4_url")))
+
+        self.btn_web_link_4_ttp = CreateToolTip(self.btn_web_link_4, self.data_manager, 0, 30, str(self.main_app.get_setting("web_link_4_url")))
+
+        if str(self.main_app.get_setting("web_link_4_url")) != '':
+            self.lbl_web_link_4_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+            self.lbl_web_link_4_name.grid(row=row_nbr, column=1, padx=5, pady=5)
+            self.btn_web_link_4.grid(row=row_nbr, column=2, padx=5, pady=5)
+
 
         #########################
 
@@ -313,7 +366,7 @@ class SetupBody:
         self.head_sleep_mode_frame = MyFrame(self.main_frame,self.data_manager)
         self.head_sleep_mode_frame.pack(side = "top",fill='x')
 
-        self.lbl_category_sleep_mode = MyLabel(self.head_sleep_mode_frame,self.data_manager,text = self.language_dict['sleep_mode']+ ':', anchor = 'w', width=35)
+        self.lbl_category_sleep_mode = MyLabel(self.head_sleep_mode_frame,self.data_manager,text = self.language_dict['sleep_mode'], anchor = 'w', width=35)
         self.lbl_category_sleep_mode.configure(font = Font_tuple)
         self.lbl_category_sleep_mode.pack(side = "left", padx=15)
 
@@ -395,7 +448,7 @@ class SetupBody:
         self.head_rate_frame = MyFrame(self.main_frame,self.data_manager)
         self.head_rate_frame.pack(side = "top",fill='x')
 
-        self.lbl_category_rate = MyLabel(self.head_rate_frame,self.data_manager,text = self.language_dict['rate']+ ':', anchor = 'w', width=35)
+        self.lbl_category_rate = MyLabel(self.head_rate_frame,self.data_manager,text = self.language_dict['rate'], anchor = 'w', width=35)
         self.lbl_category_rate.configure(font = Font_tuple)
         self.lbl_category_rate.pack(side = "left", padx=15)
 
@@ -406,8 +459,9 @@ class SetupBody:
 
         row_nbr = 0
 
-        self.lbl_rate_info = MyLabel(self.rate_frame,self.data_manager,text = '', anchor = 'w', width=3)
+        self.lbl_rate_info = MyLabel(self.rate_frame,self.data_manager,text = u'\U00002139', anchor = 'w', width=3)
         self.lbl_rate_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_rate_info_ttp = CreateToolTip(self.lbl_rate_info, self.data_manager, 0, 30, self.language_dict['rate_info'], True)
 
         self.lbl_rate = MyLabel(self.rate_frame,self.data_manager,text = self.language_dict['display'], anchor = 'w', width=25)
         self.lbl_rate.grid(row=row_nbr, column=1, padx=5, pady=5)
@@ -433,7 +487,7 @@ class SetupBody:
         self.head_workwindow_frame = MyFrame(self.main_frame,self.data_manager)
         self.head_workwindow_frame.pack(side = "top",fill='x')
 
-        self.lbl_category_workwindow = MyLabel(self.head_workwindow_frame,self.data_manager,text = self.language_dict['working_window']+ ':', anchor = 'w', width=35)
+        self.lbl_category_workwindow = MyLabel(self.head_workwindow_frame,self.data_manager,text = self.language_dict['working_window'], anchor = 'w', width=35)
         self.lbl_category_workwindow.configure(font = Font_tuple)
         self.lbl_category_workwindow.pack(side = "left", padx=15)
 
@@ -460,6 +514,45 @@ class SetupBody:
 
         self.btn_set_dynamic_opacity = MyButton(self.workwindow_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_dynamic_opacity(clicked_dynamic_opacity.get()))
         self.btn_set_dynamic_opacity.grid(row=row_nbr, column=3, padx=5, pady=5)
+
+        #########################
+
+        self.separator_frame_7 = MyFrame(self.main_frame,self.data_manager)
+        self.separator_frame_7.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_7.pack(side = "top",fill='x', pady=10)
+
+        #########################
+
+        self.head_database_frame = MyFrame(self.main_frame,self.data_manager)
+        self.head_database_frame.pack(side = "top",fill='x')
+
+        self.lbl_category_database = MyLabel(self.head_database_frame,self.data_manager,text = self.language_dict['database'], anchor = 'w', width=35)
+        self.lbl_category_database.configure(font = Font_tuple)
+        self.lbl_category_database.pack(side = "left", padx=15)
+
+        self.database_frame = MyFrame(self.main_frame,self.data_manager)
+        self.database_frame.pack(side = "top", fill = 'x')
+
+        #########
+
+        row_nbr = 0
+
+        self.lbl_simplify_data_info = MyLabel(self.database_frame,self.data_manager,text = u'\U00002139', anchor = 'w', width=3)
+        self.lbl_simplify_data_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_simplify_data_info_ttp = CreateToolTip(self.lbl_simplify_data_info, self.data_manager, 0, 30, self.language_dict['compression_of_data_info'], True)
+
+        self.lbl_simplify_data = MyLabel(self.database_frame,self.data_manager,text = self.language_dict['compression_of_data'], anchor = 'w', width=25)
+        self.lbl_simplify_data.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        clicked_simplify_data = tk.StringVar()
+        self.simplify_data_cbox = ttk.Combobox(self.database_frame, state="readonly", width = 30, textvariable = clicked_simplify_data, postcommand = self.update_simplify_data_cblist)
+        self.simplify_data_cbox.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.simplify_data_cbox.bind('<Button-1>', self.btn_simplify_data_cbox_reset)
+
+        self.update_simplify_data_cblist()
+
+        self.btn_set_simplify_data_cbox = MyButton(self.database_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_simplify_data_cbox(clicked_simplify_data.get()))
+        self.btn_set_simplify_data_cbox.grid(row=row_nbr, column=3, padx=5, pady=5)
 
 
         return
@@ -533,9 +626,37 @@ class SetupBody:
 
 ###############################
 
+    def get_start_up_link(self):
+        startup_folder = os.environ["APPDATA"] + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+        if os.path.exists(startup_folder) == True: 
+            return(startup_folder)
+        
+        startup_folder = self.main_app.get_setting("startup_folder")
+        if startup_folder != '': 
+            if os.path.exists(startup_folder) == True: 
+                return(startup_folder)
+            
+        return('')
+
+            
+    def choose_start_up_folder(self):
+        current_directory = filedialog.askdirectory(title="Choose Startup Folder")
+        self.main_app.change_settings("startup_folder",current_directory)
+        startup_folder = self.main_app.get_setting("startup_folder")
+        if startup_folder != '': 
+            if os.path.exists(startup_folder) == True: 
+                return(startup_folder)
+
     def set_start_up_link(self):
         file_path = os.path.join(self.main_app.get_filepath(), self.main_app.get_name() +'.exe')  
-        startup_folder = os.environ["APPDATA"] + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+
+        startup_folder = self.get_start_up_link()
+        if startup_folder == '':
+            self.choose_start_up_folder()
+            startup_folder = self.get_start_up_link()
+        if startup_folder == '':
+            return
+        
         shortcut_name = self.main_app.get_name() +'_Link'
         shortcut_path = os.path.join(startup_folder, shortcut_name)
         if not os.path.exists(shortcut_path): 
@@ -543,21 +664,24 @@ class SetupBody:
                 if os.path.exists(file_path):
                     script_path = file_path
                     shortcut_name = shortcut_name
-                    shortcut_desc = "A Python script"
+                    shortcut_desc = "EasyTARC - Link"
                     icon_path = os.path.join( self.main_app.get_filepath(), 'Logo.ico')  
                     folder_path = startup_folder
                     make_shortcut(script_path, name=shortcut_name, description=shortcut_desc, icon=icon_path, folder=folder_path, working_dir=self.main_app.get_filepath())
             except:
                 app_folder = self.main_app.get_filepath()
-                startup_folder = os.environ["APPDATA"] + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
                 text = self.language_dict['set_start_up_link_manual']
                 info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,400,300)
                 os.startfile(app_folder)
                 os.startfile(startup_folder)
+        self.update_start_up_link_status()
         return
     
     def remove_start_up_link(self):
-        startup_folder = os.environ["APPDATA"] + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+        startup_folder = self.get_start_up_link()
+        if startup_folder == '':
+            return
+        
         shortcut_name = self.main_app.get_name() +'_Link.lnk'
         shortcut_path = os.path.join(startup_folder, shortcut_name)
         if os.path.exists(shortcut_path) == True: 
@@ -567,14 +691,70 @@ class SetupBody:
             info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,300,200)
             os.startfile(startup_folder)
 
+        self.main_app.change_settings("startup_folder","")
+        self.update_start_up_link_status()
+
     def show_start_up_directory(self):
-        os.startfile(os.environ["APPDATA"] + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup")
+        startup_folder = self.get_start_up_link()
+        if startup_folder == '':
+            return
+        
+        os.startfile(startup_folder)
         self.gui.root.iconify()
         return
     
+    def update_start_up_link_status(self):
+        startup_folder = self.get_start_up_link()
+        if startup_folder == '':
+            self.lbl_status_start_up_link.configure(text = '?',foreground=self.style_dict["caution_color_red"])
+            self.btn_start_up_directory_ttp.text = self.language_dict['no_folder']
+            return
+
+        shortcut_name = self.main_app.get_name() +'_Link.lnk'
+        shortcut_path = os.path.join(startup_folder, shortcut_name)
+        if os.path.exists(shortcut_path) == True: 
+            self.lbl_status_start_up_link.configure(text = u'\U00002713',foreground=self.style_dict["highlight_color_green"])
+        else:
+            self.lbl_status_start_up_link.configure(text = u'\U0001F5D9',foreground=self.style_dict["caution_color_red"])
+        self.btn_start_up_directory_ttp.text = str(startup_folder)
+        return
+    
+    #######################
+    
+    def get_desktop_link(self):
+        desktop_folder = os.path.join(os.environ["USERPROFILE"], "Desktop") 
+        if os.path.exists(desktop_folder) == True: 
+            return(desktop_folder)
+        
+        desktop_folder = os.path.join(os.environ["USERPROFILE"], "\\OneDrive\\Desktop") 
+        if os.path.exists(desktop_folder) == True: 
+            return(desktop_folder)
+        
+        desktop_folder = self.main_app.get_setting("desktop_folder")
+        if desktop_folder != '': 
+            if os.path.exists(desktop_folder) == True: 
+                return(desktop_folder)
+            
+        return('')
+    
+    def choose_desktop_folder(self):
+        current_directory = filedialog.askdirectory(title="Choose Desktop Folder")
+        self.main_app.change_settings("desktop_folder",current_directory)
+        desktop_folder = self.main_app.get_setting("desktop_folder")
+        if desktop_folder != '': 
+            if os.path.exists(desktop_folder) == True: 
+                return(desktop_folder)
+    
     def set_desktop_link(self):
         file_path = os.path.join(self.main_app.get_filepath(), self.main_app.get_name() +'.exe')  
-        desktop_folder = os.path.join(os.environ["USERPROFILE"], "Desktop") 
+
+        desktop_folder = self.get_desktop_link()
+        if desktop_folder == '':
+            self.choose_desktop_folder()
+            desktop_folder = self.get_desktop_link()
+        if desktop_folder == '':
+            return
+
         shortcut_name = self.main_app.get_name() +'_Link'
         shortcut_path = os.path.join(desktop_folder, shortcut_name)
         if not os.path.exists(shortcut_path): 
@@ -582,21 +762,23 @@ class SetupBody:
                 if os.path.exists(file_path):
                     script_path = file_path
                     shortcut_name = shortcut_name
-                    shortcut_desc = "A Python script"
+                    shortcut_desc = "EasyTARC - Link"
                     icon_path = os.path.join( self.main_app.get_filepath(), 'Logo.ico')  
                     folder_path = desktop_folder
                     make_shortcut(script_path, name=shortcut_name, description=shortcut_desc, icon=icon_path, folder=folder_path, working_dir=self.main_app.get_filepath())
             except:
                 app_folder = self.main_app.get_filepath()
-                desktop_folder = os.path.join(os.environ["USERPROFILE"], "Desktop")
                 text = self.language_dict['set_desktop_link_manual']
                 info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,400,300)
                 os.startfile(app_folder)
                 os.startfile(desktop_folder)
+        self.update_desktop_link_status()
         return
     
     def remove_desktop_link(self):
-        desktop_folder = os.path.join(os.environ["USERPROFILE"], "Desktop") 
+        desktop_folder = self.get_desktop_link()
+        if desktop_folder == '':
+            return
         shortcut_name = self.main_app.get_name() +'_Link.lnk'
         shortcut_path = os.path.join(desktop_folder, shortcut_name)
         if os.path.exists(shortcut_path) == True: 
@@ -606,9 +788,31 @@ class SetupBody:
             info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,300,200)
             os.startfile(desktop_folder)
 
+        self.main_app.change_settings("desktop_folder","")
+        self.update_desktop_link_status()
+        return
+
     def show_desktop_directory(self):
-        os.startfile(os.path.join(os.environ["USERPROFILE"], "Desktop") )
+        desktop_folder = self.get_desktop_link()
+        if desktop_folder == '':
+            return
+        os.startfile(desktop_folder)
         self.gui.root.iconify()
+        return
+    
+    def update_desktop_link_status(self):
+        desktop_folder = self.get_desktop_link()
+        if desktop_folder == '':
+            self.lbl_status_desktop_link.configure(text = '?',foreground=self.style_dict["caution_color_red"])
+            self.btn_desktop_directory_ttp.text = self.language_dict['no_folder']
+            return
+        shortcut_name = self.main_app.get_name() +'_Link.lnk'
+        shortcut_path = os.path.join(desktop_folder, shortcut_name)
+        if os.path.exists(shortcut_path) == True: 
+            self.lbl_status_desktop_link.configure(text = u'\U00002713',foreground=self.style_dict["highlight_color_green"])
+        else:
+            self.lbl_status_desktop_link.configure(text = u'\U0001F5D9',foreground=self.style_dict["caution_color_red"])
+        self.btn_desktop_directory_ttp.text = str(desktop_folder)
         return
     
 ###############################
@@ -640,8 +844,10 @@ class SetupBody:
     def refresh_back_up_folder_path(self):
         if self.main_app.get_setting("sec_back_up_path") != '':
             back_up_folder_path = self.main_app.get_setting("sec_back_up_path")
+            self.lbl_status_back_up_folder.configure(text = u'\U00002713',foreground=self.style_dict["highlight_color_green"])
         else:
             back_up_folder_path = self.language_dict['no_folder']
+            self.lbl_status_back_up_folder.configure(text = u'\U0001F5D9',foreground=self.style_dict["caution_color_red"])
         self.btn_open_back_up_folder_ttp.text = back_up_folder_path
     
 ###############################
@@ -750,6 +956,36 @@ class SetupBody:
         self.main_app.change_settings('dynamic_opacity',str(float(locale.atof(dynamic_opacity, decimal.Decimal))))
         self.btn_set_dynamic_opacity.configure(text=u'\U00002713') 
 
+###############################
+
+    def update_simplify_data_cblist(self):
+        if self.main_app.get_restricted_data_access() == True:
+            self.simplify_data_cbox.configure(state=tk.DISABLED)
+        else:
+            self.simplify_data_cbox.configure(state=tk.NORMAL)
+
+        if self.main_app.get_restricted_data_access() == True:
+            simplify_data = 'on'
+            self.main_app.change_settings('simplify_after_two_month','on')
+        else:
+            simplify_data = self.main_app.get_setting("simplify_after_two_month")
+
+
+        self.simplify_data_cbox['values'] = [self.language_dict['on'],self.language_dict['off']]
+        if self.language_dict[simplify_data] == self.language_dict['on']:
+            self.simplify_data_cbox.current(0)
+        else:
+            self.simplify_data_cbox.current(1)
+
+    def btn_simplify_data_cbox_reset(self,event):
+        if self.main_app.get_restricted_data_access() != True:
+            self.btn_set_simplify_data_cbox.configure(text=self.language_dict['apply']) 
+        return
+    
+    def set_simplify_data_cbox(self,simplify_data):
+        if self.main_app.get_restricted_data_access() != True:
+            self.main_app.change_settings('simplify_after_two_month',self.language_dict[simplify_data])
+            self.btn_set_simplify_data_cbox.configure(text=u'\U00002713') 
 
 ###############################
 
@@ -762,6 +998,7 @@ class SetupBody:
         self.updt_sleep_mode_interaction_cblist()
         self.updt_rate_cblist()
         self.updt_dynamic_opacity_cblist()
+        self.update_simplify_data_cblist()
 
     def refresh(self):
         # configure style and language of main frame
@@ -798,6 +1035,8 @@ class SetupBody:
         self.btn_remove_desktop_link.refresh_style()
         self.btn_desktop_directory.refresh_style()
         self.btn_start_up_directory.refresh_style()
+        self.lbl_status_desktop_link.refresh_style()
+        self.lbl_status_start_up_link.refresh_style()
 
         self.btn_desktop_directory_ttp.refresh()
         self.btn_start_up_directory_ttp.refresh()
@@ -815,11 +1054,12 @@ class SetupBody:
         self.btn_choose_back_up_folder.refresh_style()
         self.btn_remove_back_up_folder.refresh_style()
         self.btn_open_back_up_folder.refresh_style()
+        self.lbl_status_back_up_folder.refresh_style()
+        self.lbl_status_easytarc_folder.refresh_style()
 
         self.btn_open_easytarc_folder_ttp.refresh()
         self.btn_open_back_up_folder_ttp.refresh()
         self.lbl_back_up_folder_info_ttp.refresh()
-        self.refresh_back_up_folder_path()
 
         self.separator_frame_3.refresh_style()
 
@@ -832,9 +1072,17 @@ class SetupBody:
         self.lbl_web_link_2_info.refresh_style()
         self.lbl_web_link_2_name.refresh_style()
         self.btn_web_link_2.refresh_style()
+        self.lbl_web_link_3_info.refresh_style()
+        self.lbl_web_link_3_name.refresh_style()
+        self.btn_web_link_3.refresh_style()
+        self.lbl_web_link_4_info.refresh_style()
+        self.lbl_web_link_4_name.refresh_style()
+        self.btn_web_link_4.refresh_style()
 
         self.btn_web_link_1_ttp.refresh()
         self.btn_web_link_2_ttp.refresh()
+        self.btn_web_link_3_ttp.refresh()
+        self.btn_web_link_4_ttp.refresh()
 
         self.separator_frame_4.refresh_style()
 
@@ -864,6 +1112,8 @@ class SetupBody:
         self.lbl_rate.refresh_style()
         self.btn_set_rate.refresh_style()
 
+        self.lbl_rate_info_ttp.refresh()
+
         self.separator_frame_6.refresh_style()
 
         self.head_workwindow_frame.refresh_style()
@@ -875,12 +1125,23 @@ class SetupBody:
 
         self.lbl_dynamic_opacity_info_ttp.refresh()
 
+        self.separator_frame_7.refresh_style()
+
+        self.head_database_frame.refresh_style()
+        self.lbl_category_database.refresh_style()
+        self.database_frame.refresh_style()
+        self.lbl_simplify_data_info.refresh_style()
+        self.lbl_simplify_data.refresh_style()
+        self.btn_set_simplify_data_cbox.refresh_style()
+        
+        self.lbl_simplify_data_info_ttp.refresh()
+
         font_family = self.main_app.get_setting('font_family')
         font_size = self.main_app.get_setting('font_size')
         Font_tuple = (font_family, font_size, "bold")
 
         self.lbl_category_appearance.configure(font = Font_tuple)
-        self.lbl_category_appearance.configure(text = self.language_dict['appearance']+ ':')
+        self.lbl_category_appearance.configure(text = self.language_dict['appearance'])
         self.lbl_style.configure(text = '   ' + self.language_dict['style'])
         self.btn_set_style.configure(text=self.language_dict['apply'])
         self.lbl_language.configure(text = '   ' + self.language_dict['language'])
@@ -891,7 +1152,7 @@ class SetupBody:
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
 
         self.lbl_category_link.configure(font = Font_tuple)
-        self.lbl_category_link.configure(text = self.language_dict['app_links']+ ':')
+        self.lbl_category_link.configure(text = self.language_dict['app_links'])
         self.lbl_start_up_link.configure(text = '   ' + self.language_dict['start_up_link'])
         self.btn_set_start_up_link.configure(text=self.language_dict['add'])
         self.lbl_desktop_link.configure(text = '   ' + self.language_dict['desktop_link'])
@@ -902,24 +1163,27 @@ class SetupBody:
         self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
 
         self.lbl_category_folder.configure(font = Font_tuple)
-        self.lbl_category_folder.configure(text=self.language_dict['folder']+':')
+        self.lbl_category_folder.configure(text=self.language_dict['folder'])
         self.lbl_back_up_folder.configure(text=self.language_dict['back_up_2'])
         self.btn_remove_back_up_folder.configure(text=self.language_dict['remove'])
         self.btn_choose_back_up_folder.configure(text=self.language_dict['choose_folder'])
+        self.lbl_status_easytarc_folder.configure(text = u'\U00002713',foreground=self.style_dict["highlight_color_green"])
 
         self.lbl_back_up_folder_info_ttp.text = self.language_dict['back_up_folder_info']
 
         self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
 
         self.lbl_category_websites.configure(font = Font_tuple)
-        self.lbl_category_websites.configure(text=self.language_dict['websites']+':')
+        self.lbl_category_websites.configure(text=self.language_dict['websites'])
         self.btn_web_link_1.configure(text=self.language_dict['open_up'])
         self.btn_web_link_2.configure(text=self.language_dict['open_up'])
+        self.btn_web_link_3.configure(text=self.language_dict['open_up'])
+        self.btn_web_link_4.configure(text=self.language_dict['open_up'])
 
         self.separator_frame_4.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
 
         self.lbl_category_sleep_mode.configure(font = Font_tuple)
-        self.lbl_category_sleep_mode.configure(text=self.language_dict['sleep_mode']+':')
+        self.lbl_category_sleep_mode.configure(text=self.language_dict['sleep_mode'])
         self.lbl_sleep_mode.configure(text=self.language_dict['status'])
         self.btn_set_sleep_mode.configure(text=self.language_dict['apply'])
         self.lbl_sleep_mode_period.configure(text=self.language_dict['recording_period']+ ' [' + self.language_dict['hours_abbreviation'] + ']')
@@ -934,18 +1198,33 @@ class SetupBody:
         self.separator_frame_5.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
 
         self.lbl_category_rate.configure(font = Font_tuple)
-        self.lbl_category_rate.configure(text=self.language_dict['rate']+':')
+        self.lbl_category_rate.configure(text=self.language_dict['rate'])
         self.lbl_rate.configure(text=self.language_dict['display'])
         self.btn_set_rate.configure(text=self.language_dict['apply'])
+
+        self.lbl_rate_info_ttp.text = self.language_dict['rate_info']
 
         self.separator_frame_6.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
 
         self.lbl_category_workwindow.configure(font = Font_tuple)
-        self.lbl_category_workwindow.configure(text=self.language_dict['working_window']+':')
+        self.lbl_category_workwindow.configure(text=self.language_dict['working_window'])
         self.lbl_dynamic_opacity.configure(text=self.language_dict['dynamic_opacity']+ ' [%]')
         self.btn_set_dynamic_opacity.configure(text=self.language_dict['apply'])
 
         self.lbl_dynamic_opacity_info_ttp.text = self.language_dict['dynamic_opacity_info']
+
+        self.separator_frame_7.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+
+        self.lbl_category_database.configure(font = Font_tuple)
+        self.lbl_category_database.configure(text=self.language_dict['database'])
+        self.lbl_simplify_data.configure(text=self.language_dict['compression_of_data'])
+
+        self.lbl_simplify_data_info_ttp.text = self.language_dict['compression_of_data_info']
+
+        
+        self.refresh_back_up_folder_path()
+        self.update_start_up_link_status()
+        self.update_desktop_link_status()
 
         self.reload_settings()
         return

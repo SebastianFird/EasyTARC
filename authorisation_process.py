@@ -21,7 +21,8 @@ import hashlib
 
 class Authorisation():
 
-    def __init__(self):
+    def __init__(self,algorithm):
+        self.algorithm = algorithm
         self.request_hash_complement= 'hash_complement_A'
         self.permission_hash_complement = 'hash_complement_B'
         self.user_db_hash_complement = 'hash_complement_X'
@@ -38,7 +39,7 @@ class Authorisation():
     def create_hash(self,str_1, str_2):
         hash_str = str_1 + str_2
         hash_b = hash_str.encode('utf-8')
-        h = hashlib.new('whirlpool')
+        h = hashlib.new(self.algorithm)
         h.update(hash_b)
         return(h.hexdigest())
     

@@ -21,8 +21,8 @@ import tkinter.font as tkfont
 from PIL import ImageTk, Image
 import datetime
 
-from gui.Window_Additionals import CreateToolTip
-from gui.Window_Additionals import Endofworkinfo
+from gui.Window_Additionals import CreateToolTip,CreateInfo
+from gui.Window_Additionals import Endofworkinfo, InfoWindow
 
 from style_classes import MyLabelPixel
 from style_classes import MyFrame
@@ -93,7 +93,6 @@ class CaptureHead:
 
         self.btn_end_of_work = MyButton(self.main_head_frame, self.data_manager, text=u'\U0001F4BE' + '   ' + self.language_dict['close_recording'],width=25,command=self.end_of_work)
         self.btn_end_of_work.pack(side='right',padx = 10,pady=10)
-        self.btn_end_of_work_ttp = CreateToolTip(self.btn_end_of_work, self.data_manager, 50, 30, '')
 
         self.lbl_empty0 = MyLabel(self.main_head_frame, self.data_manager, width=1)
         self.lbl_empty0.configure(background=self.style_dict["header_color_blue"])
@@ -119,7 +118,11 @@ class CaptureHead:
     
 
     def add_new_main_account(self):
-        self.case_frame_manager.add_new_account('new_main')
+        if self.main_app.get_action_state() == "normal":
+            self.case_frame_manager.add_new_account('new_main')
+        else:
+            text = self.language_dict["locked_function"]
+            info_window = InfoWindow(self.main_app, self.gui, self.capture_tab.main_frame ,text,350,200)
         return
 
     def pause_enter(self,e):
@@ -156,19 +159,16 @@ class CaptureHead:
 
         if self.main_app.get_action_state() == "disabled" or self.main_app.get_action_state() == "arrange_clocks":
             self.btn_end_of_work.configure(state=tk.DISABLED)
-            self.btn_end_of_work_ttp.text = ''
             self.btn_add_clock.configure(state=tk.DISABLED)
         elif self.main_app.get_action_state() == "endofwork":
             self.btn_end_of_work.configure(text=self.language_dict['start_new_recording'])
             self.btn_end_of_work.configure(command=self.start_new_recording)
             self.btn_end_of_work.configure(state=tk.NORMAL)
-            self.btn_end_of_work_ttp.text = ""
             self.btn_add_clock.configure(state=tk.NORMAL)
         else:
             self.btn_end_of_work.configure(state=tk.NORMAL)
             self.btn_end_of_work.configure(text=u'\U0001F4BE' + '   ' + self.language_dict['close_recording'])
             self.btn_end_of_work.configure(command=self.end_of_work)
-            self.btn_end_of_work_ttp.text = ''
             self.btn_add_clock.configure(state=tk.NORMAL)
 
     def end_of_work(self):
@@ -186,6 +186,7 @@ class CaptureHead:
         self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.update_clock_properties()
         load_clocks = False
         self.capture_tab.body.start_recording(load_clocks)
+        self.capture_tab.body.update()
 
     def info_end_of_work(self,response):
         if self.main_app.get_action_state() == 'disabled':
@@ -194,9 +195,22 @@ class CaptureHead:
         work_clock = self.data_manager.get_work_clock()
         pause_clock = self.data_manager.get_pause_clock()
 
-        info_dict = {self.language_dict["session_data"]:"#"}
+        info_dict = {self.language_dict["database"]:"#"}
 
+        if response == "failed":
+            info_dict.update({self.language_dict["saving_process"]:u'\U0001F5D9' + ' ' + self.language_dict["failed"]})
+        else:
+            info_dict.update({self.language_dict["saving_process"]:u'\U00002713'})
 
+        if response == "second_back_up_done":
+            info_dict.update({self.language_dict["back_up_2"]:u'\U00002713'})
+        elif response == "no_back_up_folder":
+            info_dict.update({self.language_dict["back_up_2"]:u'\U0001F5D9' + ' ' + self.language_dict["no_folder"]})
+        elif response == "second_back_up_failed" or  response == "failed":
+            info_dict.update({self.language_dict["back_up_2"]:u'\U0001F5D9' + ' ' + self.language_dict["failed"]})
+
+        info_dict.update({self.language_dict["session_data"]:'#'})
+        
         system_start_time = self.main_app.get_system_start_time()
         
         if system_start_time != None:
@@ -219,8 +233,9 @@ class CaptureHead:
         else:
             recording_period = datetime.datetime.now() - self.data_manager.get_start_timestamp()
 
-        last_tracked_interaction_list_list = self.data_manager.get_last_tracked_interaction_list_list()
+        info_dict.update({self.language_dict["data"]:self.language_dict["save_info"]})
 
+        last_tracked_interaction_list_list = self.data_manager.get_last_tracked_interaction_list_list()
         if last_tracked_interaction_list_list != []:
             info_dict.update({self.language_dict["restored_times"]:'#'})
             for last_tracked_interaction_list in last_tracked_interaction_list_list:
@@ -256,25 +271,19 @@ class CaptureHead:
                     bookingrate = 0
                 info_dict.update({self.language_dict["rate"]:str(round(bookingrate)) + ' %   '})
 
-        info_dict.update({self.language_dict["database"]:'#'})
-
-        info_dict.update({self.language_dict["data"]:self.language_dict["save_info"]})
-
-        if response == "second_back_up_done":
-            info_dict.update({self.language_dict["back_up_2"]:u'\U00002713'})
-        elif response == "no_back_up_folder":
-            info_dict.update({self.language_dict["back_up_2"]:self.language_dict["no_folder"]})
-        else:
-            info_dict.update({self.language_dict["back_up_2"]:self.language_dict["failed"]})
-
+        reminder_notes_list = self.gui.main_window.reminder_frame.get_reminder_notes_list()
+        if reminder_notes_list != []:
+            info_dict.update({self.language_dict["notifications"]:'#'})
+            counter = 1
+            for reminder_note in reminder_notes_list:
+                info_dict.update({str(counter):reminder_note})
+                counter = counter + 1
 
         info_window = Endofworkinfo(self.main_app, self.gui ,self.gui.main_window,info_dict,500,300)
         return
     
 
     def refresh_main_head(self):
-        self.btn_end_of_work_ttp.refresh()
-
         self.btn_add_clock.refresh_style()
         self.btn_end_of_work.refresh_style()
         self.lbl_activate_pause.refresh_style()
@@ -311,49 +320,55 @@ class CaptureHead:
 
         ################
 
-        self.correction_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.correction_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.correction_frame.pack(side = "right")
+        self.switch_time_frame = MyFrame(self.table_head_frame,self.data_manager)
+        self.switch_time_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.switch_time_frame.pack(side = "right")
 
-        self.correction_invisible_frame = MyFrame(self.correction_frame,self.data_manager)
-        self.correction_invisible_frame.configure(height=0)
-        self.correction_invisible_frame.pack(side = "top")
+        self.switch_time_invisible_frame = MyFrame(self.switch_time_frame,self.data_manager)
+        self.switch_time_invisible_frame.configure(height=0)
+        self.switch_time_invisible_frame.pack(side = "top")
 
-        self.lbl_empty1 = MyLabelPixel(self.correction_invisible_frame,self.data_manager, anchor='w')
-        self.lbl_empty1.set_photo_width(10)
-        self.lbl_empty1.pack(side = "right")
+        self.lbl_empty7 = MyLabelPixel(self.switch_time_invisible_frame,self.data_manager, anchor='w')
+        self.lbl_empty7.set_photo_width(1)
+        self.lbl_empty7.pack(side = "right")
 
-        self.lbl_btn_minus = MyLabelPixel(self.correction_invisible_frame,self.data_manager, anchor='w')
-        self.lbl_btn_minus.set_photo_width(20)
-        self.lbl_btn_minus.pack(side = "right",padx=3)
+        self.switch_time_visible_frame = MyFrame(self.switch_time_frame,self.data_manager)
+        self.switch_time_visible_frame.pack(side = "top")
 
-        self.lbl_btn_minus_minus = MyLabelPixel(self.correction_invisible_frame,self.data_manager, anchor='w')
-        self.lbl_btn_minus_minus.set_photo_width(35)
-        self.lbl_btn_minus_minus.pack(side = "right",padx=3)
+        self.lbl_progress = MyLabel(self.switch_time_visible_frame, self.data_manager, text =  u'\U000023F3' ,width=5) #u'\U0001F4C6' + ' '
+        self.lbl_progress.configure(foreground=self.style_dict["highlight_color_grey"])
+        self.lbl_progress.pack(side='right',padx = 3)
+        self.progress_info_ttp = CreateInfo(self.lbl_progress, self.data_manager, -410, 25,'',False,1000)
+        self.progress_info_ttp.text = self.language_dict['progress_info']
+        
+        self.lbl_progress.bind("<Button-1>", self.activate_btn_progress)
+        self.lbl_progress.bind("<Enter>", self.btn_progress_enter)
+        self.lbl_progress.bind("<Leave>", self.btn_progress_leave)
 
-        self.lbl_btn_plus_plus = MyLabelPixel(self.correction_invisible_frame,self.data_manager, anchor='w')
-        self.lbl_btn_plus_plus.set_photo_width(35)
-        self.lbl_btn_plus_plus.pack(side = "right",padx=3)
+        self.lbl_single_times = MyLabel(self.switch_time_visible_frame, self.data_manager, text = '+/- ',width=5)
+        self.lbl_single_times.configure(foreground=self.style_dict["highlight_color_grey"])
+        self.lbl_single_times.pack(side='right',padx = 3)
+        self.single_times_info_ttp = CreateInfo(self.lbl_single_times, self.data_manager, -470, 25,'',False,1000)
+        self.single_times_info_ttp.text = self.language_dict['single_times_info']
+        
+        self.lbl_single_times.bind("<Button-1>", self.activate_btn_single_times)
+        self.lbl_single_times.bind("<Enter>", self.btn_single_times_enter)
+        self.lbl_single_times.bind("<Leave>", self.btn_single_times_leave)
 
-        self.lbl_btn_plus = MyLabelPixel(self.correction_invisible_frame,self.data_manager, anchor='w')
-        self.lbl_btn_plus.set_photo_width(20)
-        self.lbl_btn_plus.pack(side = "right",padx=3)
-
-        self.lbl_empty2 = MyLabelPixel(self.correction_invisible_frame,self.data_manager, anchor='w')
-        self.lbl_empty2.set_photo_width(10)
-        self.lbl_empty2.pack(side = "right")
-
-        self.correction_visible_frame = MyFrame(self.correction_frame,self.data_manager)
-        self.correction_visible_frame.pack(side = "top",fill='y')
-
-        self.lbl_correction = MyLabel(self.correction_visible_frame, self.data_manager, text=self.language_dict['correction'])
-        self.lbl_correction.pack(side='top')
+        self.lbl_full_time = MyLabel(self.switch_time_visible_frame, self.data_manager, text = u'\U0001F570',width=5)
+        self.lbl_full_time.configure(foreground=self.style_dict["highlight_color_grey"])
+        self.lbl_full_time.pack(side='right',padx = 3)
+        self.full_time_info_ttp = CreateInfo(self.lbl_full_time, self.data_manager, -390, 25,'',False,1000)
+        self.full_time_info_ttp.text = self.language_dict['total_time_info']
+        
+        self.lbl_full_time.bind("<Button-1>", self.activate_btn_full_time)
+        self.lbl_full_time.bind("<Enter>", self.btn_full_time_enter)
+        self.lbl_full_time.bind("<Leave>", self.btn_full_time_leave)
 
         ################
 
         self.passed_time_frame = MyFrame(self.table_head_frame,self.data_manager)
         self.passed_time_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.passed_time_frame.pack(side = "right")
 
         self.passed_time_invisible_frame = MyFrame(self.passed_time_frame,self.data_manager)
         self.passed_time_invisible_frame.configure(height=0)
@@ -365,40 +380,28 @@ class CaptureHead:
 
         self.passed_time_visible_frame = MyFrame(self.passed_time_frame,self.data_manager)
         self.passed_time_visible_frame.pack(side = "top",fill='y')
-        self.on_switch_time = False
-        self.passed_time_visible_frame.bind("<Enter>", self.btn_switch_time_enter)
-        self.passed_time_visible_frame.bind("<Leave>", self.btn_switch_time_leave)
 
-        if self.capture_tab.get_time_column() ==  'full_time':
-            time_column = self.language_dict['total_time']
-            lbl_switch = u'\U0001F570'
-            time_col_info = self.language_dict['total_time_info']
-        elif self.capture_tab.get_time_column() ==  'single_times':
-            time_column = self.language_dict['single_times']
-            lbl_switch = '+/- ' # U000000B1 #U00023F3
-            time_col_info = self.language_dict['single_times_info']
-        else:
-            time_column = self.language_dict['progress']
-            lbl_switch = u'\U000023F3' + ' ' + u'\U0001F4C6' + ' '
-            time_col_info = self.language_dict['progress_info']
-
-
-
-        self.lbl_switch_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=lbl_switch,width=5)
-        self.lbl_switch_time.configure(foreground=self.style_dict["highlight_color_grey"])
-        self.lbl_switch_time.bind("<Button-1>", self.activate_btn_switch_time)
-        self.lbl_switch_time.pack(side='right',padx = 3)
-
-        self.lbl_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=time_column,width=23)
-        self.lbl_time.bind("<Button-1>", self.activate_btn_switch_time)
+        self.lbl_time = MyLabel(self.passed_time_visible_frame, self.data_manager,width=23)
         self.lbl_time.pack(side='right',padx = 3)
 
-        self.lbl_time_col_info = MyLabel(self.passed_time_visible_frame, self.data_manager, text= u'\U00002139', width=3)
-        self.lbl_time_col_info.bind("<Button-1>", self.activate_btn_switch_time)
-        self.lbl_time_col_info.pack(side='right',padx = 3)
+        ################
 
-        self.lbl_time_col_info_ttp = CreateToolTip(self.lbl_time_col_info, self.data_manager, 30, 25,'', True)
-        self.lbl_time_col_info_ttp.text = time_col_info
+        self.response_text_frame = MyFrame(self.table_head_frame,self.data_manager)
+        self.response_text_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+
+        self.response_text_invisible_frame = MyFrame(self.response_text_frame,self.data_manager)
+        self.response_text_invisible_frame.configure(height=0)
+        self.response_text_invisible_frame.pack(side = "top")
+
+        self.lbl_empty6 = MyLabelPixel(self.response_text_invisible_frame,self.data_manager, anchor='w')
+        self.lbl_empty6.set_photo_width(1)
+        self.lbl_empty6.pack(side = "right")
+
+        self.response_text_visible_frame = MyFrame(self.response_text_frame,self.data_manager)
+        self.response_text_visible_frame.pack(side = "top")
+
+        self.lbl_response_text = MyLabel(self.response_text_visible_frame, self.data_manager,width=50, text=self.language_dict['response_text'])
+        self.lbl_response_text.pack(side='right',padx = 10)
 
         ################
 
@@ -423,83 +426,148 @@ class CaptureHead:
         self.update_table_head()     
         return   
     
-    def btn_switch_time_enter(self,e):
-        self.on_switch_time = True
-        self.lbl_switch_time.configure(foreground=self.style_dict["font_color"])
-        self.update_table_head()
+    ###########################################################
+    
+    def btn_full_time_enter(self,e=None):
+        self.lbl_full_time.configure(foreground=self.style_dict["font_color"])
+        self.full_time_info_ttp.scheduleinfo()
 
-    def btn_switch_time_leave(self,e):
-        self.on_switch_time = False
-        self.lbl_switch_time.configure(foreground=self.style_dict["highlight_color_grey"])
-        self.update_table_head()
+    def btn_full_time_leave(self,e=None):
+        if self.capture_tab.get_time_column() !=  'full_time':
+            self.lbl_full_time.configure(foreground=self.style_dict["highlight_color_grey"])
+        self.full_time_info_ttp.hideinfo()
 
-    def activate_btn_switch_time(self,e):
-        if self.main_app.get_action_state() == "normal":
-            self.capture_tab.change_time_column()
+    def activate_btn_full_time(self,e):
+        if self.main_app.get_action_state() != "disabled":
+            self.capture_tab.change_time_column('full_time')
             self.update_table_head()
 
+    #########
+
+    def btn_single_times_enter(self,e=None):
+        self.lbl_single_times.configure(foreground=self.style_dict["font_color"])
+        self.single_times_info_ttp.scheduleinfo()
+
+    def btn_single_times_leave(self,e=None):
+        if self.capture_tab.get_time_column() !=  'single_times':
+            self.lbl_single_times.configure(foreground=self.style_dict["highlight_color_grey"])
+        self.single_times_info_ttp.hideinfo()
+
+    def activate_btn_single_times(self,e):
+        if self.main_app.get_action_state() != "disabled":
+            self.capture_tab.change_time_column('single_times')
+            self.update_table_head()
+
+    #########
+
+    def btn_progress_enter(self,e=None):
+        self.lbl_progress.configure(foreground=self.style_dict["font_color"])
+        self.progress_info_ttp.scheduleinfo()
+
+    def btn_progress_leave(self,e=None):
+        if self.capture_tab.get_time_column() !=  'progress':
+            self.lbl_progress.configure(foreground=self.style_dict["highlight_color_grey"])
+        self.progress_info_ttp.hideinfo()
+
+    def activate_btn_progress(self,e):
+        if self.main_app.get_action_state() != "disabled":
+            self.capture_tab.change_time_column('progress')
+            self.update_table_head()
+
+    ###########################################################
+
     def update_table_head(self):
+
+        self.passed_time_frame.pack_forget()
+        self.response_text_frame.pack_forget()
+        self.name_frame.pack_forget()
+
         if self.capture_tab.get_time_column() ==  'full_time':
+            self.lbl_full_time.configure(foreground=self.style_dict["font_color"])
+            self.lbl_single_times.configure(foreground=self.style_dict["highlight_color_grey"])
+            self.lbl_progress.configure(foreground=self.style_dict["highlight_color_grey"])
+
+
             time_column = self.language_dict['total_time']
-            lbl_switch = u'\U0001F570'
-            time_col_info = self.language_dict['total_time_info']
+            self.lbl_time.configure(width=13)
+
+            self.response_text_frame.pack(side = "right")
+            self.name_frame.pack(side = "left",fill='x',expand=True)
+
         elif self.capture_tab.get_time_column() ==  'single_times':
-            time_column = self.language_dict['single_times']
-            lbl_switch = '+/- ' # U000000B1 #U00023F3
-            time_col_info = self.language_dict['single_times_info']
+            self.lbl_full_time.configure(foreground=self.style_dict["highlight_color_grey"])
+            self.lbl_single_times.configure(foreground=self.style_dict["font_color"])
+            self.lbl_progress.configure(foreground=self.style_dict["highlight_color_grey"])
+
+            time_column = self.language_dict['correction']
+            self.lbl_time.configure(width=40)
+
+            self.passed_time_frame.pack(side = "right")
+            self.response_text_frame.pack(side = "right")
+            self.name_frame.pack(side = "left",fill='x',expand=True)
+
         else:
-            time_column = self.language_dict['progress']
-            lbl_switch = u'\U000023F3' + ' ' + u'\U0001F4C6' + ' '
-            time_col_info = self.language_dict['progress_info']
+            self.lbl_full_time.configure(foreground=self.style_dict["highlight_color_grey"])
+            self.lbl_single_times.configure(foreground=self.style_dict["highlight_color_grey"])
+            self.lbl_progress.configure(foreground=self.style_dict["font_color"])
+
+            time_column = self.language_dict['remaining_time']
+            self.lbl_time.configure(width=25)
+
+            self.passed_time_frame.pack(side = "right")
+            self.name_frame.pack(side = "left",fill='x',expand=True)
 
         self.lbl_time.configure(text=time_column)
-        self.lbl_switch_time.configure(text=lbl_switch)
-        self.lbl_time_col_info_ttp.text = time_col_info
-
-        if self.on_switch_time == True:
-            self.lbl_switch_time.configure(foreground=self.style_dict["font_color"])
-        else:
-            self.lbl_switch_time.configure(foreground=self.style_dict["highlight_color_grey"])
         return
     
     def refresh_table_head(self):
         self.table_head_frame.refresh_style()
         self.separator_frame_0.refresh_style()
         self.empty0.refresh_style()
-        self.correction_frame.refresh_style()
-        self.correction_invisible_frame.refresh_style()
-        self.lbl_empty1.refresh_style()
-        self.lbl_btn_minus.refresh_style()
-        self.lbl_btn_minus_minus.refresh_style()
-        self.lbl_btn_plus_plus.refresh_style()
-        self.lbl_btn_plus.refresh_style()
-        self.correction_visible_frame.refresh_style()
-        self.lbl_correction.refresh_style()
+
+        self.switch_time_frame.refresh_style()
+        self.switch_time_invisible_frame.refresh_style()
+        self.lbl_empty7.refresh_style()
+        self.switch_time_visible_frame.refresh_style()
+        self.lbl_full_time.refresh_style()
+        self.lbl_single_times.refresh_style()
+        self.lbl_progress.refresh_style()
+
         self.passed_time_frame.refresh_style()
         self.passed_time_invisible_frame.refresh_style()
-        self.lbl_empty2.refresh_style()
         self.passed_time_visible_frame.refresh_style()
-        self.lbl_switch_time.refresh_style()
         self.lbl_time.refresh_style()
         self.lbl_empty3.refresh_style()
+
+        self.response_text_frame.refresh_style()
+        self.response_text_invisible_frame.refresh_style()
+        self.lbl_empty6.refresh_style()
+        self.response_text_visible_frame.refresh_style()
+        self.lbl_response_text.refresh_style()
+
         self.name_frame.refresh_style()
         self.name_invisible_frame.refresh_style()
-        self.lbl_time_col_info.refresh_style()
         self.lbl_empty5.refresh_style()
         self.name_visible_frame.refresh_style()
         self.lbl_name.refresh_style()
 
-        self.lbl_time_col_info_ttp.refresh()
+        self.full_time_info_ttp.refresh()
+        self.single_times_info_ttp.refresh()
+        self.progress_info_ttp.refresh()
+
+        self.full_time_info_ttp.text = self.language_dict['total_time_info']
+        self.single_times_info_ttp.text = self.language_dict['single_times_info']
+        self.progress_info_ttp.text = self.language_dict['progress_info']
 
         self.table_head_frame.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.separator_frame_0.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.empty0.configure(background=self.style_dict["selected_color_grey"])
 
-        self.correction_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.switch_time_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.passed_time_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.response_text_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
         self.name_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
 
-        self.lbl_correction.configure(text=self.language_dict['correction'])
         self.lbl_name.configure(text=self.language_dict['name'])
 
         self.update_table_head()

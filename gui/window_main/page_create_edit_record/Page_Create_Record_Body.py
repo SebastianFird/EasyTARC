@@ -75,7 +75,7 @@ class CreateEditRecordBody:
         self.lbl_account.pack(side = "left", padx=10)
 
         self.account_name = tk.StringVar()
-        self.account_cbox = ttk.Combobox(self.frame_account, width = 75, textvariable = self.account_name)
+        self.account_cbox = ttk.Combobox(self.frame_account, width = 40, textvariable = self.account_name)
 
         if self.modus in  ['edit_record']:
             account_dict = self.data_manager.get_account_dict_by_account_id(self.record_dict['account_id'])
@@ -87,7 +87,7 @@ class CreateEditRecordBody:
         name_list = []
         for account_dict in account_dict_list1:
             if account_dict['account_kind'] == 0:
-                full_name = account_dict['name'] + '   (' + self.language_dict["main_account"] + ': ' +  account_dict['main_name'] +')'
+                full_name = account_dict['main_name'] + '   ' u'\U00002B9E' + '   ' +  account_dict['name']
                 account_dict.update({"full_name":full_name})
             else:
                 full_name = account_dict['name']
@@ -239,42 +239,23 @@ class CreateEditRecordBody:
         self.lbl_response_text.pack(side = "left", padx=10)
 
         self.response_text = tk.StringVar()
-        self.response_cbox = ttk.Combobox(frame_dropdown, width = 75, textvariable = self.response_text)
-        self.get_accounts_templates()
+        self.response_cbox = ttk.Combobox(frame_dropdown, width = 40, textvariable = self.response_text)
+        self.get_response_text_list()
         self.response_cbox.pack(side="left", padx=10)
 
         self.lbl_highlight_response_text = MyLabel(frame_dropdown,self.data_manager,text='  '+u'\U0001F808'+' ')
         self.lbl_highlight_response_text.pack(side = "left")
 
-        frame_template = MyFrame(self.main_frame,self.data_manager)
-        frame_template.pack(side = "top", padx=10, pady=4,fill='x')
-
-        lbl_empty = MyLabel(frame_template,self.data_manager,text='',anchor='w',justify='left',width=3)
-        lbl_empty.pack(side = "left")
-
-        lbl_empty_3 = MyLabel(frame_template,self.data_manager,width=15,anchor='w',justify='left',text= '')
-        lbl_empty_3.pack(side = "left", padx=10)
-
-        self.btn_add_template = MyButton(frame_template, self.data_manager, width=25, text=self.language_dict["add_template"], command=self.add_template)
-        self.btn_add_template.pack(side='left', pady=5, padx=5)
-
-        self.btn_delete_template = MyButton(frame_template, self.data_manager, width=20, text=self.language_dict["delete_template"], command=self.delete_template)
-        self.btn_delete_template.pack(side='left', pady=5, padx=5)
-    
         if self.modus in  ['edit_record']:
             account_name = self.account_name.get()
             account_dict = [ele for ele in self.account_dict_list if ele['full_name'] == account_name][0]
             if account_dict['bookable']==0:
                 self.response_text.set('')
                 self.response_cbox.configure(state=tk.DISABLED)
-                self.btn_add_template.configure(state=tk.DISABLED)
-                self.btn_delete_template.configure(state=tk.DISABLED)
                 self.lbl_highlight_response_text.configure(foreground=self.style_dict["font_color"])
             else:
                 self.response_cbox.configure(state=tk.NORMAL)
-                self.get_accounts_templates()
-                self.btn_add_template.configure(state=tk.NORMAL)
-                self.btn_delete_template.configure(state=tk.NORMAL)
+                self.get_response_text_list()
                 self.lbl_highlight_response_text.configure(foreground=self.style_dict["highlight_color_yellow"])
 
             response_text_original = self.record_dict["response_text"]
@@ -338,8 +319,6 @@ class CreateEditRecordBody:
             self.lbl_highlight_status.configure(foreground=self.style_dict["font_color"])
             self.response_text.set('')
             self.response_cbox.configure(state=tk.DISABLED)
-            self.btn_add_template.configure(state=tk.DISABLED)
-            self.btn_delete_template.configure(state=tk.DISABLED)
             self.lbl_highlight_response_text.configure(foreground=self.style_dict["font_color"])
         else:
             self.status_cbox.configure(state="readonly")
@@ -348,56 +327,26 @@ class CreateEditRecordBody:
             self.lbl_highlight_status.configure(foreground=self.style_dict["highlight_color_yellow"])
             self.response_cbox.configure(state=tk.NORMAL)
 
-            default_response_text_original = account_dict["default_response_text"]
-            if default_response_text_original == ' - ':
-                default_response_text = ''
+            if account_dict["response_texts"] != ' - ':
+                response_text_list = account_dict["response_texts"].split(";")
             else:
-                default_response_text = default_response_text_original
+                response_text_list = ['']
+            response_text = response_text_list[0]
 
-            self.response_text.set(default_response_text)
-            self.get_accounts_templates()
-            self.btn_add_template.configure(state=tk.NORMAL)
-            self.btn_delete_template.configure(state=tk.NORMAL)
+            self.response_text.set(response_text)
+            self.get_response_text_list()
             self.lbl_highlight_response_text.configure(foreground=self.style_dict["highlight_color_yellow"])
-
-    def add_template(self):
-        account_name = self.account_name.get()
-        account_dict = [ele for ele in self.account_dict_list if ele['full_name'] == account_name][0]
-
-        template_text = self.response_text.get()
-        check_response = self.create_record_page.check_characters([template_text])
-        if check_response == True:
-            self.lbl_error_info.configure(text='')
-            if template_text not in self.template_list:
-                self.data_manager.user_db.add_template_response_text(account_dict["main_id"],template_text)
-                self.get_accounts_templates()
-        else:
-            self.lbl_error_info.configure(text=check_response)
-        return
     
-    def delete_template(self):
+    def get_response_text_list(self):
         account_name = self.account_name.get()
         account_dict = [ele for ele in self.account_dict_list if ele['full_name'] == account_name][0]
 
-        template_text = self.response_text.get()
-        if template_text in self.template_list_db:
-            self.data_manager.user_db.delete_template_response_texts(account_dict["main_id"],template_text)
-            self.get_accounts_templates()
-            self.response_text.set('')
-        return
-    
-    def get_accounts_templates(self):
-        account_name = self.account_name.get()
-        account_dict = [ele for ele in self.account_dict_list if ele['full_name'] == account_name][0]
-
-        self.template_list_db = self.data_manager.user_db.get_template_response_texts(account_dict["main_id"])
-        default_response_text_original = account_dict["default_response_text"]
-        if default_response_text_original == ' - ':
-            self.default_response_text = ''
+        if account_dict["response_texts"] != ' - ':
+            response_text_list = account_dict["response_texts"].split(";")
         else:
-            self.default_response_text = default_response_text_original
-        self.template_list = [self.default_response_text] + self.template_list_db
-        self.response_cbox['values'] = self.template_list
+            response_text_list = ['']
+
+        self.response_cbox['values'] = response_text_list
         return
             
     def finish(self):

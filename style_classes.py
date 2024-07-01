@@ -41,12 +41,12 @@ class Myttk:
         self.my_ttk.theme_create(name, parent='alt',
                                  settings={'TCombobox':
                                                {'configure':
-                                                    {'selectbackground': self.style_dict["btn_color_grey"],
+                                                    {'selectbackground': self.style_dict["cbox_color_grey"],
                                                      'selectforeground': self.style_dict["font_color"],
-                                                     'fieldbackground': self.style_dict["btn_color_grey"],
-                                                     'background': self.style_dict["btn_color_grey"],
+                                                     'fieldbackground': self.style_dict["cbox_color_grey"],
+                                                     'background': self.style_dict["cbox_color_grey"],
                                                      'foreground': self.style_dict["font_color"],
-                                                     'lightcolor': self.style_dict["btn_color_grey"],
+                                                     'lightcolor': self.style_dict["cbox_color_grey"],
                                                      'postoffset': (0, 0, 100, 0)}
                                                 },
                                            'TNotebook':

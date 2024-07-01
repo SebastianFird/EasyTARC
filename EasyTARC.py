@@ -47,8 +47,14 @@ class App():
     def __init__(self):
 
         self.app_name = 'EasyTARC'
+        
         self.restricted_user_group = False          # True / False     
         self.restricted_data_access = False         # True / False
+
+        self.version = '1.10.0'
+
+        self.authorisation_old = Authorisation('whirlpool') #'whirlpool'
+        self.authorisation_new = Authorisation('sha512')
 
         self.db_name_ending_dict = {               #'database_username_encrypted'  'database_unencrypted'   #database_password_encrypted' -> not ready
             'database_username_encrypted': '_crypted.sql.gz',
@@ -56,9 +62,7 @@ class App():
             'database_password_encrypted': '_crypted.sql.gz'
             }                  
         
-        self.authorisation = Authorisation()
 
-        self.version = '1.9.5'
         self.old_version = None
         self.version_update = False
 
@@ -150,7 +154,7 @@ class App():
         ##########
 
         if  self.sign_up_dict.get("sign_up_db_config") == 'database_username_encrypted':
-            self.sign_up_dict['sign_up_password'] = self.authorisation.create_user_db_password(self.sign_up_dict.get("sign_up_str_format"))
+            self.sign_up_dict['sign_up_password'] = self.authorisation_new.create_user_db_password(self.sign_up_dict.get("sign_up_str_format"))
 
         ##########
 
@@ -182,7 +186,7 @@ class App():
         ##########
 
         if self.restricted_user_group == True:
-            if login_dict.get("user_permission") != self.authorisation.create_user_permission_hash(login_dict.get("user_str_format")):
+            if login_dict.get("user_permission") != self.authorisation_old.create_user_permission_hash(login_dict.get("user_str_format")):
                 return(False,'no permission')
             
         ##########
@@ -203,7 +207,7 @@ class App():
         ##########
             
         if login_dict.get("user_db_config") == 'database_username_encrypted':
-            self.sign_in_password = self.authorisation.create_user_db_password(login_dict.get("user_str_format"))
+            self.sign_in_password = self.authorisation_new.create_user_db_password(login_dict.get("user_str_format"))
             
         ##########
         if login_dict.get("user_db_config") == 'database_password_encrypted':
@@ -231,6 +235,7 @@ class App():
 
         outputall=subprocess.check_output(callall,startupinfo=startupinfo)
         outputstringall=str(outputall)
+        print(outputstringall.count(process_name))
         if outputstringall.count(process_name) > 2:
             self.root = NewRoot()
             messagebox.showinfo('No access','An EasyTARC application is already running.')
@@ -311,7 +316,6 @@ class App():
     def system_start_check(self):
         # inspired by https://www.geeksforgeeks.org/getting-the-time-since-os-startup-using-python/
         
-    
         lib = ctypes.windll.kernel32
         t = lib.GetTickCount64()
         t = int(str(t)[:-3])
@@ -336,7 +340,33 @@ class App():
             self.version_update = True
             self.old_version = self.settings_dict['version']
 
-            update_dict = {"time_view_capture_tab": "full_time","booking_rate_details": "on","sleep_mode": "on","sleep_mode_recording_period_hours": "10.0","sleep_mode_without_interaction_hours": "2.0","sec_back_up_path": "","list_work_window_dynamic_opacity": "on","bar_work_window_dynamic_opacity": "on","dynamic_opacity": "80.0","web_link_1_name": "Github","web_link_1_url": "https://github.com/SebastianFird/EasyTARC","web_link_2_name": "EasyTARC.de","web_link_2_url": "http://easytarc.de/"}
+            update_dict = {"time_view_capture_tab": "full_time",
+                           "booking_rate_details": "on",
+                           "sleep_mode": "on",
+                           "sleep_mode_recording_period_hours": "10.0",
+                           "sleep_mode_without_interaction_hours": "2.0",
+                           "sec_back_up_path": "",
+                           "list_work_window_dynamic_opacity": "on",
+                           "bar_work_window_dynamic_opacity": "on",
+                           "dynamic_opacity": "80.0",
+                           "simplify_after_two_month":"on",
+                           "web_link_1_name": "Github",
+                           "web_link_1_url": "https://github.com/SebastianFird/EasyTARC",
+                           "web_link_2_name": "EasyTARC.de",
+                           "web_link_2_url": "http://easytarc.de/",
+                           "web_link_3_name": "",
+                           "web_link_3_url": "",
+                           "web_link_4_name": "",
+                           "web_link_4_url": "",
+                           "desktop_folder":"",
+                           "startup_folder":"",
+                           "booking_url_1":"http://easytarc.de/",
+                           "booking_url_2":"/user",
+                           "booking_url_3":"/code/",
+                           "booking_url_4":"/hours/",
+                           "booking_url_5":"/text/",
+                           "booking_url_6":"/end",
+                           "booking_url_sequence":["booking_url_1","booking_url_2","booking_url_3","response_code","booking_url_4","hours","booking_url_5","response_text","booking_url_6"]}
             self.settings_dict.update(update_dict)
 
             setting_json_file = open('json/settings.json',"w",encoding='UTF-8')
@@ -381,7 +411,7 @@ class App():
                     old_user_db.set_db_config('database_password_encrypted','database','EasyTARC_Database_User','_crypted.sql.gz',db_password,old_user_db_salt)
                 else:
                     str_format = login_dict.get("user_str_format")
-                    db_password = self.authorisation.create_user_db_password(str_format)
+                    db_password = self.authorisation_old.create_user_db_password(str_format)
                     old_user_db.set_db_config('database_username_encrypted','database','EasyTARC_Database_User','_crypted.sql.gz',db_password,old_user_db_salt)
 
                 ######
@@ -400,7 +430,7 @@ class App():
                     new_user_db.create_empty_db('database_password_encrypted','database','New_EasyTARC_Database_User','_crypted.sql.gz',db_password,new_db_salt)
                 else:
                     str_format = login_dict.get("user_str_format")
-                    db_password = self.authorisation.create_user_db_password(str_format)
+                    db_password = self.authorisation_new.create_user_db_password(str_format)
                     new_user_db.create_empty_db('database_username_encrypted','database','New_EasyTARC_Database_User','_crypted.sql.gz',db_password,new_db_salt)
                 
                 ######
@@ -447,7 +477,6 @@ class App():
 
 if __name__ == "__main__":
     easy_tarc = App()
-
 
 
 

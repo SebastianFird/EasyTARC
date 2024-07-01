@@ -117,7 +117,7 @@ class InfoClock(Clock):
     def get_full_name(self):
         return(self.name)
     
-    def get_ww_full_name(self):
+    def get_status_full_name(self):
         return(self.name)
 
     def start(self):
@@ -202,8 +202,9 @@ class AccountClock(Clock):
         self.order_label = self.account_dict.get("order_label")
         self.process_label = self.account_dict.get("process_label")
         self.response_code = self.account_dict.get("response_code")
-        self.default_response_text = self.account_dict.get("default_response_text")
-        self.auto_booking = self.account_dict.get("auto_booking")
+        self.response_texts_main = self.account_dict.get("response_texts_main")
+        self.response_texts = self.account_dict.get("response_texts")
+        self.external_booking = self.account_dict.get("external_booking")
         self.account_status = self.account_dict.get("status")
         self.group = self.account_dict.get("group")
         self.bookable = self.account_dict.get("bookable")
@@ -211,8 +212,7 @@ class AccountClock(Clock):
         self.available_hours = self.account_dict.get("available_hours")
         self.sum_passed_times = self.account_dict.get("sum_passed_times")
 
-        self.default_response_text_2 = self.default_response_text
-        self.response_text = self.default_response_text
+        self.response_text = self.get_default_response_text()
 
         self.recording_correction_dict_list = []
 
@@ -239,18 +239,14 @@ class AccountClock(Clock):
         self.order_label = self.account_dict.get("order_label")
         self.process_label = self.account_dict.get("process_label")
         self.response_code = self.account_dict.get("response_code")
-        self.default_response_text = self.account_dict.get("default_response_text")
-        self.auto_booking = self.account_dict.get("auto_booking")
+        self.response_texts_main = self.account_dict.get("response_texts_main")
+        self.response_texts = self.account_dict.get("response_texts")
+        self.external_booking = self.account_dict.get("external_booking")
         self.group = self.account_dict.get("group")
         self.bookable = self.account_dict.get("bookable")
         self.date_expiration = self.account_dict.get("date_expiration")
         self.available_hours = self.account_dict.get("available_hours")
-        self.sum_passed_times = self.account_dict.get("sum_passed_times")
-
-        if self.response_text == self.default_response_text_2:
-            self.response_text = self.default_response_text
-
-        self.default_response_text_2 = self.default_response_text        
+        self.sum_passed_times = self.account_dict.get("sum_passed_times")    
 
     def get_account_dict(self):
         return(self.account_dict)
@@ -270,14 +266,14 @@ class AccountClock(Clock):
     def get_full_name(self):
         return(self.name)
     
-    def get_ww_full_name(self):
+    def get_status_full_name(self):
         return(self.name)
 
     def get_project_label(self):
         return(self.project_label)
 
-    def get_auto_booking(self):
-        return(self.auto_booking)
+    def get_external_booking(self):
+        return(self.external_booking)
     
     def get_order_label(self):
         return(self.order_label)
@@ -288,9 +284,20 @@ class AccountClock(Clock):
     def get_response_code(self):
         return(self.response_code)
     
+    def get_response_texts(self):
+        return(self.response_texts)
+    
+    def get_response_text_list(self):
+        if self.response_texts != ' - ':
+            response_text_list = self.response_texts.split(";")
+        else:
+            response_text_list = ['']
+        return(response_text_list)
+    
     def get_default_response_text(self):
-        return(self.default_response_text)
-
+        response_text = self.get_response_text_list()[0]
+        return(response_text)
+    
     def get_response_text(self):
         return(self.response_text)
     
@@ -321,8 +328,12 @@ class AccountClock(Clock):
     def get_time_left(self):
             return(0,'')
     
-    def set_response_text(self,new_response_text):
-        self.response_text = new_response_text
+    def set_response_text(self,response_text):
+        self.response_text = response_text
+
+    def add_new_response_text_to_list(self,response_text):
+        self.response_texts = self.response_texts + ';' + response_text
+        self.user_db.account_set_response_texts(1,self.main_id,self.response_texts)
 
     def set_status_open(self):
         self.user_db.account_set_open(self.id)
@@ -497,7 +508,7 @@ class MainAccountClock(AccountClock):
         self.added_time = datetime.timedelta()
         self.total_time = datetime.timedelta()
         self.time_str_list_list = []
-        self.response_text = self.default_response_text
+        self.response_text = self.get_default_response_text()
 
         for sub_clock in self.sub_clock_list:
             sub_clock.deep_reset()
@@ -542,34 +553,17 @@ class MainAccountClock(AccountClock):
         else:
             recorded_time = total_time
         return(recorded_time)
-
-    def get_total_time_sum_without_timed_sub_clocks(self):
-        time_sum = self.get_total_time()
-        for sub_clock in self.sub_clock_list:
-            if sub_clock.get_available_hours() == 0:
-                time_sum = time_sum + sub_clock.get_total_time()
-        return(time_sum)
     
-    def get_db_total_passed_time_sum_without_timed_sub_clocks(self):
-        passed_time_sum = self.get_sum_db_passed_times()
+    def get_recorded_time_with_sub_clocks(self):
+        recorded_time = self.get_recorded_time()
         for sub_clock in self.sub_clock_list:
-            if sub_clock.get_available_hours() == 0:
-                passed_time_sum = passed_time_sum + sub_clock.get_sum_db_passed_times()
-        return(passed_time_sum)
-    
-    def get_recorded_time_without_timed_sub_clocks(self):
-        passed_time_sum = self.get_db_total_passed_time_sum_without_timed_sub_clocks()
-        total_time = self.get_total_time_sum_without_timed_sub_clocks()
-        if passed_time_sum != 0:
-            recorded_time = datetime.timedelta(hours=passed_time_sum) + total_time
-        else:
-            recorded_time = total_time
+            recorded_time = recorded_time + sub_clock.get_recorded_time()
         return(recorded_time)
     
     def get_time_left(self):
         if self.available_hours != 0:
             available_time = datetime.timedelta(hours=self.available_hours)
-            recorded_time = self.get_recorded_time_without_timed_sub_clocks()
+            recorded_time = self.get_recorded_time_with_sub_clocks()
 
             if available_time > recorded_time:
                 time_left = available_time - recorded_time
@@ -608,14 +602,14 @@ class MainAccountClock(AccountClock):
             info_dict.update({self.language_dict["bookable"]:self.language_dict["no"]}) 
         #############
         if self.bookable == 1:
-            if self.auto_booking == 1:
-                info_dict.update({self.language_dict["auto_booking"]:self.language_dict["yes"]}) 
+            if self.external_booking == 1:
+                info_dict.update({self.language_dict["external_booking"]:self.language_dict["yes"]}) 
             else:
-                info_dict.update({self.language_dict["auto_booking"]:self.language_dict["no"]}) 
+                info_dict.update({self.language_dict["external_booking"]:self.language_dict["no"]}) 
             #########
             info_dict.update({                     
                         self.language_dict["response_code"]:'='+str(self.response_code),                            
-                        self.language_dict["default_response_text"]:str(self.default_response_text)               
+                        self.language_dict["response_texts"]:'='+str(self.get_response_texts())               
                         })
         #############
         if self.id != 0:
@@ -626,7 +620,7 @@ class MainAccountClock(AccountClock):
         #############
         if self.id != 0:
             if float(self.available_hours) != 0:
-                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.available_hours),3))) + ' ' + self.language_dict["hours"]}) # round_time
+                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.available_hours),3))) + ' ' + self.language_dict["hours_abbreviation"]}) # round_time
             else:
                 info_dict.update({self.language_dict["available_hours"]:" - "}) 
         #############
@@ -650,7 +644,7 @@ class SubAccountClock(AccountClock):
         self.added_time = datetime.timedelta()
         self.total_time = datetime.timedelta()
         self.time_str_list_list = []
-        self.response_text = self.default_response_text
+        self.response_text = self.get_default_response_text()
         return
 
     def get_main_name(self):
@@ -661,10 +655,10 @@ class SubAccountClock(AccountClock):
         name = self.get_name() + ' (' + self.main_account_clock.get_name() + ')'
         return(name)
     
-    def get_ww_full_name(self):
-        name =  ' ' + u'\U00002B9E' + ' ' +  self.get_name() + ' (' + self.main_account_clock.get_name() + ')'
+    def get_status_full_name(self):
+        name = self.main_account_clock.get_name() + '   ' u'\U00002B9E' + '   ' +  self.get_name()
         return(name)
-    
+
     def get_account_runninig(self):
         account_running = self.main_account_clock.get_account_runninig()
         return(account_running)
@@ -672,6 +666,13 @@ class SubAccountClock(AccountClock):
     def get_sub_time_sum(self):
         time_sum = self.main_account_clock.get_sub_time_sum()
         return(time_sum)
+    
+    def add_new_response_text_to_list(self,response_text):
+        self.response_texts = self.response_texts + ';' + response_text
+        if self.response_texts_main == 1:
+            self.user_db.account_set_response_texts(self.response_texts_main,self.main_id,self.response_texts)
+        else:
+            self.user_db.account_set_response_texts(self.response_texts_main,self.id,self.response_texts)
     
     ############################################################
 
@@ -699,10 +700,6 @@ class SubAccountClock(AccountClock):
             return(0,'')
         
     ############################################################
-    
-    def set_status_hidden(self):
-        self.user_db.account_set_hidden(self.id)
-        self.account_status = 'hidden'
 
     def get_info_dict(self):
         self.language_dict = self.main_app.data_manager.get_language_dict()
@@ -727,14 +724,14 @@ class SubAccountClock(AccountClock):
             info_dict.update({self.language_dict["bookable"]:self.language_dict["no"]}) 
         #############
         if self.bookable == 1:
-            if self.auto_booking == 1:
-                info_dict.update({self.language_dict["auto_booking"]:self.language_dict["yes"]}) 
+            if self.external_booking == 1:
+                info_dict.update({self.language_dict["external_booking"]:self.language_dict["yes"]}) 
             else:
-                info_dict.update({self.language_dict["auto_booking"]:self.language_dict["no"]}) 
+                info_dict.update({self.language_dict["external_booking"]:self.language_dict["no"]}) 
             #########
             info_dict.update({                     
                         self.language_dict["response_code"]:'='+str(self.response_code),                            
-                        self.language_dict["default_response_text"]:str(self.default_response_text)               
+                        self.language_dict["response_texts"]:'='+str(self.get_response_texts())               
                         })
         #############
         if self.id != 0:
@@ -745,7 +742,7 @@ class SubAccountClock(AccountClock):
         #############
         if self.id != 0:
             if float(self.available_hours) != 0:
-                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.available_hours),3))) + ' ' + self.language_dict["hours"]})  # round_time
+                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.available_hours),3))) + ' ' + self.language_dict["hours_abbreviation"]})  # round_time
             else:
                 info_dict.update({self.language_dict["available_hours"]:" - "}) 
         #############

@@ -204,7 +204,7 @@ class WorkWindowOptionMenu(tkinter.Listbox):
     def activate_clock(self,clock):
         if self.work_window.ww_kind == 'ww_bar' or self.work_window.ww_kind == 'ww_bos':
             if clock.get_id() != 0:
-                self.work_window.clicked_selectable_account_clock.set(clock.get_ww_full_name())
+                self.work_window.clicked_selectable_account_clock.set(clock.get_status_full_name())
                 self.work_window.cbox_selected()
                 self.work_window.activate_account_clock()
             else:

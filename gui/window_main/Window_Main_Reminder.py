@@ -40,6 +40,7 @@ class MainWindowReminder(tk.Frame):
         self.gui = gui
         self.main_window = main_window
         self.reminder_frame_list = []
+        self.reminder_notes_list_list = []
 
         # run the main frame of this layer
         self.create_main_frame(container)
@@ -66,8 +67,20 @@ class MainWindowReminder(tk.Frame):
     def add_reminder_frame(self, dict_entry='', text='',dict_entry_2=''):
         reminder_frame = Reminder(self.main_frame, self.main_app, self.gui, self.main_window,dict_entry, text, dict_entry_2)
         self.reminder_frame_list.append(reminder_frame)
+        self.reminder_notes_list_list.append([dict_entry, text, dict_entry_2])
+        
+    def get_reminder_notes_list(self):
+        reminder_notes_list = []
+        for note in self.reminder_notes_list_list:
+            reminder_note = self.language_dict[note[0]] + ' ' + note[1] + ' ' + self.language_dict[note[2]]
+            reminder_notes_list.append(reminder_note)
+        return(reminder_notes_list)
+
 
     def refresh(self):
+        self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
+
         self.main_frame.refresh_style()
         for reminder in self.reminder_frame_list:
             reminder.refresh()
@@ -188,7 +201,7 @@ class Reminder(tk.Frame):
         self.lbl_close_reminder.bind("<Leave>", close_reminder_leave)
         self.lbl_close_reminder.bind("<Button-1>", close_reminder)
             
-        self.lbl_reminder = MyLabel(self.destroy_frame, self.data_manager, text=self.language_dict[self.dict_entry] + ' ' + self.text + ' ' + self.language_dict[self.dict_entry_2],anchor='w',justify='left')
+        self.lbl_reminder = MyLabel(self.destroy_frame, self.data_manager, text=" " + self.language_dict[self.dict_entry] + ' ' + self.text + ' ' + self.language_dict[self.dict_entry_2],anchor='w',justify='left')
         self.lbl_reminder.configure(background=self.style_dict["highlight_color_yellow"],foreground=self.style_dict["font_color_black"])
         self.lbl_reminder.pack(side = "left")
         self.lbl_reminder_ttp = CreateToolTip(self.lbl_reminder, self.data_manager, 5, 30, text=self.language_dict[self.dict_entry] + ' ' + self.text + ' ' + self.language_dict[self.dict_entry_2])
@@ -207,6 +220,6 @@ class Reminder(tk.Frame):
         self.destroy_frame.configure(background=self.style_dict["highlight_color_yellow"],highlightthickness=1,highlightbackground=self.style_dict["btn_color_grey"],highlightcolor=self.style_dict["btn_color_grey"])
         self.lbl_close_reminder.configure(background=self.style_dict["highlight_color_yellow"],foreground=self.style_dict["font_color_black"])
         self.lbl_reminder.configure(background=self.style_dict["highlight_color_yellow"],foreground=self.style_dict["font_color_black"])
-        self.lbl_reminder.configure(text=self.language_dict[self.dict_entry] + ' ' + self.text + ' ' + self.language_dict[self.dict_entry_2], anchor='w')
+        self.lbl_reminder.configure(text=" " + self.language_dict[self.dict_entry] + ' ' + self.text + ' ' + self.language_dict[self.dict_entry_2], anchor='w')
         self.lbl_reminder_ttp.text = self.language_dict[self.dict_entry] + ' ' + self.text + ' ' + self.language_dict[self.dict_entry_2]
 

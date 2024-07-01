@@ -82,10 +82,8 @@ class CreateEditAccountHead:
 
         if self.modus == 'new_main':
             header_text = self.language_dict['new_main_account']
-        elif self.modus == 'new_order':
-            header_text = self.language_dict['new_order']
-        elif self.modus == 'new_process':
-            header_text = self.language_dict['new_process']
+        elif self.modus == 'duplicate_main_account':
+            header_text = self.language_dict['duplicate_main_account']
         elif self.modus == 'new_sub':
             header_text = self.language_dict['new_sub_account']
         elif self.modus == 'edit_main':

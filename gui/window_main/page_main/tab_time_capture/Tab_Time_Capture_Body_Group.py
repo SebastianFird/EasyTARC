@@ -19,7 +19,7 @@ import tkinter as tk
 from tkinter import messagebox
 
 from gui.window_main.page_main.tab_time_capture.Tab_Time_Capture_Body_Accounts import MainAccountFrame
-from gui.Window_Additionals import EditGroupName
+from gui.Window_Additionals import EditGroupName, InfoWindow
 
 from style_classes import MyFrame
 from style_classes import MyLabel
@@ -89,7 +89,7 @@ class GroupFrame((tk.Frame)):
         self.group_name_frame = MyFrame(self.group_frame,self.data_manager)
         self.group_name_frame.pack(side = "top",fill='x')
 
-        self.lbl_group = MyLabel(self.group_name_frame,self.data_manager,text = '  ' + str(self.group_name) + ':   ', anchor = 'w')
+        self.lbl_group = MyLabel(self.group_name_frame,self.data_manager,text = '  ' + str(self.group_name) + '    ', anchor = 'w')
         self.lbl_group.configure(font = Font_tuple, foreground=self.style_dict["highlight_color_grey"])
         self.lbl_group.pack(side = "left")
 
@@ -117,6 +117,9 @@ class GroupFrame((tk.Frame)):
     def activate_group_edit(self,e=None):
         if self.main_app.get_action_state() == "normal":
             edit_response_text_window = EditGroupName(self.main_app, self.gui, self.capture_body.capture_tab.main_frame,self.group_name)
+        else:
+            text = self.language_dict["locked_function"]
+            info_window = InfoWindow(self.main_app, self.gui, self.account_total.accounts_tab.main_frame ,text,350,200)
 
     def enter_view_group(self,e):
         self.lbl_group_edit.configure(foreground=self.style_dict["highlight_color_grey"])

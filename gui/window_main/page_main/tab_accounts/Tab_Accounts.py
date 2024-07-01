@@ -19,12 +19,13 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 
-from gui.Scroll_Frame import Scroll_Frame
+from gui.Scroll_Frame_Table_Head import Scroll_Frame_2
 from gui.window_main.page_main.tab_accounts.Tab_Accounts_Body import AccountsBody
 from gui.window_main.page_main.tab_accounts.Tab_Accounts_Head import AccountsHead
+from gui.window_main.page_main.tab_accounts.Tab_Accounts_Table_Head import AccountsTableHead
 from gui.Window_Additionals import InfoWindow
 
-class AccountsTab(Scroll_Frame):
+class AccountsTab(Scroll_Frame_2):
     def __init__(self, container, main_app, gui, case_frame_manager):
         super().__init__(main_app, gui)
         self.case_frame_manager = case_frame_manager
@@ -78,14 +79,20 @@ class AccountsTab(Scroll_Frame):
 #################################################################
 
     def create_body(self):
-        scroll_frame = self.create_scroll_frame(self.main_frame)
-        self.body = AccountsBody(scroll_frame, self.main_app, self.gui, self)
+        scroll_frame_body, scroll_frame_table_head = self.create_scroll_frame(self.main_frame)
+        self.body = AccountsBody(scroll_frame_body, self.main_app, self.gui, self)
+        self.table_head = AccountsTableHead(scroll_frame_table_head, self.main_app, self.gui, self)
+
+        self.gui.root.update()
+        self.my_canvas_2.configure(height = self.canvas_container_2.winfo_height())
+
         self.my_canvas.bind("<Button-1>", self.empty_body_clicked)
         return
     
     def refresh_body(self):
         # configure style and language of main frame head
         self.refresh_scroll_frame()
+        self.table_head.refresh()
         self.body.refresh()
         return
 
@@ -155,13 +162,15 @@ class AccountsTab(Scroll_Frame):
 #################################################################
     
     def check_close_account(self, account_dict):
-        response = self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.check_close_main_account_frame(account_dict['group'],account_dict['account_id'])
+        response = False
+        if self.main_app.get_action_state() ==  'normal':
+            response = self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.check_close_main_account_frame(account_dict['group'],account_dict['account_id'])
         return(response)
     
     def close_account(self, account_dict):
         if self.check_close_account(account_dict) == True:
             self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.close_main_account_frame(account_dict['group'],account_dict['account_id'])
-            self.reload()
+            #self.reload()
         else:
             text = """
 Ein aktives Zeitkonto kann nicht geschlossen werden. Bitte aktiviere erst ein anderes, bevor du dieses schließt.
@@ -178,7 +187,7 @@ Ein aktives Zeitkonto kann nicht geschlossen werden. Bitte aktiviere erst ein an
 
         main_account_clock = self.data_manager.load_main_account_clock(account_dict['account_id'])
         self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.add_main_account_frame(account_dict['group'],main_account_clock)
-        self.reload()
+        #self.reload()
         return
 
     def delete_account(self, account_dict):

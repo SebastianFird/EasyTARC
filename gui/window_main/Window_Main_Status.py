@@ -227,7 +227,7 @@ class MainWindowStatus(tk.Frame):
             background_color=self.style_dict["recording_color_green"]
             self.active_clock = self.data_manager.get_active_clock()
             if self.active_clock.get_id() != 0:
-                status_text=self.active_clock.get_full_name()
+                status_text=self.active_clock.get_status_full_name()
             else:
                 status_text=self.language_dict["without_allocation"]
 
@@ -316,8 +316,9 @@ class MainWindowStatus(tk.Frame):
         else:
             recording_period = datetime.datetime.now() - self.data_manager.get_start_timestamp()
 
-        last_tracked_interaction_list_list = self.data_manager.get_last_tracked_interaction_list_list()
+        info_dict.update({self.language_dict["data"]:self.language_dict["save_info"]})
 
+        last_tracked_interaction_list_list = self.data_manager.get_last_tracked_interaction_list_list()
         if last_tracked_interaction_list_list != []:
             info_dict.update({self.language_dict["restored_times"]:'#'})
             for last_tracked_interaction_list in last_tracked_interaction_list_list:
@@ -358,9 +359,13 @@ class MainWindowStatus(tk.Frame):
                 info_dict.update({self.language_dict["bookable_time"]:work_clock.str_timedelta(work_time_q)})
                 info_dict.update({self.language_dict["rate"]:'100 %   '})
 
-
-        info_dict.update({self.language_dict["database"]:'#'})
-        info_dict.update({self.language_dict["data"]:self.language_dict["save_info"]})
+        reminder_notes_list = self.gui.main_window.reminder_frame.get_reminder_notes_list()
+        if reminder_notes_list != []:
+            info_dict.update({self.language_dict["notifications"]:'#'})
+            counter = 1
+            for reminder_note in reminder_notes_list:
+                info_dict.update({str(counter):reminder_note})
+                counter = counter + 1
 
         info_window = InfoDictWindow(self.main_app, self.gui ,self.main_window,info_dict,500,300)
         return

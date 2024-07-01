@@ -51,9 +51,122 @@ class SqlUserDataManager(SqlManager):
         print('start_db')
         try:
             test_id = self.get_new_accountid()
+
+            try:
+                if self.main_app.get_version_update() == True:
+                    print('test_sql_update')
+
+                    if self.check_column_name_accounts_auto_booking() == True:
+                        print('1_10_0_sql_update')
+                        self.update_1_10_0()
+
+            except:
+                self.root = NewRoot()
+                messagebox.showinfo('EasyTARC','sql_updates_failed')
+                return(False)
+
             return(True)
         except:
             return(False)
+        
+    def check_column_name_accounts_auto_booking(self):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+
+        info = cur.execute("select * from accounts")
+        columns = [item[0] for item in info.description]
+        self.save_and_close_db(conn)
+        if 'auto_booking' in columns:
+            return(True)
+        else:
+            return(False)
+        
+    def update_1_10_0(self):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        cur.execute("""CREATE TABLE IF NOT EXISTS new_table_accounts (
+            accountid INT PRIMARY KEY,
+            account_kind INT,
+            main_id INT,
+            name TEXT,
+            description_text TEXT,
+            project_label TEXT,
+            order_label TEXT,
+            process_label TEXT,
+            response_code TEXT,
+            response_texts_main INT,
+            response_texts TEXT,
+            external_booking INT,
+            status TEXT,
+            group_name TEXT,
+            bookable INT,
+            expiration_year INT,
+            expiration_month INT,
+            expiration_day INT,
+            available_hours REAL
+            );
+            """)
+
+        cur = conn.cursor()
+        cur.execute("""INSERT INTO new_table_accounts (
+                    accountid,
+                    account_kind,
+                    main_id,
+                    name,
+                    description_text,
+                    project_label,
+                    order_label,
+                    process_label,
+                    response_code,
+                    response_texts,
+                    external_booking,
+                    status,
+                    group_name,
+                    bookable,
+                    expiration_year,
+                    expiration_month,
+                    expiration_day,
+                    available_hours
+                    )
+                    SELECT 
+
+                    accountid,
+                    account_kind,
+                    main_id,
+                    name,
+                    description_text,
+                    project_label,
+                    order_label,
+                    process_label,
+                    response_code,
+                    default_response_text,
+                    auto_booking,
+                    status,
+                    group_name,
+                    bookable,
+                    expiration_year,
+                    expiration_month,
+                    expiration_day,
+                    available_hours REAL
+                    FROM accounts;
+                    """)
+        
+        cur = conn.cursor()
+        cur.execute("DROP TABLE accounts;")
+
+        cur = conn.cursor()
+        cur.execute("ALTER TABLE new_table_accounts RENAME TO accounts;")
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE accounts SET response_texts_main = ? """,(1,))
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE accounts SET status = ? WHERE status = ?""",('open','hidden',))
+
+        cur = conn.cursor()
+        cur.execute("DROP TABLE response_text_templates;")
+
+        self.save_and_close_db(conn)
 
 ####################################################################################################################
 
@@ -101,8 +214,9 @@ class SqlUserDataManager(SqlManager):
                 order_label TEXT,
                 process_label TEXT,
                 response_code TEXT,
-                default_response_text TEXT,
-                auto_booking INT,
+                response_texts_main INT,
+                response_texts TEXT,
+                external_booking INT,
                 status TEXT,
                 group_name TEXT,
                 bookable INT,
@@ -149,14 +263,6 @@ class SqlUserDataManager(SqlManager):
             cur = conn.cursor()
             cur.execute("INSERT INTO groups VALUES(?, ?);", (1,''))
 
-            cur = conn.cursor()
-            cur.execute("""CREATE TABLE IF NOT EXISTS response_text_templates(
-                templateid INT PRIMARY KEY,
-                main_id INT,
-                template_text TEXT
-                );
-                """)
-
             self.save_and_close_db(conn)
 
             test_id = self.get_new_accountid()
@@ -172,8 +278,9 @@ class SqlUserDataManager(SqlManager):
                 order_label = ' - '
                 process_label = ' - '
                 response_code = ' - '
-                default_response_text = ' - '
-                auto_booking = 0
+                response_texts_main = 1
+                response_texts = ' - '
+                external_booking = 0
                 status = "open"
                 group = ' - '
                 bookable = 0
@@ -195,8 +302,9 @@ class SqlUserDataManager(SqlManager):
                                 "order_label":order_label,
                                 "process_label":process_label,
                                 "response_code":response_code,
-                                "default_response_text":default_response_text,
-                                "auto_booking":auto_booking,
+                                "response_texts_main":response_texts_main,
+                                "response_texts":response_texts,
+                                "external_booking":external_booking,
                                 "status":status,
                                 "group":group,
                                 "bookable":bookable,
@@ -229,8 +337,9 @@ class SqlUserDataManager(SqlManager):
         order_label = account_dict['order_label']
         process_label = account_dict['process_label']
         response_code = account_dict['response_code']
-        default_response_text = account_dict['default_response_text']
-        auto_booking = account_dict['auto_booking']
+        response_texts_main = account_dict['response_texts_main']
+        response_texts = account_dict['response_texts']
+        external_booking = account_dict['external_booking']
         status = account_dict['status']
         group = account_dict['group']
         bookable = account_dict['bookable']
@@ -239,10 +348,10 @@ class SqlUserDataManager(SqlManager):
         expiration_day = int(account_dict["date_expiration"].strftime("%d"))
         available_hours = account_dict['available_hours']
 
-        account_tuple = (account_id,kind,main_id,name,description_text,project_label,order_label,process_label,response_code,default_response_text,auto_booking,status,group,bookable,expiration_year,expiration_month,expiration_day,available_hours)
+        account_tuple = (account_id,kind,main_id,name,description_text,project_label,order_label,process_label,response_code,response_texts_main,response_texts,external_booking,status,group,bookable,expiration_year,expiration_month,expiration_day,available_hours)
         conn = self.open_db_conn()
         cur = conn.cursor()
-        cur.execute("INSERT INTO accounts VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?);", account_tuple)
+        cur.execute("INSERT INTO accounts VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?);", account_tuple)
         self.save_and_close_db(conn)
         success = True
         return(success)
@@ -270,8 +379,9 @@ class SqlUserDataManager(SqlManager):
         order_label = account_dict['order_label']
         process_label = account_dict['process_label']
         response_code = account_dict['response_code']
-        default_response_text = account_dict['default_response_text']
-        auto_booking = account_dict['auto_booking']
+        response_texts_main = account_dict['response_texts_main']
+        response_texts = account_dict['response_texts']
+        external_booking = account_dict['external_booking']
         group = account_dict['group']
         bookable = account_dict['bookable']
         expiration_year = int(account_dict["date_expiration"].strftime("%Y"))
@@ -288,8 +398,9 @@ class SqlUserDataManager(SqlManager):
                     order_label = ?,
                     process_label = ?,
                     response_code = ?,
-                    default_response_text = ?,
-                    auto_booking = ?,
+                    response_texts_main = ?,
+                    response_texts = ?,
+                    external_booking = ?,
                     bookable = ?,
                     group_name = ?,
                     expiration_year = ?,
@@ -304,8 +415,9 @@ class SqlUserDataManager(SqlManager):
                     order_label,
                     process_label,
                     response_code,
-                    default_response_text,
-                    auto_booking,
+                    response_texts_main,
+                    response_texts,
+                    external_booking,
                     bookable,
                     group,
                     expiration_year,
@@ -323,9 +435,14 @@ class SqlUserDataManager(SqlManager):
         order_label = account_dict['order_label']
         process_label = account_dict['process_label']
         response_code = account_dict['response_code']
-        auto_booking = account_dict['auto_booking']
+        external_booking = account_dict['external_booking']
         group = account_dict['group']
         bookable = account_dict['bookable']
+        expiration_year = int(account_dict["date_expiration"].strftime("%Y"))
+        expiration_month = int(account_dict["date_expiration"].strftime("%m"))
+        expiration_day = int(account_dict["date_expiration"].strftime("%d"))
+        available_hours = account_dict['available_hours']
+        response_texts = account_dict['response_texts']
 
         conn = self.open_db_conn()
         cur = conn.cursor()
@@ -334,20 +451,49 @@ class SqlUserDataManager(SqlManager):
                     order_label = ?,
                     process_label = ?,
                     response_code = ?,
-                    auto_booking = ?,
+                    external_booking = ?,
                     bookable = ?,
-                    group_name = ? 
+                    group_name = ?,
+                    expiration_year = ?,
+                    expiration_month = ?,
+                    expiration_day = ?,
+                    available_hours = ? 
                     WHERE accountid = ?""",
                     (
                     project_label,
                     order_label,
                     process_label,
                     response_code,
-                    auto_booking,
+                    external_booking,
                     bookable,
                     group,
+                    expiration_year,
+                    expiration_month,
+                    expiration_day,
+                    available_hours,
                     account_id,
                     ))
+        
+        if bookable == 0:
+            cur = conn.cursor()
+            cur.execute("""UPDATE accounts 
+                        SET response_texts_main = ?
+                        WHERE accountid = ? """,
+                        (
+                        1,
+                        account_id,
+                        ))
+        
+        cur = conn.cursor()
+        cur.execute("""UPDATE accounts 
+                    SET response_texts = ?
+                    WHERE accountid = ? AND response_texts_main = ?""",
+                    (
+                    response_texts,
+                    account_id,
+                    1,
+                    ))
+
         self.save_and_close_db(conn)
         success = True
         return(success)
@@ -356,31 +502,22 @@ class SqlUserDataManager(SqlManager):
         account_id = account_dict['account_id']
         name = account_dict['name']
         description_text = account_dict['description_text']
-        default_response_text = account_dict['default_response_text']
-        expiration_year = int(account_dict["date_expiration"].strftime("%Y"))
-        expiration_month = int(account_dict["date_expiration"].strftime("%m"))
-        expiration_day = int(account_dict["date_expiration"].strftime("%d"))
-        available_hours = account_dict['available_hours']
+        response_texts_main = account_dict['response_texts_main']
+        response_texts = account_dict['response_texts']
 
         conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("""UPDATE accounts 
                     SET name = ?,
                     description_text = ?,
-                    default_response_text = ?,
-                    expiration_year = ?,
-                    expiration_month = ?,
-                    expiration_day = ?,
-                    available_hours = ? 
+                    response_texts_main = ?,
+                    response_texts = ?
                     WHERE accountid = ?""",
                     (
                     name,
                     description_text,
-                    default_response_text,
-                    expiration_year,
-                    expiration_month,
-                    expiration_day,
-                    available_hours,
+                    response_texts_main,
+                    response_texts,
                     account_id,
                     ))
         self.save_and_close_db(conn)
@@ -470,7 +607,7 @@ class SqlUserDataManager(SqlManager):
         cur.execute("SELECT * FROM accounts WHERE accountid = ?", (account_id,))
         result = cur.fetchall()[0]
 
-        date_expiration = datetime.date(result[14], result[15], result[16])
+        date_expiration = datetime.date(result[15], result[16], result[17])
 
         conn = self.open_db_conn()
         cur = conn.cursor()
@@ -489,13 +626,14 @@ class SqlUserDataManager(SqlManager):
                         "order_label":result[6],
                         "process_label":result[7],
                         "response_code":result[8],
-                        "default_response_text":result[9],
-                        "auto_booking":result[10],
-                        "status":result[11],
-                        "group": result[12],
-                        "bookable":result[13],
+                        "response_texts_main":result[9],
+                        "response_texts":result[10],
+                        "external_booking":result[11],
+                        "status":result[12],
+                        "group": result[13],
+                        "bookable":result[14],
                         "date_expiration":date_expiration,
-                        "available_hours":result[17],
+                        "available_hours":result[18],
                         "sum_passed_times":sum_passed_times
                         }
         
@@ -533,8 +671,8 @@ class SqlUserDataManager(SqlManager):
             query = cur.execute("SELECT * FROM accounts WHERE bookable = ?", (1,))
         elif modus == 'not_bookable':
             query = cur.execute("SELECT * FROM accounts WHERE bookable = ?", (0,))
-        elif modus == 'auto_booking':
-            query = cur.execute("SELECT * FROM accounts WHERE auto_booking = ?", (1,))
+        elif modus == 'external_booking':
+            query = cur.execute("SELECT * FROM accounts WHERE external_booking = ?", (1,))
         elif modus == 'all':
             query = cur.execute("SELECT * FROM accounts")
         elif modus == 'name':
@@ -551,6 +689,8 @@ class SqlUserDataManager(SqlManager):
             query = cur.execute("SELECT * FROM accounts WHERE process_label LIKE  ?", ('%'+str(search_input)+'%',))
         elif modus == 'response_code':
             query = cur.execute("SELECT * FROM accounts WHERE response_code LIKE  ?", ('%'+str(search_input)+'%',))
+        elif modus == 'response_texts':
+            query = cur.execute("SELECT * FROM accounts WHERE response_texts LIKE  ?", ('%'+str(search_input)+'%',))
         else:
             return
         
@@ -559,17 +699,19 @@ class SqlUserDataManager(SqlManager):
         self.save_and_close_db(conn)
         return(df)
     
-    def get_sub_accounts_by_search_name(self,main_df,id_list):
+    def get_accounts_by_main_id(self,id_list):
         conn = self.open_db_conn()
         cur = conn.cursor()
-        for id in id_list:
-            query = cur.execute("SELECT * FROM accounts WHERE main_id == ? AND account_kind == ? ", (id,str(0),))
-            sub_df = self.process_account_dict(query)
-            df3 = pd.concat([main_df,sub_df])
-            main_df = df3.copy()
+
+        id_list = list(set(id_list))
+
+        placeholders = ', '.join(['?'] * len(id_list))
+        query = cur.execute(f"SELECT * FROM accounts WHERE main_id IN ({placeholders})", id_list)
+
+        df = self.process_account_dict(query)
 
         self.save_and_close_db(conn)
-        return(main_df)
+        return(df)
     
     def get_all_account_groups(self):
         conn = self.open_db_conn()
@@ -606,6 +748,16 @@ class SqlUserDataManager(SqlManager):
 
         self.save_and_close_db(conn)
         return(df)
+    
+    def account_set_response_texts(self,response_text_main,account_id, response_texts):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        if response_text_main == 1:
+            cur.execute("UPDATE accounts SET response_texts = ? WHERE main_id = ? AND response_texts_main == ?", (response_texts,account_id,1,))
+        else:
+            cur.execute("UPDATE accounts SET response_texts = ? WHERE accountid = ?", (response_texts,account_id,))
+        self.save_and_close_db(conn)
+        return()
 
     def account_set_open(self,account_id):
         conn = self.open_db_conn()
@@ -618,13 +770,6 @@ class SqlUserDataManager(SqlManager):
         conn = self.open_db_conn()
         cur = conn.cursor()
         cur.execute("UPDATE accounts SET status = ? WHERE accountid = ?", ("closed",account_id,))
-        self.save_and_close_db(conn)
-        return()
-    
-    def account_set_hidden(self,account_id):
-        conn = self.open_db_conn()
-        cur = conn.cursor()
-        cur.execute("UPDATE accounts SET status = ? WHERE accountid = ?", ("hidden",account_id,))
         self.save_and_close_db(conn)
         return()
     
@@ -824,7 +969,6 @@ class SqlUserDataManager(SqlManager):
 
         
         id_list = [passedid[0] for passedid in cur.execute("SELECT passedid FROM passed_times WHERE passed_times.day != 1 AND NOT ((passed_times.month == ? AND passed_times.year == ?) OR (passed_times.month == ? AND passed_times.year == ?))", (this_month, year_1, last_month, year_2))]
-        print(id_list)
         if id_list != []:
 
             cur = conn.cursor()
@@ -985,45 +1129,4 @@ class SqlUserDataManager(SqlManager):
         fold_up_list = list_str.split(",")
         return(fold_up_list)
     
-####################################################################################################################
-    
-    def add_template_response_text(self,main_id,template_text):
 
-        templateid = self.get_new_templateid()
-
-        template_tuple = (templateid,main_id,template_text)
-
-        conn = self.open_db_conn()
-        cur = conn.cursor()
-        cur.execute("INSERT INTO response_text_templates VALUES(?, ?, ?);", template_tuple)
-        self.save_and_close_db(conn)
-        success = True
-        return(success)
-
-    def get_new_templateid(self):
-        conn = self.open_db_conn()
-        cur = conn.cursor()
-
-        cur.execute("SELECT MAX(templateid) FROM response_text_templates")
-        result = cur.fetchone()
-        self.save_and_close_db(conn)
-
-        if result[0] != None:
-            templateid = result[0] + 1
-        else:
-            templateid = 0
-        return(templateid)
-    
-    def get_template_response_texts(self,main_id):
-        conn = self.open_db_conn()
-        cur = conn.cursor()
-        template_text_list = [template_text[0] for template_text in cur.execute("SELECT template_text FROM response_text_templates WHERE main_id = ?", (main_id,))]
-        self.save_and_close_db(conn)
-        return(template_text_list)
-    
-    def delete_template_response_texts(self, main_id, template_text):
-        conn = self.open_db_conn()
-        cur = conn.cursor()
-        cur.execute("DELETE FROM response_text_templates WHERE main_id = ? AND  template_text = ?", (main_id,template_text,))
-        self.save_and_close_db(conn)
-        return()

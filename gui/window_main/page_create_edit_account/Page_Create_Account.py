@@ -113,9 +113,9 @@ class CreateEditAccount(tk.Frame):
         return(account_data)
         
 
-    def user_input(self,account_name,account_description_text,account_project,account_order,account_process,account_response,account_text,account_autobooking,group,bookable,expiration_year,expiration_month,expiration_day,available_hours):
+    def user_input(self,account_name,account_description_text,account_project,account_order,account_process,account_response,account_response_texts_main,account_response_texts,account_external_booking,group,bookable,expiration_year,expiration_month,expiration_day,available_hours):
 
-        main_list = ['new_main','new_order','new_process','edit_main']
+        main_list = ['new_main','duplicate_main_account','edit_main']
         sub_list = ['new_sub','edit_sub']
 
         if self.modus in main_list:
@@ -125,8 +125,11 @@ class CreateEditAccount(tk.Frame):
         elif self.modus in sub_list:
             kind = 0
             main_id = self.main_account_dict.get("account_id")
-        else:
-            return
+            
+            if self.main_account_dict.get("bookable") == 1:
+                bookable = True 
+            else:
+                bookable = False
 
         project_label = account_project.get()
         order_label = account_order.get()
@@ -134,26 +137,30 @@ class CreateEditAccount(tk.Frame):
         group = group.get()
         name = account_name.get()
         description_text = account_description_text.get()
-        auto_booking = account_autobooking.get()
+        external_booking = account_external_booking.get()
         response_code = account_response.get()
-        default_response_text = account_text.get()
+        response_texts = account_response_texts.get()
         expiration_year = expiration_year.get()
         expiration_month = expiration_month.get()
         expiration_day = expiration_day.get()
         available_hours = available_hours.get()
+
+        response_texts_main = account_response_texts_main
+        
+        ############################
 
         if bookable == True:
             bookable = 1
         else:
             bookable = 0
 
-        if project_label == '' or group.isspace() == True:
+        if project_label == '' or project_label.isspace() == True:
             project_label = ' - '
 
-        if order_label == '' or group.isspace() == True:
+        if order_label == '' or order_label.isspace() == True:
             order_label = ' - '
         
-        if process_label == '' or group.isspace() == True:
+        if process_label == '' or process_label.isspace() == True:
             process_label = ' - '
 
         if group == '' or group.isspace() == True:
@@ -165,8 +172,15 @@ class CreateEditAccount(tk.Frame):
         if response_code == '' or response_code.isspace() == True:
             response_code = ' - '
 
-        if default_response_text == '' or default_response_text.isspace() == True:
-            default_response_text = ' - '
+        if response_texts == '' or response_texts.isspace() == True:
+            response_texts = ' - '
+
+        response_text_list = response_texts.split(";")
+        response_text_list_2 = []
+        for x in response_text_list:
+            if x not in response_text_list_2:
+                response_text_list_2.append(x)
+        response_texts = ';'.join(map(str, response_text_list_2))
 
         if expiration_year == '' or expiration_month == '' or expiration_day == '':
             expiration_year = 2000
@@ -181,35 +195,35 @@ class CreateEditAccount(tk.Frame):
         if available_hours == '' or available_hours.isspace() == True:
             available_hours = '0'
 
-        input_checked = self.check_new_account_input(name,[group],[name,project_label,order_label,process_label,group,description_text,response_code,default_response_text],available_hours)
+        input_checked = self.check_new_account_input(name,[group],[name,project_label,order_label,process_label,group,description_text,response_code,response_texts],available_hours)
 
         if input_checked != True:
             info = input_checked
             return(info)
         else:
             date_expiration = datetime.date(expiration_year, expiration_month, expiration_day)
-
             available_hours = float(locale.atof(available_hours, decimal.Decimal))
-            self.save(name,description_text,project_label,order_label,process_label,response_code,default_response_text,auto_booking,kind,main_id,group,bookable,date_expiration,available_hours)
+
+            self.save(name,description_text,project_label,order_label,process_label,response_code,response_texts_main,response_texts,external_booking,kind,main_id,group,bookable,date_expiration,available_hours)
             return(None)
 
-    def save(self,name,description_text,project_label,order_label,process_label,response_code,default_response_text,auto_booking,kind,main_id,group,bookable,date_expiration,available_hours):
+    def save(self,name,description_text,project_label,order_label,process_label,response_code,response_texts_main,response_texts,external_booking,kind,main_id,group,bookable,date_expiration,available_hours):
 
-        new_main_list = ['new_main','new_order','new_process']
+        new_main_list = ['new_main','duplicate_main_account']
         edit_main_list = ['edit_main']
         new_sub_list = ['new_sub']
         edit_sub_list = ['edit_sub']
 
 
         if self.modus in new_main_list:
-            account_dict = self.data_manager.create_time_account_dict(name,description_text,project_label,order_label,process_label,response_code,default_response_text,auto_booking,kind,main_id,group,bookable,date_expiration,available_hours)
+            account_dict = self.data_manager.create_time_account_dict(name,description_text,project_label,order_label,process_label,response_code,response_texts_main,response_texts,external_booking,kind,main_id,group,bookable,date_expiration,available_hours)
             self.data_manager.add_time_account_dict_to_user_db(account_dict)
 
             main_account_clock = self.data_manager.create_main_account_clock(account_dict)
             self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.add_main_account_frame(group,main_account_clock)
             
         elif self.modus in new_sub_list:
-            account_dict = self.data_manager.create_time_account_dict(name,description_text,project_label,order_label,process_label,response_code,default_response_text,auto_booking,kind,main_id,group,bookable,date_expiration,available_hours)
+            account_dict = self.data_manager.create_time_account_dict(name,description_text,project_label,order_label,process_label,response_code,response_texts_main,response_texts,external_booking,kind,main_id,group,bookable,date_expiration,available_hours)
             self.data_manager.add_time_account_dict_to_user_db(account_dict)
 
             sub_clock = self.main_account_clock.add_sub_clock(account_dict)
@@ -224,9 +238,10 @@ class CreateEditAccount(tk.Frame):
                             "project_label":str(project_label),            
                             "order_label":str(order_label),          
                             "process_label":str(process_label),            
-                            "response_code":str(response_code),     
-                            "default_response_text":str(default_response_text),      
-                            "auto_booking":int(auto_booking),         
+                            "response_code":str(response_code),   
+                            "response_texts_main":int(response_texts_main),
+                            "response_texts":response_texts,       
+                            "external_booking":int(external_booking),         
                             "status":str(self.main_account_dict['status']),        
                             "group":str(group),                     
                             "bookable":int(bookable),    
@@ -247,9 +262,10 @@ class CreateEditAccount(tk.Frame):
                             "project_label":str(self.sub_account_dict['project_label']),            
                             "order_label":str(self.sub_account_dict['order_label']),          
                             "process_label":str(self.sub_account_dict['process_label']),            
-                            "response_code":str(self.sub_account_dict['response_code']),     
-                            "default_response_text":str(default_response_text),      
-                            "auto_booking":int(self.sub_account_dict['auto_booking']),         
+                            "response_code":str(self.sub_account_dict['response_code']), 
+                            "response_texts_main":int(response_texts_main),    
+                            "response_texts":response_texts,      
+                            "external_booking":int(self.sub_account_dict['external_booking']),         
                             "status":str(self.sub_account_dict['status']),        
                             "group":str(self.sub_account_dict['group']),                     
                             "bookable":int(self.sub_account_dict['bookable']),    
@@ -269,7 +285,7 @@ class CreateEditAccount(tk.Frame):
 
     def check_new_account_input(self,name,comma_list,text_list,time):
 
-        new_main_list = ['new_main','new_order','new_process']
+        new_main_list = ['new_main','duplicate_main_account']
         edit_main_list = ['edit_main']
         new_sub_list = ['new_sub']
         edit_sub_list = ['edit_sub']
@@ -324,6 +340,11 @@ class CreateEditAccount(tk.Frame):
         #############################################
 
         elif self.modus in new_sub_list:
+            if name == '' or name == 'Zeitkonto'or name == 'Neues Hauptkonto' or name == 'Time account' or name == 'New main-account' or name == 'Ohne Zuordnung' or name == 'Without allocation':
+                return(self.language_dict['no_falid_name'])              
+            else:
+                pass
+
             if  name.isspace() == True:
                 return(self.language_dict['not_only_spaces'])
             
@@ -340,6 +361,12 @@ class CreateEditAccount(tk.Frame):
                 pass
 
         elif self.modus in edit_sub_list:
+
+            if name == '' or name == 'Zeitkonto'or name == 'Neues Hauptkonto' or name == 'Time account' or name == 'New main-account' or name == 'Ohne Zuordnung' or name == 'Without allocation':
+                return(self.language_dict['no_falid_name'])              
+            else:
+                pass
+
             if  name.isspace() == True:
                 return(self.language_dict['not_only_spaces'])
             
@@ -370,6 +397,8 @@ class CreateEditAccount(tk.Frame):
                 return(self.language_dict['not_allowed_characters']) 
             if '=' in text:
                 return(self.language_dict['not_allowed_characters']) 
+            if '/' in text:
+                return(self.language_dict['not_allowed_characters'])
             
         try:
             float(locale.atof(time, decimal.Decimal))

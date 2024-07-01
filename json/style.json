@@ -19,7 +19,8 @@
         "recording_color_green": "#4dc94d",
         "pause_color_orange": "#ffa500",
         "titlebar_color": "#cccccc",
-        "window_border_color": "#929292"
+        "window_border_color": "#929292",
+        "cbox_color_grey": "#dadddb"
     },
     "dark": 
     {
@@ -41,7 +42,8 @@
         "recording_color_green": "#068206",
         "pause_color_orange": "#ba7800",
         "titlebar_color": "#000000",
-        "window_border_color": "#343434"
+        "window_border_color": "#343434",
+        "cbox_color_grey": "#343434"
     }
 }
 

@@ -378,7 +378,7 @@ class WorkWindowList(tk.Toplevel):
         self.close_button_v.pack(side='top')
         self.close_button_v.bind('<Button-1>', self.close_window)
         self.on_close_button_v = False
-        self.close_work_window_v_ttp = CreateInfo(self.close_button_v, self.data_manager, 30, 25, self.language_dict["close_work_window"])
+        self.close_work_window_v_ttp = CreateInfo(self.close_button_v, self.data_manager, -150, 40, self.language_dict["close_work_window"])
         self.close_button_v.bind("<Enter>", self.enter_close_v)
         self.close_button_v.bind("<Leave>", self.leave_close_v)
         self.close_button_v.bind("<Button-3>", self.right_clicked)
@@ -388,7 +388,7 @@ class WorkWindowList(tk.Toplevel):
         self.expand_btn_v.pack(side='top')
         self.expand_btn_v.bind('<Button-1>', self.expand_to_main_window)
         self.on_expand_button_v = False
-        self.open_main_window_v_ttp = CreateInfo(self.expand_btn_v, self.data_manager, 30, 25, self.language_dict["open_main_window"])
+        self.open_main_window_v_ttp = CreateInfo(self.expand_btn_v, self.data_manager, -150, 40, self.language_dict["open_main_window"])
         self.expand_btn_v.bind("<Enter>", self.enter_expand_window_v)
         self.expand_btn_v.bind("<Leave>", self.leave_expand_window_v)
         self.expand_btn_v.bind("<Button-3>", self.right_clicked)
@@ -402,7 +402,7 @@ class WorkWindowList(tk.Toplevel):
         self.bar_btn_v.pack(side='top')
         self.bar_btn_v.bind('<Button-1>', self.change_to_bar_work_window)
         self.on_bar_btn_v = False
-        self.change_work_window_v_ttp = CreateInfo(self.bar_btn_v, self.data_manager, 30, 25, self.language_dict["change_work_window"])
+        self.change_work_window_v_ttp = CreateInfo(self.bar_btn_v, self.data_manager, -150, 40, self.language_dict["change_work_window"])
         self.bar_btn_v.bind("<Enter>", self.enter_change_to_bar_v)
         self.bar_btn_v.bind("<Leave>", self.leave_change_to_bar_v)
         self.bar_btn_v.bind("<Button-3>", self.right_clicked)
@@ -411,7 +411,7 @@ class WorkWindowList(tk.Toplevel):
         self.vertical_name_frame.configure(highlightthickness=1, highlightcolor = self.style_dict["titlebar_color"], highlightbackground=self.style_dict["titlebar_color"])
         self.vertical_name_frame.pack(side='top')
         if self.modus != 'dynamic_view':
-            self.vertical_frame_ttp = CreateToolTip(self.vertical_name_frame, self.data_manager, -50, 100, self.language_dict['right_click'] + '\n' + self.language_dict['double_click'])
+            self.vertical_frame_ttp = CreateToolTip(self.vertical_name_frame, self.data_manager, -90, 150, self.language_dict['right_click'] + '\n' + self.language_dict['double_click'])
 
         font_family = self.main_app.get_setting('font_family')
         font_size = self.main_app.get_setting('font_size')
@@ -444,7 +444,7 @@ class WorkWindowList(tk.Toplevel):
         self.close_button.pack(side='right', fill = "y")
         self.close_button.bind('<Button-1>', self.close_window)
         self.on_close_button = False
-        self.close_work_window_ttp = CreateInfo(self.close_button, self.data_manager, 30, 25, self.language_dict["close_work_window"])
+        self.close_work_window_ttp = CreateInfo(self.close_button, self.data_manager, -150, 40, self.language_dict["close_work_window"])
         self.close_button.bind("<Enter>", self.enter_close)
         self.close_button.bind("<Leave>", self.leave_close)
         self.close_button.bind("<Button-3>", self.right_clicked)
@@ -454,7 +454,7 @@ class WorkWindowList(tk.Toplevel):
         self.expand_btn.pack(side='right', fill = "y")
         self.expand_btn.bind('<Button-1>', self.expand_to_main_window)
         self.on_expand_button = False
-        self.open_main_window_ttp = CreateInfo(self.expand_btn, self.data_manager, 30, 25, self.language_dict["open_main_window"])
+        self.open_main_window_ttp = CreateInfo(self.expand_btn, self.data_manager, -150, 40, self.language_dict["open_main_window"])
         self.expand_btn.bind("<Enter>", self.enter_expand_window)
         self.expand_btn.bind("<Leave>", self.leave_expand_window)
         self.expand_btn.bind("<Button-3>", self.right_clicked)
@@ -468,7 +468,7 @@ class WorkWindowList(tk.Toplevel):
         self.bar_btn.pack(side='right', fill = "y")
         self.bar_btn.bind('<Button-1>', self.change_to_bar_work_window)
         self.on_bar_btn = False
-        self.change_work_window_ttp = CreateInfo(self.bar_btn, self.data_manager, 30, 25, self.language_dict["change_work_window"])
+        self.change_work_window_ttp = CreateInfo(self.bar_btn, self.data_manager, -150, 40, self.language_dict["change_work_window"])
         self.bar_btn.bind("<Enter>", self.enter_change_to_bar)
         self.bar_btn.bind("<Leave>", self.leave_change_to_bar)
         self.bar_btn.bind("<Button-3>", self.right_clicked)
@@ -491,7 +491,7 @@ class WorkWindowList(tk.Toplevel):
         self.lbl_name.bind('<ButtonRelease-1>', self.save_and_adjust_pos)
         self.lbl_name.bind("<Button-3>", self.right_clicked)
         self.lbl_name.bind("<Double-Button-1>", self.status_double_click)
-        self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, 50, 30,'')
+        self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, 0, 40,'')
 
     def create_btn_frame(self):
 
@@ -750,7 +750,7 @@ class ClockFrame((tk.Frame)):
         else:
             name = self.clock.get_name()
             if self.clock.get_clock_kind() == 'sub':
-                name = ' ' + u'\U00002B9E' + ' ' + name
+                name = ' ' + u'\U00002B9E' + ' ' + name # 1F517 # 02B9E
 
         self.lbl_name = MyLabel(self,self.data_manager,text = name, anchor='w')
         self.lbl_name.pack(side = "left", padx=5, pady=5)

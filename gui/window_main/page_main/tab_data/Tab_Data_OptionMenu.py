@@ -111,14 +111,14 @@ class DataOptionMenu(tkinter.Listbox):
             info_dict.update({self.language_dict["bookable"]:self.language_dict["no"]}) 
         #############
         if self.record_dict['bookable'] == 1:
-            if self.record_dict['auto_booking'] == 1:
-                info_dict.update({self.language_dict["auto_booking"]:self.language_dict["yes"]}) 
+            if self.record_dict['external_booking'] == 1:
+                info_dict.update({self.language_dict["external_booking"]:self.language_dict["yes"]}) 
             else:
-                info_dict.update({self.language_dict["auto_booking"]:self.language_dict["no"]}) 
+                info_dict.update({self.language_dict["external_booking"]:self.language_dict["no"]}) 
             #########
             info_dict.update({                     
                         self.language_dict["response_code"]:'='+self.record_dict['response_code'],                            
-                        self.language_dict["default_response_text"]:self.record_dict['default_response_text']              
+                        self.language_dict["response_texts"]:'='+self.record_dict['response_texts']              
                         })
         #############
         if self.record_dict['account_id'] != 0:
@@ -129,7 +129,7 @@ class DataOptionMenu(tkinter.Listbox):
         #############
         if self.record_dict['account_id'] != 0:
             if float(self.record_dict['available_hours']) != 0:
-                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.record_dict['available_hours']),3))) + ' ' + self.language_dict["hours"]}) # round_time
+                info_dict.update({self.language_dict["available_hours"]:str('{:n}'.format(round(float(self.record_dict['available_hours']),3))) + ' ' + self.language_dict["hours_abbreviation"]}) # round_time
             else:
                 info_dict.update({self.language_dict["available_hours"]:" - "}) 
         #############

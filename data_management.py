@@ -233,46 +233,50 @@ class DataManager:
         month = int(dt.strftime("%m"))
         year = int(dt.strftime("%Y"))
 
-        for main_clock in self.main_account_clock_list:
+        try:
+            for main_clock in self.main_account_clock_list:
 
-            clock_list = []
-            clock_list.append(main_clock)
-            sub_clock_list = main_clock.get_sub_clock_list()
-            clock_list = clock_list + sub_clock_list
+                clock_list = []
+                clock_list.append(main_clock)
+                sub_clock_list = main_clock.get_sub_clock_list()
+                clock_list = clock_list + sub_clock_list
 
-            for clock in clock_list:
-                clock.stop()
-                response_text = clock.get_response_text()
-                duration = clock.get_total_time()
-                days, seconds = duration.days, duration.seconds
-                hours = days * 24 + seconds / 3600
-                if hours > 0:
-                    hours = float(hours)
-                    passed_id = self.user_db.get_new_passedid()
-                    account_dict = clock.get_account_dict()
-                    account_id = account_dict['account_id']
-                    auto_booking = account_dict['auto_booking']
+                for clock in clock_list:
+                    clock.stop()
+                    response_text = clock.get_response_text()
+                    duration = clock.get_total_time()
+                    days, seconds = duration.days, duration.seconds
+                    hours = days * 24 + seconds / 3600
+                    if hours > 0:
+                        hours = float(hours)
+                        passed_id = self.user_db.get_new_passedid()
+                        account_dict = clock.get_account_dict()
+                        account_id = account_dict['account_id']
+                        external_booking = account_dict['external_booking']
 
-                    passed_time_dict = {"passed_id": passed_id,
-                                        "account_id": account_id,
-                                        "year": year,
-                                        "month": month,
-                                        "day": day,
-                                        "hours": hours,
-                                        "booked": auto_booking,
-                                        "response_text": response_text
-                                        }
+                        passed_time_dict = {"passed_id": passed_id,
+                                            "account_id": account_id,
+                                            "year": year,
+                                            "month": month,
+                                            "day": day,
+                                            "hours": hours,
+                                            "booked": external_booking,
+                                            "response_text": response_text
+                                            }
 
-                    self.user_db.add_passed_times(passed_time_dict)
+                        self.user_db.add_passed_times(passed_time_dict)
+                    else:
+                        pass
                 else:
                     pass
-            else:
-                pass
-        self.user_db.delete_backup()
-        self.user_db.groups_set_fold_up_list(fold_up_list)
-        self.times_saved = True
+            self.user_db.delete_backup()
+            self.user_db.groups_set_fold_up_list(fold_up_list)
+            self.times_saved = True
+        except:
+            return('failed')
 
-        self.user_db.simplify_passed_times()
+        if self.main_app.get_restricted_data_access() == True or str(self.main_app.get_setting("simplify_after_two_month")) == 'on':
+            self.user_db.simplify_passed_times()
 
         path_easytarc = os.path.abspath(os.getcwd())
 
@@ -377,7 +381,7 @@ class DataManager:
                     backup_id = self.user_db.get_new_backupid()          
                     account_dict = clock.get_account_dict()
                     account_id = account_dict['account_id']
-                    auto_booking = account_dict['auto_booking']
+                    external_booking = account_dict['external_booking']
 
                     backup_dict = {"backup_id": backup_id,
                                         "account_id": account_id,
@@ -385,7 +389,7 @@ class DataManager:
                                         "month": month,
                                         "day": day,
                                         "hours": hours,
-                                        "booked": auto_booking,
+                                        "booked": external_booking,
                                         "response_text": response_text
                                         }
 
@@ -415,6 +419,9 @@ class DataManager:
             photo_btn_off_head = photo_btn_off
             photo_btn_pause_head = photo_btn_pause
 
+            photo_btn_reset_strong_highlight = Image.open("images/btn_reset_110.png").convert('RGBA')
+            photo_btn_reset_font = Image.open("images/btn_reset_255.png").convert('RGBA')
+
             photo_btn_plus_strong_highlight = Image.open("images/btn_plus_110.png").convert('RGBA')
             photo_btn_plus_font = Image.open("images/btn_plus_255.png").convert('RGBA')
             photo_btn_minus_strong_highlight = Image.open("images/btn_minus_110.png").convert('RGBA')
@@ -428,6 +435,9 @@ class DataManager:
             photo_btn_highlight_head = Image.open("images/btn_highlight_2.PNG").convert('RGBA')
             photo_btn_off_head = Image.open("images/btn_off_2.png").convert('RGBA')
             photo_btn_pause_head = Image.open("images/btn_pause_2.png").convert('RGBA')
+
+            photo_btn_reset_strong_highlight = Image.open("images/btn_reset_146.png").convert('RGBA')
+            photo_btn_reset_font = Image.open("images/btn_reset_0.png").convert('RGBA')
 
             photo_btn_plus_strong_highlight = Image.open("images/btn_plus_146.png").convert('RGBA')
             photo_btn_plus_font = Image.open("images/btn_plus_0.png").convert('RGBA')
@@ -482,6 +492,9 @@ class DataManager:
         photo_btn_off_head = ImageTk.PhotoImage(photo_btn_off_head.resize(activation_btn_size, Image.ANTIALIAS))
         photo_btn_pause_head = ImageTk.PhotoImage(photo_btn_pause_head.resize(activation_btn_size, Image.ANTIALIAS))
 
+        photo_btn_reset_strong_highlight = ImageTk.PhotoImage(photo_btn_reset_strong_highlight.resize(correction_btn_1_size, Image.ANTIALIAS))
+        photo_btn_reset_font = ImageTk.PhotoImage(photo_btn_reset_font.resize(correction_btn_1_size, Image.ANTIALIAS))
+
         photo_btn_plus_strong_highlight = ImageTk.PhotoImage(photo_btn_plus_strong_highlight.resize(correction_btn_1_size, Image.ANTIALIAS))
         photo_btn_plus_font = ImageTk.PhotoImage(photo_btn_plus_font.resize(correction_btn_1_size, Image.ANTIALIAS))
         photo_btn_minus_strong_highlight = ImageTk.PhotoImage(photo_btn_minus_strong_highlight.resize(correction_btn_1_size, Image.ANTIALIAS))
@@ -502,6 +515,8 @@ class DataManager:
             "photo_btn_highlight_head":photo_btn_highlight_head,
             "photo_btn_off_head":photo_btn_off_head,
             "photo_btn_pause_head":photo_btn_pause_head,
+            "photo_btn_reset_strong_highlight":photo_btn_reset_strong_highlight,
+            "photo_btn_reset_font":photo_btn_reset_font,
             "photo_btn_plus_strong_highlight":photo_btn_plus_strong_highlight,
             "photo_btn_plus_font":photo_btn_plus_font,
             "photo_btn_plus_plus_strong_highlight":photo_btn_plus_plus_strong_highlight,
@@ -549,7 +564,7 @@ class DataManager:
     
 #################################################################
 
-    def create_time_account_dict(self,name,description_text,project_label,order_label,process_label,response_code,default_response_text,auto_booking,kind,main_id,group,bookable,date_expiration,available_hours,status = "open"):
+    def create_time_account_dict(self,name,description_text,project_label,order_label,process_label,response_code,response_texts_main,response_texts,external_booking,kind,main_id,group,bookable,date_expiration,available_hours,status = "open"):
         account_id = self.user_db.get_new_accountid()
         if kind == 1:
             main_id = account_id
@@ -563,8 +578,9 @@ class DataManager:
                         "order_label":str(order_label),              # order label
                         "process_label":str(process_label),          # process label
                         "response_code":str(response_code),          # response code
-                        "default_response_text":str(default_response_text),          # booking default text
-                        "auto_booking":int(auto_booking),            # autobooking on -> 1, off -> 0; if on the system dont show the account for booking
+                        "response_texts_main":int(response_texts_main), # response_texts_main on -> 1, off -> 0; if the response texts should be the same to the main account
+                        "response_texts":response_texts,            # response texts
+                        "external_booking":int(external_booking),            # external_booking on -> 1, off -> 0; if on the system dont show the account for booking
                         "status":str(status),                        # open -> the account can capture time, closed -> the account cant capture time
                         "group":str(group),                          # default -> default group, group on the display
                         "bookable":int(bookable),                    # 1 -> part of the booking time, 0 -> part of the non booking time
@@ -606,7 +622,7 @@ class DataManager:
         if df.empty:
             return([])
         df = df.fillna('')
-        #df = df[df['bookable'] == 1]
+
         main_id_list = df.main_id.values.tolist()
         main_id_list = list(set(main_id_list))
 
@@ -633,11 +649,12 @@ class DataManager:
                                 "project_label":df.loc[(df['accountid'] == account_id)].project_label.values.tolist()[0], 
                                 "order_label":df.loc[(df['accountid'] == account_id)].order_label.values.tolist()[0],              
                                 "process_label":df.loc[(df['accountid'] == account_id)].process_label.values.tolist()[0],                 
-                                "response_code":df.loc[(df['accountid'] == account_id)].response_code.values.tolist()[0],              
-                                "default_response_text":df.loc[(df['accountid'] == account_id)].default_response_text.values.tolist()[0],
+                                "response_code":df.loc[(df['accountid'] == account_id)].response_code.values.tolist()[0],
+                                "response_texts_main":df.loc[(df['accountid'] == account_id)].response_texts_main.values.tolist()[0],              
+                                "response_texts":df.loc[(df['accountid'] == account_id)].response_texts.values.tolist()[0],
                                 "response_text":response_text,
                                 "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0],
-                                "auto_booking":df.loc[(df['accountid'] == account_id)].auto_booking.values.tolist()[0], 
+                                "external_booking":df.loc[(df['accountid'] == account_id)].external_booking.values.tolist()[0], 
                                 "date_expiration":df.loc[(df['accountid'] == account_id)].date_expiration.tolist()[0],
                                 "available_hours":df.loc[(df['accountid'] == account_id)].available_hours.values.tolist()[0], 
                                 "hours":df.loc[(df['accountid'] == account_id) & (df['response_text'] == response_text)].hours.sum()                  
@@ -698,9 +715,10 @@ class DataManager:
                                        "order_label":df.loc[(df['accountid'] == account_id)].order_label.values.tolist()[0],  
                                        "process_label":df.loc[(df['accountid'] == account_id)].process_label.values.tolist()[0],  
                                        "response_code":df.loc[(df['accountid'] == account_id)].response_code.values.tolist()[0],   
-                                       "default_response_text":df.loc[(df['accountid'] == account_id)].default_response_text.values.tolist()[0], 
+                                       "response_texts_main":df.loc[(df['accountid'] == account_id)].response_texts_main.values.tolist()[0],      
+                                       "response_texts":df.loc[(df['accountid'] == account_id)].response_texts.values.tolist()[0],  
                                        "response_text":df.loc[(df['passedid'] == passed_id)].response_text.values.tolist()[0], 
-                                       "auto_booking":df.loc[(df['accountid'] == account_id)].auto_booking.values.tolist()[0], 
+                                       "external_booking":df.loc[(df['accountid'] == account_id)].external_booking.values.tolist()[0], 
                                        "status":df.loc[(df['accountid'] == account_id)].status.values.tolist()[0],
                                        "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0],
                                        "date_expiration":df.loc[(df['accountid'] == account_id)].date_expiration.tolist()[0],
@@ -765,8 +783,9 @@ class DataManager:
                                             "order_label":df.loc[(df['accountid'] == account_id)].order_label.values.tolist()[0],  
                                             "process_label":df.loc[(df['accountid'] == account_id)].process_label.values.tolist()[0],  
                                             "response_code":df.loc[(df['accountid'] == account_id)].response_code.values.tolist()[0],   
-                                            "default_response_text":df.loc[(df['accountid'] == account_id)].default_response_text.values.tolist()[0], 
-                                            "auto_booking":df.loc[(df['accountid'] == account_id)].auto_booking.values.tolist()[0], 
+                                            "response_texts_main":df.loc[(df['accountid'] == account_id)].response_texts_main.values.tolist()[0],      
+                                            "response_texts":df.loc[(df['accountid'] == account_id)].response_texts.values.tolist()[0],  
+                                            "external_booking":df.loc[(df['accountid'] == account_id)].external_booking.values.tolist()[0], 
                                             "status":df.loc[(df['accountid'] == account_id)].status.values.tolist()[0],
                                             "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0],
                                             "date_expiration":df.loc[(df['accountid'] == account_id)].date_expiration.tolist()[0],
@@ -831,9 +850,10 @@ class DataManager:
                                                 "project_label":df.loc[(df['accountid'] == account_id)].project_label.values.tolist()[0], 
                                                 "order_label":df.loc[(df['accountid'] == account_id)].order_label.values.tolist()[0],  
                                                 "process_label":df.loc[(df['accountid'] == account_id)].process_label.values.tolist()[0],  
-                                                "response_code":df.loc[(df['accountid'] == account_id)].response_code.values.tolist()[0],   
-                                                "default_response_text":df.loc[(df['accountid'] == account_id)].default_response_text.values.tolist()[0], 
-                                                "auto_booking":df.loc[(df['accountid'] == account_id)].auto_booking.values.tolist()[0], 
+                                                "response_code":df.loc[(df['accountid'] == account_id)].response_code.values.tolist()[0],  
+                                                "response_texts_main":df.loc[(df['accountid'] == account_id)].response_texts_main.values.tolist()[0],      
+                                                "response_texts":df.loc[(df['accountid'] == account_id)].response_texts.values.tolist()[0],   
+                                                "external_booking":df.loc[(df['accountid'] == account_id)].external_booking.values.tolist()[0], 
                                                 "status":df.loc[(df['accountid'] == account_id)].status.values.tolist()[0],
                                                 "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0],
                                                 "date_expiration":df.loc[(df['accountid'] == account_id)].date_expiration.tolist()[0],
@@ -901,9 +921,9 @@ class DataManager:
         df = self.user_db.get_accounts_by_search_input(modus,search_input)
         if df.empty:
             return([])
-        if modus == 'name':
-            id_list = df['accountid'].tolist()
-            df = self.user_db.get_sub_accounts_by_search_name(df,id_list)
+        if modus == 'name' or modus == 'response_texts':
+            id_list = df['main_id'].tolist()
+            df = self.user_db.get_accounts_by_main_id(id_list)
         df = df.fillna('')
 
         #if modus == "group_name":
@@ -983,24 +1003,42 @@ class DataManager:
         df_pivot_1.to_excel(writer,self.language_dict['rate'])
 
         df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['month','project_label','order_label','process_label','main_account','name','response_text'], aggfunc='sum' , fill_value=0)
-
         df_pivot_2['Percent of Month'] = round((df_pivot_2.hours / df_pivot_2.groupby(by=["month"]).hours.transform(sum) * 100),2)
+        df_pivot_2.to_excel(writer,self.language_dict['pivot_accounts_month_with_sub_accounts'])
 
-        df_pivot_2.to_excel(writer,self.language_dict['pivot_accounts_month'])
+        df_pivot_3 = pd.pivot_table(df, values = 'hours', index=['month','project_label','order_label','process_label','main_account','response_text'], aggfunc='sum' , fill_value=0)
+        df_pivot_3['Percent of Month'] = round((df_pivot_2.hours / df_pivot_2.groupby(by=["month"]).hours.transform(sum) * 100),2)
+        df_pivot_3.to_excel(writer,self.language_dict['pivot_accounts_month_without_sub_accounts'])
 
+        df_pivot_4 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','name','available_hours','date_expiration','response_text'], aggfunc='sum' , fill_value=0)
+        df_pivot_4.to_excel(writer,self.language_dict['pivot_accounts_total_with_sub_accounts'])
 
-        df_pivot_3 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','name','available_hours','date_expiration','response_text'], aggfunc='sum' , fill_value=0)
-        df_pivot_3.to_excel(writer,self.language_dict['pivot_accounts_total'])
+        df_pivot_5 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','available_hours','date_expiration','response_text'], aggfunc='sum' , fill_value=0)
+        df_pivot_5.to_excel(writer,self.language_dict['pivot_accounts_total_without_sub_accounts'])
         
         writer.save()
         
-    def get_all_account_groups(self,only_active=False):
-        if only_active == True:
-            group_list = self.user_db.get_all_active_account_groups()
+    def get_all_account_groups(self,seperate_active=False):
+        if seperate_active == True:
+            group_list_active = self.user_db.get_all_active_account_groups()
+            group_list_active = [ele for ele in group_list_active if ele != ' - ']
+            group_list_active = list(set(group_list_active))
+            group_list_active.sort()
+            group_list_active_2 = group_list_active.copy()
+
+            group_list_all = self.user_db.get_all_account_groups()  
+            group_list_all = [ele for ele in group_list_all if ele != ' - ']
+            group_list_all = list(set(group_list_all))
+            group_list_all.sort()
+            group_list_all_2 = group_list_all.copy()
+
+            group_list_inactive = [ele for ele in group_list_all_2 if ele not in group_list_active_2]
+
+            group_list = group_list_active_2 + [''] + group_list_inactive
         else:
             group_list = self.user_db.get_all_account_groups()
-        group_list = [ele for ele in group_list if ele != ' - ']
-        group_list = list(set(group_list))
+            group_list = [ele for ele in group_list if ele != ' - ']
+            group_list = list(set(group_list))
         return(group_list)
 
 #################################################################

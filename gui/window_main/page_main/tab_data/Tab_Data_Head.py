@@ -191,7 +191,7 @@ class DataHead:
         self.lbl_empty7 = MyLabel(self.response_text_visible_frame, self.data_manager, width=2)
         self.lbl_empty7.pack(side='right',padx=3)
 
-        self.lbl_response_text = MyLabel(self.response_text_visible_frame, self.data_manager, text=self.language_dict["response_text"],width=25)
+        self.lbl_response_text = MyLabel(self.response_text_visible_frame, self.data_manager, text=self.language_dict["response_text"],width=37)
         self.lbl_response_text.pack(side='right',padx = 3)
 
         self.lbl_empty8 = MyLabel(self.response_text_visible_frame, self.data_manager, width=2)
