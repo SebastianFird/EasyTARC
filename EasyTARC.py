@@ -51,7 +51,7 @@ class App():
         self.restricted_user_group = False          # True / False     
         self.restricted_data_access = False         # True / False
 
-        self.version = '1.10.0'
+        self.version = '1.10.1'
 
         self.authorisation_old = Authorisation('whirlpool') #'whirlpool'
         self.authorisation_new = Authorisation('sha512')
