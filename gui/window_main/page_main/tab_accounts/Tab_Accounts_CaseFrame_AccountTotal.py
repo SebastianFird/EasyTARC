@@ -137,7 +137,7 @@ class GroupFrame((tk.Frame)):
         Font_tuple = (font_family, font_size, "bold")
 
         self.separator_frame_1 = MyFrame(self.group_frame,self.data_manager)
-        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
         self.separator_frame_1.pack(side = "top",fill='x')
 
         self.group_name_frame = MyFrame(self.group_frame,self.data_manager)

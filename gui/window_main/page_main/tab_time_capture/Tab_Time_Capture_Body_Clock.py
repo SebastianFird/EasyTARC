@@ -46,6 +46,7 @@ class ClockFrame(tk.Frame):
         self.frame_deleted = False
         self.date_expired = False
         self.hours_used_up = False
+        self.appearance_state = 'highlight'
 
         self.clock = clock
         self.capture_body = capture_body
@@ -143,13 +144,7 @@ class ClockFrame(tk.Frame):
 
 ##################################################
 
-        sign, added_time = self.clock.get_added_time()
         self.lbl_add_time = MyLabel(self, self.data_manager, width=13, anchor='w')
-        if added_time == "00:00:00":
-            self.lbl_add_time.configure(text='')
-            sign = ' '
-        else:
-            self.lbl_add_time.configure(text = sign + ' ' + str(added_time))
 
         self.lbl_add_time_ttp = CreateInfo(self.lbl_add_time, self.data_manager, 0, 30, "", True)
         self.lbl_current_added_time_ttp =CurrentAddedTimeTip(self.lbl_add_time, self.data_manager, 0, 30, self)
@@ -203,6 +198,11 @@ class ClockFrame(tk.Frame):
 
         self.entered_response_text = tk.StringVar()
         self.response_text_cbox = ttk.Combobox(self, width = 40, textvariable = self.entered_response_text, postcommand=self.update_response_text_cbox)
+
+        self.lbl_empty4 = MyLabel(self, self.data_manager, text=u'', width=2)
+        self.lbl_response_text = MyLabel(self, self.data_manager, anchor='w', width = 41)
+        self.lbl_response_text.configure(text = self.entered_response_text.get(), foreground=self.style_dict["highlight_color_grey"])
+
         self.response_text_cbox.bind("<Leave>", self.save_response_text_to_clock)
         self.entered_response_text.set(self.clock.get_default_response_text())
         self.save_response_text_to_clock()
@@ -236,6 +236,8 @@ class ClockFrame(tk.Frame):
         self.lbl_hours_left.bind("<Button-1>", self.clock_frame_clicked)
         self.lbl_duration_to_expiration.bind("<Button-1>", self.clock_frame_clicked)
         self.lbl_empty_time.bind("<Button-1>", self.clock_frame_clicked)
+        self.lbl_empty4.bind("<Button-1>", self.clock_frame_clicked)
+        self.lbl_response_text.bind("<Button-1>", self.clock_frame_clicked)
         self.lbl_name.bind("<Button-1>", self.clock_frame_clicked)
 
         self.bind("<Button-3>", self.right_clicked)
@@ -251,6 +253,8 @@ class ClockFrame(tk.Frame):
         self.lbl_duration_to_expiration.bind("<Button-3>", self.right_clicked)
         self.lbl_empty_time.bind("<Button-3>", self.right_clicked)
         self.btn_edit_response_text.bind("<Button-3>", self.right_clicked)
+        self.lbl_empty4.bind("<Button-3>", self.right_clicked)
+        self.lbl_response_text.bind("<Button-3>", self.right_clicked)
         self.lbl_name.bind("<Button-3>", self.right_clicked)
         
         self.packed_time_col = None
@@ -301,6 +305,7 @@ class ClockFrame(tk.Frame):
                     self.data_manager.update_clocks()
                     self.clock.set_response_text(response_text)
                     self.entered_response_text.set(response_text)
+                    self.lbl_response_text.configure(text = response_text)
                 self.update_edit_response_text()
             else:
                 info_window = InfoWindow(self.main_app, self.gui, self.capture_tab.main_frame ,check_response,200,180)
@@ -321,14 +326,18 @@ class ClockFrame(tk.Frame):
         if response_text == ' - ':
             response_text = ''
         self.entered_response_text.set(response_text)
+        self.lbl_response_text.configure(text = response_text)
 
     def update_edit_response_text(self):
         if self.clock.get_response_texts() == " - " or self.clock.get_bookable() == 0:
             self.entered_response_text.set("")
+            self.lbl_response_text.configure(text = '')
 
-        #if self.clock.get_bookable() == 1:
-        #    if self.entered_response_text.get() not in self.clock.get_response_text_list():
-        #        self.entered_response_text.set(self.clock.get_default_response_text())
+        if self.clock.get_bookable() == 1:
+            total_time = self.clock.str_timedelta(self.clock.get_total_time())
+            if self.entered_response_text.get() not in self.clock.get_response_text_list() and total_time == '00:00:00':
+                self.entered_response_text.set(self.clock.get_default_response_text())
+                self.lbl_response_text.configure(text = self.clock.get_default_response_text())
 
         if self.entered_response_text.get() not in self.clock.get_response_text_list() and self.clock.get_response_texts() != " - ":
             self.btn_edit_response_text.configure(foreground=self.style_dict["highlight_color_grey"])
@@ -390,8 +399,8 @@ class ClockFrame(tk.Frame):
     def activate_clock(self,e=None):
         if self.main_app.get_action_state() == "normal":
             self.clock.start()
-            self.capture_tab.set_selected_clock_frame(self)
             self.capture_body.capture_tab.head.update()
+            self.capture_tab.set_selected_clock_frame(self)
             self.update_clock()
             return(True)
         else:
@@ -587,7 +596,7 @@ class ClockFrame(tk.Frame):
                 self.lbl_activate_clock.configure(image=self.image_dict['photo_btn_not_bookable'])
                 self.lbl_activate_clock.image = self.image_dict['photo_btn_not_bookable']
         else:
-            self.lbl_running_clock.configure(text = ' ')
+            self.lbl_running_clock.configure(text = '')
             if self.on_activate == True:
                 self.lbl_activate_clock.configure(image=self.image_dict['photo_btn_highlight'])
                 self.lbl_activate_clock.image = self.image_dict['photo_btn_highlight']
@@ -596,9 +605,23 @@ class ClockFrame(tk.Frame):
                 self.lbl_activate_clock.image = self.image_dict['photo_btn_off']
 
     def auto_clock(self,i=1):
+        total_time = self.clock.str_timedelta(self.clock.get_total_time())
         passed_time = self.clock.str_timedelta(self.clock.get_passed_time())
-        self.lbl_passed_time.configure(text = passed_time)
         sign, added_time = self.clock.get_added_time()
+
+        if total_time == "00:00:00" and self.appearance_state != 'normal':
+            self.appearance_state = 'normal'
+            self.update_appearance_state()
+            self.update_packed_time_column()
+
+        if  (total_time != "00:00:00" or self.clock.get_runninig() == True) and self.appearance_state != 'highlight':
+            self.appearance_state = 'highlight'
+            self.update_appearance_state()
+            self.update_packed_time_column()
+
+        self.lbl_total_time.configure(text = total_time)
+        self.lbl_passed_time.configure(text = passed_time)
+
         if added_time == "00:00:00":
             self.lbl_add_time.configure(text='')
         else:
@@ -610,13 +633,28 @@ class ClockFrame(tk.Frame):
         else:
             i = i + 1
 
-        total_time = self.clock.str_timedelta(self.clock.get_total_time())
-        self.lbl_total_time.configure(text = total_time)
-
         if self.clock.get_runninig() == True and self.main_app.get_action_state() == "normal" and self.frame_deleted == False:
             self.after_func = self.after(1000, lambda:self.auto_clock(i))
         else:
             self.show_state()
+
+    def update_appearance_state(self):
+        if self.appearance_state == 'normal':
+            font_color = self.style_dict["highlight_color_grey"]
+            if self.date_expired == False and self.hours_used_up == False:
+                self.lbl_name.configure(foreground=font_color)
+            self.lbl_total_time.configure(foreground=font_color)
+            self.lbl_passed_time.configure(foreground=font_color)
+            self.lbl_response_text.configure(text = self.entered_response_text.get())
+
+        else:  
+            font_color = self.style_dict["font_color"]
+            if self.date_expired == False and self.hours_used_up == False:
+                self.lbl_name.configure(foreground=font_color)
+            self.lbl_total_time.configure(foreground=font_color)
+            self.lbl_passed_time.configure(foreground=font_color)
+            self.lbl_response_text.configure(text = self.entered_response_text.get())
+
     
     def update_remaining_hours(self):
         time_left,state = self.clock.get_time_left()
@@ -762,11 +800,10 @@ class ClockFrame(tk.Frame):
             info_text = self.language_dict["name"] + ': ' + str(self.clock.get_name()) + '\n' + self.language_dict["project"]  + ': ' + str(self.clock.get_project_label()) + '   ' + self.language_dict["order"] + ': ' + str(self.clock.get_order_label()) + '   ' + self.language_dict["process"] + ': ' + str(self.clock.get_process_label()) + '\n' + self.language_dict["description"]  + ': ' + str(self.clock.get_description()) + '\n' + self.language_dict["account_date_expiration_or_hours_used_up"] 
             self.main_account_frame.account_date_expiration_or_hours_used_up = True
         else:
-            font_color = self.style_dict["font_color"]
+            self.update_appearance_state()
             info_text = self.language_dict["name"] + ': ' + str(self.clock.get_name()) + '\n' + self.language_dict["project"]  + ': ' + str(self.clock.get_project_label()) + '   ' + self.language_dict["order"] + ': ' + str(self.clock.get_order_label()) + '   ' + self.language_dict["process"] + ': ' + str(self.clock.get_process_label()) + '\n' + self.language_dict["description"]  + ': ' + str(self.clock.get_description()) 
             self.main_account_frame.account_date_expiration_or_hours_used_up = False
 
-        self.lbl_name.configure(foreground=font_color)
         self.account_info_ttp.text = info_text
         
 ################################################################################################################################
@@ -790,6 +827,8 @@ class ClockFrame(tk.Frame):
         self.lbl_activate_clock.configure(background=background_color)
         self.lbl_name.configure(background=background_color)
         self.btn_edit_response_text.configure(background=background_color)
+        self.lbl_empty4.configure(background=background_color)
+        self.lbl_response_text.configure(background=background_color)
         self.lbl_passed_time.configure(background=background_color)
         self.lbl_total_time.configure(background=background_color)
         self.lbl_running_clock.configure(background=background_color)
@@ -808,36 +847,41 @@ class ClockFrame(tk.Frame):
 
         self.update_edit_response_text()
 
-        if (self.capture_tab.get_time_column() != self.packed_time_col) or (int(self.clock.get_bookable()) == 1 and self.packed_response_text_col == False) or (int(self.clock.get_bookable()) == 0 and self.packed_response_text_col == True) or (self.packed_response_text_col == True and self.clock.get_response_texts() == " - ") or (self.packed_response_text_col == False and self.clock.get_response_texts() != " - "):
+        if (self.capture_tab.get_time_column() != self.packed_time_col) or (int(self.clock.get_bookable()) == 0 and self.packed_response_text_col == True) or (self.packed_response_text_col == True and self.clock.get_response_texts() == " - ") or (self.packed_response_text_col == False and self.clock.get_response_texts() != " - " and self.capture_tab.get_time_column() != "progress"):
+            self.update_packed_time_column()
 
-            self.btn_reset.pack_forget()
-            self.lbl_empty3.pack_forget()
-            self.btn_minus.pack_forget()
-            self.btn_minus_minus.pack_forget()
-            self.btn_plus_plus.pack_forget()
-            self.btn_plus.pack_forget()
-            self.lbl_empty2.pack_forget()
+    def update_packed_time_column(self):
 
-            self.lbl_add_time.pack_forget()
-            self.lbl_passed_time.pack_forget()
-            self.lbl_hours_used.pack_forget()
-            self.lbl_prozent_progress.pack_forget()
-            self.btn_edit_hours_left.pack_forget()
-            self.lbl_hours_left.pack_forget()
-            self.lbl_duration_to_expiration.pack_forget()
-            self.lbl_empty_time.pack_forget()
-            self.lbl_total_time.pack_forget()
-            self.lbl_running_clock.pack_forget()
-            self.btn_edit_response_text.pack_forget()
-            self.response_text_cbox.pack_forget()
-            self.lbl_name.pack_forget()
+        self.btn_reset.pack_forget()
+        self.lbl_empty3.pack_forget()
+        self.btn_minus.pack_forget()
+        self.btn_minus_minus.pack_forget()
+        self.btn_plus_plus.pack_forget()
+        self.btn_plus.pack_forget()
+        self.lbl_empty2.pack_forget()
 
-            if self.capture_tab.get_time_column() == 'full_time':
-                self.pack_full_time()
-            elif self.capture_tab.get_time_column() == 'single_times':
-                self.pack_captured_added_time()
-            else:
-                self.pack_progess()
+        self.lbl_add_time.pack_forget()
+        self.lbl_passed_time.pack_forget()
+        self.lbl_hours_used.pack_forget()
+        self.lbl_prozent_progress.pack_forget()
+        self.btn_edit_hours_left.pack_forget()
+        self.lbl_hours_left.pack_forget()
+        self.lbl_duration_to_expiration.pack_forget()
+        self.lbl_empty_time.pack_forget()
+        self.lbl_total_time.pack_forget()
+        self.lbl_running_clock.pack_forget()
+        self.btn_edit_response_text.pack_forget()
+        self.response_text_cbox.pack_forget()
+        self.lbl_empty4.pack_forget()
+        self.lbl_response_text.pack_forget()
+        self.lbl_name.pack_forget()
+
+        if self.capture_tab.get_time_column() == 'full_time':
+            self.pack_full_time()
+        elif self.capture_tab.get_time_column() == 'single_times':
+            self.pack_captured_added_time()
+        else:
+            self.pack_progess()
         return()
     
     def pack_full_time(self):
@@ -847,8 +891,12 @@ class ClockFrame(tk.Frame):
 
         self.lbl_running_clock.pack(side='right',padx=3) 
         if int(self.clock.get_bookable()) == 1 and self.clock.get_response_texts() != " - ": 
-            self.btn_edit_response_text.pack(side='right',padx=(3,20))
-            self.response_text_cbox.pack(side='right')
+            if self.appearance_state == 'normal':
+                self.lbl_empty4.pack(side='right',padx=(3,20))
+                self.lbl_response_text.pack(side='right')
+            else:
+                self.btn_edit_response_text.pack(side='right',padx=(3,20))
+                self.response_text_cbox.pack(side='right')
             self.packed_response_text_col = True
         else:
             self.packed_response_text_col = False
@@ -871,8 +919,12 @@ class ClockFrame(tk.Frame):
 
         self.lbl_running_clock.pack(side='right',padx=3)
         if int(self.clock.get_bookable()) == 1 and self.clock.get_response_texts() != " - ": 
-            self.btn_edit_response_text.pack(side='right',padx=(3,20))
-            self.response_text_cbox.pack(side='right')
+            if self.appearance_state == 'normal':
+                self.lbl_empty4.pack(side='right',padx=(3,20))
+                self.lbl_response_text.pack(side='right')
+            else:
+                self.btn_edit_response_text.pack(side='right',padx=(3,20))
+                self.response_text_cbox.pack(side='right')
             self.packed_response_text_col = True 
         else:
             self.packed_response_text_col = False    
@@ -951,6 +1003,8 @@ class ClockFrame(tk.Frame):
         self.lbl_duration_to_expiration.refresh_style()
         self.lbl_empty_time.refresh_style()
         self.btn_edit_response_text.refresh_style()
+        self.lbl_empty4.refresh_style()
+        self.lbl_response_text.refresh_style()
 
         self.lbl_name.refresh_style()
 
@@ -967,6 +1021,7 @@ class ClockFrame(tk.Frame):
 
         self.lbl_view_sub_clocks.configure(foreground=self.style_dict["highlight_color_grey"])
         self.btn_edit_hours_left.configure(foreground=self.style_dict["highlight_color_grey"])
+        self.lbl_response_text.configure(foreground=self.style_dict["highlight_color_grey"])
 
         self.update_remaining_hours()
 
@@ -983,6 +1038,7 @@ class ClockFrame(tk.Frame):
         self.btn_plus_ttp.text = ' +5 ' + self.language_dict["minutes"]
 
         self.update_frame()
+        self.update_appearance_state()
         self.update_clock()
         self.check_date_expiration()
         return

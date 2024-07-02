@@ -76,13 +76,13 @@ class AccountsTableHead:
     def create_table_head(self):
 
         self.table_head_frame = MyFrame(self.main_frame,self.data_manager)
-        self.table_head_frame.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=2)
+        self.table_head_frame.configure(background=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=2)
         self.table_head_frame.pack(side = "top", fill = "x")
 
         ################
 
         self.status_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.status_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.status_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.status_frame.pack(side = "left")
 
         self.lbl_status_name = MyLabel(self.status_frame, self.data_manager, text=self.language_dict["status"], width=8)
@@ -91,7 +91,7 @@ class AccountsTableHead:
         ################
 
         self.name_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.name_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.name_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.name_frame.pack(side = "left")
 
         self.lbl_name = MyLabel(self.name_frame, self.data_manager, text=self.language_dict["name"], width=50)
@@ -100,7 +100,7 @@ class AccountsTableHead:
         ################
 
         self.project_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.project_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.project_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.project_frame.pack(side = "left")
 
         self.lbl_project = MyLabel(self.project_frame, self.data_manager, text=self.language_dict["project"], width=15)
@@ -109,7 +109,7 @@ class AccountsTableHead:
         ################
 
         self.order_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.order_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.order_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.order_frame.pack(side = "left")
 
         self.lbl_order = MyLabel(self.order_frame, self.data_manager, text=self.language_dict["order"], width=15)
@@ -118,7 +118,7 @@ class AccountsTableHead:
         ################
 
         self.process_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.process_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.process_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.process_frame.pack(side = "left")
 
         self.lbl_process = MyLabel(self.process_frame, self.data_manager, text=self.language_dict["process"], width=15)
@@ -127,7 +127,7 @@ class AccountsTableHead:
         ################
 
         self.description_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.description_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.description_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.description_frame.pack(side = "left")
 
         self.lbl_description = MyLabel(self.description_frame, self.data_manager, text=self.language_dict["description"], width=40)
@@ -136,7 +136,7 @@ class AccountsTableHead:
         ################
 
         self.bookable_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.bookable_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.bookable_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.bookable_frame.pack(side = "left")
 
         self.lbl_bookable = MyLabel(self.bookable_frame, self.data_manager, text=self.language_dict["bookable"], width=15)
@@ -145,7 +145,7 @@ class AccountsTableHead:
         ################
 
         self.external_booking_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.external_booking_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.external_booking_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.external_booking_frame.pack(side = "left")
 
         self.lbl_external_booking = MyLabel(self.external_booking_frame, self.data_manager, text=self.language_dict["external_booking"], width=15)
@@ -154,7 +154,7 @@ class AccountsTableHead:
         ################
 
         self.response_code_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.response_code_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.response_code_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.response_code_frame.pack(side = "left")
 
         self.lbl_response_code = MyLabel(self.response_code_frame, self.data_manager, text=self.language_dict["response_code"], width=15)
@@ -163,7 +163,7 @@ class AccountsTableHead:
         ################
 
         self.response_texts_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.response_texts_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.response_texts_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.response_texts_frame.pack(side = "left")
 
         self.lbl_response_texts = MyLabel(self.response_texts_frame, self.data_manager, text=self.language_dict["response_texts"], width=40)
@@ -172,7 +172,7 @@ class AccountsTableHead:
         ################
 
         self.date_expiration_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.date_expiration_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.date_expiration_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.date_expiration_frame.pack(side = "left")
 
         self.lbl_date_expiration = MyLabel(self.date_expiration_frame, self.data_manager, text=self.language_dict["expiration_date"], width=15)
@@ -181,7 +181,7 @@ class AccountsTableHead:
         ################
 
         self.available_hours_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.available_hours_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.available_hours_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.available_hours_frame.pack(side = "left")
 
         self.lbl_available_hours = MyLabel(self.available_hours_frame, self.data_manager, text=self.language_dict["available_hours"], width=15)
@@ -234,19 +234,19 @@ class AccountsTableHead:
         self.lbl_available_hours.refresh_style()
 
 
-        self.table_head_frame.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.status_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.name_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.project_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.order_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.process_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.description_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.bookable_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.external_booking_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.response_code_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.response_texts_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.date_expiration_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.available_hours_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.table_head_frame.configure(background=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.status_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.name_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.project_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.order_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.process_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.description_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.bookable_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.external_booking_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.response_code_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.response_texts_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.date_expiration_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.available_hours_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
     
 
         self.lbl_status_name.configure(text=self.language_dict["status"])

@@ -54,10 +54,10 @@ class AccountFrame(tk.Frame):
             self.status = self.account_dict['status']
             if self.status != 'closed':
                 action_text = self.language_dict["close"]
-                status_text = u'\U0001F513'
+                status_text = u'\U0001F532'
             else:
                 action_text = self.language_dict["open_up"]
-                status_text = u'\U0001F512'               
+                status_text = u'\U00002B1B'               
         else:
             action_text = ""
             status_text = ""
@@ -346,10 +346,10 @@ class AccountFrame(tk.Frame):
             self.status = self.account_dict['status']
             if self.status != 'closed':
                 action_text = self.language_dict["close"]
-                status_text = u'\U0001F513'
+                status_text = u'\U0001F532'
             else:
                 action_text = self.language_dict["open_up"]
-                status_text = u'\U0001F512'               
+                status_text = u'\U00002B1B'               
         else:
             action_text = ""
             status_text = ""
@@ -406,15 +406,15 @@ class AccountFrame(tk.Frame):
         self.lbl_available_hours.refresh_style()    
 
         if self.account_dict['account_kind'] == 1:
-            self.btn_action = MyButton(self, self.data_manager, width=16)
+            #self.btn_action = MyButton(self, self.data_manager, width=16)
             if self.status != 'closed':
-                action_text = self.language_dict["close"]
+                #action_text = self.language_dict["close"]
                 status_text = self.language_dict["open"]
-                self.btn_action.configure(text=action_text, command=self.close_account)
+                #self.btn_action.configure(text=action_text, command=self.close_account)
             else:
-                action_text = self.language_dict["open_up"]
+                #action_text = self.language_dict["open_up"]
                 status_text = self.language_dict["closed"]
-                self.btn_action.configure(text=action_text, command=self.open_account)                
+                #self.btn_action.configure(text=action_text, command=self.open_account)                
         else:
             status_text = self.language_dict["sub_account"]
         self.btn_status.configure(text = status_text)

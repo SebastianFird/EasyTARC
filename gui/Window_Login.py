@@ -69,7 +69,7 @@ class LoginWindow(tk.Frame):
 
         geo_factor = float(self.main_app.get_setting("geometry_factor"))
         width = int(round(geo_factor*600))
-        height = int(round(geo_factor*600))
+        height = int(round(geo_factor*700))
 
         screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(1,1)
 

@@ -55,13 +55,14 @@ class MainWindow(tk.Frame):
         ########
 
         geo_factor = float(self.main_app.get_setting("geometry_factor"))
-        width = int(round(geo_factor*1200))
-        height = int(round(geo_factor*600))
+        width = int(round(geo_factor*1400))
+        height = int(round(geo_factor*650))
 
         screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(1,1)
 
         x_pos = int(round(screen_width/2 - width/2))
         y_pos = int(round(screen_height/2 - height/2))
+
 
         self.root.geometry(str(width)+ 'x' + str(height) + '+' + str(x_pos) + '+' + str(y_pos))
 

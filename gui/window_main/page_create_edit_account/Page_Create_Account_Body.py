@@ -85,7 +85,7 @@ class CreateEditAccountBody:
         self.frame_left.pack(side = "left")
 
         self.frame_vertical_separator = MyFrame(self.frame_data,self.data_manager)
-        self.frame_vertical_separator.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.frame_vertical_separator.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
         self.frame_vertical_separator.pack(side = "left",fill='y', padx=20)
 
         self.frame_right = MyFrame(self.frame_data,self.data_manager)
@@ -107,7 +107,7 @@ class CreateEditAccountBody:
         self.lbl_main_text.pack(side = "left", padx=10)
 
         self.separator_frame_0 = MyFrame(self.frame_top,self.data_manager)
-        self.separator_frame_0.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_0.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
         self.separator_frame_0.pack(side = "top",fill='x', pady=10)
 
         ###################################
@@ -224,7 +224,7 @@ class CreateEditAccountBody:
         ###################################
 
         self.separator_frame_3 = MyFrame(self.frame_bottom,self.data_manager)
-        self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
         self.separator_frame_3.pack(side = "top",fill='x', pady=10)
 
         self.frame_obligation = MyFrame(self.frame_bottom,self.data_manager)
@@ -348,7 +348,7 @@ class CreateEditAccountBody:
         self.frame_left.pack(side = "left")
 
         self.frame_vertical_separator = MyFrame(self.frame_data,self.data_manager)
-        self.frame_vertical_separator.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.frame_vertical_separator.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
         self.frame_vertical_separator.pack(side = "left",fill='y', padx=20)
 
         self.frame_right = MyFrame(self.frame_data,self.data_manager)
@@ -678,7 +678,7 @@ class CreateEditAccountBody:
         self.update_bookable()
 
         self.separator_frame_3 = MyFrame(self.frame_bottom,self.data_manager)
-        self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
         self.separator_frame_3.pack(side = "top",fill='x', pady=10)
 
         self.frame_obligation = MyFrame(self.frame_bottom,self.data_manager)

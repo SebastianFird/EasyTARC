@@ -131,7 +131,7 @@ class DataDateFrame:
         Font_tuple = (font_family, font_size, "bold")
 
         self.separator_frame_1 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
         self.separator_frame_1.pack(side = "top",fill='x')
 
         self.date_frame = MyFrame(self.main_frame,self.data_manager)
@@ -198,7 +198,7 @@ class DataDateFrame:
         self.lbl_view_records.refresh_style()
         self.lbl_date.refresh_style()
 
-        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
         self.lbl_date.configure(font = Font_tuple)
         self.lbl_view_records.configure(foreground=self.style_dict["highlight_color_grey"])
 

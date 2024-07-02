@@ -137,22 +137,22 @@ class BookingHead:
     def create_table_head(self):
 
         self.table_head_frame = MyFrame(self.main_frame,self.data_manager)
-        self.table_head_frame.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.table_head_frame.configure(background=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.table_head_frame.pack(side = "top", fill = "x")
 
         self.separator_frame_0 = MyFrame(self.table_head_frame,self.data_manager)
-        self.separator_frame_0.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.separator_frame_0.configure(background=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.separator_frame_0.pack(side = "right")
 
         self.lbl_empty0 = MyLabelPixel(self.separator_frame_0, self.data_manager)
         self.lbl_empty0.set_photo_width(10)
-        self.lbl_empty0.configure(background=self.style_dict["selected_color_grey"])
+        self.lbl_empty0.configure(background=self.style_dict["highlight_color_grey"])
         self.lbl_empty0.pack(side='right')
 
         ################
 
         self.booking_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.booking_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.booking_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.booking_frame.pack(side = "right")
 
         self.booking_invisible_frame = MyFrame(self.booking_frame,self.data_manager)
@@ -178,7 +178,7 @@ class BookingHead:
         ################
 
         self.passed_time_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.passed_time_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.passed_time_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.passed_time_frame.pack(side = "right")
 
         self.passed_time_invisible_frame = MyFrame(self.passed_time_frame,self.data_manager)
@@ -204,7 +204,7 @@ class BookingHead:
         ################
 
         self.response_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.response_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.response_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.response_frame.pack(side = "right")
 
         self.response_invisible_frame = MyFrame(self.response_frame,self.data_manager)
@@ -230,7 +230,7 @@ class BookingHead:
         ################
 
         self.response_code_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.response_code_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.response_code_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.response_code_frame.pack(side = "left")
 
         self.response_code_invisible_frame = MyFrame(self.response_code_frame,self.data_manager)
@@ -256,7 +256,7 @@ class BookingHead:
         ################
 
         self.name_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.name_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.name_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.name_frame.pack(side = "left",fill='x',expand=True)
 
         self.name_invisible_frame = MyFrame(self.name_frame,self.data_manager)
@@ -323,15 +323,15 @@ class BookingHead:
         self.lbl_empty12.refresh_style()
         self.lbl_empty13.refresh_style()
  
-        self.table_head_frame.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.separator_frame_0.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.lbl_empty0.configure(background=self.style_dict["selected_color_grey"])
+        self.table_head_frame.configure(background=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.separator_frame_0.configure(background=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.lbl_empty0.configure(background=self.style_dict["highlight_color_grey"])
 
-        self.booking_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.response_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.passed_time_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.response_code_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.name_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.booking_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.response_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.passed_time_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.response_code_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.name_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
 
         self.lbl_booking.configure(text=self.language_dict["book"])
         self.lbl_response.configure(text=self.language_dict["response_text"])

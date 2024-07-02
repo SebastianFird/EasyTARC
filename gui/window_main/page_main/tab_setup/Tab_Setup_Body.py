@@ -142,7 +142,7 @@ class SetupBody:
         #########################
 
         self.separator_frame_1 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
         self.separator_frame_1.pack(side = "top",fill='x', pady=10)
 
         #########################
@@ -210,7 +210,7 @@ class SetupBody:
         #########################
 
         self.separator_frame_2 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
         self.separator_frame_2.pack(side = "top",fill='x', pady=10)
 
         #########################
@@ -273,7 +273,7 @@ class SetupBody:
         #########################
 
         self.separator_frame_3 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
         self.separator_frame_3.pack(side = "top",fill='x', pady=10)
 
         #########################
@@ -358,7 +358,7 @@ class SetupBody:
         #########################
 
         self.separator_frame_4 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_4.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_4.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
         self.separator_frame_4.pack(side = "top",fill='x', pady=10)
 
         #########################
@@ -440,7 +440,7 @@ class SetupBody:
         #########################
 
         self.separator_frame_5 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_5.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_5.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
         self.separator_frame_5.pack(side = "top",fill='x', pady=10)
 
         #########################
@@ -479,7 +479,7 @@ class SetupBody:
         #########################
 
         self.separator_frame_6 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_6.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_6.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
         self.separator_frame_6.pack(side = "top",fill='x', pady=10)
 
         #########################
@@ -518,7 +518,7 @@ class SetupBody:
         #########################
 
         self.separator_frame_7 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_7.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_7.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
         self.separator_frame_7.pack(side = "top",fill='x', pady=10)
 
         #########################
@@ -1149,7 +1149,7 @@ class SetupBody:
         self.lbl_font_size.configure(text = '   ' + self.language_dict['font_size'])
         self.btn_set_font_size.configure(text=self.language_dict['apply'])
         
-        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
 
         self.lbl_category_link.configure(font = Font_tuple)
         self.lbl_category_link.configure(text = self.language_dict['app_links'])
@@ -1160,7 +1160,7 @@ class SetupBody:
         self.btn_remove_start_up_link.configure(text=self.language_dict['remove'])
         self.btn_remove_desktop_link.configure(text=self.language_dict['remove'])
 
-        self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
 
         self.lbl_category_folder.configure(font = Font_tuple)
         self.lbl_category_folder.configure(text=self.language_dict['folder'])
@@ -1171,7 +1171,7 @@ class SetupBody:
 
         self.lbl_back_up_folder_info_ttp.text = self.language_dict['back_up_folder_info']
 
-        self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
 
         self.lbl_category_websites.configure(font = Font_tuple)
         self.lbl_category_websites.configure(text=self.language_dict['websites'])
@@ -1180,7 +1180,7 @@ class SetupBody:
         self.btn_web_link_3.configure(text=self.language_dict['open_up'])
         self.btn_web_link_4.configure(text=self.language_dict['open_up'])
 
-        self.separator_frame_4.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_4.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
 
         self.lbl_category_sleep_mode.configure(font = Font_tuple)
         self.lbl_category_sleep_mode.configure(text=self.language_dict['sleep_mode'])
@@ -1195,7 +1195,7 @@ class SetupBody:
         self.lbl_sleep_mode_period_info_ttp.text = self.language_dict['sleep_mode_period_info']
         self.lbl_sleep_mode_interaction_info_ttp.text = self.language_dict['sleep_mode_interaction_info']
 
-        self.separator_frame_5.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_5.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
 
         self.lbl_category_rate.configure(font = Font_tuple)
         self.lbl_category_rate.configure(text=self.language_dict['rate'])
@@ -1204,7 +1204,7 @@ class SetupBody:
 
         self.lbl_rate_info_ttp.text = self.language_dict['rate_info']
 
-        self.separator_frame_6.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_6.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
 
         self.lbl_category_workwindow.configure(font = Font_tuple)
         self.lbl_category_workwindow.configure(text=self.language_dict['working_window'])
@@ -1213,7 +1213,7 @@ class SetupBody:
 
         self.lbl_dynamic_opacity_info_ttp.text = self.language_dict['dynamic_opacity_info']
 
-        self.separator_frame_7.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_7.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
 
         self.lbl_category_database.configure(font = Font_tuple)
         self.lbl_category_database.configure(text=self.language_dict['database'])

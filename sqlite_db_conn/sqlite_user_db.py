@@ -158,7 +158,10 @@ class SqlUserDataManager(SqlManager):
         cur.execute("ALTER TABLE new_table_accounts RENAME TO accounts;")
 
         cur = conn.cursor()
-        cur.execute("""UPDATE accounts SET response_texts_main = ? """,(1,))
+        cur.execute("""UPDATE accounts SET response_texts_main = ? WHERE account_kind = ?""",(1,1,))
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE accounts SET response_texts_main = ? WHERE account_kind = ?""",(0,0,))
 
         cur = conn.cursor()
         cur.execute("""UPDATE accounts SET status = ? WHERE status = ?""",('open','hidden',))
@@ -1006,7 +1009,7 @@ class SqlUserDataManager(SqlManager):
                             AND ROWID NOT IN (
                                 SELECT MIN(ROWID)
                                 FROM passed_times
-                                GROUP BY accountid, response_text, month, year
+                                GROUP BY accountid, response_text, month, year, booked
                             )
                         """, (this_month, year_1, last_month, year_2))
 

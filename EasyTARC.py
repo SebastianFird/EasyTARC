@@ -360,12 +360,12 @@ class App():
                            "web_link_4_url": "",
                            "desktop_folder":"",
                            "startup_folder":"",
-                           "booking_url_1":"http://easytarc.de/",
-                           "booking_url_2":"/user",
-                           "booking_url_3":"/code/",
-                           "booking_url_4":"/hours/",
-                           "booking_url_5":"/text/",
-                           "booking_url_6":"/end",
+                           "booking_url_1":"",
+                           "booking_url_2":"",
+                           "booking_url_3":"",
+                           "booking_url_4":"",
+                           "booking_url_5":"",
+                           "booking_url_6":"",
                            "booking_url_sequence":["booking_url_1","booking_url_2","booking_url_3","response_code","booking_url_4","hours","booking_url_5","response_text","booking_url_6"]}
             self.settings_dict.update(update_dict)
 

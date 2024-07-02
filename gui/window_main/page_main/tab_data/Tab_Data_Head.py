@@ -110,22 +110,22 @@ class DataHead:
     def create_table_head(self):
 
         self.table_head_frame = MyFrame(self.main_frame,self.data_manager)
-        self.table_head_frame.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.table_head_frame.configure(background=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.table_head_frame.pack(side = "top", fill = "x")
 
         self.separator_frame_0 = MyFrame(self.table_head_frame,self.data_manager)
-        self.separator_frame_0.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.separator_frame_0.configure(background=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.separator_frame_0.pack(side = "right")
 
         self.lbl_empty0 = MyLabelPixel(self.separator_frame_0, self.data_manager)
         self.lbl_empty0.set_photo_width(10)
-        self.lbl_empty0.configure(background=self.style_dict["selected_color_grey"])
+        self.lbl_empty0.configure(background=self.style_dict["highlight_color_grey"])
         self.lbl_empty0.pack(side='right')
 
         ################
 
         self.status_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.status_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.status_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.status_frame.pack(side = "right")
 
         self.status_invisible_frame = MyFrame(self.status_frame,self.data_manager)
@@ -148,7 +148,7 @@ class DataHead:
         ################
 
         self.passed_time_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.passed_time_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.passed_time_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.passed_time_frame.pack(side = "right")
 
         self.passed_time_invisible_frame = MyFrame(self.passed_time_frame,self.data_manager)
@@ -174,7 +174,7 @@ class DataHead:
         ################
 
         self.response_text_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.response_text_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.response_text_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.response_text_frame.pack(side = "right")
 
         self.response_text_invisible_frame = MyFrame(self.response_text_frame,self.data_manager)
@@ -200,7 +200,7 @@ class DataHead:
         ################
 
         self.name_frame = MyFrame(self.table_head_frame,self.data_manager)
-        self.name_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.name_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.name_frame.pack(side = "left",fill='x',expand=True)
 
         self.name_invisible_frame = MyFrame(self.name_frame,self.data_manager)
@@ -260,13 +260,13 @@ class DataHead:
         self.lbl_empty7.refresh_style()
         self.lbl_empty8.refresh_style()
  
-        self.table_head_frame.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.separator_frame_0.configure(background=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.lbl_empty0.configure(background=self.style_dict["selected_color_grey"])
+        self.table_head_frame.configure(background=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.separator_frame_0.configure(background=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.lbl_empty0.configure(background=self.style_dict["highlight_color_grey"])
 
-        self.status_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.passed_time_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
-        self.name_frame.configure(highlightbackground=self.style_dict["selected_color_grey"],highlightcolor=self.style_dict["selected_color_grey"],highlightthickness=1)
+        self.status_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.passed_time_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.name_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
 
         self.lbl_status_name.configure(text=self.language_dict["status"])
         self.lbl_passed_time.configure(text=self.language_dict["hours"])

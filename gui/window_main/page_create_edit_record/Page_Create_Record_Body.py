@@ -153,7 +153,7 @@ class CreateEditRecordBody:
         self.lbl_highlight_date.configure(foreground=self.style_dict["highlight_color_yellow"])
 
         self.separator_frame_0 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_0.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_0.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
         self.separator_frame_0.pack(side = "top",fill='x', pady=10)
 
         #################################
@@ -223,7 +223,7 @@ class CreateEditRecordBody:
                 self.lbl_time_info.configure(foreground=self.style_dict["caution_color_red"])
 
         self.separator_frame_1 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
         self.separator_frame_1.pack(side = "top",fill='x', pady=10)
 
         ###################################
@@ -265,7 +265,7 @@ class CreateEditRecordBody:
                 self.response_text.set(response_text_original)
 
         self.separator_frame_2 = MyFrame(self.main_frame,self.data_manager)
-        self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
         self.separator_frame_2.pack(side = "top",fill='x', pady=10)
 
         self.frame_obligation = MyFrame(self.main_frame,self.data_manager)
