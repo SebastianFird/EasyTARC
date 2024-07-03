@@ -172,6 +172,8 @@ class ClockFrame(tk.Frame):
         self.btn_edit_hours_left.bind("<Leave>", self.leave_edit_hours_left)
         self.btn_edit_hours_left.configure(foreground=self.style_dict["highlight_color_grey"])
 
+        self.lbl_empty5 = MyLabel(self, self.data_manager, text='', width=2)
+
         self.lbl_hours_left = MyLabel(self, self.data_manager, width=7, anchor='e')
         self.lbl_hours_left_ttp = CreateToolTip(self.lbl_hours_left, self.data_manager, 0, 30,'', True)
 
@@ -237,6 +239,7 @@ class ClockFrame(tk.Frame):
         self.lbl_duration_to_expiration.bind("<Button-1>", self.clock_frame_clicked)
         self.lbl_empty_time.bind("<Button-1>", self.clock_frame_clicked)
         self.lbl_empty4.bind("<Button-1>", self.clock_frame_clicked)
+        self.lbl_empty5.bind("<Button-1>", self.clock_frame_clicked)
         self.lbl_response_text.bind("<Button-1>", self.clock_frame_clicked)
         self.lbl_name.bind("<Button-1>", self.clock_frame_clicked)
 
@@ -254,6 +257,7 @@ class ClockFrame(tk.Frame):
         self.lbl_empty_time.bind("<Button-3>", self.right_clicked)
         self.btn_edit_response_text.bind("<Button-3>", self.right_clicked)
         self.lbl_empty4.bind("<Button-3>", self.right_clicked)
+        self.lbl_empty5.bind("<Button-3>", self.right_clicked)
         self.lbl_response_text.bind("<Button-3>", self.right_clicked)
         self.lbl_name.bind("<Button-3>", self.right_clicked)
         
@@ -828,6 +832,7 @@ class ClockFrame(tk.Frame):
         self.lbl_name.configure(background=background_color)
         self.btn_edit_response_text.configure(background=background_color)
         self.lbl_empty4.configure(background=background_color)
+        self.lbl_empty5.configure(background=background_color)
         self.lbl_response_text.configure(background=background_color)
         self.lbl_passed_time.configure(background=background_color)
         self.lbl_total_time.configure(background=background_color)
@@ -873,6 +878,7 @@ class ClockFrame(tk.Frame):
         self.btn_edit_response_text.pack_forget()
         self.response_text_cbox.pack_forget()
         self.lbl_empty4.pack_forget()
+        self.lbl_empty5.pack_forget()
         self.lbl_response_text.pack_forget()
         self.lbl_name.pack_forget()
 
@@ -941,6 +947,8 @@ class ClockFrame(tk.Frame):
         time_left,state = self.clock.get_time_left()
         if (state == '+' or state == '-') and self.clock.get_clock_kind() == 'main':
             self.btn_edit_hours_left.pack(side='right',padx=5)
+        else:
+            self.lbl_empty5.pack(side='right',padx=5)
 
         self.lbl_hours_left.pack(side='right',padx=1)
         self.lbl_duration_to_expiration.pack(side='right',padx=5)
@@ -955,6 +963,7 @@ class ClockFrame(tk.Frame):
 
     def update_clock_properties(self):
         self.refresh()
+        self.update_packed_time_column()
 
 ################################################################################################################################
 
@@ -1004,6 +1013,7 @@ class ClockFrame(tk.Frame):
         self.lbl_empty_time.refresh_style()
         self.btn_edit_response_text.refresh_style()
         self.lbl_empty4.refresh_style()
+        self.lbl_empty5.refresh_style()
         self.lbl_response_text.refresh_style()
 
         self.lbl_name.refresh_style()
