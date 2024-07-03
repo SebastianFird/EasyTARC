@@ -163,6 +163,7 @@ class DataManager:
         self.work_clock.deep_reset()
         self.pause_clock.deep_reset()
 
+        self.times_saved = False
         return    
     
 #################################################################
