@@ -641,16 +641,16 @@ class ClockFrame(tk.Frame):
     def update_appearance_state(self):
         if self.appearance_state == 'normal':
             font_color = self.style_dict["highlight_color_grey"]
-            if self.date_expired == False and self.hours_used_up == False:
-                self.lbl_name.configure(foreground=font_color)
+            #if self.date_expired == False and self.hours_used_up == False:
+            #    self.lbl_name.configure(foreground=font_color)
             self.lbl_total_time.configure(foreground=font_color)
             self.lbl_passed_time.configure(foreground=font_color)
             self.lbl_response_text.configure(text = self.entered_response_text.get())
 
         else:  
             font_color = self.style_dict["font_color"]
-            if self.date_expired == False and self.hours_used_up == False:
-                self.lbl_name.configure(foreground=font_color)
+            #if self.date_expired == False and self.hours_used_up == False:
+            #    self.lbl_name.configure(foreground=font_color)
             self.lbl_total_time.configure(foreground=font_color)
             self.lbl_passed_time.configure(foreground=font_color)
             self.lbl_response_text.configure(text = self.entered_response_text.get())
@@ -800,10 +800,10 @@ class ClockFrame(tk.Frame):
             info_text = self.language_dict["name"] + ': ' + str(self.clock.get_name()) + '\n' + self.language_dict["project"]  + ': ' + str(self.clock.get_project_label()) + '   ' + self.language_dict["order"] + ': ' + str(self.clock.get_order_label()) + '   ' + self.language_dict["process"] + ': ' + str(self.clock.get_process_label()) + '\n' + self.language_dict["description"]  + ': ' + str(self.clock.get_description()) + '\n' + self.language_dict["account_date_expiration_or_hours_used_up"] 
             self.main_account_frame.account_date_expiration_or_hours_used_up = True
         else:
-            self.update_appearance_state()
+            font_color = self.style_dict["font_color"]
             info_text = self.language_dict["name"] + ': ' + str(self.clock.get_name()) + '\n' + self.language_dict["project"]  + ': ' + str(self.clock.get_project_label()) + '   ' + self.language_dict["order"] + ': ' + str(self.clock.get_order_label()) + '   ' + self.language_dict["process"] + ': ' + str(self.clock.get_process_label()) + '\n' + self.language_dict["description"]  + ': ' + str(self.clock.get_description()) 
             self.main_account_frame.account_date_expiration_or_hours_used_up = False
-
+        self.lbl_name.configure(foreground=font_color)
         self.account_info_ttp.text = info_text
         
 ################################################################################################################################
