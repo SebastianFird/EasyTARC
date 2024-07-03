@@ -170,7 +170,8 @@ class AccountsTab(Scroll_Frame_2):
     def close_account(self, account_dict):
         if self.check_close_account(account_dict) == True:
             self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.close_main_account_frame(account_dict['group'],account_dict['account_id'])
-            self.body.case_frame.frame.reload_account_dict_by_main_id(account_dict['main_id'])
+            if self.body.case_frame.frame != None:
+                self.body.case_frame.frame.reload_account_dict_by_main_id(account_dict['main_id'])
         else:
             text = self.language_dict['account_closing_denied']
             info_window = InfoWindow(self.main_app, self.gui, self.gui.main_window ,text,450,200)
@@ -185,7 +186,8 @@ class AccountsTab(Scroll_Frame_2):
 
         main_account_clock = self.data_manager.load_main_account_clock(account_dict['account_id'])
         self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.add_main_account_frame(account_dict['group'],main_account_clock)
-        self.body.case_frame.frame.reload_account_dict_by_main_id(account_dict['main_id'])
+        if self.body.case_frame.frame != None:
+            self.body.case_frame.frame.reload_account_dict_by_main_id(account_dict['main_id'])
         return
 
     def delete_account(self, account_dict, transfer_to_main = False):

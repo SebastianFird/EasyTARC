@@ -27,6 +27,7 @@ class CaseFrameManagerTA(CaseFrameManager):
     def __init__(self, container, main_app, gui, accounts_tab):
         super().__init__(container,main_app, gui)
         self.accounts_tab = accounts_tab
+        self.frame = None
 
     def show_accounts_total(self):
         self.frame = AccountTotal(self,self.main_app,self.gui,self.accounts_tab)
