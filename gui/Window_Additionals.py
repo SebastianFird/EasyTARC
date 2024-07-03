@@ -1036,7 +1036,7 @@ class DeleteAccountWarning(tk.Toplevel):
         self.account_dict = account_dict
 
         geo_factor = float(self.main_app.get_setting("geometry_factor"))
-        self.w = int(round(geo_factor*350))
+        self.w = int(round(geo_factor*500))
         self.h = int(round(geo_factor*200))
 
         self.user_db = self.main_app.data_manager.user_db
@@ -1100,8 +1100,12 @@ class DeleteAccountWarning(tk.Toplevel):
             btnframe = MyFrame(self.main_frame,self.data_manager)
             btnframe.configure(background=self.style_dict["btn_color_grey"])
 
-            btn_backup = MyButton(btnframe, self.data_manager, width=20, text=self.language_dict["delete_time_account"], command=self.delete_account)
-            btn_backup.pack(side='right', pady=5, padx=5)
+            btn_delete = MyButton(btnframe, self.data_manager, width=15, text=self.language_dict["delete"], command=self.delete_account)
+            btn_delete.pack(side='right', pady=5, padx=5)
+
+            if self.account_dict['account_kind'] == 0:
+                btn_backup = MyButton(btnframe, self.data_manager, width=25, text=self.language_dict["transfer_delete"], command=self.transfer_delete_account)
+                btn_backup.pack(side='right', pady=5, padx=5)
 
             btn_back = MyButton(btnframe, self.data_manager, width=8, text=self.language_dict["no"], command=self.return_window)
             btn_back.pack(side='right', pady=5, padx=5)
@@ -1115,8 +1119,11 @@ class DeleteAccountWarning(tk.Toplevel):
             bodyframe = MyFrame(self.main_frame,self.data_manager)
             scroll_frame = self.scroll.create_scroll_frame(bodyframe)
 
-            lbl_text = MyLabel(scroll_frame, self.data_manager, text=self.language_dict['delete_time_account_text'], wraplength=self.w - 20,
-                               justify="left")
+            info_text = self.language_dict['delete_time_account_text']
+            if self.account_dict['account_kind'] == 0:
+                info_text = self.language_dict['delete_time_account_text_2']
+
+            lbl_text = MyLabel(scroll_frame, self.data_manager, text=info_text, wraplength=self.w - 20,justify="left")
             lbl_text.pack(pady=5, padx=5)
 
             return (bodyframe)
@@ -1132,6 +1139,12 @@ class DeleteAccountWarning(tk.Toplevel):
 
     def delete_account(self):
         self.account_tab.delete_account(self.account_dict)
+        self.gui.enable_main_window()
+        self.gui.activate_current_tab()
+        self.destroy()
+
+    def transfer_delete_account(self):
+        self.account_tab.delete_account(self.account_dict,True)
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
         self.destroy()
@@ -1264,8 +1277,6 @@ class CloseAccountWarning(tk.Toplevel):
 
     def close_account(self):
         self.account_tab.close_account(self.account_dict)
-        if self.account_frame != None:
-            self.account_frame.reload_account_dict()
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
         self.destroy()

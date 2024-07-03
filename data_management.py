@@ -1053,12 +1053,16 @@ class DataManager:
         else:
             self.user_db.update_sub_account(account_dict)
 
-    def delete_account(self,account_dict):
+    def delete_account(self,account_dict, transfer_to_main = False):
         if account_dict['account_kind'] == 1:
             sub_account_id_list = self.user_db.get_sub_accounts(account_dict['account_id'])
             for account_id in sub_account_id_list:
                 self.user_db.delete_passed_time_by_account_id(account_id)
                 self.user_db.delete_account_by_id(account_id)
+
+        if account_dict['account_kind'] == 0 and transfer_to_main == True:
+            print('Hello')
+            self.user_db.change_record_account_id(account_dict['main_id'],account_dict['account_id'])
 
         self.user_db.delete_passed_time_by_account_id(account_dict['account_id'])
         self.user_db.delete_account_by_id(account_dict['account_id'])

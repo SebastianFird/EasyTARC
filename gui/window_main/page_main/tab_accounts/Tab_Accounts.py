@@ -170,12 +170,10 @@ class AccountsTab(Scroll_Frame_2):
     def close_account(self, account_dict):
         if self.check_close_account(account_dict) == True:
             self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.close_main_account_frame(account_dict['group'],account_dict['account_id'])
-            #self.reload()
+            self.body.case_frame.frame.reload_account_dict_by_main_id(account_dict['main_id'])
         else:
-            text = """
-Ein aktives Zeitkonto kann nicht geschlossen werden. Bitte aktiviere erst ein anderes, bevor du dieses schließt.
-            """
-            info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,300,210)
+            text = self.language_dict['account_closing_denied']
+            info_window = InfoWindow(self.main_app, self.gui, self.gui.main_window ,text,450,200)
         return
         
     def open_account(self, account_dict):
@@ -187,11 +185,11 @@ Ein aktives Zeitkonto kann nicht geschlossen werden. Bitte aktiviere erst ein an
 
         main_account_clock = self.data_manager.load_main_account_clock(account_dict['account_id'])
         self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.add_main_account_frame(account_dict['group'],main_account_clock)
-        #self.reload()
+        self.body.case_frame.frame.reload_account_dict_by_main_id(account_dict['main_id'])
         return
 
-    def delete_account(self, account_dict):
-        self.data_manager.delete_account(account_dict)
+    def delete_account(self, account_dict, transfer_to_main = False):
+        self.data_manager.delete_account(account_dict, transfer_to_main)
         self.reload()
 
     def edit_selected_account(self, account_dict):

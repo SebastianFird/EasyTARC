@@ -953,6 +953,13 @@ class SqlUserDataManager(SqlManager):
         self.save_and_close_db(conn)
         return()
 
+    def change_record_account_id(self,accountid_new,accountid_old):
+        conn = self.open_db_conn()
+        cur = conn.cursor()
+        cur.execute("UPDATE passed_times SET accountid = ? WHERE accountid = ?", (accountid_new,accountid_old))
+        self.save_and_close_db(conn)
+        return()
+
 ################################################
 
     def simplify_passed_times(self):

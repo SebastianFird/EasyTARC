@@ -133,8 +133,9 @@
         "type" : "Art",
         "sub_account" : "Unterkonto",
         "exit_window_text" : "Die erfassten Zeiten wurden noch nicht gespeichert. Möchten Sie die bereits erfassten Zeiten zwischenspeichern?",
-        "delete_time_account" : "Zeitkonto löschen",
-        "delete_time_account_text" : "Möchtest du wirklich dieses Zeitkonto löschen? Alle auf dieses Zeitkonto erfasste Zeiten werden auch gelöscht.",
+        "transfer_delete" : "Übertragen und löschen",
+        "delete_time_account_text" : "Möchtest du wirklich dieses Zeitkonto löschen? Alle auf dieses Zeitkonto erfassten Zeiten werden auch gelöscht.",
+        "delete_time_account_text_2" : "Möchtest du wirklich dieses Zeitkonto löschen? Klicke 'Löschen' und alle auf dieses Unterkonto erfassten Zeiten werden auch gelöscht. Klicke 'Übertragen und löschen' und die erfassten Zeiten werden vor dem Löschen auf das Hauptkonto übertragen.",
         "close_time_account" : "Zeitkonto schließen",
         "close_time_account_text_1" : "Möchtest du wirklich dieses Zeitkonto schließen? Wenn du in der heutigen Session bereits Zeiten auf diesem Konto erfasst hast, gehen diese beim Schließen verloren.",
         "close_time_account_text_2" : "Möchtest du wirklich dieses Zeitkonto schließen?",
@@ -418,6 +419,7 @@
         "saving_process":"Speicherprozess",
         "booking_website":"Buchungs-Website",
         "compression_of_data":"Datenkomprimierung",
+        "account_closing_denied":"Ein aktives Zeitkonto kann nicht geschlossen werden. Bitte aktiviere erst ein anderes, bevor du dieses schließt.",
         "compression_of_data_info":"Nach zwei Monaten werden die Einträge der erfassten Zeiten reduziert, in dem alle Datumseinträge auf das Datum des 01. des Monats geändert\nund komprimiert werden. Diese Komprimierung wird beim Beenden einer Erfassung durchgeführt und ist nicht umkehrbar.",
         "release_note_text_18":"1.10.0 (29.06.2024)\n - Der Tab 'Zeitkonten' wurde überarbeitet.\n - Wenn weitere Informationen durch ein hovern über einen Text angezeigt werden, wird dieser Text zuvor gelb hervorgehoben.\n - Die Auf- und Zuklapp-Funktion von Bereichen wurde vereinheitlicht.\n - Die Darstellung von Unterkonten wurde überarbeitet.\n - Ein Button zum Zurücksetzten der erfassten Zeit eines Zeitkontos wurde hinzugefügt.\n - Die Oberfläche zum Erstellen von Zeitkonten wurde überarbeitet.\n - Rückmeldetexte können nun per Dropdown-Menü für die jeweilige Session ausgewählt werden.\n - Durch du neue Nutzbarkeit von Rückmeldetexten wurden die einstellbaren Eigenschaften von Unterkonten vereinfacht."
     },
@@ -555,8 +557,9 @@
         "type" : "Type",
         "sub_account" : "Sub-account",
         "exit_window_text" : "The recorded times have not yet been saved. Would you like to temporarily save the times already recorded?",
-        "delete_time_account" : "Delete time account",
+        "transfer_delete" : "Transfer and delete",
         "delete_time_account_text" : "Do you really want to delete this time account? All time recorded on this time account will also be deleted.",
+        "delete_time_account_text_2" : "Do you really want to delete this time account? Click 'Delete' and all times recorded on this sub-account will also be deleted. Click 'Transfer and delete' and the recorded times will be transferred to the main-account before deleting the sub-account.",
         "close_time_account" : "Close time account",
         "close_time_account_text_1" : "Do you really want to close this time account? If you have already recorded time on this account in today's session, it will be lost when you close it.",
         "close_time_account_text_2" : "Do you really want to close this time account?",
@@ -840,6 +843,7 @@
         "saving_process":"Saving process",
         "booking_website":"Booking website",
         "compression_of_data":"Compression of data",
+        "account_closing_denied":"An active time account cannot be closed. Please activate another account before closing this one.",
         "compression_of_data_info":"After two months, the entries of the recorded times are reduced by changing and compressing all date entries to the date of\nthe 1st of the month. This compression is carried out when a recording is ended and cannot be reversed.",
         "release_note_text_18":"1.10.0 (29.06.2024)\n - The 'Time accounts' tab has been revised.\n - If further information is displayed by hovering over a text, this text is highlighted in yellow.\n - The expand and collapse function of areas has been standardized.\n - The display of sub-accounts has been revised.\n - A button for resetting the recorded time of a time account has been added.\n - The interface for creating time accounts has been revised.\n - Booking texts can now be selected via a drop-down menu for the respective session.\n - Due to the new usability of booking texts, the adjustable properties of sub-accounts have been simplified. "
     }

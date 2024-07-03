@@ -81,6 +81,12 @@ class AccountTotal(tk.Frame):
         self.update()
         return
     
+    def reload_account_dict_by_main_id(self,main_id):
+        for account_frame in self.account_frame_list:
+            if account_frame.account_dict['main_id'] == main_id:
+                account_frame.reload_account_dict()
+                account_frame.update()
+    
     def update(self):
         for account_frame in self.account_frame_list:
             account_frame.update()

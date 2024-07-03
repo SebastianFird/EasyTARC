@@ -282,7 +282,6 @@ class AccountFrame(tk.Frame):
         
     def open_account(self,e=None):
         self.accounts_tab.open_account(self.account_dict)
-        self.reload_account_dict()
         return
     
 ##################################################

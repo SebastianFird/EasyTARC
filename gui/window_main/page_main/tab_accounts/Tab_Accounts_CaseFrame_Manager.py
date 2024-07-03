@@ -29,16 +29,16 @@ class CaseFrameManagerTA(CaseFrameManager):
         self.accounts_tab = accounts_tab
 
     def show_accounts_total(self):
-        frame = AccountTotal(self,self.main_app,self.gui,self.accounts_tab)
+        self.frame = AccountTotal(self,self.main_app,self.gui,self.accounts_tab)
 
         if AccountTotal in self.frames:
             self.frames[AccountTotal].destroy()
             self.frames.pop(AccountTotal, None)
         
-        self.frames[AccountTotal] = frame
-        frame.pack(side = "top", fill = "both", expand = True)
+        self.frames[AccountTotal] = self.frame
+        self.frame.pack(side = "top", fill = "both", expand = True)
         
         self.show_frame(AccountTotal)
-        return(frame)
+        return(self.frame)
     
     
