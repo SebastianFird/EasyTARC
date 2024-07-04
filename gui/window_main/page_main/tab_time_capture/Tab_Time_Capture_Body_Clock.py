@@ -144,16 +144,23 @@ class ClockFrame(tk.Frame):
 
 ##################################################
 
-        self.lbl_add_time = MyLabel(self, self.data_manager, width=13, anchor='w')
+        self.lbl_add_time = MyLabel(self, self.data_manager, width=13, anchor='w',text = '',foreground=self.style_dict["highlight_color_grey"])
 
         self.lbl_add_time_ttp = CreateInfo(self.lbl_add_time, self.data_manager, 0, 30, "", True)
-        self.lbl_current_added_time_ttp =CurrentAddedTimeTip(self.lbl_add_time, self.data_manager, 0, 30, self)
         self.lbl_add_time.bind("<Enter>", self.correction_time_enter)
         self.lbl_add_time.bind("<Leave>", self.correction_time_leave)
 
-        passed_time = self.clock.str_timedelta(self.clock.get_passed_time())
-        self.lbl_passed_time = MyLabel(self, self.data_manager, width=8, anchor='w',text = passed_time)
-        self.lbl_passed_time_ttp = TimeTip(self.lbl_passed_time, self.data_manager, 0, 30, self.clock,'single_times',True)
+        total_time = self.clock.str_timedelta(self.clock.get_total_time())
+        self.lbl_total_time_2 = MyLabel(self, self.data_manager, width=8, anchor='w',text = total_time)
+        self.lbl_total_time_2_ttp = TimeTip(self.lbl_total_time_2, self.data_manager, 0, 30, self.clock,'without_correction_time',True)
+        self.lbl_current_added_time_ttp =CurrentAddedTimeTip(self.lbl_total_time_2, self.data_manager, 0, 30, self)
+
+        ############
+
+        self.lbl_empty_time = MyLabel(self, self.data_manager, width=1, anchor='w')
+
+        total_time = self.clock.str_timedelta(self.clock.get_total_time())
+        self.lbl_total_time = MyLabel(self, self.data_manager, width=8, anchor='w',text = total_time)
 
         ############
 
@@ -179,14 +186,6 @@ class ClockFrame(tk.Frame):
 
         self.lbl_duration_to_expiration = MyLabel(self, self.data_manager, width=7, anchor='e')
         self.lbl_duration_to_expiration_ttp = CreateToolTip(self.lbl_duration_to_expiration, self.data_manager, 0, 30,'', True)
-
-        ############
-
-        self.lbl_empty_time = MyLabel(self, self.data_manager, width=1, anchor='w')
-
-        total_time = self.clock.str_timedelta(self.clock.get_total_time())
-        self.lbl_total_time = MyLabel(self, self.data_manager, width=8, anchor='w',text = total_time)
-        #self.lbl_total_time_ttp = TimeTip(self.lbl_total_time, self.data_manager, -100, 30, self.clock,'full_time',True)
 
         ############
 
@@ -229,7 +228,7 @@ class ClockFrame(tk.Frame):
 
         self.bind("<Button-1>", self.clock_frame_clicked)
         self.lbl_indent.bind("<Button-1>", self.clock_frame_clicked)
-        self.lbl_passed_time.bind("<Button-1>", self.clock_frame_clicked)
+        self.lbl_total_time_2.bind("<Button-1>", self.clock_frame_clicked)
         self.lbl_add_time.bind("<Button-1>", self.clock_frame_clicked)
         self.lbl_total_time.bind("<Button-1>", self.clock_frame_clicked)
         self.lbl_running_clock.bind("<Button-1>", self.clock_frame_clicked)
@@ -245,7 +244,7 @@ class ClockFrame(tk.Frame):
 
         self.bind("<Button-3>", self.right_clicked)
         self.lbl_indent.bind("<Button-3>", self.right_clicked)
-        self.lbl_passed_time.bind("<Button-3>", self.right_clicked)
+        self.lbl_total_time_2.bind("<Button-3>", self.right_clicked)
         self.lbl_add_time.bind("<Button-3>", self.right_clicked)
         self.lbl_total_time.bind("<Button-3>", self.right_clicked)
         self.lbl_running_clock.bind("<Button-3>", self.right_clicked)
@@ -367,7 +366,7 @@ class ClockFrame(tk.Frame):
         self.btn_edit_hours_left_ttp.hideinfo()
 
     def activate_edit_hours_left(self,e=None):
-        if self.main_app.get_action_state() == "normal":
+        if self.main_app.get_action_state() == "normal"or self.main_app.get_action_state() == "endofwork": #!
             info_window = EditRemainingTime(self.main_app, self.gui, self.capture_tab.main_frame,self.clock)
         else:
             text = self.language_dict["locked_function"]
@@ -566,7 +565,7 @@ class ClockFrame(tk.Frame):
             self.update_frame()
 
     def right_clicked(self,e=None):
-        if self.main_app.get_action_state() == "normal":
+        if self.main_app.get_action_state() == "normal" or self.main_app.get_action_state() == "endofwork": #!
             if self.data_manager.get_selected_clock() != self.clock:
                 self.clock_frame_clicked(e)
             self.option_menu.popup(e)
@@ -610,7 +609,6 @@ class ClockFrame(tk.Frame):
 
     def auto_clock(self,i=1):
         total_time = self.clock.str_timedelta(self.clock.get_total_time())
-        passed_time = self.clock.str_timedelta(self.clock.get_passed_time())
         sign, added_time = self.clock.get_added_time()
 
         if total_time == "00:00:00" and self.appearance_state != 'normal':
@@ -624,12 +622,12 @@ class ClockFrame(tk.Frame):
             self.update_packed_time_column()
 
         self.lbl_total_time.configure(text = total_time)
-        self.lbl_passed_time.configure(text = passed_time)
+        self.lbl_total_time_2.configure(text = total_time)
 
         if added_time == "00:00:00":
-            self.lbl_add_time.configure(text='')
+            self.lbl_add_time.configure(text='',foreground=self.style_dict["highlight_color_grey"])
         else:
-            self.lbl_add_time.configure(text = sign + ' ' + str(added_time))
+            self.lbl_add_time.configure(text = '( ' + sign + ' ' + str(added_time) + ' )',foreground=self.style_dict["highlight_color_grey"])
 
         if i > 60:
             self.update_remaining_hours()
@@ -648,7 +646,7 @@ class ClockFrame(tk.Frame):
             #if self.date_expired == False and self.hours_used_up == False:
             #    self.lbl_name.configure(foreground=font_color)
             self.lbl_total_time.configure(foreground=font_color)
-            self.lbl_passed_time.configure(foreground=font_color)
+            self.lbl_total_time_2.configure(foreground=font_color)
             self.lbl_response_text.configure(text = self.entered_response_text.get())
 
         else:  
@@ -656,7 +654,7 @@ class ClockFrame(tk.Frame):
             #if self.date_expired == False and self.hours_used_up == False:
             #    self.lbl_name.configure(foreground=font_color)
             self.lbl_total_time.configure(foreground=font_color)
-            self.lbl_passed_time.configure(foreground=font_color)
+            self.lbl_total_time_2.configure(foreground=font_color)
             self.lbl_response_text.configure(text = self.entered_response_text.get())
 
     
@@ -834,7 +832,7 @@ class ClockFrame(tk.Frame):
         self.lbl_empty4.configure(background=background_color)
         self.lbl_empty5.configure(background=background_color)
         self.lbl_response_text.configure(background=background_color)
-        self.lbl_passed_time.configure(background=background_color)
+        self.lbl_total_time_2.configure(background=background_color)
         self.lbl_total_time.configure(background=background_color)
         self.lbl_running_clock.configure(background=background_color)
         self.lbl_hours_used.configure(background=background_color)
@@ -866,7 +864,7 @@ class ClockFrame(tk.Frame):
         self.lbl_empty2.pack_forget()
 
         self.lbl_add_time.pack_forget()
-        self.lbl_passed_time.pack_forget()
+        self.lbl_total_time_2.pack_forget()
         self.lbl_hours_used.pack_forget()
         self.lbl_prozent_progress.pack_forget()
         self.btn_edit_hours_left.pack_forget()
@@ -921,7 +919,7 @@ class ClockFrame(tk.Frame):
         self.lbl_empty2.pack(side = "right")
 
         self.lbl_add_time.pack(side='right',padx=3)            
-        self.lbl_passed_time.pack(side='right',padx=3) 
+        self.lbl_total_time_2.pack(side='right',padx=3) 
 
         self.lbl_running_clock.pack(side='right',padx=3)
         if int(self.clock.get_bookable()) == 1 and self.clock.get_response_texts() != " - ": 
@@ -974,7 +972,7 @@ class ClockFrame(tk.Frame):
         self.image_dict = self.data_manager.get_image_dict()
         
         self.account_info_ttp.refresh()
-        self.lbl_passed_time_ttp.refresh()
+        self.lbl_total_time_2_ttp.refresh()
         self.lbl_add_time_ttp.refresh()
         #self.lbl_total_time_ttp.refresh()
         self.option_menu.refresh()
@@ -1002,7 +1000,7 @@ class ClockFrame(tk.Frame):
         self.btn_plus.refresh_style()
 
         self.lbl_add_time.refresh_style()
-        self.lbl_passed_time.refresh_style()
+        self.lbl_total_time_2.refresh_style()
         self.lbl_total_time.refresh_style()
         self.lbl_running_clock.refresh_style()
         self.lbl_hours_used.refresh_style()
@@ -1032,6 +1030,7 @@ class ClockFrame(tk.Frame):
         self.lbl_view_sub_clocks.configure(foreground=self.style_dict["highlight_color_grey"])
         self.btn_edit_hours_left.configure(foreground=self.style_dict["highlight_color_grey"])
         self.lbl_response_text.configure(foreground=self.style_dict["highlight_color_grey"])
+        self.lbl_add_time.configure(foreground=self.style_dict["highlight_color_grey"])
 
         self.update_remaining_hours()
 

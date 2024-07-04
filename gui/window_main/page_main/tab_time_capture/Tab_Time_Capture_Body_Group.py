@@ -115,7 +115,7 @@ class GroupFrame((tk.Frame)):
         self.lbl_group_edit.configure(foreground=self.style_dict["background_color_grey"])
 
     def activate_group_edit(self,e=None):
-        if self.main_app.get_action_state() == "normal":
+        if self.main_app.get_action_state() == "normal" or self.main_app.get_action_state() == "endofwork": #!
             edit_response_text_window = EditGroupName(self.main_app, self.gui, self.capture_body.capture_tab.main_frame,self.group_name)
         else:
             text = self.language_dict["locked_function"]
@@ -178,8 +178,7 @@ class GroupFrame((tk.Frame)):
         self.main_account_frame_list.append(main_account_frame)
 
     def arrange_accounts(self):
-        if self.main_app.get_action_state() ==  'normal':
-            self.main_app.set_action_state_rearrange_clocks()
+        if self.main_app.get_action_state() ==  'normal' or self.main_app.get_action_state() == "endofwork": #!
 
             main_account_frame_list_new = self.main_account_frame_list.copy()
 
@@ -187,7 +186,7 @@ class GroupFrame((tk.Frame)):
             main_account_frame_list_new_2 = [ele for ele in main_account_frame_list_new if ele.main_account_clock.get_id() != 0]
             
 
-            main_account_frame_list_new_2.sort(key=lambda x: (x.main_account_clock.get_project_label(), x.main_account_clock.get_order_label(), x.main_account_clock.get_process_label(), str(x.main_account_clock.get_id())))
+            main_account_frame_list_new_2.sort(key=lambda x: (x.main_account_clock.get_project_label(), x.main_account_clock.get_order_label(), x.main_account_clock.get_process_label(), str(x.main_account_clock.get_name()), str(x.main_account_clock.get_id())))
             main_account_frame_list_new_3 = main_account_frame_list_new_2.copy()
 
             self.main_account_frame_list = default_account_frame_list_new + main_account_frame_list_new_3
@@ -201,13 +200,16 @@ class GroupFrame((tk.Frame)):
             if self.group_name != " - ":
                 self.group_frame.pack(side = "top", fill = "x")
 
+            for main_account_frame in self.main_account_frame_list:
+                main_account_frame.arrange_sub_accounts()
+
             if self.tree_view == True:
                 self.fold_out_group_clocks()
             else:
                 self.fold_up_group_clocks()
             
             self.capture_body.update_work_window_group_main_account_list()
-            self.main_app.set_action_state_normal()
+
 
     def check_close_main_account_frame(self, id):
         response = False

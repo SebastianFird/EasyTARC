@@ -26,7 +26,10 @@ class BookingTab(Scroll_Frame):
         super().__init__(main_app, gui)
         self.case_frame_manager = case_frame_manager
 
-        self.booking_kind = 'sum'
+        self.booking_kind = self.main_app.get_setting('booking_kind')
+        if self.booking_kind not in ['date','sum','sum_subaccounts']:
+            self.booking_kind = 'sum'
+
         self.clicked_record_frame_list = []
         self.current_record_scope = []
 
@@ -78,6 +81,8 @@ class BookingTab(Scroll_Frame):
             self.load_booking_by_date()
         elif self.booking_kind == 'sum':
             self.load_booking_by_sum()
+        elif self.booking_kind == 'sum_subaccounts':
+            self.load_booking_by_sum_subaccounts()
         else:
             self.body.case_frame.show_empty_frame()
 
@@ -98,9 +103,23 @@ class BookingTab(Scroll_Frame):
             self.load_booking_by_date()
         elif kind == 'sum':
             self.load_booking_by_sum()
+        elif kind == 'sum_subaccounts':
+            self.load_booking_by_sum_subaccounts()
         else:
             self.body.case_frame.show_empty_frame()
+        self.main_app.change_settings("booking_kind",kind)
         return
+    
+    def load_booking_by_sum_subaccounts(self):
+        self.clicked_record_frame_list = []
+        self.body.case_frame.show_loading_frame()
+        self.gui.root.update()
+        self.unbooked_record_dict_list_sum_subaccounts_list = self.data_manager.get_unbooked_record_dict_list_sum_subaccounts_list()
+        self.body.case_frame.show_booking_by_sum_subaccounts()
+        return
+
+    def get_unbooked_record_dict_list_sum_subaccounts_list(self):
+        return(self.unbooked_record_dict_list_sum_subaccounts_list)
 
     def load_booking_by_sum(self):
         self.clicked_record_frame_list = []

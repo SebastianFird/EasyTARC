@@ -118,7 +118,7 @@ class CaptureHead:
     
 
     def add_new_main_account(self):
-        if self.main_app.get_action_state() == "normal":
+        if self.main_app.get_action_state() == "normal" or self.main_app.get_action_state() == "endofwork": #!
             self.case_frame_manager.add_new_account('new_main')
         else:
             text = self.language_dict["locked_function"]
@@ -157,7 +157,7 @@ class CaptureHead:
                 self.lbl_activate_pause.configure(image=self.image_dict['photo_btn_off_head'])
                 self.lbl_activate_pause.image = self.image_dict['photo_btn_off_head']
 
-        if self.main_app.get_action_state() == "disabled" or self.main_app.get_action_state() == "arrange_clocks":
+        if self.main_app.get_action_state() == "disabled":
             self.btn_end_of_work.configure(state=tk.DISABLED)
             self.btn_add_clock.configure(state=tk.DISABLED)
         elif self.main_app.get_action_state() == "endofwork":
@@ -386,6 +386,25 @@ class CaptureHead:
 
         ################
 
+        self.total_time_frame = MyFrame(self.table_head_frame,self.data_manager)
+        self.total_time_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+
+        self.total_time_invisible_frame = MyFrame(self.total_time_frame,self.data_manager)
+        self.total_time_invisible_frame.configure(height=0)
+        self.total_time_invisible_frame.pack(side = "top")
+
+        self.lbl_empty1 = MyLabelPixel(self.total_time_invisible_frame,self.data_manager, anchor='w')
+        self.lbl_empty1.set_photo_width(1)
+        self.lbl_empty1.pack(side = "right")
+
+        self.total_time_visible_frame = MyFrame(self.total_time_frame,self.data_manager)
+        self.total_time_visible_frame.pack(side = "top",fill='y')
+
+        self.lbl_total_time = MyLabel(self.total_time_visible_frame, self.data_manager,width=15, text=self.language_dict['working_time'])
+        self.lbl_total_time.pack(side='right',padx = 3)
+
+        ################
+
         self.response_text_frame = MyFrame(self.table_head_frame,self.data_manager)
         self.response_text_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
 
@@ -481,6 +500,7 @@ class CaptureHead:
         self.passed_time_frame.pack_forget()
         self.response_text_frame.pack_forget()
         self.name_frame.pack_forget()
+        self.total_time_frame.pack_forget()
 
         if self.capture_tab.get_time_column() ==  'full_time':
             self.lbl_full_time.configure(foreground=self.style_dict["font_color"])
@@ -500,9 +520,10 @@ class CaptureHead:
             self.lbl_progress.configure(foreground=self.style_dict["highlight_color_grey"])
 
             time_column = self.language_dict['correction']
-            self.lbl_time.configure(width=40)
+            self.lbl_time.configure(width=22)
 
             self.passed_time_frame.pack(side = "right")
+            self.total_time_frame.pack(side = "right")
             self.response_text_frame.pack(side = "right")
             self.name_frame.pack(side = "left",fill='x',expand=True)
 
@@ -539,6 +560,12 @@ class CaptureHead:
         self.lbl_time.refresh_style()
         self.lbl_empty3.refresh_style()
 
+        self.total_time_frame.refresh_style()
+        self.total_time_invisible_frame.refresh_style()
+        self.total_time_visible_frame.refresh_style()
+        self.lbl_total_time.refresh_style()
+        self.lbl_empty1.refresh_style()
+
         self.response_text_frame.refresh_style()
         self.response_text_invisible_frame.refresh_style()
         self.lbl_empty6.refresh_style()
@@ -565,10 +592,13 @@ class CaptureHead:
 
         self.switch_time_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.passed_time_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.total_time_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.response_text_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.name_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
 
         self.lbl_name.configure(text=self.language_dict['name'])
+        self.lbl_total_time.configure(text=self.language_dict['working_time'])
+        self.lbl_response_text.configure(text=self.language_dict['response_text'])
 
         self.update_table_head()
         return

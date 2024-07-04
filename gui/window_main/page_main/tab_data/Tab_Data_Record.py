@@ -200,7 +200,7 @@ class DataRecordFrame(tk.Frame):
         self.data_tab.activate_all_record_frames(new_clicked_record_frame_list)
 
     def right_clicked(self,e=None):
-        if self.main_app.get_action_state() == "normal":
+        if self.main_app.get_action_state() == "normal" or self.main_app.get_action_state() == "endofwork": #!
             if self not in self.data_tab.get_clicked_record_frame_list():
                 self.data_tab.reset_clicked_record_frame_list()
                 new_clicked_record_frame_list = [self]

@@ -136,8 +136,7 @@ class TimeTip(object):
         self.id = None
         self.tw = None
 
-        self.full_time_name = self.language_dict["total_time"]
-        self.single_times_name = self.language_dict["single_times"]
+        self.without_correction_time = self.language_dict["without_correction_time"]
 
     def enter(self, event=None):
         if type(self.widget) == MyLabel and self.highlight == True:
@@ -173,25 +172,15 @@ class TimeTip(object):
         self.tw.attributes('-topmost',True)
         frame = tk.Frame(self.tw, highlightthickness=1, highlightcolor = self.style_dict["font_color"], highlightbackground = self.style_dict["font_color"])
         frame.pack()
-        if self.time_column != 'full_time':
-            time_text = self.full_time_name + ': '+ self.clock.str_timedelta(self.clock.get_total_time())
-        else:
-            sign, added_minutes = self.clock.get_added_time()
-            time_text = self.single_times_name + ': ' + self.clock.str_timedelta(self.clock.get_passed_time())
-            if added_minutes != "00:00:00":
-                    time_text = time_text + ' ' + sign + ' ' + str(added_minutes)
+        if self.time_column == 'without_correction_time':
+            time_text = self.without_correction_time + ': '+ self.clock.str_timedelta(self.clock.get_passed_time())
         self.label = MyTipLabel(frame,self.data_manager, text=time_text, justify='left')
         self.label.pack()
         self.update_frame()
 
     def update_frame(self):
-        if self.time_column != 'full_time':
-            time_text = self.full_time_name + ': ' + self.clock.str_timedelta(self.clock.get_total_time())
-        else:
-            sign, added_minutes = self.clock.get_added_time()
-            time_text = self.single_times_name + ': ' + self.clock.str_timedelta(self.clock.get_passed_time())
-            if added_minutes != "00:00:00":
-                    time_text = time_text + ' ' + sign + ' ' + str(added_minutes)
+        if self.time_column == 'without_correction_time':
+            time_text = self.without_correction_time + ': ' + self.clock.str_timedelta(self.clock.get_passed_time())
         self.label.configure(text = time_text)
         self.tw.after(500, lambda:self.update_frame())
         
@@ -206,8 +195,7 @@ class TimeTip(object):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
 
-        self.full_time_name = self.language_dict["total_time"]
-        self.single_times_name = self.language_dict["single_times"]
+        self.without_correction_time = self.language_dict["without_correction_time"]
 
 class CurrentAddedTimeTip(object):
     """
@@ -1256,7 +1244,7 @@ class CloseAccountWarning(tk.Toplevel):
             bodyframe = MyFrame(self.main_frame,self.data_manager)
             scroll_frame = self.scroll.create_scroll_frame(bodyframe)
 
-            if self.main_app.get_action_state() == 'normal' or self.main_app.get_action_state() == 'arrange_clocks':
+            if self.main_app.get_action_state() == 'normal': #!#
                 info_text = self.language_dict["close_time_account_text_1"]
             else:
                 info_text = self.language_dict["close_time_account_text_2"]

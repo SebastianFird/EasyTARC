@@ -24,7 +24,7 @@ from style_classes import MyButtonPixel
 
 from gui.window_main.page_main.tab_booking.Tab_Booking_Record import BookingRecordFrame
 
-class BookingBySum(tk.Frame):
+class BookingBySumSubaccounts(tk.Frame):
     def __init__(self, container, main_app, gui, booking_tab):
 
         # get main_app, datamanager, style_dict and language_dict
@@ -55,7 +55,7 @@ class BookingBySum(tk.Frame):
         self.sum_list_frame = MyFrame(self.main_frame,self.data_manager)
         self.sum_list_frame.pack(side = "top", fill = "x")
 
-        unbooked_record_dict_list_sum_list = self.booking_tab.get_unbooked_record_dict_list_sum_list()
+        unbooked_record_dict_list_sum_list = self.booking_tab.get_unbooked_record_dict_list_sum_subaccounts_list()
 
         for unbooked_record_dict_list in unbooked_record_dict_list_sum_list:
                 record_frame = BookingRecordFrame(self.sum_list_frame, self.main_app, self.gui, self.booking_tab,self,unbooked_record_dict_list,self)
@@ -66,7 +66,7 @@ class BookingBySum(tk.Frame):
         return
     
     def book_time(self,record_dict):
-         self.data_manager.set_unbooked_times_sum_by_main_id(record_dict["main_id"],record_dict["response_text"])
+         self.data_manager.set_unbooked_times_sum_by_account_id(record_dict["account_id"],record_dict["response_text"])
 
     def update(self):
         for record_frame in self.record_frame_list:

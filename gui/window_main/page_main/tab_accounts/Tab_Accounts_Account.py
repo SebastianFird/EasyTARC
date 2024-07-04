@@ -267,7 +267,7 @@ class AccountFrame(tk.Frame):
 
     def change_status(self,e=None):
         if self.account_dict['account_kind'] == 1 and self.account_dict['account_id'] != 0:
-            if self.main_app.get_action_state() ==  'normal':
+            if self.main_app.get_action_state() ==  'normal' or self.main_app.get_action_state() == "endofwork": #!
                 if self.status != 'closed':
                     self.close_account()
                 else:
@@ -330,7 +330,7 @@ class AccountFrame(tk.Frame):
         self.accounts_tab.activate_all_account_frames(new_clicked_account_frame_list)
 
     def right_clicked(self,e=None):
-        if self.main_app.get_action_state() == "normal":
+        if self.main_app.get_action_state() == "normal" or self.main_app.get_action_state() == "endofwork": #!
             if self not in self.accounts_tab.get_clicked_account_frame_list():
                 self.accounts_tab.reset_clicked_account_frame_list()
                 new_clicked_account_frame_list = [self]

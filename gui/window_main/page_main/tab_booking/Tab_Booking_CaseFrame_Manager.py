@@ -19,6 +19,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from gui.window_main.page_main.tab_booking.Tab_Booking_CaseFrame_Sum import BookingBySum
+from gui.window_main.page_main.tab_booking.Tab_Booking_CaseFrame_Sum_Subaccounts import BookingBySumSubaccounts
 from gui.window_main.page_main.tab_booking.Tab_Booking_CaseFrame_Date import BookingByDate
 from gui.Gui_CaseFrame_Manager import CaseFrameManager
 
@@ -40,6 +41,19 @@ class CaseFrameManagerTB(CaseFrameManager):
         frame.pack(side = "top", fill = "both", expand = True)
         
         self.show_frame(BookingBySum)
+        return(frame)
+    
+    def show_booking_by_sum_subaccounts(self):
+        frame = BookingBySumSubaccounts(self,self.main_app,self.gui,self.booking_tab)
+
+        if BookingBySumSubaccounts in self.frames:
+            self.frames[BookingBySumSubaccounts].destroy()
+            self.frames.pop(BookingBySumSubaccounts, None)
+        
+        self.frames[BookingBySumSubaccounts] = frame
+        frame.pack(side = "top", fill = "both", expand = True)
+        
+        self.show_frame(BookingBySumSubaccounts)
         return(frame)
     
     def show_booking_by_date(self):

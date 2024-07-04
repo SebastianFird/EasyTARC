@@ -138,8 +138,7 @@ class CaptureBody:
         return(group_frame)
 
     def arrange_groups(self):
-        if self.main_app.get_action_state() ==  'normal':
-            self.main_app.set_action_state_rearrange_clocks()
+        if self.main_app.get_action_state() == 'normal' or self.main_app.get_action_state() == "endofwork": #!
 
             group_frame_list_new = self.group_frame_list.copy()
 
@@ -158,7 +157,6 @@ class CaptureBody:
                 group_frame.pack(side = "top", fill = "x")
             
             self.update_work_window_group_main_account_list()
-            self.main_app.set_action_state_normal()
 
     def get_fold_up_list(self):
         fold_up_list = [ele.group_name for ele in self.group_frame_list if ele.tree_view == False]
@@ -209,6 +207,7 @@ class CaptureBody:
     def add_sub_account_frame(self,  group, main_id, sub_clock):
         group_frame = [ele for ele in self.group_frame_list if ele.get_group_name() == group][0]
         group_frame.add_sub_account_frame(main_id, sub_clock)
+        group_frame.arrange_accounts()
 
     def activate_clock_by_clock_instance(self, clock):
         response = False
@@ -261,6 +260,7 @@ class CaptureBody:
     def update_clock_properties(self):
         for group_frame in self.group_frame_list:
             group_frame.update_clock_properties()
+            group_frame.arrange_accounts()
             if group_frame.get_main_account_clock_list() == []:
                 group_frame.pack_forget()
                 self.group_frame_list = [ele for ele in self.group_frame_list if ele != group_frame]

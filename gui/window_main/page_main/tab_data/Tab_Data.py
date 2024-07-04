@@ -159,7 +159,7 @@ class DataTab(Scroll_Frame):
         self.reload()
 
     def add_new_record(self):
-        if self.main_app.get_action_state() == "normal":
+        if self.main_app.get_action_state() == "normal" or self.main_app.get_action_state() == "endofwork": #!
             self.case_frame_manager.add_new_record('new_record')
         else:
             text = self.language_dict["locked_function"]

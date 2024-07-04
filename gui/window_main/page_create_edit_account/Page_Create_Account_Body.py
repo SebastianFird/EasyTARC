@@ -94,6 +94,20 @@ class CreateEditAccountBody:
         self.frame_bottom = MyFrame(self.main_frame,self.data_manager)
         self.frame_bottom.pack(side = "top",fill='x')
 
+        self.frame_creation_info = MyFrame(self.frame_top,self.data_manager)
+        self.frame_creation_info.pack(side = "top", padx=10, pady=(10,4),fill='x')
+
+        self.lbl_creation_info = MyLabel(self.frame_creation_info,self.data_manager,text=' ',anchor='w',justify='left',width=3)
+        self.lbl_creation_info.pack(side = "left")
+
+        self.lbl_creation_name = MyLabel(self.frame_creation_info,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict['note'] + ':')
+        self.lbl_creation_name.pack(side = "left", padx=10)
+        self.lbl_creation_name.configure(foreground=self.style_dict["highlight_color_grey"])
+
+        self.lbl_creation_text = MyLabel(self.frame_creation_info,self.data_manager,anchor='w',justify='left',text=self.language_dict['subaccount_creation_note'],width=150)
+        self.lbl_creation_text.pack(side = "left", padx=10)
+        self.lbl_creation_text.configure(foreground=self.style_dict["highlight_color_grey"])
+
         self.frame_main_name = MyFrame(self.frame_top,self.data_manager)
         self.frame_main_name.pack(side = "top", padx=10, pady=(10,4),fill='x')
 
@@ -103,7 +117,7 @@ class CreateEditAccountBody:
         self.lbl_main_name = MyLabel(self.frame_main_name,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict['main_account'] + ':')
         self.lbl_main_name.pack(side = "left", padx=10)
 
-        self.lbl_main_text = MyLabel(self.frame_main_name,self.data_manager,text=self.main_account_dict.get("name"),width=25)
+        self.lbl_main_text = MyLabel(self.frame_main_name,self.data_manager,text=self.main_account_dict.get("name"),width=25,anchor='w',justify='left')
         self.lbl_main_text.pack(side = "left", padx=10)
 
         self.separator_frame_0 = MyFrame(self.frame_top,self.data_manager)

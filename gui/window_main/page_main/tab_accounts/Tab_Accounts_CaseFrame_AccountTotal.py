@@ -175,7 +175,7 @@ class GroupFrame((tk.Frame)):
 
     def activate_group_edit(self,e=None):
 
-        if self.main_app.get_action_state() == "normal":
+        if self.main_app.get_action_state() == "normal"or self.main_app.get_action_state() == "endofwork": #!
             edit_response_text_window = EditGroupName(self.main_app, self.gui, self.account_total.accounts_tab.main_frame,self.group_name, self.account_total.accounts_tab)
         else:
             text = self.language_dict["locked_function"]

@@ -105,6 +105,17 @@ class MainAccountFrame(tk.Frame):
                     sub_clock_frame.pack(side="top", fill="x")
         return
     
+    def arrange_sub_accounts(self):
+        sub_clock_frame_list_old = self.sub_clock_frame_list.copy()
+        sub_clock_frame_list_2 = self.sub_clock_frame_list.copy()
+        sub_clock_frame_list_2.sort(key=lambda x: (str(x.clock.get_name())))
+        self.sub_clock_frame_list = sub_clock_frame_list_2.copy()
+        if sub_clock_frame_list_old != self.sub_clock_frame_list:
+            self.fold_sub_clocks()
+            self.fold_sub_clocks()
+            print('fold')
+
+
     def check_close_clock(self):
         response = True
         for clock_frame in self.clock_frame_list:

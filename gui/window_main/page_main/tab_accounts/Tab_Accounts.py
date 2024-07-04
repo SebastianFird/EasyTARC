@@ -163,7 +163,7 @@ class AccountsTab(Scroll_Frame_2):
     
     def check_close_account(self, account_dict):
         response = False
-        if self.main_app.get_action_state() ==  'normal':
+        if self.main_app.get_action_state() ==  'normal' or self.main_app.get_action_state() == "endofwork": #!
             response = self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.check_close_main_account_frame(account_dict['group'],account_dict['account_id'])
         return(response)
     

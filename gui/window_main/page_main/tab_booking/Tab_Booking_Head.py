@@ -76,11 +76,13 @@ class BookingHead:
 #################################################################
 
     def updtcblist(self):
-        self.account_cbox['values'] = [self.language_dict["book_sums"],self.language_dict["book_by_date"]]
+        self.account_cbox['values'] = [self.language_dict["book_sums"],self.language_dict["book_sums_subaccounts"],self.language_dict["book_by_date"]]
         if self.booking_tab.get_booking_kind() == 'sum':
             self.account_cbox.current(0)
-        elif self.booking_tab.get_booking_kind() == 'date':
+        elif self.booking_tab.get_booking_kind() == 'sum_subaccounts':
             self.account_cbox.current(1)
+        elif self.booking_tab.get_booking_kind() == 'date':
+            self.account_cbox.current(2)
         else:
             self.account_cbox.current(0)
         
@@ -90,7 +92,7 @@ class BookingHead:
         self.main_head_frame.pack(side = "top", fill = "x")
 
         clicked = tk.StringVar()
-        self.account_cbox = ttk.Combobox(self.main_head_frame, state="readonly", width = 25, textvariable = clicked, postcommand = self.updtcblist)
+        self.account_cbox = ttk.Combobox(self.main_head_frame, state="readonly", width = 45, textvariable = clicked, postcommand = self.updtcblist)
         self.account_cbox.pack(side='left',padx = 10,pady=10)
 
         self.updtcblist()
@@ -101,6 +103,8 @@ class BookingHead:
                 self.show_cumulativ_booking()
             elif booking_view == self.language_dict["book_by_date"]:
                 self.show_booking_by_date()
+            elif booking_view == self.language_dict["book_sums_subaccounts"]:
+                self.show_cumulativ_booking_subaccounts()
             self.updtcblist()
             return
 
@@ -130,6 +134,10 @@ class BookingHead:
 
     def show_booking_by_date(self):
         self.booking_tab.change_booking_kind('date')
+        return
+    
+    def show_cumulativ_booking_subaccounts(self):
+        self.booking_tab.change_booking_kind('sum_subaccounts')
         return
 
 #################################################################

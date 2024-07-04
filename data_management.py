@@ -603,7 +603,7 @@ class DataManager:
         two_month_limit = True
         hours = self.user_db.check_unbooked_hours(two_month_limit)
         return(hours)
-
+    
     def get_unbooked_record_dict_list_sum_list(self):
         dt = datetime.datetime.now()
         this_month = int(dt.strftime("%m"))
@@ -617,6 +617,63 @@ class DataManager:
 
         unbooked_record_dict_list_sum_list = []
 
+        two_month_limit = True
+        booking_status = 'unbooked'
+        df = self.user_db.get_passed_times_with_accounts(two_month_limit,booking_status)
+        if df.empty:
+            return([])
+        df = df.fillna('')
+
+        main_id_list = df.main_id.values.tolist()
+        main_id_list = list(set(main_id_list))
+
+        main_name_dict = self.user_db.get_namedict_by_accountid_list(main_id_list)
+
+        for main_id in main_id_list:
+            response_text_list = df.loc[(df['main_id'] == main_id)].response_text.values.tolist()
+            response_text_list = list(set(response_text_list))
+            response_text_list.sort()
+            response_text_list_2 = response_text_list.copy()
+            for response_text in response_text_list_2:
+                record_dict = {"account_id":main_id,               
+                            "account_kind":df.loc[(df['accountid'] == main_id)].account_kind.values.tolist()[0],                    
+                            "main_id":main_id,   
+                            "main_name":main_name_dict[main_id],                    
+                            "name":df.loc[(df['accountid'] == main_id)].name.values.tolist()[0],  
+                            "group":df.loc[(df['accountid'] == main_id)].group_name.values.tolist()[0],                              
+                            "description_text":df.loc[(df['accountid'] == main_id)].description_text.values.tolist()[0],      
+                            "project_label":df.loc[(df['accountid'] == main_id)].project_label.values.tolist()[0], 
+                            "order_label":df.loc[(df['accountid'] == main_id)].order_label.values.tolist()[0],              
+                            "process_label":df.loc[(df['accountid'] == main_id)].process_label.values.tolist()[0],                 
+                            "response_code":df.loc[(df['accountid'] == main_id)].response_code.values.tolist()[0],
+                            "response_texts_main":df.loc[(df['accountid'] == main_id)].response_texts_main.values.tolist()[0],              
+                            "response_texts":df.loc[(df['accountid'] == main_id)].response_texts.values.tolist()[0],
+                            "response_text":response_text,
+                            "bookable":df.loc[(df['accountid'] == main_id)].bookable.values.tolist()[0],
+                            "external_booking":df.loc[(df['accountid'] == main_id)].external_booking.values.tolist()[0], 
+                            "date_expiration":df.loc[(df['accountid'] == main_id)].date_expiration.tolist()[0],
+                            "available_hours":df.loc[(df['accountid'] == main_id)].available_hours.values.tolist()[0], 
+                            "hours":df.loc[(df['main_id'] == main_id) & (df['response_text'] == response_text)].hours.sum()                  
+                            }
+                unbooked_record_dict_list_sum_list.append(record_dict)
+        return(unbooked_record_dict_list_sum_list)
+    
+    def set_unbooked_times_sum_by_main_id(self,main_id,response_text):
+        two_month_limit = True
+        booking_status = 'unbooked'
+        df = self.user_db.get_passed_times_with_accounts(two_month_limit,booking_status)
+        if df.empty:
+            return([])
+        df = df.fillna('')
+
+        account_id_list = df.loc[(df['main_id'] == main_id)].accountid.values.tolist()
+        account_id_list = list(set(account_id_list))
+
+        for account_id in account_id_list:
+            self.user_db.set_unbooked_accound_time_sum_booked(account_id,response_text)
+
+    def get_unbooked_record_dict_list_sum_subaccounts_list(self):
+        unbooked_record_dict_list_sum_list = []
         two_month_limit = True
         booking_status = 'unbooked'
         df = self.user_db.get_passed_times_with_accounts(two_month_limit,booking_status)
@@ -731,68 +788,6 @@ class DataManager:
             record_dict_list_date_list.append(record_dict_list)
 
         return(record_dict_list_date_list)
-
-    #################################################################
-
-    def create_account_dict_list(self,df):
-
-        account_dict_list = []
-
-        main_id_list = df.main_id.values.tolist()
-        main_id_list = list(set(main_id_list))
-
-        main_name_dict = self.user_db.get_namedict_by_accountid_list(main_id_list)
-
-        project_label_list = df.project_label.values.tolist()
-        project_label_list = list(set(project_label_list))
-        project_label_list.sort()
-        project_label_list_2 = project_label_list.copy()
-        for project_label in project_label_list_2:
-
-            order_label_list = df.loc[(df['project_label'] == project_label)].order_label.values.tolist()
-            order_label_list = list(set(order_label_list))
-            order_label_list.sort()
-            order_label_list_2 = order_label_list.copy()
-            for order_label in order_label_list_2:
-                    
-                process_label_list = df.loc[(df['project_label'] == project_label) & (df['order_label'] == order_label)].process_label.values.tolist()
-                process_label_list = list(set(process_label_list))
-                process_label_list.sort()
-                process_label_list_2 = process_label_list.copy()
-                for process_label in process_label_list_2:
-
-                    main_id_list = df.loc[(df['project_label'] == project_label) & (df['order_label'] == order_label) & (df['process_label'] == process_label)].main_id.values.tolist()
-                    main_id_list = list(set(main_id_list))
-                    main_id_list.sort()
-                    main_id_list_2 = main_id_list.copy()
-                    for main_id in main_id_list_2:
-
-                        account_id_list = df.loc[(df['project_label'] == project_label) & (df['order_label'] == order_label) & (df['process_label'] == process_label) & (df['main_id'] == main_id)].accountid.values.tolist()
-                        account_id_list = list(set(account_id_list))
-                        account_id_list.sort()
-                        account_id_list_2 = account_id_list.copy()
-                        for account_id in account_id_list_2:      
-
-                            account_dict = {"account_id":account_id,   
-                                            "main_id":main_id,  
-                                            "main_name":main_name_dict[main_id],
-                                            "account_kind":df.loc[(df['accountid'] == account_id)].account_kind.values.tolist()[0],  
-                                            "name":df.loc[(df['accountid'] == account_id)].name.values.tolist()[0], 
-                                            "group":df.loc[(df['accountid'] == account_id)].group_name.values.tolist()[0], 
-                                            "description_text":df.loc[(df['accountid'] == account_id)].description_text.values.tolist()[0],  
-                                            "project_label":df.loc[(df['accountid'] == account_id)].project_label.values.tolist()[0], 
-                                            "order_label":df.loc[(df['accountid'] == account_id)].order_label.values.tolist()[0],  
-                                            "process_label":df.loc[(df['accountid'] == account_id)].process_label.values.tolist()[0],  
-                                            "response_code":df.loc[(df['accountid'] == account_id)].response_code.values.tolist()[0],   
-                                            "response_texts_main":df.loc[(df['accountid'] == account_id)].response_texts_main.values.tolist()[0],      
-                                            "response_texts":df.loc[(df['accountid'] == account_id)].response_texts.values.tolist()[0],  
-                                            "external_booking":df.loc[(df['accountid'] == account_id)].external_booking.values.tolist()[0], 
-                                            "status":df.loc[(df['accountid'] == account_id)].status.values.tolist()[0],
-                                            "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0],
-                                            "date_expiration":df.loc[(df['accountid'] == account_id)].date_expiration.tolist()[0],
-                                            "available_hours":df.loc[(df['accountid'] == account_id)].available_hours.values.tolist()[0]}
-                            account_dict_list.append(account_dict)
-        return(account_dict_list)
     
     #################################################################
 
@@ -835,46 +830,49 @@ class DataManager:
                         main_id_list_2 = main_id_list.copy()
                         for main_id in main_id_list_2:
 
-                            account_id_list = df.loc[(df['group_name'] == group_name) & (df['project_label'] == project_label) & (df['order_label'] == order_label) & (df['process_label'] == process_label) & (df['main_id'] == main_id)].accountid.values.tolist()
-                            account_id_list = list(set(account_id_list))
-                            account_id_list.sort()
-                            account_id_list_2 = account_id_list.copy()
-                            for account_id in account_id_list_2:      
+                            kind_list = df.loc[(df['group_name'] == group_name) & (df['project_label'] == project_label) & (df['order_label'] == order_label) & (df['process_label'] == process_label) & (df['main_id'] == main_id)].account_kind.values.tolist()
+                            kind_list = list(set(kind_list))
+                            kind_list.sort(reverse = True)
+                            kind_list_2 = kind_list.copy()
+                            for kind in kind_list_2:      
 
-                                account_dict = {"account_id":account_id,   
-                                                "main_id":main_id,  
-                                                "main_name":main_name_dict[main_id],
-                                                "account_kind":df.loc[(df['accountid'] == account_id)].account_kind.values.tolist()[0],  
-                                                "name":df.loc[(df['accountid'] == account_id)].name.values.tolist()[0], 
-                                                "group":df.loc[(df['accountid'] == account_id)].group_name.values.tolist()[0], 
-                                                "description_text":df.loc[(df['accountid'] == account_id)].description_text.values.tolist()[0],  
-                                                "project_label":df.loc[(df['accountid'] == account_id)].project_label.values.tolist()[0], 
-                                                "order_label":df.loc[(df['accountid'] == account_id)].order_label.values.tolist()[0],  
-                                                "process_label":df.loc[(df['accountid'] == account_id)].process_label.values.tolist()[0],  
-                                                "response_code":df.loc[(df['accountid'] == account_id)].response_code.values.tolist()[0],  
-                                                "response_texts_main":df.loc[(df['accountid'] == account_id)].response_texts_main.values.tolist()[0],      
-                                                "response_texts":df.loc[(df['accountid'] == account_id)].response_texts.values.tolist()[0],   
-                                                "external_booking":df.loc[(df['accountid'] == account_id)].external_booking.values.tolist()[0], 
-                                                "status":df.loc[(df['accountid'] == account_id)].status.values.tolist()[0],
-                                                "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0],
-                                                "date_expiration":df.loc[(df['accountid'] == account_id)].date_expiration.tolist()[0],
-                                                "available_hours":df.loc[(df['accountid'] == account_id)].available_hours.values.tolist()[0]}
-                                account_dict_list.append(account_dict)
+                                name_list = df.loc[(df['group_name'] == group_name) & (df['project_label'] == project_label) & (df['order_label'] == order_label) & (df['process_label'] == process_label) & (df['main_id'] == main_id) & (df['account_kind'] == kind)].name.values.tolist()
+                                name_list = list(set(name_list))
+                                name_list.sort()
+                                name_list_2 = name_list.copy()
+                                for name in name_list_2:      
+
+                                    account_id_list = df.loc[(df['group_name'] == group_name) & (df['project_label'] == project_label) & (df['order_label'] == order_label) & (df['process_label'] == process_label) & (df['main_id'] == main_id) & (df['account_kind'] == kind) & (df['name'] == name)].accountid.values.tolist()
+                                    account_id_list = list(set(account_id_list))
+                                    account_id_list.sort()
+                                    account_id_list_2 = account_id_list.copy()
+                                    for account_id in account_id_list_2:      
+
+                                        account_dict = {"account_id":account_id,   
+                                                        "main_id":main_id,  
+                                                        "main_name":main_name_dict[main_id],
+                                                        "account_kind":df.loc[(df['accountid'] == account_id)].account_kind.values.tolist()[0],  
+                                                        "name":df.loc[(df['accountid'] == account_id)].name.values.tolist()[0], 
+                                                        "group":df.loc[(df['accountid'] == account_id)].group_name.values.tolist()[0], 
+                                                        "description_text":df.loc[(df['accountid'] == account_id)].description_text.values.tolist()[0],  
+                                                        "project_label":df.loc[(df['accountid'] == account_id)].project_label.values.tolist()[0], 
+                                                        "order_label":df.loc[(df['accountid'] == account_id)].order_label.values.tolist()[0],  
+                                                        "process_label":df.loc[(df['accountid'] == account_id)].process_label.values.tolist()[0],  
+                                                        "response_code":df.loc[(df['accountid'] == account_id)].response_code.values.tolist()[0],  
+                                                        "response_texts_main":df.loc[(df['accountid'] == account_id)].response_texts_main.values.tolist()[0],      
+                                                        "response_texts":df.loc[(df['accountid'] == account_id)].response_texts.values.tolist()[0],   
+                                                        "external_booking":df.loc[(df['accountid'] == account_id)].external_booking.values.tolist()[0], 
+                                                        "status":df.loc[(df['accountid'] == account_id)].status.values.tolist()[0],
+                                                        "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0],
+                                                        "date_expiration":df.loc[(df['accountid'] == account_id)].date_expiration.tolist()[0],
+                                                        "available_hours":df.loc[(df['accountid'] == account_id)].available_hours.values.tolist()[0]}
+                                        account_dict_list.append(account_dict)
         return(account_dict_list)
 
 
     #################################################################
 
     def get_unbooked_record_dict_list_date_list(self):
-        dt = datetime.datetime.now()
-        this_month = int(dt.strftime("%m"))
-        year_1 = int(dt.strftime("%Y"))
-        if this_month == 1:
-            last_month = 12
-            year_2 = year_1 - 1
-        else:
-            last_month = this_month - 1
-            year_2 = year_1
 
         two_month_limit = True
         booking_status = 'unbooked'
@@ -882,7 +880,6 @@ class DataManager:
         if df.empty:
             return([])
         df = df.fillna('')
-        #df = df[df['bookable'] == 1]
 
         record_dict_list_date_list = self.create_record_dict_list_date_list(df)
         return(record_dict_list_date_list)
@@ -927,10 +924,8 @@ class DataManager:
             df = self.user_db.get_accounts_by_main_id(id_list)
         df = df.fillna('')
 
-        #if modus == "group_name":
         account_dict_list = self.create_account_dict_list_group_list(df)
-        #else:
-        #account_dict_list = self.create_account_dict_list(df)
+
         return(account_dict_list)
     
     def export_passed_times_df(self, path):
@@ -1003,19 +998,21 @@ class DataManager:
             pass
         df_pivot_1.to_excel(writer,self.language_dict['rate'])
 
-        df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['month','project_label','order_label','process_label','main_account','name','response_text'], aggfunc='sum' , fill_value=0)
-        df_pivot_2['Percent of Month'] = round((df_pivot_2.hours / df_pivot_2.groupby(by=["month"]).hours.transform(sum) * 100),2)
-        df_pivot_2.to_excel(writer,self.language_dict['pivot_accounts_month_with_sub_accounts'])
-
         df_pivot_3 = pd.pivot_table(df, values = 'hours', index=['month','project_label','order_label','process_label','main_account','response_text'], aggfunc='sum' , fill_value=0)
         df_pivot_3['Percent of Month'] = round((df_pivot_3.hours / df_pivot_3.groupby(by=["month"]).hours.transform(sum) * 100),2)
         df_pivot_3.to_excel(writer,self.language_dict['pivot_accounts_month_without_sub_accounts'])
 
+        df_pivot_5 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','available_hours','date_expiration','response_text'], aggfunc='sum' , fill_value=0)
+        df_pivot_5.to_excel(writer,self.language_dict['pivot_accounts_total_without_sub_accounts'])
+
+        df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['month','project_label','order_label','process_label','main_account','name','response_text'], aggfunc='sum' , fill_value=0)
+        df_pivot_2['Percent of Month'] = round((df_pivot_2.hours / df_pivot_2.groupby(by=["month"]).hours.transform(sum) * 100),2)
+        df_pivot_2.to_excel(writer,self.language_dict['pivot_accounts_month_with_sub_accounts'])
+
         df_pivot_4 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','name','available_hours','date_expiration','response_text'], aggfunc='sum' , fill_value=0)
         df_pivot_4.to_excel(writer,self.language_dict['pivot_accounts_total_with_sub_accounts'])
 
-        df_pivot_5 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','available_hours','date_expiration','response_text'], aggfunc='sum' , fill_value=0)
-        df_pivot_5.to_excel(writer,self.language_dict['pivot_accounts_total_without_sub_accounts'])
+
         
         writer.save()
         
@@ -1061,7 +1058,6 @@ class DataManager:
                 self.user_db.delete_account_by_id(account_id)
 
         if account_dict['account_kind'] == 0 and transfer_to_main == True:
-            print('Hello')
             self.user_db.change_record_account_id(account_dict['main_id'],account_dict['account_id'])
 
         self.user_db.delete_passed_time_by_account_id(account_dict['account_id'])

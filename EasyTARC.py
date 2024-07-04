@@ -307,10 +307,6 @@ class App():
         self.action_state = 'disabled'
         return
 
-    def set_action_state_rearrange_clocks(self):
-        self.action_state = 'arrange_clocks'
-        return
-
 ####################################################################################################################################
 
     def system_start_check(self):
@@ -366,7 +362,8 @@ class App():
                            "booking_url_4":"",
                            "booking_url_5":"",
                            "booking_url_6":"",
-                           "booking_url_sequence":["booking_url_1","booking_url_2","booking_url_3","response_code","booking_url_4","hours","booking_url_5","response_text","booking_url_6"]}
+                           "booking_url_sequence":["booking_url_1","booking_url_2","booking_url_3","response_code","booking_url_4","hours","booking_url_5","response_text","booking_url_6"],
+                           "booking_kind":'sum_subaccounts'}
             self.settings_dict.update(update_dict)
 
             setting_json_file = open('json/settings.json',"w",encoding='UTF-8')
