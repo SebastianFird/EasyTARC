@@ -422,6 +422,7 @@
         "book_sums_subaccounts":"Summen buchen (Unterkonten differenzieren)",
         "without_correction_time":"Ohne Korrektur",
         "note":"Hinweis",
+        "the_main_account_has_to_be_bookable":"Für diese Funktion  muss das Hauptkonto buchbar sein.",
         "subaccount_creation_note":"Unterkonten haben zwei Funktionen: Zum einen können sie genutzt werden um Rückmeldetexte zu sortieren und zum anderen\num auf das gleiche Zeitkonto während einer Session mehrere Zeiten mit unterschiedlichen Rückmeldetexten zu erfassen.\nFür das Buchen ist die Unterscheidung in Unterkonten nicht relevant, dabei zählt nur die Rückmelde-ID des Hauptkontos,\nder Rückmeldetext und die erfassten Stunden.",
         "account_closing_denied":"Ein aktives Zeitkonto kann nicht geschlossen werden. Bitte aktiviere erst ein anderes, bevor du dieses schließt.",
         "compression_of_data_info":"Nach zwei Monaten werden die Einträge der erfassten Zeiten reduziert, in dem alle Datumseinträge auf das Datum des 01. des Monats geändert\nund komprimiert werden. Diese Komprimierung wird beim Beenden einer Erfassung durchgeführt und ist nicht umkehrbar.",
@@ -851,6 +852,7 @@
         "without_correction_time":"Without correction",
         "subaccount_creation_note":"Sub-accounts have two functions: Firstly, they can be used to sort booking texts and secondly to record\nseveral times with different booking texts in the same time account during a session.\nThe distinction between sub-accounts is not relevant for booking; only the Booking-ID of the main account,\nthe Booking-text and the recorded hours count.",
         "note":"Note",
+        "the_main_account_has_to_be_bookable":"The main account must be bookable for this function.",
         "account_closing_denied":"An active time account cannot be closed. Please activate another account before closing this one.",
         "compression_of_data_info":"After two months, the entries of the recorded times are reduced by changing and compressing all date entries to the date of\nthe 1st of the month. This compression is carried out when a recording is ended and cannot be reversed.",
         "release_note_text_18":"1.10.0 (29.06.2024)\n - The 'Time accounts' tab has been revised.\n - If further information is displayed by hovering over a text, this text is highlighted in yellow.\n - The expand and collapse function of areas has been standardized.\n - The display of sub-accounts has been revised.\n - A button for resetting the recorded time of a time account has been added.\n - The interface for creating time accounts has been revised.\n - Booking texts can now be selected via a drop-down menu for the respective session.\n - Due to the new usability of booking texts, the adjustable properties of sub-accounts have been simplified. "

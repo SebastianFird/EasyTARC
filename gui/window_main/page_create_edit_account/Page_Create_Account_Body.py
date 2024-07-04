@@ -235,6 +235,25 @@ class CreateEditAccountBody:
             if self.account_response_texts_main == 0 and self.modus in ['edit_sub'] and str(self.sub_account_dict.get("response_texts")) != ' - ':
                 self.account_response_texts.set(str(self.sub_account_dict.get("response_texts")))
 
+        else:
+
+            ###############
+
+            self.frame_response_text = MyFrame(self.frame_right,self.data_manager)
+            self.frame_response_text.pack(side = "top", padx=10, pady=4,fill='x')
+
+            self.response_text_info = MyLabel(self.frame_response_text,self.data_manager,text='',width=3)
+            self.response_text_info.pack(side = "left")
+
+
+            lbl_response_text = MyLabel(self.frame_response_text,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['response_texts'] + ':')
+            lbl_response_text.pack(side = "left", padx=10)
+
+            lbl_response_text = MyLabel(self.frame_response_text,self.data_manager,width=80,anchor='w',justify='left',text=self.language_dict['the_main_account_has_to_be_bookable'])
+            lbl_response_text.pack(side = "left", padx=10)
+
+
+
         ###################################
 
         self.separator_frame_3 = MyFrame(self.frame_bottom,self.data_manager)
