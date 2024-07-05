@@ -227,4 +227,4 @@ class BookingOptionMenu(tkinter.Listbox):
             else:
                 info_dict.update({self.language_dict["available_hours"]:" - "})         
         #############
-        info_window = InfoDictWindow(self.main_app, self.gui, self.booking_tab.main_frame ,info_dict,500,280)
+        info_window = InfoDictWindow(self.main_app, self.gui, self.booking_tab.main_frame ,info_dict,550,300)

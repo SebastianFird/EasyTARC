@@ -665,7 +665,7 @@ class InfoDictWindow(tk.Toplevel):
 
                 col_nbr = 0
 
-                lbl_text_col0 = MyLabel(scroll_frame, self.data_manager, text=key_text + ': ',wraplength=self.w/2, anchor='w', justify="left")
+                lbl_text_col0 = MyLabel(scroll_frame, self.data_manager, text=key_text + ': ',wraplength=self.w/2.5, anchor='w', justify="left")
                 lbl_text_col0.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5,sticky='w')
 
                 if len(value_text) > 0:
@@ -1393,7 +1393,7 @@ class Endofworkinfo(tk.Toplevel):
 
                 col_nbr = 0
 
-                lbl_text_col0 = MyLabel(scroll_frame, self.data_manager, text=key_text + ': ',wraplength=self.w/2, anchor='w', justify="left")
+                lbl_text_col0 = MyLabel(scroll_frame, self.data_manager, text=key_text + ': ',wraplength=self.w/2.5, anchor='w', justify="left")
                 lbl_text_col0.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5, sticky='w')
 
                 if len(value_text) > 0:
@@ -1732,7 +1732,7 @@ class SleepModeinfo(tk.Toplevel):
 
                 col_nbr = 0
 
-                lbl_text_col0 = MyLabel(scroll_frame, self.data_manager, text=key_text + ': ',wraplength=self.w/2, anchor='w', justify="left")
+                lbl_text_col0 = MyLabel(scroll_frame, self.data_manager, text=key_text + ': ',wraplength=self.w/2.5, anchor='w', justify="left")
                 lbl_text_col0.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5, sticky='w')
 
                 if len(value_text) > 0:

@@ -279,7 +279,7 @@ class CaptureHead:
                 info_dict.update({str(counter):reminder_note})
                 counter = counter + 1
 
-        info_window = Endofworkinfo(self.main_app, self.gui ,self.gui.main_window,info_dict,500,300)
+        info_window = Endofworkinfo(self.main_app, self.gui ,self.gui.main_window,info_dict,550,300)
         return
     
 
@@ -358,7 +358,7 @@ class CaptureHead:
         self.lbl_full_time = MyLabel(self.switch_time_visible_frame, self.data_manager, text = u'\U0001F570',width=5)
         self.lbl_full_time.configure(foreground=self.style_dict["highlight_color_grey"])
         self.lbl_full_time.pack(side='right',padx = 3)
-        self.full_time_info_ttp = CreateInfo(self.lbl_full_time, self.data_manager, -390, 25,'',False,1000)
+        self.full_time_info_ttp = CreateInfo(self.lbl_full_time, self.data_manager, -70, 25,'',False,1000)
         self.full_time_info_ttp.text = self.language_dict['total_time_info']
         
         self.lbl_full_time.bind("<Button-1>", self.activate_btn_full_time)
@@ -520,7 +520,7 @@ class CaptureHead:
             self.lbl_progress.configure(foreground=self.style_dict["highlight_color_grey"])
 
             time_column = self.language_dict['correction']
-            self.lbl_time.configure(width=22)
+            self.lbl_time.configure(width=12)
 
             self.passed_time_frame.pack(side = "right")
             self.total_time_frame.pack(side = "right")

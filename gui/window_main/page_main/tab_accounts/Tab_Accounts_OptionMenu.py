@@ -192,7 +192,7 @@ class AccountsOptionMenu(tkinter.Listbox):
             
             info_dict.update({self.language_dict["time_sum"]:"#"+str('{:n}'.format(round(float(report_dict['single']),3))) + ' ' + self.language_dict["hours"]}) # round_time
         
-        info_window = InfoDictWindow(self.main_app, self.gui, self.account_tab.main_frame ,info_dict,400,280)
+        info_window = InfoDictWindow(self.main_app, self.gui, self.account_tab.main_frame ,info_dict,450,300)
 
     def show_info(self,text):
         info_window = InfoWindow(self.main_app, self.gui, self.account_tab.main_frame ,text,300,210)
@@ -247,4 +247,4 @@ class AccountsOptionMenu(tkinter.Listbox):
             else:
                 info_dict.update({self.language_dict["available_hours"]:" - "}) 
 
-        info_window = InfoDictWindow(self.main_app, self.gui, self.account_tab.main_frame ,info_dict,500,280)
+        info_window = InfoDictWindow(self.main_app, self.gui, self.account_tab.main_frame ,info_dict,550,300)

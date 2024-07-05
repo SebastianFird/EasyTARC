@@ -215,7 +215,7 @@ class MainWindowStatus(tk.Frame):
                     info_dict.update({self.language_dict["restore_step_4"]:self.language_dict["restore_step_4_text"]})
                     restore_btn_text = last_tracked_interaction.strftime('%d.%m.%Y') + ' ' + last_tracked_interaction.strftime('%H:%M') + ' ' + self.language_dict["o_clock"] + ' ' + self.language_dict["restore"] 
 
-                    info_window_sleep_mode = SleepModeinfo(self.main_app, self.gui ,self.main_window,info_dict,500,300,last_active_clock,time_diff,last_tracked_interaction,restore_btn_text)
+                    info_window_sleep_mode = SleepModeinfo(self.main_app, self.gui ,self.main_window,info_dict,550,300,last_active_clock,time_diff,last_tracked_interaction,restore_btn_text)
 
         ################
 
@@ -367,5 +367,5 @@ class MainWindowStatus(tk.Frame):
                 info_dict.update({str(counter):reminder_note})
                 counter = counter + 1
 
-        info_window = InfoDictWindow(self.main_app, self.gui ,self.main_window,info_dict,500,300)
+        info_window = InfoDictWindow(self.main_app, self.gui ,self.main_window,info_dict,550,300)
         return

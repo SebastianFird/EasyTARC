@@ -218,17 +218,17 @@ class AccountClock(Clock):
 
         if load_backup == True:
             added_minutes_from_backup = self.load_backup_time()
-        else:
-            added_minutes_from_backup = 0
+            if added_minutes_from_backup != 0:
+                event_dict = {
+                    "timestamp": datetime.datetime.now(),
+                    "kind":"start",
+                    "sign":'',
+                    "abs_time":self.str_timedelta(datetime.timedelta(hours = 0,minutes = added_minutes_from_backup,seconds=0)),
+                    "unit":""
+                }
+                self.recording_correction_dict_list.append(event_dict)
 
-        event_dict = {
-            "timestamp": datetime.datetime.now(),
-            "kind":"start",
-            "sign":'',
-            "abs_time":self.str_timedelta(datetime.timedelta(hours = 0,minutes = added_minutes_from_backup,seconds=0)),
-            "unit":""
-        }
-        self.recording_correction_dict_list.append(event_dict)
+
 
     def reload_account_dict(self):
         account_dict = self.user_db.get_account_details(self.id)
@@ -432,6 +432,7 @@ class AccountClock(Clock):
             work_clock = data_manager.get_work_clock()
             check = work_clock.reset_account_time(self.total_time)
             if check == True:
+                old_total_time = self.total_time
                 self.previous_passed_time = datetime.timedelta(hours = 0,minutes = 0,seconds=0)
                 self.previous_total_time = datetime.timedelta(hours = 0,minutes = 0,seconds=0)
                 self.passed_time = datetime.timedelta(hours = 0,minutes = 0,seconds=0)
@@ -442,10 +443,11 @@ class AccountClock(Clock):
                     "timestamp": datetime.datetime.now(),
                     "kind":"reset",
                     "sign":'',
-                    "abs_time":self.str_timedelta(datetime.timedelta(hours = 0,minutes = 0,seconds=0)),
+                    "abs_time":self.str_timedelta(old_total_time) + ' -> ' + self.str_timedelta(datetime.timedelta(hours = 0,minutes = 0,seconds=0)),
                     "unit":""
                 }
                 self.recording_correction_dict_list.append(event_dict)
+
         data_manager.set_last_tracked_interaction()
 
     def get_passed_time(self):

@@ -57,6 +57,10 @@ class CaptureOptionMenu(tkinter.Listbox):
             self.optionmenu.add_command(label=self.language_dict["duplicate_main_account"],command=self.duplicate_main_account)
             self.optionmenu.add_command(label=self.language_dict["new_sub_account"],command=self.create_sub_account)
 
+        if self.main_app.get_action_state() == "normal":
+            self.optionmenu.add_separator()
+            self.optionmenu.add_command(label=self.language_dict["reset_time"],command=self.reset_time) 
+
     def popup(self, event):
         try:
             self.build_options()
@@ -74,8 +78,16 @@ class CaptureOptionMenu(tkinter.Listbox):
 
     def show_clock_info(self):
         info_dict = self.selected_clock.get_info_dict()
-        info_window = InfoDictWindow(self.main_app, self.gui, self.capture_tab.main_frame ,info_dict,500,280)
+        info_window = InfoDictWindow(self.main_app, self.gui, self.capture_tab.main_frame ,info_dict,550,300)
         return
+    
+    def reset_time(self,e=None):        
+        if self.selected_clock.get_runninig() == False:
+            self.selected_clock.reset_time()
+        else:
+            text = '\n' + self.language_dict["record_info_text_1"] + '\n'
+            info_window = InfoWindow(self.main_app, self.gui, self.capture_tab.main_frame ,text,400,180)
+        self.clock_frame.update_clock()
 
     def create_sub_account(self):
         self.capture_tab.create_sub_account()
