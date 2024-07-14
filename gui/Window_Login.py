@@ -84,6 +84,12 @@ class LoginWindow(tk.Frame):
 
         screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(1,1)
 
+        if width >= screen_width*0.9:
+            width = int(round(screen_width*0.9))
+
+        if height >= screen_height*0.8:
+            height = int(round(screen_height*0.8))
+
         x_pos = int(round(screen_width/2 - width/2))
         y_pos = int(round(screen_height/2 - height/2))
 
