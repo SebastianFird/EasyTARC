@@ -420,9 +420,6 @@ class DataManager:
             photo_btn_off_head = photo_btn_off
             photo_btn_pause_head = photo_btn_pause
 
-            photo_btn_reset_strong_highlight = Image.open("images/btn_reset_110.png").convert('RGBA')
-            photo_btn_reset_font = Image.open("images/btn_reset_255.png").convert('RGBA')
-
             photo_btn_plus_strong_highlight = Image.open("images/btn_plus_110.png").convert('RGBA')
             photo_btn_plus_font = Image.open("images/btn_plus_255.png").convert('RGBA')
             photo_btn_minus_strong_highlight = Image.open("images/btn_minus_110.png").convert('RGBA')
@@ -436,9 +433,6 @@ class DataManager:
             photo_btn_highlight_head = Image.open("images/btn_highlight_2.PNG").convert('RGBA')
             photo_btn_off_head = Image.open("images/btn_off_2.png").convert('RGBA')
             photo_btn_pause_head = Image.open("images/btn_pause_2.png").convert('RGBA')
-
-            photo_btn_reset_strong_highlight = Image.open("images/btn_reset_146.png").convert('RGBA')
-            photo_btn_reset_font = Image.open("images/btn_reset_0.png").convert('RGBA')
 
             photo_btn_plus_strong_highlight = Image.open("images/btn_plus_146.png").convert('RGBA')
             photo_btn_plus_font = Image.open("images/btn_plus_0.png").convert('RGBA')
@@ -493,9 +487,6 @@ class DataManager:
         photo_btn_off_head = ImageTk.PhotoImage(photo_btn_off_head.resize(activation_btn_size, Image.ANTIALIAS))
         photo_btn_pause_head = ImageTk.PhotoImage(photo_btn_pause_head.resize(activation_btn_size, Image.ANTIALIAS))
 
-        photo_btn_reset_strong_highlight = ImageTk.PhotoImage(photo_btn_reset_strong_highlight.resize(correction_btn_1_size, Image.ANTIALIAS))
-        photo_btn_reset_font = ImageTk.PhotoImage(photo_btn_reset_font.resize(correction_btn_1_size, Image.ANTIALIAS))
-
         photo_btn_plus_strong_highlight = ImageTk.PhotoImage(photo_btn_plus_strong_highlight.resize(correction_btn_1_size, Image.ANTIALIAS))
         photo_btn_plus_font = ImageTk.PhotoImage(photo_btn_plus_font.resize(correction_btn_1_size, Image.ANTIALIAS))
         photo_btn_minus_strong_highlight = ImageTk.PhotoImage(photo_btn_minus_strong_highlight.resize(correction_btn_1_size, Image.ANTIALIAS))
@@ -516,8 +507,6 @@ class DataManager:
             "photo_btn_highlight_head":photo_btn_highlight_head,
             "photo_btn_off_head":photo_btn_off_head,
             "photo_btn_pause_head":photo_btn_pause_head,
-            "photo_btn_reset_strong_highlight":photo_btn_reset_strong_highlight,
-            "photo_btn_reset_font":photo_btn_reset_font,
             "photo_btn_plus_strong_highlight":photo_btn_plus_strong_highlight,
             "photo_btn_plus_font":photo_btn_plus_font,
             "photo_btn_plus_plus_strong_highlight":photo_btn_plus_plus_strong_highlight,

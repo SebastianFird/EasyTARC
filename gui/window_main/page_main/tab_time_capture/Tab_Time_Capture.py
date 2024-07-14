@@ -28,8 +28,10 @@ class CaptureTab(Scroll_Frame):
         super().__init__(main_app, gui)
         self.case_frame_manager = case_frame_manager
 
-        self.time_column = self.main_app.get_setting('time_view_capture_tab')
         self.selected_clock_frame = None
+
+        self.correction_column = self.main_app.get_setting('time_view_capture_tab')
+        self.time_column = self.correction_column
 
         # run the main frame of this layer
         self.create_main_frame(container)
@@ -128,6 +130,16 @@ class CaptureTab(Scroll_Frame):
 
     def change_time_column(self,time_column):
         self.time_column = time_column
+        self.update()
+
+    #################
+
+    def get_correction_column(self):
+        return(self.correction_column)
+
+    def change_correction_column(self,correction_column):
+        self.correction_column = correction_column
+        self.time_column = correction_column
         self.update()
 
 

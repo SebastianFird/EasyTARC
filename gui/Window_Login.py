@@ -20,6 +20,8 @@ from tkinter import ttk
 import datetime
 from PIL import ImageTk, Image
 from ctypes import windll
+from tkinter import filedialog
+import os
 
 from gui.window_main.Window_Main_CaseFrame_Manager import CaseFrameManagerMW
 from gui.window_main.Window_Main_Status import MainWindowStatus
@@ -67,9 +69,18 @@ class LoginWindow(tk.Frame):
         self.start_x = None
         self.start_y = None
 
+        self.login_file_found = False
+        self.database_folder_found = False
+        self.settings_file_found = False
+
         geo_factor = float(self.main_app.get_setting("geometry_factor"))
-        width = int(round(geo_factor*600))
-        height = int(round(geo_factor*700))
+
+        if self.kind == 'sign_up':
+            width = int(round(geo_factor*600))
+            height = int(round(geo_factor*700))
+        else:
+            width = int(round(geo_factor*600))
+            height = int(round(geo_factor*400))
 
         screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(1,1)
 
@@ -145,7 +156,118 @@ class LoginWindow(tk.Frame):
 
         self.lbl_short_description = MyLabel(self.short_description_frame, self.data_manager, text=self.language_dict['easy_tarc_short_description'] + '\n\n' + self.language_dict['info_description_1'] + u'\U00002139' + self.language_dict['info_description_2'],anchor='w',justify='left')
         self.lbl_short_description.configure(font=self.Font_tuple_small)
-        self.lbl_short_description.pack(side='left',pady=20)
+        self.lbl_short_description.pack(side='left',pady=10)
+
+        self.btn_already_using_easytarc = MyLabel(self.short_description_frame, self.data_manager, text= u'\U00002B72',width=3)
+        self.btn_already_using_easytarc.pack(side = "right",padx=5,pady=5, anchor='n')
+        self.btn_already_using_easytarc.configure(font = self.Font_tuple_head, foreground=self.style_dict["highlight_color_grey"])
+
+        #########
+        
+        self.btn_already_using_easytarc.bind("<Enter>", lambda e: self.btn_already_using_easytarc.configure(font = self.Font_tuple_head, foreground=self.style_dict["font_color"]))
+        self.btn_already_using_easytarc.bind("<Leave>", lambda e: self.btn_already_using_easytarc.configure(font = self.Font_tuple_head, foreground=self.style_dict["highlight_color_grey"]))
+
+        self.already_using_easytarc_frame = MyFrame(self.scroll_frame,self.data_manager)
+        self.already_using_easytarc_frame.pack(side = "top", fill = "x" )
+
+        self.transfer_data_frame = MyFrame(self.already_using_easytarc_frame,self.data_manager)
+
+        self.transfer_data_frame_head = MyFrame(self.transfer_data_frame,self.data_manager)
+        self.transfer_data_frame_head.pack(side = "top", fill = "x")
+
+        self.separator_frame_5 = MyFrame(self.transfer_data_frame_head,self.data_manager)
+        self.separator_frame_5.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_5.pack(side = "top",fill='x')
+
+        self.lbl_transfer_data_headline = MyLabel(self.transfer_data_frame_head,self.data_manager,text = self.language_dict['transfer_data'], anchor = 'w', width=35)
+        self.lbl_transfer_data_headline.configure(font = self.Font_tuple)
+        self.lbl_transfer_data_headline.pack(side = "left", padx=5)
+
+        #########
+
+        self.folder_request_frame = MyFrame(self.transfer_data_frame,self.data_manager)
+        self.folder_request_frame.pack(side = "top", fill = "x" , pady=5)
+
+        self.lbl_folder_request_info = MyLabel(self.folder_request_frame,self.data_manager,text= u'\U00002139',width=3)
+        self.lbl_folder_request_info.pack(side = "left")
+        self.lbl_folder_request_info_ttp = CreateToolTip(self.lbl_folder_request_info, self.data_manager, 0, 30, self.language_dict["sign_up_transfer_data_info"], True)
+
+        self.lbl_folder_request = MyLabel(self.folder_request_frame,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict["old_easytarc_folder"] + ':')
+        self.lbl_folder_request.pack(side = "left", padx=5)
+
+        self.btn_open_easytarc_folder = MyButton(self.folder_request_frame, self.data_manager,text=u'\U0001F4C1',width=3,command=self.open_old_easytarc_folder)
+        self.btn_open_easytarc_folder.pack(side = "left", padx=5)
+
+        self.lbl_old_easytarc_folder_path = MyLabel(self.folder_request_frame, self.data_manager,text='',anchor='w',justify='left',wraplength=250)
+        self.lbl_old_easytarc_folder_path.configure(foreground=self.style_dict["highlight_color_grey"])
+        self.lbl_old_easytarc_folder_path.pack(side = "left", padx=5)
+        self.lbl_old_easytarc_folder_path_ttp = CreateToolTip(self.lbl_old_easytarc_folder_path, self.data_manager, 0, 30, '')
+
+        #########
+
+        self.login_file_frame = MyFrame(self.transfer_data_frame,self.data_manager)
+        self.login_file_frame.pack(side = "top", fill = "x" )
+
+        self.lbl_login_file_info = MyLabel(self.login_file_frame,self.data_manager,text= '',width=3)
+        self.lbl_login_file_info.pack(side = "left")
+
+        self.lbl_login_file = MyLabel(self.login_file_frame,self.data_manager,width=15,anchor='w',justify='left',text= 'Login:')
+        self.lbl_login_file.pack(side = "left", padx=5)
+
+        self.lbl_login_file_found = MyLabel(self.login_file_frame, self.data_manager,width=3,text = u'\U0001F5D9')
+        self.lbl_login_file_found.configure(foreground=self.style_dict["caution_color_red"])
+        self.lbl_login_file_found.pack(side = "left", padx=5)
+
+        #########
+
+        self.database_folder_frame = MyFrame(self.transfer_data_frame,self.data_manager)
+        self.database_folder_frame.pack(side = "top", fill = "x" )
+
+        self.lbl_database_folder_info = MyLabel(self.database_folder_frame,self.data_manager,text= '',width=3)
+        self.lbl_database_folder_info.pack(side = "left")
+
+        self.lbl_database_folder = MyLabel(self.database_folder_frame,self.data_manager,width=15,anchor='w',justify='left',text='Database:')
+        self.lbl_database_folder.pack(side = "left", padx=5)
+
+        self.lbl_database_folder_found = MyLabel(self.database_folder_frame, self.data_manager,width=3,text = u'\U0001F5D9')
+        self.lbl_database_folder_found.configure(foreground=self.style_dict["caution_color_red"])
+        self.lbl_database_folder_found.pack(side = "left", padx=5)
+
+        #########
+
+        self.setting_file_frame = MyFrame(self.transfer_data_frame,self.data_manager)
+        self.setting_file_frame.pack(side = "top", fill = "x" )
+
+        self.lbl_setting_file_info = MyLabel(self.setting_file_frame,self.data_manager,text= '',width=3)
+        self.lbl_setting_file_info.pack(side = "left")
+
+        self.lbl_setting_file = MyLabel(self.setting_file_frame,self.data_manager,width=15,anchor='w',justify='left',text='Settings:')
+        self.lbl_setting_file.pack(side = "left", padx=5)
+
+        self.lbl_setting_file_found = MyLabel(self.setting_file_frame, self.data_manager,width=3,text = u'\U0001F5D9')
+        self.lbl_setting_file_found.configure(foreground=self.style_dict["caution_color_red"])
+        self.lbl_setting_file_found.pack(side = "left", padx=5)
+
+        #########
+
+        self.apply_transfer_frame = MyFrame(self.transfer_data_frame,self.data_manager)
+        self.apply_transfer_frame.pack(side = "top", fill = "x")
+
+        self.lbl_transfer_not_possible_info = MyLabel(self.apply_transfer_frame,self.data_manager,text ='')
+        self.lbl_transfer_not_possible_info.configure(foreground=self.style_dict["caution_color_red"])
+        self.lbl_transfer_not_possible_info.pack(side = "top",fill='x', pady=5)
+
+        self.btn_start_transfer = MyButton(self.apply_transfer_frame, self.data_manager, text=self.language_dict["start_easytarc"],width=40,command= self.transfer_data)
+        self.btn_start_transfer.pack(side='top',padx = 10)
+
+        self.btn_start_transfer.configure(font = self.Font_tuple)
+
+        self.lbl_empty_6 = MyLabel(self.apply_transfer_frame,self.data_manager,anchor='w',justify='left',width=4)
+        self.lbl_empty_6.pack(side = "top",fill='x')
+
+        #########
+
+        self.btn_already_using_easytarc.bind("<Button-1>", lambda e: self.transfer_data_frame.pack(side = "top", fill = "x" ))
 
         #########
 
@@ -157,7 +279,7 @@ class LoginWindow(tk.Frame):
 
         self.separator_frame_1 = MyFrame(self.permission_frame_head,self.data_manager)
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_1.pack(side = "top",fill='x')
+        self.separator_frame_1.pack(side = "top",fill='x',pady=1)
 
         self.lbl_permisson_headline = MyLabel(self.permission_frame_head,self.data_manager,text = self.language_dict['permission'], anchor = 'w', width=35)
         self.lbl_permisson_headline.configure(font = self.Font_tuple)
@@ -241,7 +363,7 @@ class LoginWindow(tk.Frame):
 
         self.separator_frame_2 = MyFrame(self.db_config_frame_head,self.data_manager)
         self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_2.pack(side = "top",fill='x')
+        self.separator_frame_2.pack(side = "top",fill='x',pady=1)
 
         self.lbl_db_config_headline = MyLabel(self.db_config_frame_head,self.data_manager,text = self.language_dict['db_config'], anchor = 'w', width=35)
         self.lbl_db_config_headline.configure(font = self.Font_tuple)
@@ -250,7 +372,7 @@ class LoginWindow(tk.Frame):
         #########
 
         self.option_frame = MyFrame(self.db_config_frame,self.data_manager)
-        self.option_frame.pack(side = "top", fill = "x" )
+        self.option_frame.pack(side = "top", fill = "x", pady=5)
 
         self.lbl_option_info = MyLabel(self.option_frame,self.data_manager,text=u'\U00002139',width=3)
         self.lbl_option_info.pack(side = "left")
@@ -285,9 +407,6 @@ class LoginWindow(tk.Frame):
         self.lbl_empty_4 = MyLabel(self.password_frame_head,self.data_manager,anchor='w',justify='left',width=4)
         self.lbl_empty_4.pack(side = "top",fill='x')
 
-        self.separator_frame_3 = MyFrame(self.password_frame_head,self.data_manager)
-        self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_3.pack(side = "top",fill='x')
 
         self.lbl_db_config_headline = MyLabel(self.password_frame_head,self.data_manager,text = self.language_dict['set_password'], anchor = 'w', width=35)
         self.lbl_db_config_headline.configure(font = self.Font_tuple)
@@ -338,24 +457,65 @@ class LoginWindow(tk.Frame):
         self.lbl_empty_4 = MyLabel(self.apply_frame_head,self.data_manager,anchor='w',justify='left',width=4)
         self.lbl_empty_4.pack(side = "top",fill='x')
 
-        self.separator_frame_4 = MyFrame(self.apply_frame_head,self.data_manager)
-        self.separator_frame_4.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_4.pack(side = "top",fill='x')
-
-        self.lbl_empty_5 = MyLabel(self.apply_frame_head,self.data_manager,anchor='w',justify='left',width=4)
-        self.lbl_empty_5.pack(side = "top",fill='x')
-
         self.lbl_sign_up_faild_info = MyLabel(self.apply_frame_head,self.data_manager)
         self.lbl_sign_up_faild_info.configure(foreground=self.style_dict["caution_color_red"])
         self.lbl_sign_up_faild_info.pack(side = "top",fill='x', pady=5)
 
-        self.btn_paste_response = MyButton(self.apply_frame_head, self.data_manager, text=self.language_dict["start_easytarc"],width=40,command=self.sign_up)
-        self.btn_paste_response.pack(side='top',padx = 10)
+        self.btn_start_easytarc = MyButton(self.apply_frame_head, self.data_manager, text=self.language_dict["start_easytarc"],width=40,command=self.sign_up)
+        self.btn_start_easytarc.pack(side='top',padx = 10)
+
+        self.btn_start_easytarc.configure(font = self.Font_tuple)
 
         self.lbl_empty_5 = MyLabel(self.apply_frame_head,self.data_manager,anchor='w',justify='left',width=4)
         self.lbl_empty_5.pack(side = "top",fill='x')
 
         ######################
+
+    def open_old_easytarc_folder(self):
+        self.old_easytarct_directory = filedialog.askdirectory()
+        self.lbl_old_easytarc_folder_path.configure(text=self.old_easytarct_directory)
+        self.lbl_old_easytarc_folder_path_ttp.text = self.old_easytarct_directory
+
+        old_easytarc_folder_path = os.path.abspath(self.old_easytarct_directory)
+
+        self.login_file_path = old_easytarc_folder_path + '\\login.json'
+        if os.path.exists(self.login_file_path) == True: 
+            self.lbl_login_file_found.configure(text = u'\U00002713',foreground=self.style_dict["highlight_color_green"])
+            self.login_file_found = True
+        else:
+            self.lbl_login_file_found.configure(text = u'\U0001F5D9',foreground=self.style_dict["caution_color_red"])
+            self.login_file_found = False
+
+        self.database_folder_path = old_easytarc_folder_path + '\\database'
+        database_1_path = old_easytarc_folder_path + '\\database\\EasyTARC_Database_User.db' 
+        database_2_path = old_easytarc_folder_path + '\\database\\EasyTARC_Database_User_crypted.sql.gz'
+        if os.path.exists(self.database_folder_path) == True and (os.path.exists(database_1_path) == True or os.path.exists(database_2_path) == True): 
+            self.lbl_database_folder_found.configure(text = u'\U00002713',foreground=self.style_dict["highlight_color_green"])
+            self.database_folder_found = True
+        else:
+            self.lbl_database_folder_found.configure(text = u'\U0001F5D9',foreground=self.style_dict["caution_color_red"])
+            self.database_folder_found = False
+
+        self.settings_file_path = old_easytarc_folder_path + '\\json\\settings.json'
+        if os.path.exists(self.settings_file_path) == True: 
+            self.lbl_setting_file_found.configure(text = u'\U00002713',foreground=self.style_dict["highlight_color_green"])
+            self.settings_file_found = True
+        else:
+            self.lbl_setting_file_found.configure(text = u'\U0001F5D9',foreground=self.style_dict["caution_color_red"])
+            self.settings_file_found = False
+
+    def transfer_data(self):
+        if self.settings_file_found == False or self.database_folder_found == False or self.login_file_found == False:
+            self.lbl_transfer_not_possible_info.configure(text = self.language_dict["transfer_not_possible"])
+            return
+
+        self.lbl_transfer_not_possible_info.configure(text = '')
+        self.main_app.old_easytarc_path_dict['login_file_path'] = self.login_file_path
+        self.main_app.old_easytarc_path_dict['database_folder_path'] = self.database_folder_path
+        self.main_app.old_easytarc_path_dict['settings_file_path'] = self.settings_file_path
+        self.main_app.sign_up_import_data = True
+        self.close_window()
+        return
 
     def enter_copy_request_code(self,e):
         self.btn_copy_request_code.configure(foreground=self.style_dict["font_color"])
@@ -438,10 +598,6 @@ class LoginWindow(tk.Frame):
         self.lbl_empty_4 = MyLabel(self.password_frame_head,self.data_manager,anchor='w',justify='left',width=4)
         self.lbl_empty_4.pack(side = "top",fill='x')
 
-        self.separator_frame_3 = MyFrame(self.password_frame_head,self.data_manager)
-        self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_3.pack(side = "top",fill='x')
-
         self.lbl_db_config_headline = MyLabel(self.password_frame_head,self.data_manager,text = self.language_dict['password'], anchor = 'w', width=35)
         self.lbl_db_config_headline.configure(font = self.Font_tuple)
         self.lbl_db_config_headline.pack(side = "left", padx=5)
@@ -471,18 +627,13 @@ class LoginWindow(tk.Frame):
         self.apply_frame_head = MyFrame(self.apply_frame,self.data_manager)
         self.apply_frame_head.pack(side = "top", fill = "x")
 
-        self.lbl_empty_4 = MyLabel(self.apply_frame_head,self.data_manager,anchor='w',justify='left',width=4)
-        self.lbl_empty_4.pack(side = "top",fill='x')
-
-        self.separator_frame_4 = MyFrame(self.apply_frame_head,self.data_manager)
-        self.separator_frame_4.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_4.pack(side = "top",fill='x')
-
         self.lbl_empty_5 = MyLabel(self.apply_frame_head,self.data_manager,anchor='w',justify='left',width=4)
         self.lbl_empty_5.pack(side = "top",fill='x')
 
-        self.btn_paste_response = MyButton(self.apply_frame_head, self.data_manager, text=self.language_dict["start_easytarc"],width=40,command=self.sign_in)
-        self.btn_paste_response.pack(side='top',padx = 10)
+        self.btn_start_sign_in = MyButton(self.apply_frame_head, self.data_manager, text=self.language_dict["start_easytarc"],width=40,command=self.sign_in)
+        self.btn_start_sign_in.pack(side='top',padx = 10)
+
+        self.btn_start_sign_in.configure(font = self.Font_tuple)
 
         self.lbl_empty_5 = MyLabel(self.apply_frame_head,self.data_manager,anchor='w',justify='left',width=4)
         self.lbl_empty_5.pack(side = "top",fill='x')

@@ -54,13 +54,13 @@ class BookingOptionMenu(tkinter.Listbox):
         else:  
             self.optionmenu.add_command(label=self.language_dict["select_all"],command=self.select_all)
 
-        if len(clicked_record_frame_list) == 1 or self.main_app.get_setting("booking_url_1") != '':
+        if len(clicked_record_frame_list) == 1 or self.main_app.get_booking_link_dict()["booking_url_1"] != '':
             self.optionmenu.add_separator()
 
         if len(clicked_record_frame_list) == 1:
             self.optionmenu.add_command(label=self.language_dict["copie_data"],command=self.copie_data)
         
-        if self.main_app.get_setting("booking_url_1") != '':
+        if self.main_app.get_booking_link_dict()["booking_url_1"] != '':
             self.optionmenu.add_command(label=self.language_dict["booking_website"],command=self.open_booking_website)
 
         #self.optionmenu.add_command(label=self.language_dict["copie_json"],command=self.copie_json)
@@ -114,20 +114,21 @@ class BookingOptionMenu(tkinter.Listbox):
         self.gui.main_window.clipboard_append(booking_dict)
 
     def open_booking_website(self):
+
+        booking_link_dict = self.main_app.get_booking_link_dict()
+
         clicked_record_frame_list = self.booking_tab.get_clicked_record_frame_list()
         failed_text = ''
 
         for clicked_record_frame  in clicked_record_frame_list:
             record_dict = clicked_record_frame.record_dict
 
-            booking_url_sequence_list = self.main_app.get_setting('booking_url_sequence')
+            booking_url_sequence_list = booking_link_dict['booking_url_sequence']
             
             booking_url = ''
-            failed = False
             for booking_url_part in booking_url_sequence_list:
                 if booking_url_part == "response_code":
-                    if record_dict['response_code'] == ' - ' or record_dict['response_code'] == '':
-                        failed = True
+                    if record_dict['response_code'] == ' - ':
                         response_code = ''
                     else:
                         response_code = str(record_dict['response_code'])
@@ -145,18 +146,20 @@ class BookingOptionMenu(tkinter.Listbox):
                     booking_url = booking_url  + urllib.parse.quote(response_text, safe='')
                     
                 else:
-                    booking_url = booking_url + str(self.main_app.get_setting(booking_url_part))
+                    booking_url = booking_url + str(booking_link_dict[booking_url_part])
 
-            if failed == True:
-                failed_text = failed_text + '\n' + booking_url
+            if record_dict['account_kind'] == 0:
+                name_text = record_dict['name'] +' -> '+ record_dict['main_name']
             else:
-                res = self.open_url(booking_url)
-                if res == False:
-                    failed_text = failed_text + '\n' + booking_url
+                name_text = record_dict['name']
+
+            res = self.open_url(booking_url)
+            if res == False:
+                failed_text = failed_text + '\n' + name_text + ': '+ booking_url
 
         self.gui.root.deiconify()
         if failed_text != '':
-            text = self.language_dict["failed"] + ':' + failed_text
+            text = '\n' + self.language_dict["failed"] + ':\n' + failed_text
             info_window = InfoWindow(self.main_app, self.gui, self.booking_tab.main_frame ,text,700,350)
         return
 
@@ -164,14 +167,32 @@ class BookingOptionMenu(tkinter.Listbox):
         if url == '':
             return(False)
         try:
-            #webbrowser.open_new(url)
+            webbrowser.open_new(url)
             return(True)
         except:
             return(False)
 
     def copie_data(self):
 
-        record = str(self.record_dict['response_text'])  + '___'+ str("{:n}".format(round(self.record_dict['hours'],3)))  + '___'+  str(self.record_dict['response_code']) 
+        hours = str("{:n}".format(round(self.record_dict['hours'],3)))
+
+        #####
+
+        if str(self.record_dict['response_code']) == ' - ' or str(self.record_dict['response_code']) == '':
+            response_code = ''
+        else:
+            response_code = '__' + str(self.record_dict['response_code']) 
+
+        #####
+
+        if str(self.record_dict['response_text']) == ' - ' or str(self.record_dict['response_text']) == '':
+            response_text = ''
+        else:
+            response_text =  str(self.record_dict['response_text']) + '__'
+
+        #####
+
+        record = response_text + hours + response_code
 
         self.gui.main_window.clipboard_clear()
         self.gui.main_window.clipboard_append(record)

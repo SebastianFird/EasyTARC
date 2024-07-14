@@ -212,7 +212,8 @@ class AccountClock(Clock):
         self.available_hours = self.account_dict.get("available_hours")
         self.sum_passed_times = self.account_dict.get("sum_passed_times")
 
-        self.response_text = self.get_default_response_text()
+        response_text_list = self.get_response_text_list()
+        self.response_text = response_text_list[0]
 
         self.recording_correction_dict_list = []
 
@@ -228,9 +229,9 @@ class AccountClock(Clock):
                 }
                 self.recording_correction_dict_list.append(event_dict)
 
-
-
     def reload_account_dict(self):
+        old_response_text_list = self.get_response_text_list()
+
         account_dict = self.user_db.get_account_details(self.id)
         self.account_dict = account_dict
         self.name = self.account_dict.get("name")
@@ -247,6 +248,14 @@ class AccountClock(Clock):
         self.date_expiration = self.account_dict.get("date_expiration")
         self.available_hours = self.account_dict.get("available_hours")
         self.sum_passed_times = self.account_dict.get("sum_passed_times")    
+
+        new_response_text_list = self.get_response_text_list()
+
+        if old_response_text_list == [''] and new_response_text_list != ['']:
+            self.response_text = new_response_text_list[0]
+
+        if new_response_text_list == ['']:
+            self.response_text = ''
 
     def get_account_dict(self):
         return(self.account_dict)
@@ -293,10 +302,6 @@ class AccountClock(Clock):
         else:
             response_text_list = ['']
         return(response_text_list)
-    
-    def get_default_response_text(self):
-        response_text = self.get_response_text_list()[0]
-        return(response_text)
     
     def get_response_text(self):
         return(self.response_text)
@@ -510,7 +515,9 @@ class MainAccountClock(AccountClock):
         self.added_time = datetime.timedelta()
         self.total_time = datetime.timedelta()
         self.time_str_list_list = []
-        self.response_text = self.get_default_response_text()
+
+        response_text_list = self.get_response_text_list()
+        self.response_text = response_text_list[0]
 
         for sub_clock in self.sub_clock_list:
             sub_clock.deep_reset()
@@ -646,7 +653,9 @@ class SubAccountClock(AccountClock):
         self.added_time = datetime.timedelta()
         self.total_time = datetime.timedelta()
         self.time_str_list_list = []
-        self.response_text = self.get_default_response_text()
+        
+        response_text_list = self.get_response_text_list()
+        self.response_text = response_text_list[0]
         return
 
     def get_main_name(self):

@@ -19,6 +19,7 @@ __author__ = 'Sebastian Feiert'
 import tkinter as tk
 import locale
 import os
+from pyshortcuts import make_shortcut
 import hashlib
 import sys
 import ctypes
@@ -30,6 +31,7 @@ import json
 import datetime
 import shutil
 from authorisation_process import Authorisation
+import stat
 
 
 from tkinter import messagebox
@@ -47,13 +49,13 @@ class App():
     def __init__(self):
 
         self.app_name = 'EasyTARC'
-        
+        self.desktop_link_extension = '_New'
         self.restricted_user_group = False          # True / False     
         self.restricted_data_access = False         # True / False
 
         self.version = '1.10.1'
 
-        self.authorisation_old = Authorisation('whirlpool') #'whirlpool'
+        self.authorisation_old = Authorisation('whirlpool') #whirlpool #sha512
         self.authorisation_new = Authorisation('sha512')
 
         self.db_name_ending_dict = {               #'database_username_encrypted'  'database_unencrypted'   #database_password_encrypted' -> not ready
@@ -85,30 +87,64 @@ class App():
         if self.check_only_task() == False:
             return('not only task')
         
+        ######
+        
         self.load_settings()
+
+        ######
 
         if self.check_updates() == False:
             return('Update failed')
+        
+        ######
 
         if os.path.isdir('database') == False:
             new_path = os.path.abspath(os.getcwd()) +'\\' + 'database'
             os.makedirs(new_path)
 
-        
+        ######
+
+        if os.path.isfile('json/booking_link.json') == False:
+            booking_link_file = open('json/booking_link.json',"w+",encoding='UTF-8')
+
+            booking_link_dict = {
+                "booking_url_1":"",
+                "booking_url_2":"",
+                "booking_url_3":"",
+                "booking_url_4":"",
+                "booking_url_5":"",
+                "booking_url_6":"",
+                "booking_url_sequence":["booking_url_1","booking_url_2","booking_url_3","response_code","booking_url_4","hours","booking_url_5","response_text","booking_url_6"]
+            }
+
+            json.dump(booking_link_dict, booking_link_file)
+            booking_link_file.close()
+
+        with open('json/booking_link.json',encoding='UTF-8') as json_file:
+            self.booking_link_dict = json.load(json_file)
+
+        ######
+
         if os.path.isfile('login.json') == False:
             if os.path.isfile('database/EasyTARC_Database_User_crypted.sql.gz') == True:
                 return('Please store the correct login file in your EasyTARC directory')
 
             if os.path.isfile('database/EasyTARC_Database_User.db') == True:
                 return('Please store the correct login file in your EasyTARC directory')
+            
+        ######
 
         self.data_manager = DataManager(self)
         self.gui = Gui_Manager(self)
+
+        ######
           
         if os.path.isfile('database/EasyTARC_Database_User_crypted.sql.gz') == False and os.path.isfile('database/EasyTARC_Database_User.db') == False:
             sign_up_successful, sign_up_info = self.sign_up_process()
             if sign_up_successful == False:
                 return(sign_up_info)
+            
+        ######
   
         sign_in_successful, sign_in_info = self.sign_in_process()
         if sign_in_successful == False:
@@ -124,6 +160,69 @@ class App():
         return
             
     ####################################################################################################################################
+
+    def copytree(self,src, dst, symlinks=False, ignore=None):
+        #https://stackoverflow.com/questions/1868714/how-do-i-copy-an-entire-directory-of-files-into-an-existing-directory-using-pyth
+        #https://stackoverflow.com/questions/58881593/copytree-what-are-parameters-symlink-and-ignore-for
+        for item in os.listdir(src):
+            if item != ignore:
+                s = os.path.join(src, item)
+                d = os.path.join(dst, item)
+                if os.path.isdir(s):
+                    shutil.copytree(s, d, symlinks, ignore)
+                else:
+                    shutil.copy2(s, d)
+
+    def adjust_settings_file(self,old_settings_path):
+        with open(old_settings_path,encoding='UTF-8') as json_file:
+            old_settings_dict = json.load(json_file)
+
+        new_setting_key_list = list(self.settings_dict)
+
+        for old_key in old_settings_dict:
+            if old_key in new_setting_key_list:
+                new_key = old_key
+                self.change_settings(new_key,old_settings_dict[old_key])
+
+    def get_start_up_link(self):
+        startup_folder = os.environ["APPDATA"] + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+        if os.path.exists(startup_folder) == True: 
+            return(startup_folder)
+        return('')
+
+    def remove_start_up_link(self):
+        startup_folder = self.get_start_up_link()
+        if startup_folder == '':
+            return
+        
+        shortcut_name = self.get_name() +'_Link.lnk'
+        shortcut_path = os.path.join(startup_folder, shortcut_name)
+        if os.path.exists(shortcut_path) == True: 
+            os.remove(shortcut_path)
+
+        self.change_settings("startup_folder","")
+
+    def set_start_up_link(self):
+        file_path = os.path.join(self.get_filepath(), self.get_name() +'.exe')  
+
+        startup_folder = self.get_start_up_link()
+        if startup_folder == '':
+            return
+        
+        shortcut_name = self.get_name() +'_Link'
+        shortcut_path = os.path.join(startup_folder, shortcut_name)
+        if not os.path.exists(shortcut_path): 
+            try:
+                if os.path.exists(file_path):
+                    script_path = file_path
+                    shortcut_name = shortcut_name
+                    shortcut_desc = "EasyTARC - Link"
+                    icon_path = os.path.join( self.get_filepath(), 'Logo.ico')  
+                    folder_path = startup_folder
+                    make_shortcut(script_path, name=shortcut_name, description=shortcut_desc, icon=icon_path, folder=folder_path, working_dir=self.main_app.get_filepath())
+            except:
+                return
+        return
             
     def sign_up_process(self):
 
@@ -132,9 +231,15 @@ class App():
             os.remove(path + '\\' + 'login.json')
             
         ##########
+        
+        self.old_easytarc_path_dict = {
+            'login_file_path': '',
+            'database_folder_path':'',
+            'settings_file_path': ''
+            }
+        self.sign_up_import_data = False
 
         user_str_format = 'l'
-
         # no valid login.json 
         self.sign_up_dict = {
             'sign_up_db_config': '',
@@ -143,10 +248,28 @@ class App():
             'sign_up_password': ''
             }
         self.sign_up_user_input_successful = False
+
         self.gui.run_login_window('sign_up')
 
         # the login window checks if the permisson_hash is correct
         # the login window sets the self.sign_up_dict and self.sign_up_successful
+
+        if self.sign_up_import_data == True:
+
+            # copy login file
+            shutil.copy(self.old_easytarc_path_dict['login_file_path'], os.path.abspath(os.getcwd()))
+
+            # copy database folder
+            self.copytree(self.old_easytarc_path_dict['database_folder_path'], os.path.abspath(os.getcwd())+'\\' + 'database',False,'previous version')
+
+            # adjust settings
+            self.adjust_settings_file(self.old_easytarc_path_dict['settings_file_path'])
+
+            if self.settings_dict['create_start_up_link'] == 'on':
+                self.remove_start_up_link()
+                self.set_start_up_link()
+
+            return(False,'Um die Anmeldung abzuschließen, starte EasyTARC erneut.\nTo complete the registration, start EasyTARC again.')
 
         if self.sign_up_user_input_successful == False:
             return(False,'sign up failed')
@@ -171,6 +294,9 @@ class App():
         salt = ''
 
         if self.data_manager.user_db.create_db(self.sign_up_dict.get("sign_up_db_config"),'database','EasyTARC_Database_User',self.db_name_ending_dict.get(self.sign_up_dict.get("sign_up_db_config")),self.sign_up_dict.get("sign_up_password"), salt) == True:
+            if self.settings_dict['create_start_up_link'] == 'on':
+                self.remove_start_up_link()
+                self.set_start_up_link()
             return(True,'')
         else:
             return(False,"can't create database")
@@ -263,6 +389,9 @@ class App():
     def get_name(self):
         return(self.app_name)
     
+    def get_desktop_link_extension(self):
+        return(self.desktop_link_extension)
+    
     def get_system_start_time(self):
         return(self.system_start_time)
 
@@ -277,6 +406,9 @@ class App():
 
     def get_filepath(self):
         return(self.file_path)
+    
+    def get_booking_link_dict(self):
+        return(self.booking_link_dict)
 
 ############################################################
 
@@ -356,13 +488,6 @@ class App():
                            "web_link_4_url": "",
                            "desktop_folder":"",
                            "startup_folder":"",
-                           "booking_url_1":"",
-                           "booking_url_2":"",
-                           "booking_url_3":"",
-                           "booking_url_4":"",
-                           "booking_url_5":"",
-                           "booking_url_6":"",
-                           "booking_url_sequence":["booking_url_1","booking_url_2","booking_url_3","response_code","booking_url_4","hours","booking_url_5","response_text","booking_url_6"],
                            "booking_kind":'sum_subaccounts'}
             self.settings_dict.update(update_dict)
 

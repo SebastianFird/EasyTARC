@@ -549,10 +549,10 @@ class SetupBody:
         self.simplify_data_cbox.grid(row=row_nbr, column=2, padx=5, pady=5)
         self.simplify_data_cbox.bind('<Button-1>', self.btn_simplify_data_cbox_reset)
 
-        self.update_simplify_data_cblist()
-
         self.btn_set_simplify_data_cbox = MyButton(self.database_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_simplify_data_cbox(clicked_simplify_data.get()))
         self.btn_set_simplify_data_cbox.grid(row=row_nbr, column=3, padx=5, pady=5)
+
+        self.update_simplify_data_cblist()
 
 
         return
@@ -755,7 +755,7 @@ class SetupBody:
         if desktop_folder == '':
             return
 
-        shortcut_name = self.main_app.get_name() +'_Link'
+        shortcut_name = self.main_app.get_name() + self.main_app.get_desktop_link_extension()
         shortcut_path = os.path.join(desktop_folder, shortcut_name)
         if not os.path.exists(shortcut_path): 
             try:
@@ -779,7 +779,7 @@ class SetupBody:
         desktop_folder = self.get_desktop_link()
         if desktop_folder == '':
             return
-        shortcut_name = self.main_app.get_name() +'_Link.lnk'
+        shortcut_name = self.main_app.get_name() + self.main_app.get_desktop_link_extension() +'.lnk'
         shortcut_path = os.path.join(desktop_folder, shortcut_name)
         if os.path.exists(shortcut_path) == True: 
             os.remove(shortcut_path)
@@ -806,7 +806,7 @@ class SetupBody:
             self.lbl_status_desktop_link.configure(text = '?',foreground=self.style_dict["caution_color_red"])
             self.btn_desktop_directory_ttp.text = self.language_dict['no_folder']
             return
-        shortcut_name = self.main_app.get_name() +'_Link.lnk'
+        shortcut_name = self.main_app.get_name() + self.main_app.get_desktop_link_extension() +'.lnk'
         shortcut_path = os.path.join(desktop_folder, shortcut_name)
         if os.path.exists(shortcut_path) == True: 
             self.lbl_status_desktop_link.configure(text = u'\U00002713',foreground=self.style_dict["highlight_color_green"])
@@ -961,8 +961,10 @@ class SetupBody:
     def update_simplify_data_cblist(self):
         if self.main_app.get_restricted_data_access() == True:
             self.simplify_data_cbox.configure(state=tk.DISABLED)
+            self.btn_set_simplify_data_cbox.configure(state=tk.DISABLED)
         else:
             self.simplify_data_cbox.configure(state=tk.NORMAL)
+            self.btn_set_simplify_data_cbox.configure(state=tk.NORMAL)
 
         if self.main_app.get_restricted_data_access() == True:
             simplify_data = 'on'
