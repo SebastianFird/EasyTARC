@@ -519,6 +519,8 @@ class MainAccountClock(AccountClock):
         response_text_list = self.get_response_text_list()
         self.response_text = response_text_list[0]
 
+        self.recording_correction_dict_list = []
+
         for sub_clock in self.sub_clock_list:
             sub_clock.deep_reset()
 
@@ -656,6 +658,8 @@ class SubAccountClock(AccountClock):
         
         response_text_list = self.get_response_text_list()
         self.response_text = response_text_list[0]
+
+        self.recording_correction_dict_list = []
         return
 
     def get_main_name(self):
