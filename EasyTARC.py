@@ -219,7 +219,7 @@ class App():
                     shortcut_desc = "EasyTARC - Link"
                     icon_path = os.path.join( self.get_filepath(), 'Logo.ico')  
                     folder_path = startup_folder
-                    make_shortcut(script_path, name=shortcut_name, description=shortcut_desc, icon=icon_path, folder=folder_path, working_dir=self.main_app.get_filepath())
+                    make_shortcut(script_path, name=shortcut_name, description=shortcut_desc, icon=icon_path, folder=folder_path, working_dir=self.get_filepath())
             except:
                 return
         return
@@ -488,7 +488,8 @@ class App():
                            "web_link_4_url": "",
                            "desktop_folder":"",
                            "startup_folder":"",
-                           "booking_kind":'sum_subaccounts'}
+                           "booking_kind":'sum_subaccounts',
+                           "create_start_up_link": "on"}
             self.settings_dict.update(update_dict)
 
             setting_json_file = open('json/settings.json',"w",encoding='UTF-8')

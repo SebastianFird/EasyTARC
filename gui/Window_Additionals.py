@@ -22,6 +22,7 @@ from tkinter.font import BOLD, Font
 import pandas as pd
 import decimal
 import json
+import os
 import locale
 
 
@@ -996,6 +997,171 @@ class DeleteRecordWarning(tk.Toplevel):
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
         self.destroy()
+
+    def get_pos(self, event):
+        self.x_win = self.winfo_x()
+        self.y_win = self.winfo_y()
+        self.start_x = event.x_root
+        self.start_y = event.y_root
+        self.y_win = self.y_win - self.start_y
+        self.x_win = self.x_win - self.start_x
+
+    def move_window(self, event):
+        self.geometry('+{0}+{1}'.format(event.x_root + self.x_win, event.y_root + self.y_win))
+        self.start_x = event.x_root
+        self.start_y = event.y_root
+
+
+class DeleteDatabase(tk.Toplevel):
+    def __init__(self, main_app, gui, widget, *args, **kwargs):
+        tk.Toplevel.__init__(self, widget)
+
+        self.gui = gui
+        self.main_app = main_app
+        self.data_manager = self.main_app.get_data_manager()
+        self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
+        self.widget = widget
+
+        geo_factor = float(self.main_app.get_setting("geometry_factor"))
+        self.w = int(round(geo_factor*350))
+        self.h = int(round(geo_factor*200))
+
+        self.user_db = self.main_app.data_manager.user_db
+
+        x, y, cx, cy = self.widget.bbox("insert")
+
+        x = x + self.widget.winfo_rootx() + self.widget.winfo_width() / 2 - self.w / 2
+        y = y + cy + self.widget.winfo_rooty() + self.widget.winfo_height() / 2 - self.h / 2
+
+        self.gui.disable_main_window()
+
+        self.wm_geometry('%dx%d+%d+%d' % (self.w, self.h, x, y))
+        self.wm_overrideredirect(1)
+        self.attributes('-topmost', True)
+
+        self.widget_color = self.style_dict["info_color_light_blue"]
+        self.title_fcolor = self.style_dict["font_color"]
+
+        self.scroll = Scroll_Frame(self.main_app,self.gui)
+
+        self.run_main_frame()
+
+    def run_main_frame(self):
+        # Create A Main Frame
+        self.main_frame = MyFrame(self, self.data_manager)
+        self.main_frame.configure(highlightthickness=1, highlightcolor=self.widget_color,
+                                  highlightbackground=self.widget_color)
+        self.main_frame.pack(side="top", fill="both", expand=True)
+
+        self.main_frame.grid_rowconfigure(0, weight=1)
+        self.main_frame.grid_columnconfigure(0, weight=1)
+
+        # make a frame for the title bar
+        self.title_bar = MyFrame(self.main_frame, self.data_manager)
+        self.title_bar.configure(background=self.widget_color)
+        self.title_bar.pack(side='top', fill="x")
+        self.title_bar.bind('<B1-Motion>', self.move_window)
+        self.title_bar.bind('<Button-1>', self.get_pos)
+
+        close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
+        close_button.configure(background=self.widget_color, height=30)
+        close_button.pack(side='right')
+        close_button.bind('<Button-1>', self.return_window)
+
+        def on_enter1(e):
+            close_button.configure(background=self.style_dict["caution_color_red"])
+
+        def on_leave1(e):
+            close_button.configure(background=self.widget_color)
+
+        close_button.bind("<Enter>", on_enter1)
+        close_button.bind("<Leave>", on_leave1)
+
+        lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text=self.language_dict["warning"])
+        lbl_name.configure(background=self.widget_color, height=30, foreground=self.title_fcolor)
+        lbl_name.pack(side='left')
+        lbl_name.bind('<B1-Motion>', self.move_window)
+        lbl_name.bind('<Button-1>', self.get_pos)
+
+        def btn_frame():
+            btnframe = MyFrame(self.main_frame,self.data_manager)
+            btnframe.configure(background=self.style_dict["btn_color_grey"])
+
+            btn_backup = MyButton(btnframe, self.data_manager, width=25, text=self.language_dict["delete_data"], command=self.delete_database)
+            btn_backup.pack(side='right', pady=5, padx=5)
+
+            btn_back = MyButton(btnframe, self.data_manager, width=8, text=self.language_dict["no"], command=self.return_window)
+            btn_back.pack(side='right', pady=5, padx=5)
+
+            return(btnframe)
+
+        btnframe = btn_frame()
+        btnframe.pack(side = "bottom", fill = "x")
+
+        def body_frame():
+            bodyframe = MyFrame(self.main_frame,self.data_manager)
+            scroll_frame = self.scroll.create_scroll_frame(bodyframe)
+
+            lbl_text = MyLabel(scroll_frame, self.data_manager, text=self.language_dict['delete_data_info'], wraplength=self.w - 20,
+                               justify="left")
+            lbl_text.pack(pady=5, padx=5)
+
+            return (bodyframe)
+
+        bodyframe = body_frame()
+        bodyframe.pack(side="top", fill="both", expand=True)
+
+    def return_window(self, *event):
+        self.gui.enable_main_window()
+        self.gui.activate_current_tab()
+        self.destroy()
+
+    def get_start_up_link(self):
+        startup_folder = os.environ["APPDATA"] + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+        if os.path.exists(startup_folder) == True: 
+            return(startup_folder)
+        
+        startup_folder = self.main_app.get_setting("startup_folder")
+        if startup_folder != '': 
+            if os.path.exists(startup_folder) == True: 
+                return(startup_folder)
+            
+        return('')
+
+    def remove_start_up_link(self):
+        startup_folder = self.get_start_up_link()
+        if startup_folder == '':
+            return
+        
+        shortcut_name = self.main_app.get_name() +'_Link.lnk'
+        shortcut_path = os.path.join(startup_folder, shortcut_name)
+        if os.path.exists(shortcut_path) == True: 
+            os.remove(shortcut_path)
+
+    def delete_database(self):
+        self.remove_start_up_link()
+        path_easytarc = os.path.abspath(os.getcwd())
+
+        self.gui.root.quit()
+
+        if os.path.exists(path_easytarc+'\\'+ 'login.json') == True: 
+            os.remove(path_easytarc+'\\'+ 'login.json')
+
+        if os.path.exists(path_easytarc+'\\'+ 'database'+'\\' + 'EasyTARC_Database_User' + self.user_db.get_db_name_ending()) == True: 
+            os.remove(path_easytarc+'\\'+ 'database'+'\\' + 'EasyTARC_Database_User' + self.user_db.get_db_name_ending())
+
+        if os.path.exists(path_easytarc+'\\'+ 'database'+'\\' + 'EasyTARC_Database_User' + '_backup' + self.user_db.get_db_name_ending()) == True: 
+            os.remove(path_easytarc+'\\'+ 'database'+'\\' + 'EasyTARC_Database_User' + '_backup' + self.user_db.get_db_name_ending())
+
+        if os.path.exists(path_easytarc+'\\'+ 'database'+'\\' + 'EasyTARC_Database_User' + '_backup_2' + self.user_db.get_db_name_ending()) == True: 
+            os.remove(path_easytarc+'\\'+ 'database'+'\\' + 'EasyTARC_Database_User' + '_backup_2' + self.user_db.get_db_name_ending())
+
+        if os.path.exists(path_easytarc+'\\' + 'database' +'\\' + 'previous version' + '\\' + 'EasyTARC_Database_User' + self.user_db.get_db_name_ending()) == True: 
+            os.remove(path_easytarc+'\\' + 'database' +'\\' + 'previous version' + '\\' + 'EasyTARC_Database_User'+ self.user_db.get_db_name_ending())
+
+        if os.path.exists(path_easytarc+'\\' + 'database' +'\\' + 'previous version' + '\\' + 'login.json') == True: 
+            os.remove(path_easytarc+'\\' + 'database' +'\\' + 'previous version' + '\\' + 'login.json')
 
     def get_pos(self, event):
         self.x_win = self.winfo_x()

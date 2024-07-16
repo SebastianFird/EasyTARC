@@ -344,7 +344,7 @@ class CaptureHead:
         self.lbl_correction.bind("<Enter>", self.btn_correction_enter)
         self.lbl_correction.bind("<Leave>", self.btn_correction_leave)
 
-        self.lbl_correction_name = MyLabel(self.correction_visible_frame, self.data_manager, text = self.language_dict['correction'] ,width=30)
+        self.lbl_correction_name = MyLabel(self.correction_visible_frame, self.data_manager, text = self.language_dict['correction'] ,width=25)
         self.lbl_correction_name.pack(side='right',padx = 3)
 
         ################

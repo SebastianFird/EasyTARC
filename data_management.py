@@ -290,10 +290,18 @@ class DataManager:
 
         if self.main_app.get_setting('sec_back_up_path') != '':
             try:
+                database_path = self.main_app.get_setting('sec_back_up_path')  + '\\database'
+                if os.path.exists(database_path) == False: 
+                    os.makedirs(database_path)
+
+                json_path = self.main_app.get_setting('sec_back_up_path')  + '\\json'
+                if os.path.exists(json_path) == False: 
+                    os.makedirs(json_path)
+                shutil.copy(path_easytarc+'\\json\\'+ 'settings.json', self.main_app.get_setting('sec_back_up_path') + '\\json\\' + 'settings.json')
                 shutil.copy(path_easytarc+'\\'+ 'login.json', self.main_app.get_setting('sec_back_up_path') + '\\' + 'login.json')
-                shutil.copy(path_easytarc+'\\'+ 'database' + '\\' + 'EasyTARC_Database_User' + self.user_db.get_db_name_ending(), self.main_app.get_setting('sec_back_up_path') + '\\' + 'EasyTARC_Database_User' + self.user_db.get_db_name_ending())
+                shutil.copy(path_easytarc+'\\'+ 'database' + '\\' + 'EasyTARC_Database_User' + self.user_db.get_db_name_ending(), self.main_app.get_setting('sec_back_up_path') + '\\database\\' + 'EasyTARC_Database_User' + self.user_db.get_db_name_ending())
                 if os.path.isfile('database' + '\\' + 'EasyTARC_Database_User' + '_backup_2' + self.user_db.get_db_name_ending()) == True:
-                    shutil.copy(path_easytarc+'\\'+ 'database' + '\\' + 'EasyTARC_Database_User' + '_backup_2' + self.user_db.get_db_name_ending(), self.main_app.get_setting('sec_back_up_path') + '\\' + 'EasyTARC_Database_User' + '_backup_2' + self.user_db.get_db_name_ending())
+                    shutil.copy(path_easytarc+'\\'+ 'database' + '\\' + 'EasyTARC_Database_User' + '_backup_2' + self.user_db.get_db_name_ending(), self.main_app.get_setting('sec_back_up_path') + '\\database\\' + 'EasyTARC_Database_User' + '_backup_2' + self.user_db.get_db_name_ending())
                 return("second_back_up_done")
             except:
                 return("second_back_up_failed")
@@ -589,24 +597,22 @@ class DataManager:
     #################################################################
 
     def check_unbooked_hours(self):
-        two_month_limit = True
+        if self.main_app.get_restricted_data_access() == True or str(self.main_app.get_setting("simplify_after_two_month")) == 'on':
+            two_month_limit = True
+        else:
+            two_month_limit = False
+
         hours = self.user_db.check_unbooked_hours(two_month_limit)
         return(hours)
     
     def get_unbooked_record_dict_list_sum_list(self):
-        dt = datetime.datetime.now()
-        this_month = int(dt.strftime("%m"))
-        year_1 = int(dt.strftime("%Y"))
-        if this_month == 1:
-            last_month = 12
-            year_2 = year_1 - 1
+        if self.main_app.get_restricted_data_access() == True or str(self.main_app.get_setting("simplify_after_two_month")) == 'on':
+            two_month_limit = True
         else:
-            last_month = this_month - 1
-            year_2 = year_1
+            two_month_limit = False
 
         unbooked_record_dict_list_sum_list = []
 
-        two_month_limit = True
         booking_status = 'unbooked'
         df = self.user_db.get_passed_times_with_accounts(two_month_limit,booking_status)
         if df.empty:
@@ -624,31 +630,36 @@ class DataManager:
             response_text_list.sort()
             response_text_list_2 = response_text_list.copy()
             for response_text in response_text_list_2:
+                account_id = df.loc[(df['main_id'] == main_id) & (df['response_text'] == response_text)].accountid.values.tolist()[0]
                 record_dict = {"account_id":main_id,               
-                            "account_kind":df.loc[(df['accountid'] == main_id)].account_kind.values.tolist()[0],                    
+                            "account_kind":1,                    
                             "main_id":main_id,   
                             "main_name":main_name_dict[main_id],                    
-                            "name":df.loc[(df['accountid'] == main_id)].name.values.tolist()[0],  
-                            "group":df.loc[(df['accountid'] == main_id)].group_name.values.tolist()[0],                              
-                            "description_text":df.loc[(df['accountid'] == main_id)].description_text.values.tolist()[0],      
-                            "project_label":df.loc[(df['accountid'] == main_id)].project_label.values.tolist()[0], 
-                            "order_label":df.loc[(df['accountid'] == main_id)].order_label.values.tolist()[0],              
-                            "process_label":df.loc[(df['accountid'] == main_id)].process_label.values.tolist()[0],                 
-                            "response_code":df.loc[(df['accountid'] == main_id)].response_code.values.tolist()[0],
-                            "response_texts_main":df.loc[(df['accountid'] == main_id)].response_texts_main.values.tolist()[0],              
-                            "response_texts":df.loc[(df['accountid'] == main_id)].response_texts.values.tolist()[0],
+                            "name":main_name_dict[main_id],  
+                            "group":df.loc[(df['accountid'] == account_id)].group_name.values.tolist()[0],                              
+                            "description_text":df.loc[(df['accountid'] == account_id)].description_text.values.tolist()[0],      
+                            "project_label":df.loc[(df['accountid'] == account_id)].project_label.values.tolist()[0], 
+                            "order_label":df.loc[(df['accountid'] == account_id)].order_label.values.tolist()[0],              
+                            "process_label":df.loc[(df['accountid'] == account_id)].process_label.values.tolist()[0],                 
+                            "response_code":df.loc[(df['accountid'] == account_id)].response_code.values.tolist()[0],
+                            "response_texts_main":df.loc[(df['accountid'] == account_id)].response_texts_main.values.tolist()[0],              
+                            "response_texts":df.loc[(df['accountid'] == account_id)].response_texts.values.tolist()[0],
                             "response_text":response_text,
-                            "bookable":df.loc[(df['accountid'] == main_id)].bookable.values.tolist()[0],
-                            "external_booking":df.loc[(df['accountid'] == main_id)].external_booking.values.tolist()[0], 
-                            "date_expiration":df.loc[(df['accountid'] == main_id)].date_expiration.tolist()[0],
-                            "available_hours":df.loc[(df['accountid'] == main_id)].available_hours.values.tolist()[0], 
+                            "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0],
+                            "external_booking":df.loc[(df['accountid'] == account_id)].external_booking.values.tolist()[0], 
+                            "date_expiration":df.loc[(df['accountid'] == account_id)].date_expiration.tolist()[0],
+                            "available_hours":df.loc[(df['accountid'] == account_id)].available_hours.values.tolist()[0], 
                             "hours":df.loc[(df['main_id'] == main_id) & (df['response_text'] == response_text)].hours.sum()                  
                             }
                 unbooked_record_dict_list_sum_list.append(record_dict)
         return(unbooked_record_dict_list_sum_list)
     
     def set_unbooked_times_sum_by_main_id(self,main_id,response_text):
-        two_month_limit = True
+        if self.main_app.get_restricted_data_access() == True or str(self.main_app.get_setting("simplify_after_two_month")) == 'on':
+            two_month_limit = True
+        else:
+            two_month_limit = False
+
         booking_status = 'unbooked'
         df = self.user_db.get_passed_times_with_accounts(two_month_limit,booking_status)
         if df.empty:
@@ -662,8 +673,12 @@ class DataManager:
             self.user_db.set_unbooked_accound_time_sum_booked(account_id,response_text)
 
     def get_unbooked_record_dict_list_sum_subaccounts_list(self):
+        if self.main_app.get_restricted_data_access() == True or str(self.main_app.get_setting("simplify_after_two_month")) == 'on':
+            two_month_limit = True
+        else:
+            two_month_limit = False
+
         unbooked_record_dict_list_sum_list = []
-        two_month_limit = True
         booking_status = 'unbooked'
         df = self.user_db.get_passed_times_with_accounts(two_month_limit,booking_status)
         if df.empty:
@@ -681,7 +696,7 @@ class DataManager:
             account_id_list.sort()
             account_id_list_2 = account_id_list.copy()
             for account_id in account_id_list_2:
-                response_text_list = df.loc[(df['accountid'] == account_id)].response_text.values.tolist()
+                response_text_list = df.loc[(df['main_id'] == main_id) & (df['accountid'] == account_id)].response_text.values.tolist()
                 response_text_list = list(set(response_text_list))
                 response_text_list.sort()
                 response_text_list_2 = response_text_list.copy()
@@ -862,8 +877,11 @@ class DataManager:
     #################################################################
 
     def get_unbooked_record_dict_list_date_list(self):
+        if self.main_app.get_restricted_data_access() == True or str(self.main_app.get_setting("simplify_after_two_month")) == 'on':
+            two_month_limit = True
+        else:
+            two_month_limit = False
 
-        two_month_limit = True
         booking_status = 'unbooked'
         df = self.user_db.get_passed_times_with_accounts(two_month_limit,booking_status)
         if df.empty:
@@ -879,8 +897,11 @@ class DataManager:
     #################################################################
 
     def get_passed_record_dict_list_date_list(self):
+        if self.main_app.get_restricted_data_access() == True or str(self.main_app.get_setting("simplify_after_two_month")) == 'on':
+            two_month_limit = True
+        else:
+            two_month_limit = False
 
-        two_month_limit = True
         df = self.user_db.get_passed_times_with_accounts(two_month_limit)
         if df.empty:
             return([])
@@ -982,7 +1003,7 @@ class DataManager:
         df_pivot_1 = pd.pivot_table(df, values = 'hours', index=['month','date','weekday'], columns = 'booked', aggfunc='sum' , fill_value=0)
         try:
             df_pivot_1['Sum [h]'] = df_pivot_1['booked'] + df_pivot_1['not booked']
-            df_pivot_1['Rate [%]'] = round((100*(df_pivot_1['booked'] / df_pivot_1['Sum'])))
+            df_pivot_1['Rate [%]'] = round((100*(df_pivot_1['booked'] / df_pivot_1['Sum [h]'])))
         except KeyError:
             pass
         df_pivot_1.to_excel(writer,self.language_dict['rate'])

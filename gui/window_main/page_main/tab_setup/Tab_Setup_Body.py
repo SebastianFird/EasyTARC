@@ -30,6 +30,7 @@ import subprocess
 from pyshortcuts import make_shortcut
 from gui.Window_Additionals import InfoWindow
 from gui.Window_Additionals import CreateToolTip
+from gui.Window_Additionals import DeleteDatabase
 
 from style_classes import MyFrame
 from style_classes import MyLabel
@@ -554,6 +555,19 @@ class SetupBody:
 
         self.update_simplify_data_cblist()
 
+        #########
+
+        row_nbr = 1
+
+        self.lbl_delete_data_info = MyLabel(self.database_frame,self.data_manager,text = u'\U00002139', anchor = 'w', width=3)
+        self.lbl_delete_data_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_delete_data_info_ttp = CreateToolTip(self.lbl_delete_data_info, self.data_manager, 0, 30, self.language_dict['delete_data_info'], True)
+
+        self.lbl_delete_data = MyLabel(self.database_frame,self.data_manager,text = self.language_dict['delete_data'], anchor = 'w', width=25)
+        self.lbl_delete_data.grid(row=row_nbr, column=1, padx=5, pady=5)
+
+        self.btn_delete_data = MyButton(self.database_frame, self.data_manager, text=self.language_dict['delete'],width=12,command=self.delete_database)
+        self.btn_delete_data.grid(row=row_nbr, column=2, padx=5, pady=5,sticky='w')
 
         return
     
@@ -991,6 +1005,11 @@ class SetupBody:
 
 ###############################
 
+    def delete_database(self):
+        DeleteDatabase(self.main_app,self.gui,self.setup_tab.main_frame)
+
+###############################
+
     def reload_settings(self):
         self.updt_fs_cblist()
         self.updt_language_cblist()
@@ -1135,8 +1154,12 @@ class SetupBody:
         self.lbl_simplify_data_info.refresh_style()
         self.lbl_simplify_data.refresh_style()
         self.btn_set_simplify_data_cbox.refresh_style()
+        self.lbl_delete_data_info.refresh_style()
+        self.lbl_delete_data.refresh_style()
+        self.btn_delete_data.refresh_style()
         
         self.lbl_simplify_data_info_ttp.refresh()
+        self.lbl_delete_data_info_ttp.refresh()
 
         font_family = self.main_app.get_setting('font_family')
         font_size = self.main_app.get_setting('font_size')
@@ -1220,8 +1243,11 @@ class SetupBody:
         self.lbl_category_database.configure(font = Font_tuple)
         self.lbl_category_database.configure(text=self.language_dict['database'])
         self.lbl_simplify_data.configure(text=self.language_dict['compression_of_data'])
+        self.lbl_delete_data.configure(text=self.language_dict['delete_data'])
+        self.btn_delete_data.configure(text=self.language_dict['delete'])
 
         self.lbl_simplify_data_info_ttp.text = self.language_dict['compression_of_data_info']
+        self.lbl_delete_data_info_ttp.text = self.language_dict['delete_data_info']
 
         
         self.refresh_back_up_folder_path()
