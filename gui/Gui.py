@@ -264,6 +264,7 @@ class Gui_Manager:
                 elif work_window == 'bar_work_window':
                     self.bar_work_window()
                 self.on_window_switch = False
+                self.main_window.case_frame.frames[NotebookFrame].tab_manager.clear_frames()
 
     def disable_main_window(self):
         self.root.attributes('-disabled',True)

@@ -116,29 +116,42 @@ class TabManager:
 
         self.activate_current_tab()
 
+    def clear_frames(self):
+        self.data_tab.body.case_frame.show_empty_frame()
+        self.accounts_tab.body.case_frame.show_empty_frame()
+        self.booking_tab.body.case_frame.show_empty_frame()
+
     def on_tab_change(self,event=None):
         tab = event.widget.tab('current')['text']
         if tab == self.tab_name_capture:
+            self.clear_frames()
             self.capture_tab.activate()
             self.capture_tab.update()
             self.active_tab = self.capture_tab
-            
+
         elif tab == self.tab_name_booking:
+            self.data_tab.body.case_frame.show_empty_frame()
+            self.accounts_tab.body.case_frame.show_empty_frame()
             self.booking_tab.activate()
             self.booking_tab.reload()
             self.active_tab = self.booking_tab
 
         elif tab == self.tab_name_data:
+            self.accounts_tab.body.case_frame.show_empty_frame()
+            self.booking_tab.body.case_frame.show_empty_frame()
             self.data_tab.activate()
             self.data_tab.reload()
             self.active_tab = self.data_tab
 
         elif tab == self.tab_name_accounts:
+            self.data_tab.body.case_frame.show_empty_frame()
+            self.booking_tab.body.case_frame.show_empty_frame()
             self.accounts_tab.activate()
             self.accounts_tab.reload()
             self.active_tab = self.accounts_tab
 
         elif tab == self.tab_name_setup:
+            self.clear_frames()
             self.setup_tab.activate()
             self.setup_tab.reload()
             self.active_tab = self.setup_tab
@@ -147,6 +160,9 @@ class TabManager:
         self.active_tab.activate()
         if self.active_tab == self.capture_tab:
             self.capture_tab.update()
+        else:
+            self.active_tab.reload()
+
 
     def refresh(self):
         # configure style and language of main frame
