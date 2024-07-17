@@ -479,6 +479,9 @@ class LoginWindow(tk.Frame):
 
     def open_old_easytarc_folder(self):
         self.old_easytarct_directory = filedialog.askdirectory()
+        if self.old_easytarct_directory == '':
+            return
+        
         self.lbl_old_easytarc_folder_path.configure(text=self.old_easytarct_directory)
         self.lbl_old_easytarc_folder_path_ttp.text = self.old_easytarct_directory
 

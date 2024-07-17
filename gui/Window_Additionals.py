@@ -1040,7 +1040,7 @@ class DeleteDatabase(tk.Toplevel):
         self.wm_overrideredirect(1)
         self.attributes('-topmost', True)
 
-        self.widget_color = self.style_dict["info_color_light_blue"]
+        self.widget_color = self.style_dict["caution_color_red"]
         self.title_fcolor = self.style_dict["font_color"]
 
         self.scroll = Scroll_Frame(self.main_app,self.gui)
@@ -1091,7 +1091,7 @@ class DeleteDatabase(tk.Toplevel):
             btn_backup = MyButton(btnframe, self.data_manager, width=25, text=self.language_dict["delete_data"], command=self.delete_database)
             btn_backup.pack(side='right', pady=5, padx=5)
 
-            btn_back = MyButton(btnframe, self.data_manager, width=8, text=self.language_dict["no"], command=self.return_window)
+            btn_back = MyButton(btnframe, self.data_manager, width=8, text=self.language_dict["back"], command=self.return_window)
             btn_back.pack(side='right', pady=5, padx=5)
 
             return(btnframe)
@@ -1138,9 +1138,11 @@ class DeleteDatabase(tk.Toplevel):
         shortcut_path = os.path.join(startup_folder, shortcut_name)
         if os.path.exists(shortcut_path) == True: 
             os.remove(shortcut_path)
+            self.main_app.change_settings("startup_folder","")
 
     def delete_database(self):
         self.remove_start_up_link()
+        self.main_app.change_settings("sec_back_up_path","")
         path_easytarc = os.path.abspath(os.getcwd())
 
         self.gui.root.quit()
