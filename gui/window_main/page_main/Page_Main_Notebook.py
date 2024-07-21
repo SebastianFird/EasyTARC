@@ -128,7 +128,7 @@ class TabManager:
             self.capture_tab.activate()
             self.capture_tab.update()
             self.active_tab = self.capture_tab
-
+            
         elif tab == self.tab_name_booking:
             self.data_tab.body.case_frame.show_empty_frame()
             self.accounts_tab.body.case_frame.show_empty_frame()
@@ -160,8 +160,6 @@ class TabManager:
         self.active_tab.activate()
         if self.active_tab == self.capture_tab:
             self.capture_tab.update()
-        else:
-            self.active_tab.reload()
 
 
     def refresh(self):

@@ -188,23 +188,23 @@ class SetupBody:
         row_nbr = 1
 
         self.lbl_desktop_link_info = MyLabel(self.link_frame,self.data_manager,text = '', anchor = 'w', width=3)
-        self.lbl_desktop_link_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        #self.lbl_desktop_link_info.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         self.lbl_desktop_link = MyLabel(self.link_frame,self.data_manager,text = self.language_dict['desktop_link'], anchor = 'w', width=25)
-        self.lbl_desktop_link.grid(row=row_nbr, column=1, padx=5, pady=5)
+        #self.lbl_desktop_link.grid(row=row_nbr, column=1, padx=5, pady=5)
 
         self.lbl_status_desktop_link = MyLabel(self.link_frame, self.data_manager,width=3)
-        self.lbl_status_desktop_link.grid(row=row_nbr, column=2, padx=5, pady=5)
+        #self.lbl_status_desktop_link.grid(row=row_nbr, column=2, padx=5, pady=5)
 
         self.btn_desktop_directory = MyButton(self.link_frame, self.data_manager,text=u'\U0001F4C1',width=3,command=self.show_desktop_directory)
-        self.btn_desktop_directory.grid(row=row_nbr, column=3, padx=5, pady=5)
+        #self.btn_desktop_directory.grid(row=row_nbr, column=3, padx=5, pady=5)
         self.btn_desktop_directory_ttp = CreateToolTip(self.btn_desktop_directory, self.data_manager, 0, 30, '')
 
         self.btn_set_desktop_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['add'],width=15,command=self.set_desktop_link)
-        self.btn_set_desktop_link.grid(row=row_nbr, column=4, padx=5, pady=5)
+        #self.btn_set_desktop_link.grid(row=row_nbr, column=4, padx=5, pady=5)
 
         self.btn_remove_desktop_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['remove'],width=12,command=self.remove_desktop_link)
-        self.btn_remove_desktop_link.grid(row=row_nbr, column=5, padx=5, pady=5)
+        #self.btn_remove_desktop_link.grid(row=row_nbr, column=5, padx=5, pady=5)
 
         self.update_desktop_link_status()
 

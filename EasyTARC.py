@@ -200,6 +200,11 @@ class App():
         if os.path.exists(shortcut_path) == True: 
             os.remove(shortcut_path)
 
+        shortcut_name = self.get_name() +'_Link.lnk.lnk'
+        shortcut_path = os.path.join(startup_folder, shortcut_name)
+        if os.path.exists(shortcut_path) == True: 
+            os.remove(shortcut_path)
+
         self.change_settings("startup_folder","")
 
     def set_start_up_link(self):
