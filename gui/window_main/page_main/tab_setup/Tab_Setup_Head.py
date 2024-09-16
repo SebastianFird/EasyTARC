@@ -75,7 +75,7 @@ class SetupHead:
         self.main_head_frame.configure(background=self.style_dict["header_color_blue"])
         self.main_head_frame.pack(side = "top", fill = "x")
 
-        self.lbl_version = MyLabel(self.main_head_frame, self.data_manager,text=self.language_dict['version'] + ': ' + str(self.main_app.get_version()))
+        self.lbl_version = MyLabel(self.main_head_frame, self.data_manager,text=self.language_dict['version'] + ': ' + str(self.main_app.get_app_version()))
         self.lbl_version.configure(background=self.style_dict["header_color_blue"],foreground = self.style_dict["font_color_white"])
         self.lbl_version.pack(side='left',padx = 10,pady=10)
 
@@ -121,6 +121,7 @@ class SetupHead:
         text = text + "\n\n" + self.language_dict['release_note_text_16']
         text = text + "\n\n" + self.language_dict['release_note_text_17']
         text = text + "\n\n" + self.language_dict['release_note_text_18']
+        text = text + "\n\n" + self.language_dict['release_note_text_19']
 
         info_window = InfoWindow(self.main_app, self.gui, self.setup_tab.main_frame ,text,700,500)
         return
@@ -168,7 +169,7 @@ class SetupHead:
         self.main_head_frame.configure(background=self.style_dict["header_color_blue"])
         self.update_main_head()
 
-        self.lbl_version.configure(text=self.language_dict['version'] + ': ' + self.main_app.get_version())
+        self.lbl_version.configure(text=self.language_dict['version'] + ': ' + self.main_app.get_app_version())
         self.lbl_config.configure(text=self.language_dict['configuration'] + ': ' + self.data_manager.user_db.get_db_config())
         self.btn_release_notes.configure(text=self.language_dict['release_notes'])
         self.btn_tips.configure(text=self.language_dict['tips_and_tricks'])

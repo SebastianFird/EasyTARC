@@ -134,8 +134,7 @@ class InfoClock(Clock):
                     active_clock.stop()
                 work_clock.stop()
                 data_manager.set_active_clock(self)
-            else:
-                return
+                
             self.running = True
             self.start_timestamp = datetime.datetime.now()
             self.previous_passed_time = self.passed_time
@@ -254,9 +253,6 @@ class AccountClock(Clock):
         if old_response_text_list == [''] and new_response_text_list != ['']:
             self.response_text = new_response_text_list[0]
 
-        if new_response_text_list == ['']:
-            self.response_text = ''
-
     def get_account_dict(self):
         return(self.account_dict)
 
@@ -337,7 +333,10 @@ class AccountClock(Clock):
         self.response_text = response_text
 
     def add_new_response_text_to_list(self,response_text):
-        self.response_texts = self.response_texts + ';' + response_text
+        if self.response_texts == ' - ':
+            self.response_texts = response_text
+        else:
+            self.response_texts = self.response_texts + ';' + response_text
         self.user_db.account_set_response_texts(1,self.main_id,self.response_texts)
 
     def set_status_open(self):
@@ -347,6 +346,10 @@ class AccountClock(Clock):
     def set_status_closed(self):
         self.user_db.account_set_closed(self.id)
         self.account_status = 'closed'
+
+    def reset_response_text(self):
+        response_text_list = self.get_response_text_list()
+        self.response_text = response_text_list[0]
 
     def add_time(self,sign,add_minutes):
         data_manager = self.main_app.data_manager
@@ -472,7 +475,10 @@ class AccountClock(Clock):
             hours = backup_dict.get("hours")
             add_minutes = hours*60
             self.add_time('+', add_minutes)
-            self.response_text =  backup_dict.get("response_text")
+            response_text =  backup_dict.get("response_text")
+            if response_text == ' - ':
+                response_text = ''
+            self.response_text = response_text
         else:
             add_minutes = 0
         return(add_minutes)
@@ -604,7 +610,8 @@ class MainAccountClock(AccountClock):
                         self.language_dict["project"]:'='+str(self.project_label),  
                         self.language_dict["order"]:'='+str(self.order_label),                              
                         self.language_dict["process"]:'='+str(self.process_label),
-                        self.language_dict["description"]:str(self.description_text)           
+                        self.language_dict["description"]:str(self.description_text),
+                        self.language_dict["response_text_templates"]:'='+str(self.get_response_texts())              
                         })
         #############
         if self.bookable == 1:
@@ -619,9 +626,7 @@ class MainAccountClock(AccountClock):
                 info_dict.update({self.language_dict["external_booking"]:self.language_dict["no"]}) 
             #########
             info_dict.update({                     
-                        self.language_dict["response_code"]:'='+str(self.response_code),                            
-                        self.language_dict["response_texts"]:'='+str(self.get_response_texts())               
-                        })
+                        self.language_dict["response_code"]:'='+str(self.response_code)})
         #############
         if self.id != 0:
             if int(self.date_expiration.strftime("%Y")) != 2000:
@@ -683,7 +688,11 @@ class SubAccountClock(AccountClock):
         return(time_sum)
     
     def add_new_response_text_to_list(self,response_text):
-        self.response_texts = self.response_texts + ';' + response_text
+        if self.response_texts == ' - ':
+            self.response_texts = response_text
+        else:
+            self.response_texts = self.response_texts + ';' + response_text
+
         if self.response_texts_main == 1:
             self.user_db.account_set_response_texts(self.response_texts_main,self.main_id,self.response_texts)
         else:
@@ -731,7 +740,8 @@ class SubAccountClock(AccountClock):
                         self.language_dict["order"]:'='+str(self.order_label),                              
                         self.language_dict["process"]:'='+str(self.process_label)         
                         })
-        info_dict.update({self.language_dict["description"]:str(self.description_text) }) 
+        info_dict.update({self.language_dict["description"]:str(self.description_text),
+                          self.language_dict["response_text_templates"]:'='+str(self.get_response_texts())    }) 
         #############
         if self.bookable == 1:
             info_dict.update({self.language_dict["bookable"]:self.language_dict["yes"]}) 
@@ -744,10 +754,7 @@ class SubAccountClock(AccountClock):
             else:
                 info_dict.update({self.language_dict["external_booking"]:self.language_dict["no"]}) 
             #########
-            info_dict.update({                     
-                        self.language_dict["response_code"]:'='+str(self.response_code),                            
-                        self.language_dict["response_texts"]:'='+str(self.get_response_texts())               
-                        })
+            info_dict.update({self.language_dict["response_code"]:'='+str(self.response_code)})
         #############
         if self.id != 0:
             if int(self.date_expiration.strftime("%Y")) != 2000:

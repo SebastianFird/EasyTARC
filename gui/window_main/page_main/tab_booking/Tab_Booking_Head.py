@@ -22,7 +22,8 @@ from style_classes import MyFrame
 from style_classes import MyLabel
 from style_classes import MyButton
 from style_classes import MyLabelPixel
-
+from style_classes import MyCombobox
+from gui.Window_Additionals import CreateToolTip
 
 
 class BookingHead:
@@ -74,56 +75,73 @@ class BookingHead:
         return
 
 #################################################################
-
-    def updtcblist(self):
-        self.account_cbox['values'] = [self.language_dict["book_sums"],self.language_dict["book_sums_subaccounts"],self.language_dict["book_by_date"]]
-        if self.booking_tab.get_booking_kind() == 'sum':
-            self.account_cbox.current(0)
-        elif self.booking_tab.get_booking_kind() == 'sum_subaccounts':
-            self.account_cbox.current(1)
-        elif self.booking_tab.get_booking_kind() == 'date':
-            self.account_cbox.current(2)
-        else:
-            self.account_cbox.current(0)
         
     def create_main_head(self):
         self.main_head_frame = MyFrame(self.main_frame,self.data_manager)
         self.main_head_frame.configure(background=self.style_dict["header_color_blue"])
         self.main_head_frame.pack(side = "top", fill = "x")
 
-        clicked = tk.StringVar()
-        self.account_cbox = ttk.Combobox(self.main_head_frame, state="readonly", width = 45, textvariable = clicked, postcommand = self.updtcblist)
-        self.account_cbox.pack(side='left',padx = 10,pady=10)
+        self.lbl_booking_info = MyLabel(self.main_head_frame,self.data_manager,text=u'\U00002139',width=3)
+        self.lbl_booking_info.configure(background=self.style_dict["header_color_blue"],foreground=self.style_dict["font_color_white"])
+        self.lbl_booking_info.pack(side='left',padx = 10,pady=10)
+        self.lbl_booking_info_ttp = CreateToolTip(self.lbl_booking_info, self.data_manager, 0, 30, self.language_dict['booking_info'], True)
 
-        self.updtcblist()
+        self.clicked_booking_view = tk.StringVar()
+        self.booking_view_cbox = MyCombobox(self.main_head_frame, state="readonly", width = 45, textvariable = self.clicked_booking_view)
+        self.booking_view_cbox.pack(side='left',padx = 10,pady=15)
 
-        def set_booking_view(booking_view):
+        self.btn_reload = MyButton(self.main_head_frame, self.data_manager, text=u'\U00002B6E',width=5,command=self.set_booking_view) # 27F3 # U00002B6E #U000021BB
+        self.btn_reload.pack(side='left',padx = 10,pady=10)  
 
-            if booking_view == self.language_dict["book_sums"]:
-                self.show_cumulativ_booking()
-            elif booking_view == self.language_dict["book_by_date"]:
-                self.show_booking_by_date()
-            elif booking_view == self.language_dict["book_sums_subaccounts"]:
-                self.show_cumulativ_booking_subaccounts()
-            self.updtcblist()
-            return
-
-        self.btn_booking_view = MyButton(self.main_head_frame, self.data_manager, text=self.language_dict["apply"],width=12,command=lambda:set_booking_view(clicked.get()))
-        self.btn_booking_view.pack(side='left',padx = 10,pady=10)
+        self.btn_booking_website = MyButton(self.main_head_frame, self.data_manager, text=self.language_dict["booking_website"],width=30,command=self.select_all_open_booking_website)
+        if self.main_app.get_booking_link_access() == True:
+            if self.main_app.get_booking_link_dict()["booking_url_1"] != '':
+                self.btn_booking_website.pack(side='right',padx = 10,pady=10)   
+        
+        self.set_booking_view_cblist()
+        self.booking_view_cbox.bind("<<ComboboxSelected>>", self.set_booking_view)
 
         self.update_main_head()
         return
     
+    def set_booking_view_cblist(self):
+        self.booking_view_cbox['values'] = [self.language_dict["book_sums"],self.language_dict["book_sums_subaccounts"],self.language_dict["book_by_date"]]
+        if self.booking_tab.get_booking_kind() == 'sum':
+            self.booking_view_cbox.current(0)
+        elif self.booking_tab.get_booking_kind() == 'sum_subaccounts':
+            self.booking_view_cbox.current(1)
+        elif self.booking_tab.get_booking_kind() == 'date':
+            self.booking_view_cbox.current(2)
+        else:
+            self.booking_view_cbox.current(0)
+
+    def set_booking_view(self,e=None):
+        booking_view = self.clicked_booking_view.get()
+        if booking_view == self.language_dict["book_sums"]:
+            self.show_cumulativ_booking()
+        elif booking_view == self.language_dict["book_by_date"]:
+            self.show_booking_by_date()
+        elif booking_view == self.language_dict["book_sums_subaccounts"]:
+            self.show_cumulativ_booking_subaccounts()
+        return
+    
+    def select_all_open_booking_website(self):
+        self.booking_tab.open_booking_website(True)
+
     def update_main_head(self):
-        self.updtcblist()            
+        self.set_booking_view_cblist()        
         return
 
     def refresh_main_head(self):
         self.main_head_frame.refresh_style()
-        self.btn_booking_view.refresh_style()
+        self.btn_booking_website.refresh_style()
+        self.lbl_booking_info.refresh_style()
+        self.btn_reload.refresh_style()
+        self.lbl_booking_info.configure(background=self.style_dict["header_color_blue"],foreground=self.style_dict["font_color_white"])
         self.main_head_frame.configure(background=self.style_dict["header_color_blue"])
 
-        self.btn_booking_view.configure(text=self.language_dict["apply"])
+        self.btn_booking_website.configure(text=self.language_dict["booking_website"])
+        self.lbl_booking_info_ttp.text = self.language_dict['booking_info']
 
         self.update_main_head()
         return

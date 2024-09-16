@@ -56,7 +56,7 @@ class MainWindowReminder(tk.Frame):
         self.reminder_frame_list.append(reminder_frame)
         
         if self.main_app.get_version_update() == True:
-            self.add_reminder_frame("update_installed",str(self.main_app.get_version()))
+            self.add_reminder_frame("update_installed",str(self.main_app.get_app_version()))
 
         if self.end_of_month_check() == True:
             self.add_reminder_frame('booking_reminder')

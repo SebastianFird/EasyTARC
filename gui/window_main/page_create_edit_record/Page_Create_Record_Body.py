@@ -27,6 +27,7 @@ from style_classes import MyLabel
 from style_classes import MyButton
 from style_classes import MyEntry 
 from style_classes import MyCheckbutton
+from style_classes import MyCombobox
 from gui.Window_Additionals import CreateToolTip
 
 class CreateEditRecordBody:
@@ -75,7 +76,7 @@ class CreateEditRecordBody:
         self.lbl_account.pack(side = "left", padx=10)
 
         self.account_name = tk.StringVar()
-        self.account_cbox = ttk.Combobox(self.frame_account, width = 40, textvariable = self.account_name)
+        self.account_cbox = MyCombobox(self.frame_account, width = 40, textvariable = self.account_name)
 
         if self.modus in  ['edit_record']:
             account_dict = self.data_manager.get_account_dict_by_account_id(self.record_dict['account_id'])
@@ -118,7 +119,7 @@ class CreateEditRecordBody:
         self.lbl_date.pack(side = "left", padx=10)
 
         self.date = tk.StringVar()
-        self.date_cbox = ttk.Combobox(self.frame_date, width = 25, textvariable = self.date)
+        self.date_cbox = MyCombobox(self.frame_date, width = 25, textvariable = self.date)
 
         # https://codeigo.com/python/get-the-previous-month-or-day/
 
@@ -191,7 +192,7 @@ class CreateEditRecordBody:
         self.lbl_status.pack(side = "left", padx=10)
 
         self.status = tk.StringVar()
-        self.status_cbox = ttk.Combobox(self.frame_status, width = 25, textvariable = self.status)
+        self.status_cbox = MyCombobox(self.frame_status, width = 25, textvariable = self.status)
         self.status_cbox.pack(side="left", padx=10)
 
         self.lbl_highlight_status = MyLabel(self.frame_status,self.data_manager,text='  '+u'\U0001F808'+' ')
@@ -239,7 +240,7 @@ class CreateEditRecordBody:
         self.lbl_response_text.pack(side = "left", padx=10)
 
         self.response_text = tk.StringVar()
-        self.response_cbox = ttk.Combobox(frame_dropdown, width = 40, textvariable = self.response_text)
+        self.response_cbox = MyCombobox(frame_dropdown, width = 40, textvariable = self.response_text)
         self.get_response_text_list()
         self.response_cbox.pack(side="left", padx=10)
 
@@ -249,14 +250,9 @@ class CreateEditRecordBody:
         if self.modus in  ['edit_record']:
             account_name = self.account_name.get()
             account_dict = [ele for ele in self.account_dict_list if ele['full_name'] == account_name][0]
-            if account_dict['bookable']==0:
-                self.response_text.set('')
-                self.response_cbox.configure(state=tk.DISABLED)
-                self.lbl_highlight_response_text.configure(foreground=self.style_dict["font_color"])
-            else:
-                self.response_cbox.configure(state=tk.NORMAL)
-                self.get_response_text_list()
-                self.lbl_highlight_response_text.configure(foreground=self.style_dict["highlight_color_yellow"])
+            self.response_cbox.configure(state=tk.NORMAL)
+            self.get_response_text_list()
+            self.lbl_highlight_response_text.configure(foreground=self.style_dict["highlight_color_yellow"])
 
             response_text_original = self.record_dict["response_text"]
             if response_text_original == ' - ':
@@ -317,16 +313,24 @@ class CreateEditRecordBody:
             self.status.set(self.language_dict["not_bookable"])
             self.status_cbox.configure(state=tk.DISABLED)
             self.lbl_highlight_status.configure(foreground=self.style_dict["font_color"])
-            self.response_text.set('')
-            self.response_cbox.configure(state=tk.DISABLED)
-            self.lbl_highlight_response_text.configure(foreground=self.style_dict["font_color"])
         else:
             self.status_cbox.configure(state="readonly")
             self.status_cbox['values'] = [self.language_dict["booked"],self.language_dict["not_booked"]]
             self.status.set(self.language_dict["not_booked"])
             self.lbl_highlight_status.configure(foreground=self.style_dict["highlight_color_yellow"])
-            self.response_cbox.configure(state=tk.NORMAL)
 
+        if account_dict['external_booking'] == 1:
+            self.status_cbox['values'] = [self.language_dict["booked"]]
+            self.status.set(self.language_dict["booked"])
+            self.status_cbox.configure(state=tk.DISABLED)
+            self.lbl_highlight_status.configure(foreground=self.style_dict["font_color"])
+
+        if account_dict['account_id'] == 0:
+            self.response_text.set('')
+            self.response_cbox.configure(state=tk.DISABLED)
+            self.lbl_highlight_response_text.configure(foreground=self.style_dict["font_color"])
+        else:
+            self.response_cbox.configure(state=tk.NORMAL)
             if account_dict["response_texts"] != ' - ':
                 response_text_list = account_dict["response_texts"].split(";")
             else:

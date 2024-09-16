@@ -24,6 +24,8 @@ from style_classes import MyFrame
 from style_classes import MyLabel
 from style_classes import MyButtonPixel
 from style_classes import MyLabelPixel
+from style_classes import MyCombobox
+
 from gui.Window_Additionals import CreateToolTip
 from gui.window_work.Work_Window_Cbox import WorkWindowCbox
 
@@ -230,7 +232,8 @@ class WorkWindowBox(WorkWindowCbox):
             else:
                 response_text =  '\n'+ str(self.language_dict['response_text']) + ': ' + self.active_clock.get_response_text()
 
-            self.lbl_name_ttp.text =  clock_name + response_text + '\n' + self.language_dict['right_click']
+            #self.lbl_name_ttp.text =  clock_name + response_text + '\n' + self.language_dict['right_click']
+            self.lbl_name_ttp.text =  self.language_dict['right_click']
 
         elif self.pause_clock.get_runninig() == True:
             background_color = self.style_dict["pause_color_orange"]
@@ -293,7 +296,7 @@ class WorkWindowBox(WorkWindowCbox):
 
         self.clicked_selectable_account_clock = tk.StringVar()
         
-        self.selectable_account_clock_cbox = ttk.Combobox(self.btn_frame, state="readonly", width = 26, textvariable = self.clicked_selectable_account_clock, postcommand = self.updt_selectable_account_clock_cblist,justify='left')
+        self.selectable_account_clock_cbox = MyCombobox(self.btn_frame, state="readonly", width = 26, textvariable = self.clicked_selectable_account_clock, postcommand = self.updt_selectable_account_clock_cblist,justify='left')
         self.selectable_account_clock_cbox.grid(row=row_nbr, column=0, pady=5)
         self.selectable_account_clock_cbox_ttp = CreateToolTip(self.selectable_account_clock_cbox, self.data_manager, 0, 30, '')
 

@@ -77,8 +77,7 @@ class DataRecordFrame(tk.Frame):
         self.lbl_empty1.pack(side='right',padx=3)
 
         self.lbl_response_text = MyLabel(self, self.data_manager,width=40,text=str(self.record_dict['response_text']), anchor='w')
-        if self.record_dict['bookable'] == 1:
-            self.lbl_response_text.pack(side='right',padx=3)
+        self.lbl_response_text.pack(side='right',padx=3)
         if str(self.record_dict['response_text']) == ' - ':
             response_text = ''
         else:

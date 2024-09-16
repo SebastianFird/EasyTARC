@@ -113,9 +113,13 @@ class CaptureHead:
         self.lbl_activate_pause.bind("<Button-1>", self.activate_pause)
         self.on_activate_pause = False
 
+        self.lbl_break_info = MyLabel(self.main_head_frame,self.data_manager,text=u'\U00002139',width=3)
+        self.lbl_break_info.configure(background=self.style_dict["header_color_blue"],foreground=self.style_dict["font_color_white"])
+        self.lbl_break_info.pack(side='right',padx = 10,pady=10)
+        self.lbl_break_info_ttp = CreateToolTip(self.lbl_break_info, self.data_manager, -300, 30, self.language_dict['break_info'], True)
+
         self.update_main_head()
         return
-    
 
     def add_new_main_account(self):
         if self.main_app.get_action_state() == "normal" or self.main_app.get_action_state() == "endofwork": #!
@@ -138,7 +142,7 @@ class CaptureHead:
             self.lbl_activate_pause.image = self.image_dict['photo_btn_off_head']
 
     def activate_pause(self,e=None):
-        if self.main_app.get_action_state() == "normal":
+        if self.main_app.get_action_state() == "normal" or self.main_app.get_action_state() == "study":
             self.pause_clock.start()
             self.lbl_activate_pause.configure(image=self.image_dict['photo_btn_pause_head'])
             self.lbl_activate_pause.image = self.image_dict['photo_btn_pause_head']
@@ -222,7 +226,8 @@ class CaptureHead:
         if pause_shift_list_list != []:
             pause_counter = 1
             for pause_shift in pause_shift_list_list:
-                pause_text =  pause_shift[0] + ' '+ self.language_dict["o_clock"] + ' ' + self.language_dict["to"] +' ' + pause_shift[1] + ' '+ self.language_dict["o_clock"] + '\n(' + self.language_dict["duration"] + ': ' + pause_shift[2] + ')'
+                #pause_text =  pause_shift[0] + ' '+ self.language_dict["o_clock"] + ' ' + self.language_dict["to"] +' ' + pause_shift[1] + ' '+ self.language_dict["o_clock"] + '\n(' + self.language_dict["duration"] + ': ' + pause_shift[2] + ')'
+                pause_text =  pause_shift[0] + ' '+ self.language_dict["o_clock"] + '\n -> ' + pause_shift[2] + '\n' + pause_shift[1] + ' '+ self.language_dict["o_clock"]
                 info_dict.update({self.language_dict["break"] + ' ' + str(pause_counter):pause_text})
                 pause_counter = pause_counter + 1
 
@@ -289,6 +294,10 @@ class CaptureHead:
         self.lbl_activate_pause.refresh_style()
         self.lbl_pause.refresh_style()
         self.lbl_empty0.refresh_style()
+
+        self.lbl_break_info.refresh_style()
+        self.lbl_break_info.configure(background=self.style_dict["header_color_blue"],foreground=self.style_dict["font_color_white"])
+        self.lbl_break_info_ttp.text = self.language_dict['break_info']
 
         self.main_head_frame.configure(background=self.style_dict["header_color_blue"])
         self.lbl_pause.configure(background=self.style_dict["header_color_blue"],foreground=self.style_dict["font_color_white"])
@@ -382,7 +391,7 @@ class CaptureHead:
         self.remaining_time_visible_frame = MyFrame(self.remaining_time_frame,self.data_manager)
         self.remaining_time_visible_frame.pack(side = "top",fill='y')
 
-        self.lbl_remaining_time = MyLabel(self.remaining_time_visible_frame, self.data_manager,width=50, text=self.language_dict['remaining_time'])
+        self.lbl_remaining_time = MyLabel(self.remaining_time_visible_frame, self.data_manager,width=50, text=self.language_dict['performance_indicators'])
         self.lbl_remaining_time.pack(side='right',padx = 3)
 
         ################
@@ -630,7 +639,7 @@ class CaptureHead:
 
         self.lbl_name.configure(text='              ' + self.language_dict['name'])
         self.lbl_response_text.configure(text=self.language_dict['response_text'])
-        self.lbl_remaining_time.configure(text=self.language_dict['remaining_time'])
+        self.lbl_remaining_time.configure(text=self.language_dict['performance_indicators'])
         self.lbl_total_time.configure(text=self.language_dict['working_time'])
         self.lbl_correction_name .configure(text=self.language_dict['correction'])
 

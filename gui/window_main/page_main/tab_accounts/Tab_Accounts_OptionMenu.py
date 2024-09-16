@@ -216,7 +216,8 @@ class AccountsOptionMenu(tkinter.Listbox):
                         self.language_dict["project"]:'='+self.account_dict['project_label'],  
                         self.language_dict["order"]:'='+self.account_dict['order_label'],                              
                         self.language_dict["process"]:'='+self.account_dict['process_label'],
-                        self.language_dict["description"]:self.account_dict['description_text']            
+                        self.language_dict["description"]:self.account_dict['description_text'],
+                        self.language_dict["response_text_templates"]:'='+self.account_dict['response_texts']                  
                         })
         #############
         if self.account_dict['bookable'] == 1:
@@ -231,9 +232,7 @@ class AccountsOptionMenu(tkinter.Listbox):
                 info_dict.update({self.language_dict["external_booking"]:self.language_dict["no"]}) 
             #########
             info_dict.update({                     
-                        self.language_dict["response_code"]:'='+self.account_dict['response_code'],                            
-                        self.language_dict["response_texts"]:'='+self.account_dict['response_texts']              
-                        })
+                        self.language_dict["response_code"]:'='+self.account_dict['response_code']})
         #############
         if self.account_dict['account_id'] != 0:
             if int(self.account_dict['date_expiration'].strftime("%Y")) != 2000:

@@ -54,11 +54,14 @@ class SqlUserDataManager(SqlManager):
 
             try:
                 if self.main_app.get_version_update() == True:
-                    print('test_sql_update')
 
-                    if self.check_column_name_accounts_auto_booking() == True:
-                        print('1_10_0_sql_update')
+                    #check for 1.10.0 update
+                    if self.main_app.check_for_update_to_version_str(self.main_app.get_start_version(),'1.10.0') == True and self.check_column_name_accounts_auto_booking() == True:
                         self.update_1_10_0()
+
+                    #check for 1.11.0 update
+                    if self.main_app.check_for_update_to_version_str(self.main_app.get_start_version(),'1.11.0') == True:
+                        self.update_1_11_0()
 
             except:
                 self.root = NewRoot()
@@ -170,6 +173,28 @@ class SqlUserDataManager(SqlManager):
         cur.execute("DROP TABLE response_text_templates;")
 
         self.save_and_close_db(conn)
+        print("sql_update_1_10_0")
+
+    def update_1_11_0(self):
+        conn = self.open_db_conn()
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE passed_times SET response_text = ? WHERE TRIM(response_text) = ?""", (' - ', ''))
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE passed_times SET response_text = ? WHERE TRIM(response_text) = ?""", (' - ', '-'))
+        #cur.execute("""UPDATE passed_times SET response_text = COALESCE(NULLIF(TRIM(response_text), ''), ' - ')""")
+        
+
+        cur = conn.cursor()
+        cur.execute("""UPDATE backup_current_times SET response_text = ? WHERE TRIM(response_text) = ?""", (' - ', ''))
+        #cur.execute("""UPDATE backup_current_times SET response_text = COALESCE(NULLIF(TRIM(response_text), ''), ' - ')""")
+        
+        cur = conn.cursor()
+        cur.execute("""UPDATE backup_current_times SET response_text = ? WHERE TRIM(response_text) = ?""", (' - ', '-'))
+
+        self.save_and_close_db(conn)
+        print("sql_update_1_11_0")
 
 ####################################################################################################################
 

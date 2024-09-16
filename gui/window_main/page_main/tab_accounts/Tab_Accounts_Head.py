@@ -24,6 +24,7 @@ from style_classes import MyLabel
 from style_classes import MyButton
 from style_classes import MyEntry 
 from style_classes import MyLabelPixel
+from style_classes import MyCombobox
 from tkinter import filedialog
 import json
 import datetime
@@ -82,7 +83,7 @@ class AccountsHead:
         self.main_head_frame.pack(side = "top", fill = "x")
 
         clicked_search = tk.StringVar()
-        self.search_cbox = ttk.Combobox(self.main_head_frame, state="readonly", width = 25, textvariable = clicked_search, postcommand = self.updt_search_cblist)
+        self.search_cbox = MyCombobox(self.main_head_frame, state="readonly", width = 25, textvariable = clicked_search, postcommand = self.updt_search_cblist)
         self.search_cbox.bind("<<ComboboxSelected>>", self.updt_search_entry)
         self.search_cbox.pack(side="left", padx=10,pady=10)
 
@@ -94,7 +95,7 @@ class AccountsHead:
         self.btn_search = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict["search"],width=10,command=self.hit_enter_textBox)
         self.btn_search.pack(side="left", padx=10,pady=10)
 
-        self.btn_import_time_accounts = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict["import_time_accounts"],width=25,command=self.import_time_accounts)
+        self.btn_import_time_accounts = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict["import_time_accounts"],width=30,command=self.import_time_accounts)
         self.btn_import_time_accounts.pack(side="right", padx=10,pady=10)
         
         self.update_main_head()
@@ -130,7 +131,7 @@ class AccountsHead:
             self.textBox_search_var.configure(state=tk.NORMAL)
     
     def updt_search_cblist(self):
-        self.search_cbox['values'] = [self.language_dict["name"],self.language_dict["group"],self.language_dict["project"],self.language_dict["order"],self.language_dict["process"],self.language_dict["response_code"],self.language_dict["response_text"],self.language_dict["open"],self.language_dict["closed"],self.language_dict["bookable"],self.language_dict["not_bookable"],self.language_dict["external_booking"],self.language_dict["all"]]
+        self.search_cbox['values'] = [self.language_dict["name"],self.language_dict["group"],self.language_dict["project"],self.language_dict["order"],self.language_dict["process"],self.language_dict["response_code"],self.language_dict["response_text_templates"],self.language_dict["open"],self.language_dict["closed"],self.language_dict["bookable"],self.language_dict["not_bookable"],self.language_dict["external_booking"],self.language_dict["all"]]
         self.search_cbox.current(0)
 
     def hit_enter_textBox(self,event=None):
@@ -158,7 +159,7 @@ class AccountsHead:
             modus = 'response_code'
             search_input = self.search_var.get()
 
-        elif self.search_cbox.get() == self.language_dict["response_text"]:
+        elif self.search_cbox.get() == self.language_dict["response_text_templates"]:
             modus = 'response_texts'
             search_input = self.search_var.get()
 

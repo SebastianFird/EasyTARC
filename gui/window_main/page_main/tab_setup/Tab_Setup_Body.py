@@ -35,6 +35,7 @@ from gui.Window_Additionals import DeleteDatabase
 from style_classes import MyFrame
 from style_classes import MyLabel
 from style_classes import MyButton
+from style_classes import MyCombobox
 
 class SetupBody:
     def __init__(self, container, main_app, gui, setup_tab):
@@ -82,63 +83,54 @@ class SetupBody:
 
         #########
 
-        row_nbr = 0
-
         self.lbl_style_info = MyLabel(self.appearance_frame,self.data_manager,text = '', anchor = 'w', width=3)
-        self.lbl_style_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_style_info.grid(row=0, column=0, padx=5, pady=5)
 
         self.lbl_style = MyLabel(self.appearance_frame,self.data_manager,text = self.language_dict['style'], anchor = 'w', width=25)
-        self.lbl_style.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.lbl_style.grid(row=0, column=1, padx=5, pady=5)
 
-        clicked_style = tk.StringVar()
-        self.styles_cbox = ttk.Combobox(self.appearance_frame, state="readonly", width = 30, textvariable = clicked_style, postcommand = self.updt_style_cblist)
-        self.styles_cbox.grid(row=row_nbr, column=2, padx=5, pady=5)
-        self.styles_cbox.bind('<Button-1>', self.btn_style_cbox_reset)
+        self.clicked_style = tk.StringVar()
+        self.styles_cbox = MyCombobox(self.appearance_frame, state="readonly", width = 30, textvariable = self.clicked_style)
+        self.styles_cbox.grid(row=0, column=2, padx=5, pady=10)
 
-        self.updt_style_cblist()
+        self.btn_set_style = MyButton(self.appearance_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=self.set_style)
 
-        self.btn_set_style = MyButton(self.appearance_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_style(clicked_style.get()))
-        self.btn_set_style.grid(row=row_nbr, column=3, padx=5, pady=5)
+        self.set_style_cblist()
+        self.styles_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_style)
 
         #########
-
-        row_nbr = 1
 
         self.lbl_font_size_info = MyLabel(self.appearance_frame,self.data_manager,text = '', anchor = 'w', width=3)
-        self.lbl_font_size_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_font_size_info.grid(row=1, column=0, padx=5, pady=5)
 
         self.lbl_font_size = MyLabel(self.appearance_frame,self.data_manager,text = self.language_dict['font_size'], anchor = 'w', width=25)
-        self.lbl_font_size.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.lbl_font_size.grid(row=1, column=1, padx=5, pady=5)
 
-        clicked_font_size = tk.StringVar()
-        self.font_size_cbox = ttk.Combobox(self.appearance_frame, state="readonly", width = 30, textvariable = clicked_font_size, postcommand = self.updt_fs_cblist)
-        self.font_size_cbox.grid(row=row_nbr, column=2, padx=5, pady=5)
-        self.font_size_cbox.bind('<Button-1>', self.btn_fs_cbox_reset)
+        self.clicked_font_size = tk.StringVar()
+        self.font_size_cbox = MyCombobox(self.appearance_frame, state="readonly", width = 30, textvariable = self.clicked_font_size)
+        self.font_size_cbox.grid(row=1, column=2, padx=5, pady=10)
 
-        self.updt_fs_cblist()
+        self.btn_set_font_size = MyButton(self.appearance_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=self.set_font_size)
 
-        self.btn_set_font_size = MyButton(self.appearance_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_font_size(clicked_font_size.get()))
-        self.btn_set_font_size.grid(row=row_nbr, column=3, padx=5, pady=5)
+        self.set_fs_cblist()
+        self.font_size_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_font_size)
 
         #########
 
-        row_nbr = 2
-
         self.lbl_language_info = MyLabel(self.appearance_frame,self.data_manager,text = '', anchor = 'w', width=3)
-        self.lbl_language_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_language_info.grid(row=2, column=0, padx=5, pady=5)
 
         self.lbl_language = MyLabel(self.appearance_frame,self.data_manager,text = self.language_dict['language'], anchor = 'w', width=25)
-        self.lbl_language.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.lbl_language.grid(row=2, column=1, padx=5, pady=5)
 
-        clicked_language = tk.StringVar()
-        self.language_cbox = ttk.Combobox(self.appearance_frame, state="readonly", width = 30, textvariable = clicked_language, postcommand = self.updt_language_cblist)
-        self.language_cbox.grid(row=row_nbr, column=2, padx=5, pady=5)
-        self.language_cbox.bind('<Button-1>', self.btn_language_cbox_reset)
+        self.clicked_language = tk.StringVar()
+        self.language_cbox = MyCombobox(self.appearance_frame, state="readonly", width = 30, textvariable = self.clicked_language)
+        self.language_cbox.grid(row=2, column=2, padx=5, pady=10)
 
-        self.updt_language_cblist()
-
-        self.btn_set_language = MyButton(self.appearance_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_language(clicked_language.get()))
-        self.btn_set_language.grid(row=row_nbr, column=3, padx=5, pady=5)
+        self.btn_set_language = MyButton(self.appearance_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=self.set_language)
+        
+        self.set_language_cblist()
+        self.language_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_language)
 
         #########################
 
@@ -160,53 +152,52 @@ class SetupBody:
 
         #########
 
-        row_nbr = 0
-
         self.lbl_start_up_link_info = MyLabel(self.link_frame,self.data_manager,text = '', anchor = 'w', width=3)
-        self.lbl_start_up_link_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_start_up_link_info.grid(row=0, column=0, padx=5, pady=5)
 
         self.lbl_start_up_link = MyLabel(self.link_frame,self.data_manager,text = self.language_dict['start_up_link'], anchor = 'w', width=25)
-        self.lbl_start_up_link.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.lbl_start_up_link.grid(row=0, column=1, padx=5, pady=5)
 
         self.lbl_status_start_up_link = MyLabel(self.link_frame, self.data_manager,width=3)
-        self.lbl_status_start_up_link.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.lbl_status_start_up_link.grid(row=0, column=2, padx=5, pady=5)
 
         self.btn_start_up_directory = MyButton(self.link_frame, self.data_manager,text=u'\U0001F4C1',width=3,command=self.show_start_up_directory)
-        self.btn_start_up_directory.grid(row=row_nbr, column=3, padx=5, pady=5)
+        self.btn_start_up_directory.grid(row=0, column=3, padx=5, pady=5)
         self.btn_start_up_directory_ttp = CreateToolTip(self.btn_start_up_directory, self.data_manager, 0, 30, "")
 
         self.btn_set_start_up_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['add'],width=15,command=self.set_start_up_link)
-        self.btn_set_start_up_link.grid(row=row_nbr, column=4, padx=5, pady=5)
+        self.btn_set_start_up_link.grid(row=0, column=4, padx=5, pady=5)
 
         self.btn_remove_start_up_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['remove'],width=12,command=self.remove_start_up_link)
-        self.btn_remove_start_up_link.grid(row=row_nbr, column=5, padx=5, pady=5)
+        self.btn_remove_start_up_link.grid(row=0, column=5, padx=5, pady=5)
 
         self.update_start_up_link_status()
 
         #########
 
-        row_nbr = 1
-
         self.lbl_desktop_link_info = MyLabel(self.link_frame,self.data_manager,text = '', anchor = 'w', width=3)
-        #self.lbl_desktop_link_info.grid(row=row_nbr, column=0, padx=5, pady=5)
 
         self.lbl_desktop_link = MyLabel(self.link_frame,self.data_manager,text = self.language_dict['desktop_link'], anchor = 'w', width=25)
-        #self.lbl_desktop_link.grid(row=row_nbr, column=1, padx=5, pady=5)
 
         self.lbl_status_desktop_link = MyLabel(self.link_frame, self.data_manager,width=3)
-        #self.lbl_status_desktop_link.grid(row=row_nbr, column=2, padx=5, pady=5)
 
         self.btn_desktop_directory = MyButton(self.link_frame, self.data_manager,text=u'\U0001F4C1',width=3,command=self.show_desktop_directory)
-        #self.btn_desktop_directory.grid(row=row_nbr, column=3, padx=5, pady=5)
+
         self.btn_desktop_directory_ttp = CreateToolTip(self.btn_desktop_directory, self.data_manager, 0, 30, '')
 
         self.btn_set_desktop_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['add'],width=15,command=self.set_desktop_link)
-        #self.btn_set_desktop_link.grid(row=row_nbr, column=4, padx=5, pady=5)
 
         self.btn_remove_desktop_link = MyButton(self.link_frame, self.data_manager, text=self.language_dict['remove'],width=12,command=self.remove_desktop_link)
-        #self.btn_remove_desktop_link.grid(row=row_nbr, column=5, padx=5, pady=5)
 
-        self.update_desktop_link_status()
+        if self.main_app.get_manage_desktop_link() == True:
+            self.lbl_desktop_link_info.grid(row=1, column=0, padx=5, pady=5)
+            self.lbl_desktop_link.grid(row=1, column=1, padx=5, pady=5)
+            self.lbl_status_desktop_link.grid(row=1, column=2, padx=5, pady=5)
+            self.btn_desktop_directory.grid(row=1, column=3, padx=5, pady=5)
+            self.btn_set_desktop_link.grid(row=1, column=4, padx=5, pady=5)
+            self.btn_remove_desktop_link.grid(row=1, column=5, padx=5, pady=5)
+
+            self.update_desktop_link_status()
 
         #########################
 
@@ -228,45 +219,41 @@ class SetupBody:
 
         #########
 
-        row_nbr = 0
-
         self.lbl_easytarc_folder_info = MyLabel(self.folder_frame,self.data_manager,text = '', anchor = 'w', width=3)
-        self.lbl_easytarc_folder_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_easytarc_folder_info.grid(row=0, column=0, padx=5, pady=5)
 
         self.lbl_easytarc_folder = MyLabel(self.folder_frame,self.data_manager,text = "EasyTARC", anchor = 'w', width=25)
-        self.lbl_easytarc_folder.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.lbl_easytarc_folder.grid(row=0, column=1, padx=5, pady=5)
 
         self.lbl_status_easytarc_folder = MyLabel(self.folder_frame, self.data_manager,width=3)
-        self.lbl_status_easytarc_folder.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.lbl_status_easytarc_folder.grid(row=0, column=2, padx=5, pady=5)
         self.lbl_status_easytarc_folder.configure(text = u'\U00002713',foreground=self.style_dict["highlight_color_green"])
 
         self.btn_open_easytarc_folder = MyButton(self.folder_frame, self.data_manager,text=u'\U0001F4C1',width=3,command=self.show_easytarc_directory)
-        self.btn_open_easytarc_folder.grid(row=row_nbr, column=3, padx=5, pady=5)
+        self.btn_open_easytarc_folder.grid(row=0, column=3, padx=5, pady=5)
         self.btn_open_easytarc_folder_ttp = CreateToolTip(self.btn_open_easytarc_folder, self.data_manager, 0, 30, str(self.main_app.get_filepath()))
 
         #########
 
-        row_nbr = 1
-
         self.lbl_back_up_folder_info = MyLabel(self.folder_frame,self.data_manager,text=u'\U00002139',width=3)
-        self.lbl_back_up_folder_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_back_up_folder_info.grid(row=1, column=0, padx=5, pady=5)
         self.lbl_back_up_folder_info_ttp = CreateToolTip(self.lbl_back_up_folder_info, self.data_manager, 0, 30, self.language_dict['back_up_folder_info'], True)
 
         self.lbl_back_up_folder = MyLabel(self.folder_frame,self.data_manager,text = self.language_dict['back_up_2'], anchor = 'w', width=25)
-        self.lbl_back_up_folder.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.lbl_back_up_folder.grid(row=1, column=1, padx=5, pady=5)
 
         self.lbl_status_back_up_folder = MyLabel(self.folder_frame, self.data_manager,width=3)
-        self.lbl_status_back_up_folder.grid(row=row_nbr, column=2, padx=5, pady=5)
+        self.lbl_status_back_up_folder.grid(row=1, column=2, padx=5, pady=5)
 
         self.btn_open_back_up_folder = MyButton(self.folder_frame, self.data_manager,text=u'\U0001F4C1',width=3,command=self.show_second_back_up_directory)
-        self.btn_open_back_up_folder.grid(row=row_nbr, column=3, padx=5, pady=5)
+        self.btn_open_back_up_folder.grid(row=1, column=3, padx=5, pady=5)
         self.btn_open_back_up_folder_ttp = CreateToolTip(self.btn_open_back_up_folder, self.data_manager, 0, 30, '')
 
         self.btn_choose_back_up_folder = MyButton(self.folder_frame, self.data_manager, text=self.language_dict['choose_folder'],width=15,command=self.choose_second_back_up_folder)
-        self.btn_choose_back_up_folder.grid(row=row_nbr, column=4, padx=5, pady=5)
+        self.btn_choose_back_up_folder.grid(row=1, column=4, padx=5, pady=5)
 
         self.btn_remove_back_up_folder = MyButton(self.folder_frame, self.data_manager, text=self.language_dict['remove'],width=12,command=self.remove_back_up_folder)
-        self.btn_remove_back_up_folder.grid(row=row_nbr, column=5, padx=5, pady=5)
+        self.btn_remove_back_up_folder.grid(row=1, column=5, padx=5, pady=5)
 
         self.refresh_back_up_folder_path()
         
@@ -376,66 +363,57 @@ class SetupBody:
 
         #########
 
-        row_nbr = 0
-
         self.lbl_sleep_mode_info = MyLabel(self.sleep_mode_frame,self.data_manager,text=u'\U00002139',width=3)
-        self.lbl_sleep_mode_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_sleep_mode_info.grid(row=0, column=0, padx=5, pady=5)
         self.lbl_sleep_mode_info_ttp = CreateToolTip(self.lbl_sleep_mode_info, self.data_manager, 0, 30, self.language_dict['sleep_mode_info'], True)
 
         self.lbl_sleep_mode = MyLabel(self.sleep_mode_frame,self.data_manager,text = self.language_dict['status'], anchor = 'w', width=25)
-        self.lbl_sleep_mode.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.lbl_sleep_mode.grid(row=0, column=1, padx=5, pady=5)
 
-        clicked_sleep_mode = tk.StringVar()
-        self.sleep_mode_cbox = ttk.Combobox(self.sleep_mode_frame, state="readonly", width = 30, textvariable = clicked_sleep_mode, postcommand = self.updt_sleep_mode_cblist)
-        self.sleep_mode_cbox.grid(row=row_nbr, column=2, padx=5, pady=5)
-        self.sleep_mode_cbox.bind('<Button-1>', self.btn_sleep_mode_cbox_reset)
+        self.clicked_sleep_mode = tk.StringVar()
+        self.sleep_mode_cbox = MyCombobox(self.sleep_mode_frame, state="readonly", width = 30, textvariable = self.clicked_sleep_mode)
+        self.sleep_mode_cbox.grid(row=0, column=2, padx=5, pady=10)
 
-        self.updt_sleep_mode_cblist()
+        self.btn_set_sleep_mode = MyButton(self.sleep_mode_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=self.set_sleep_mode)
 
-        self.btn_set_sleep_mode = MyButton(self.sleep_mode_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_sleep_mode(clicked_sleep_mode.get()))
-        self.btn_set_sleep_mode.grid(row=row_nbr, column=3, padx=5, pady=5)
+        self.set_sleep_mode_cblist()
+        self.sleep_mode_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_sleep_mode)
 
         #########
 
-        row_nbr = 1
-
         self.lbl_sleep_mode_period_info = MyLabel(self.sleep_mode_frame,self.data_manager,text= u'\U00002139',width=3)
-        self.lbl_sleep_mode_period_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_sleep_mode_period_info.grid(row=1, column=0, padx=5, pady=5)
         self.lbl_sleep_mode_period_info_ttp = CreateToolTip(self.lbl_sleep_mode_period_info, self.data_manager, 0, 30, self.language_dict['sleep_mode_period_info'], True)
 
         self.lbl_sleep_mode_period = MyLabel(self.sleep_mode_frame,self.data_manager,text = self.language_dict['recording_period'] + ' [' + self.language_dict['hours_abbreviation'] + ']', anchor = 'w', width=20)
-        self.lbl_sleep_mode_period.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.lbl_sleep_mode_period.grid(row=1, column=1, padx=5, pady=5)
 
-        clicked_sleep_mode_period = tk.StringVar()
-        self.sleep_mode_period_cbox = ttk.Combobox(self.sleep_mode_frame, state="readonly", width = 30, textvariable = clicked_sleep_mode_period, postcommand = self.updt_sleep_mode_period_cblist)
-        self.sleep_mode_period_cbox.grid(row=row_nbr, column=2, padx=5, pady=5)
-        self.sleep_mode_period_cbox.bind('<Button-1>', self.btn_sleep_mode_period_cbox_reset)
+        self.clicked_sleep_mode_period = tk.StringVar()
+        self.sleep_mode_period_cbox = MyCombobox(self.sleep_mode_frame, state="readonly", width = 30, textvariable = self.clicked_sleep_mode_period)
+        self.sleep_mode_period_cbox.grid(row=1, column=2, padx=5, pady=10)
 
-        self.updt_sleep_mode_period_cblist()
+        self.btn_set_sleep_mode_period = MyButton(self.sleep_mode_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=self.set_sleep_mode_period)
 
-        self.btn_set_sleep_mode_period = MyButton(self.sleep_mode_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_sleep_mode_period(clicked_sleep_mode_period.get()))
-        self.btn_set_sleep_mode_period.grid(row=row_nbr, column=3, padx=5, pady=5)
+        self.set_sleep_mode_period_cblist()
+        self.sleep_mode_period_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_sleep_mode_period)
 
         #########
 
-        row_nbr = 2
-
         self.lbl_sleep_mode_interaction_info = MyLabel(self.sleep_mode_frame,self.data_manager,text=u'\U00002139',width=3)
-        self.lbl_sleep_mode_interaction_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_sleep_mode_interaction_info.grid(row=2, column=0, padx=5, pady=5)
         self.lbl_sleep_mode_interaction_info_ttp = CreateToolTip(self.lbl_sleep_mode_interaction_info, self.data_manager, 0, 30, self.language_dict['sleep_mode_interaction_info'], True)
 
         self.lbl_sleep_mode_interaction = MyLabel(self.sleep_mode_frame,self.data_manager,text = self.language_dict['last_interaction'] + ' [' + self.language_dict['hours_abbreviation'] + ']', anchor = 'w', width=20) 
-        self.lbl_sleep_mode_interaction.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.lbl_sleep_mode_interaction.grid(row=2, column=1, padx=5, pady=5)
 
-        clicked_sleep_mode_interaction = tk.StringVar()
-        self.sleep_mode_interaction_cbox = ttk.Combobox(self.sleep_mode_frame, state="readonly", width = 30, textvariable = clicked_sleep_mode_interaction, postcommand = self.updt_sleep_mode_interaction_cblist)
-        self.sleep_mode_interaction_cbox.grid(row=row_nbr, column=2, padx=5, pady=5)
-        self.sleep_mode_interaction_cbox.bind('<Button-1>', self.btn_sleep_mode_interaction_cbox_reset)
+        self.clicked_sleep_mode_interaction = tk.StringVar()
+        self.sleep_mode_interaction_cbox = MyCombobox(self.sleep_mode_frame, state="readonly", width = 30, textvariable = self.clicked_sleep_mode_interaction)
+        self.sleep_mode_interaction_cbox.grid(row=2, column=2, padx=5, pady=10)
 
-        self.updt_sleep_mode_interaction_cblist()
+        self.btn_set_sleep_mode_interaction = MyButton(self.sleep_mode_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=self.set_sleep_mode_interaction)
 
-        self.btn_set_sleep_mode_interaction = MyButton(self.sleep_mode_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_sleep_mode_interaction(clicked_sleep_mode_interaction.get()))
-        self.btn_set_sleep_mode_interaction.grid(row=row_nbr, column=3, padx=5, pady=5)
+        self.set_sleep_mode_interaction_cblist()
+        self.sleep_mode_interaction_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_sleep_mode_interaction)
 
 
         #########################
@@ -458,25 +436,22 @@ class SetupBody:
 
         #########
 
-        row_nbr = 0
-
-        self.lbl_rate_info = MyLabel(self.rate_frame,self.data_manager,text = u'\U00002139', anchor = 'w', width=3)
-        self.lbl_rate_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_rate_info = MyLabel(self.rate_frame,self.data_manager,text = u'\U00002139', width=3)
+        self.lbl_rate_info.grid(row=0, column=0, padx=5, pady=5)
         self.lbl_rate_info_ttp = CreateToolTip(self.lbl_rate_info, self.data_manager, 0, 30, self.language_dict['rate_info'], True)
 
         self.lbl_rate = MyLabel(self.rate_frame,self.data_manager,text = self.language_dict['display'], anchor = 'w', width=25)
-        self.lbl_rate.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.lbl_rate.grid(row=0, column=1, padx=5, pady=5)
 
-        clicked_rate = tk.StringVar()
-        self.rate_cbox = ttk.Combobox(self.rate_frame, state="readonly", width = 30, textvariable = clicked_rate, postcommand = self.updt_rate_cblist)
-        self.rate_cbox.grid(row=row_nbr, column=2, padx=5, pady=5)
-        self.rate_cbox.bind('<Button-1>', self.btn_rate_cbox_reset)
+        self.clicked_rate = tk.StringVar()
+        self.rate_cbox = MyCombobox(self.rate_frame, state="readonly", width = 30, textvariable = self.clicked_rate)
+        self.rate_cbox.grid(row=0, column=2, padx=5, pady=10)
 
-        self.updt_rate_cblist()
+        self.btn_set_rate = MyButton(self.rate_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=self.set_rate)
 
-        self.btn_set_rate = MyButton(self.rate_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_rate(clicked_rate.get()))
-        self.btn_set_rate.grid(row=row_nbr, column=3, padx=5, pady=5)
-
+        self.set_rate_cblist()
+        self.rate_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_rate)
+        
         #########################
 
         self.separator_frame_6 = MyFrame(self.main_frame,self.data_manager)
@@ -497,24 +472,39 @@ class SetupBody:
 
         #########
 
-        row_nbr = 0
-
         self.lbl_dynamic_opacity_frame_info = MyLabel(self.workwindow_frame,self.data_manager,text= u'\U00002139',width=3)
-        self.lbl_dynamic_opacity_frame_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_dynamic_opacity_frame_info.grid(row=0, column=0, padx=5, pady=5)
         self.lbl_dynamic_opacity_info_ttp = CreateToolTip(self.lbl_dynamic_opacity_frame_info, self.data_manager, 0, 30, self.language_dict['dynamic_opacity_info'], True)
 
         self.lbl_dynamic_opacity = MyLabel(self.workwindow_frame,self.data_manager,text = self.language_dict['dynamic_opacity']+ ' [%]', anchor = 'w', width=25)
-        self.lbl_dynamic_opacity.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.lbl_dynamic_opacity.grid(row=0, column=1, padx=5, pady=5)
 
-        clicked_dynamic_opacity = tk.StringVar()
-        self.dynamic_opacity_cbox = ttk.Combobox(self.workwindow_frame, state="readonly", width = 30, textvariable = clicked_dynamic_opacity, postcommand = self.updt_dynamic_opacity_cblist)
-        self.dynamic_opacity_cbox.grid(row=row_nbr, column=2, padx=5, pady=5)
-        self.dynamic_opacity_cbox.bind('<Button-1>', self.btn_dynamic_opacity_cbox_reset)
+        self.clicked_dynamic_opacity = tk.StringVar()
+        self.dynamic_opacity_cbox = MyCombobox(self.workwindow_frame, state="readonly", width = 30, textvariable = self.clicked_dynamic_opacity)
+        self.dynamic_opacity_cbox.grid(row=0, column=2, padx=5, pady=10)
 
-        self.updt_dynamic_opacity_cblist()
+        self.btn_set_dynamic_opacity = MyButton(self.workwindow_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=self.set_dynamic_opacity)
 
-        self.btn_set_dynamic_opacity = MyButton(self.workwindow_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_dynamic_opacity(clicked_dynamic_opacity.get()))
-        self.btn_set_dynamic_opacity.grid(row=row_nbr, column=3, padx=5, pady=5)
+        self.set_dynamic_opacity_cblist()
+        self.dynamic_opacity_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_dynamic_opacity)
+
+        #########
+
+        self.lbl_auto_minimize_info = MyLabel(self.workwindow_frame,self.data_manager,text=u'\U00002139',width=3)
+        self.lbl_auto_minimize_info.grid(row=1, column=0, padx=5, pady=5)
+        self.lbl_auto_minimize_info_ttp = CreateToolTip(self.lbl_auto_minimize_info, self.data_manager, 0, 30, self.language_dict['auto_minimize_info'], True)
+
+        self.lbl_auto_minimize = MyLabel(self.workwindow_frame,self.data_manager,text = self.language_dict['auto_minimize'], anchor = 'w', width=25)
+        self.lbl_auto_minimize.grid(row=1, column=1, padx=5, pady=5)
+
+        self.clicked_auto_minimize = tk.StringVar()
+        self.auto_minimize_cbox = MyCombobox(self.workwindow_frame, state="readonly", width = 30, textvariable = self.clicked_auto_minimize)
+        self.auto_minimize_cbox.grid(row=1, column=2, padx=5, pady=10)
+
+        self.btn_set_auto_minimize = MyButton(self.workwindow_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=self.set_auto_minimize)
+
+        self.set_auto_minimize_cblist()
+        self.auto_minimize_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_auto_minimize)
 
         #########################
 
@@ -536,83 +526,86 @@ class SetupBody:
 
         #########
 
-        row_nbr = 0
-
-        self.lbl_simplify_data_info = MyLabel(self.database_frame,self.data_manager,text = u'\U00002139', anchor = 'w', width=3)
-        self.lbl_simplify_data_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_simplify_data_info = MyLabel(self.database_frame,self.data_manager,text = u'\U00002139', width=3)
+        self.lbl_simplify_data_info.grid(row=0, column=0, padx=5, pady=5)
         self.lbl_simplify_data_info_ttp = CreateToolTip(self.lbl_simplify_data_info, self.data_manager, 0, 30, self.language_dict['compression_of_data_info'], True)
 
         self.lbl_simplify_data = MyLabel(self.database_frame,self.data_manager,text = self.language_dict['compression_of_data'], anchor = 'w', width=25)
-        self.lbl_simplify_data.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.lbl_simplify_data.grid(row=0, column=1, padx=5, pady=5)
 
-        clicked_simplify_data = tk.StringVar()
-        self.simplify_data_cbox = ttk.Combobox(self.database_frame, state="readonly", width = 30, textvariable = clicked_simplify_data, postcommand = self.update_simplify_data_cblist)
-        self.simplify_data_cbox.grid(row=row_nbr, column=2, padx=5, pady=5)
-        self.simplify_data_cbox.bind('<Button-1>', self.btn_simplify_data_cbox_reset)
+        self.clicked_simplify_data = tk.StringVar()
+        self.simplify_data_cbox = MyCombobox(self.database_frame, state="readonly", width = 30, textvariable = self.clicked_simplify_data)
+        self.simplify_data_cbox.grid(row=0, column=2, padx=5, pady=10)
 
-        self.btn_set_simplify_data_cbox = MyButton(self.database_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=lambda:self.set_simplify_data_cbox(clicked_simplify_data.get()))
-        self.btn_set_simplify_data_cbox.grid(row=row_nbr, column=3, padx=5, pady=5)
+        self.btn_set_simplify_data = MyButton(self.database_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=self.set_simplify_data)
 
-        self.update_simplify_data_cblist()
+        self.set_simplify_data_cblist()
+        self.simplify_data_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_simplify_data)
 
         #########
 
-        row_nbr = 1
-
-        self.lbl_delete_data_info = MyLabel(self.database_frame,self.data_manager,text = u'\U00002139', anchor = 'w', width=3)
-        self.lbl_delete_data_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+        self.lbl_delete_data_info = MyLabel(self.database_frame,self.data_manager,text = u'\U00002139', width=3)
+        self.lbl_delete_data_info.grid(row=1, column=0, padx=5, pady=5)
         self.lbl_delete_data_info_ttp = CreateToolTip(self.lbl_delete_data_info, self.data_manager, 0, 30, self.language_dict['delete_data_info'], True)
 
         self.lbl_delete_data = MyLabel(self.database_frame,self.data_manager,text = self.language_dict['delete_data'], anchor = 'w', width=25)
-        self.lbl_delete_data.grid(row=row_nbr, column=1, padx=5, pady=5)
+        self.lbl_delete_data.grid(row=1, column=1, padx=5, pady=5)
 
         self.btn_delete_data = MyButton(self.database_frame, self.data_manager, text=self.language_dict['delete'],width=12,command=self.delete_database)
-        self.btn_delete_data.grid(row=row_nbr, column=2, padx=5, pady=5,sticky='w')
+        self.btn_delete_data.grid(row=1, column=2, padx=5, pady=5,sticky='w')
 
         return
-    
+
 ###############################
 
-    def updt_style_cblist(self):
+    def set_style_cblist(self):
         style_name = self.style_dict['name']
         style_list = [style_name] + [ele for ele in self.style_list if ele != style_name]
         self.styles_cbox['values'] = style_list
         self.styles_cbox.current(0)
 
-    def btn_style_cbox_reset(self,event):
-        self.btn_set_style.configure(text=self.language_dict['apply']) 
-        return
+    def update_btn_set_style(self,event=None):
+        if self.style_dict['name'] == self.clicked_style.get():
+            self.btn_set_style.configure(text=u'\U00002713')
+        else:
+            self.btn_set_style.configure(text=self.language_dict['apply']) 
+            self.btn_set_style.grid(row=0, column=3, padx=5, pady=5)
     
-    def set_style(self,style_name):
+    def set_style(self):
+        style_name = self.clicked_style.get()
         self.main_app.change_settings('style_name',style_name)
         self.data_manager.load_style_dict(style_name)
         self.data_manager.load_image_dict(self.main_app.get_setting('font_size'),self.main_app.get_setting('style_name'))
         self.gui.refresh()
-        self.btn_set_style.configure(text=u'\U00002713') 
+        self.update_btn_set_style()
         return
     
 #########
 
-    def updt_language_cblist(self):
+    def set_language_cblist(self):
         language_name = self.language_dict['language_name']
         language_list = [language_name] + [ele for ele in self.language_list if ele != language_name]
         self.language_cbox['values'] = language_list
         self.language_cbox.current(0)
 
-    def btn_language_cbox_reset(self,event):
-        self.btn_set_language.configure(text=self.language_dict['apply']) 
-        return
+    def update_btn_set_language(self,event=None):
+        if self.language_dict['language_name'] == self.clicked_language.get():
+            self.btn_set_language.configure(text=u'\U00002713')
+        else:
+            self.btn_set_language.configure(text=self.language_dict['apply']) 
+            self.btn_set_language.grid(row=2, column=3, padx=5, pady=5)
     
-    def set_language(self,language_name):
+    def set_language(self):
+        language_name= self.clicked_language.get()
         self.main_app.change_settings('language_name',language_name)
         self.data_manager.load_language_dict(language_name)
         self.gui.refresh()
-        self.btn_set_language.configure(text=u'\U00002713') 
+        self.update_btn_set_language()
         return
 
 #########
 
-    def updt_fs_cblist(self):
+    def set_fs_cblist(self):
         font_size = self.main_app.get_setting('font_size')
         self.font_size_cbox['values'] = ['8','9','10','11','12']
         if font_size == '8':
@@ -625,17 +618,21 @@ class SetupBody:
             self.font_size_cbox.current(3)
         elif font_size == '12':
             self.font_size_cbox.current(4)
-
-    def btn_fs_cbox_reset(self,event):
-        self.btn_set_font_size.configure(text=self.language_dict['apply']) 
-        return
     
-    def set_font_size(self,size):
+    def update_btn_set_font_size(self,event=None):
+        if self.main_app.get_setting('font_size') == self.clicked_font_size.get():
+            self.btn_set_font_size.configure(text=u'\U00002713')
+        else:
+            self.btn_set_font_size.configure(text=self.language_dict['apply']) 
+            self.btn_set_font_size.grid(row=1, column=3, padx=5, pady=5)
+    
+    def set_font_size(self):
+        size = self.clicked_font_size.get()
         self.main_app.change_settings('font_size',size)
         self.data_manager.load_image_dict(self.main_app.get_setting('font_size'),self.main_app.get_setting('style_name'))
         self.gui.myttk.set_defaultFont_size(int(size))
         self.gui.refresh()
-        self.btn_set_font_size.configure(text=u'\U00002713') 
+        self.update_btn_set_font_size()
 
 
 ###############################
@@ -728,8 +725,10 @@ class SetupBody:
         shortcut_path = os.path.join(startup_folder, shortcut_name)
         if os.path.exists(shortcut_path) == True: 
             self.lbl_status_start_up_link.configure(text = u'\U00002713',foreground=self.style_dict["highlight_color_green"])
+            self.btn_remove_start_up_link.grid(row=0, column=5, padx=5, pady=5)
         else:
             self.lbl_status_start_up_link.configure(text = u'\U0001F5D9',foreground=self.style_dict["caution_color_red"])
+            self.btn_remove_start_up_link.grid_forget()
         self.btn_start_up_directory_ttp.text = str(startup_folder)
         return
     
@@ -824,8 +823,12 @@ class SetupBody:
         shortcut_path = os.path.join(desktop_folder, shortcut_name)
         if os.path.exists(shortcut_path) == True: 
             self.lbl_status_desktop_link.configure(text = u'\U00002713',foreground=self.style_dict["highlight_color_green"])
+            if self.main_app.get_manage_desktop_link() == True:
+                self.btn_remove_desktop_link.grid(row=1, column=5, padx=5, pady=5)
         else:
             self.lbl_status_desktop_link.configure(text = u'\U0001F5D9',foreground=self.style_dict["caution_color_red"])
+            if self.main_app.get_manage_desktop_link() == True:
+                self.btn_remove_desktop_link.grid_forget()
         self.btn_desktop_directory_ttp.text = str(desktop_folder)
         return
     
@@ -859,9 +862,11 @@ class SetupBody:
         if self.main_app.get_setting("sec_back_up_path") != '':
             back_up_folder_path = self.main_app.get_setting("sec_back_up_path")
             self.lbl_status_back_up_folder.configure(text = u'\U00002713',foreground=self.style_dict["highlight_color_green"])
+            self.btn_remove_back_up_folder.grid(row=1, column=5, padx=5, pady=5)
         else:
             back_up_folder_path = self.language_dict['no_folder']
             self.lbl_status_back_up_folder.configure(text = u'\U0001F5D9',foreground=self.style_dict["caution_color_red"])
+            self.btn_remove_back_up_folder.grid_forget()
         self.btn_open_back_up_folder_ttp.text = back_up_folder_path
     
 ###############################
@@ -873,7 +878,7 @@ class SetupBody:
 
 ###############################
 
-    def updt_sleep_mode_cblist(self):
+    def set_sleep_mode_cblist(self):
         sleep_mode = self.main_app.get_setting('sleep_mode')
         self.sleep_mode_cbox['values'] = [self.language_dict['on'],self.language_dict['off']]
         if self.language_dict[sleep_mode] == self.language_dict['on']:
@@ -881,18 +886,25 @@ class SetupBody:
         else:
             self.sleep_mode_cbox.current(1)
 
-    def btn_sleep_mode_cbox_reset(self,event):
-        self.btn_set_sleep_mode.configure(text=self.language_dict['apply']) 
-        return
+    def update_btn_set_sleep_mode(self,event=None):
+        sleep_mode = self.clicked_sleep_mode.get()
+        if self.main_app.get_setting('sleep_mode') == self.language_dict[sleep_mode]:
+            self.btn_set_sleep_mode.configure(text=u'\U00002713')
+        else:
+            self.btn_set_sleep_mode.configure(text=self.language_dict['apply']) 
+            self.btn_set_sleep_mode.grid(row=0, column=3, padx=5, pady=5)
     
-    def set_sleep_mode(self,sleep_mode):
+    def set_sleep_mode(self):
+        sleep_mode = self.clicked_sleep_mode.get()
         self.main_app.change_settings('sleep_mode',self.language_dict[sleep_mode])
-        self.btn_set_sleep_mode.configure(text=u'\U00002713') 
+        self.update_btn_set_sleep_mode()
+
+        #
 
 
 ###############################
 
-    def updt_sleep_mode_period_cblist(self):
+    def set_sleep_mode_period_cblist(self):
         sleep_mode_period = self.main_app.get_setting('sleep_mode_recording_period_hours')
         sleep_mode_period_list = ['0,02','0,5','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16']
         self.sleep_mode_period_cbox['values'] = sleep_mode_period_list
@@ -902,18 +914,25 @@ class SetupBody:
                 self.sleep_mode_period_cbox.current(counter)
             counter = counter + 1
 
-    def btn_sleep_mode_period_cbox_reset(self,event):
-        self.btn_set_sleep_mode_period.configure(text=self.language_dict['apply']) 
-        return
+    def update_btn_set_sleep_mode_period(self,event=None):
+        sleep_mode_period = self.clicked_sleep_mode_period.get()
+        if self.main_app.get_setting('sleep_mode_recording_period_hours') == str(float(locale.atof(sleep_mode_period, decimal.Decimal))):
+            self.btn_set_sleep_mode_period.configure(text=u'\U00002713')
+        else:
+            self.btn_set_sleep_mode_period.configure(text=self.language_dict['apply']) 
+            self.btn_set_sleep_mode_period.grid(row=1, column=3, padx=5, pady=5)
     
-    def set_sleep_mode_period(self,sleep_mode_period):
+    def set_sleep_mode_period(self):
+        sleep_mode_period = self.clicked_sleep_mode_period.get()
         self.main_app.change_settings('sleep_mode_recording_period_hours',str(float(locale.atof(sleep_mode_period, decimal.Decimal))))
-        self.btn_set_sleep_mode_period.configure(text=u'\U00002713') 
+        self.update_btn_set_sleep_mode_period()
+
+        #
 
 
 ###############################
 
-    def updt_sleep_mode_interaction_cblist(self):
+    def set_sleep_mode_interaction_cblist(self):
         sleep_mode_interaction = self.main_app.get_setting('sleep_mode_without_interaction_hours')
         sleep_mode_interaction_list = ['0,02','0,5','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16']
         self.sleep_mode_interaction_cbox['values'] = sleep_mode_interaction_list
@@ -923,18 +942,25 @@ class SetupBody:
                 self.sleep_mode_interaction_cbox.current(counter)
             counter = counter + 1
 
-    def btn_sleep_mode_interaction_cbox_reset(self,event):
-        self.btn_set_sleep_mode_interaction.configure(text=self.language_dict['apply']) 
-        return
+    def update_btn_set_sleep_mode_interaction(self,event=None):
+        sleep_mode_interaction = self.clicked_sleep_mode_interaction.get()
+        if self.main_app.get_setting('sleep_mode_without_interaction_hours') == str(float(locale.atof(sleep_mode_interaction, decimal.Decimal))):
+            self.btn_set_sleep_mode_interaction.configure(text=u'\U00002713')
+        else:
+            self.btn_set_sleep_mode_interaction.configure(text=self.language_dict['apply']) 
+            self.btn_set_sleep_mode_interaction.grid(row=2, column=3, padx=5, pady=5)
     
-    def set_sleep_mode_interaction(self,sleep_mode_interaction):
+    def set_sleep_mode_interaction(self):
+        sleep_mode_interaction = self.clicked_sleep_mode_interaction.get()
         self.main_app.change_settings('sleep_mode_without_interaction_hours',str(float(locale.atof(sleep_mode_interaction, decimal.Decimal))))
-        self.btn_set_sleep_mode_interaction.configure(text=u'\U00002713') 
+        self.update_btn_set_sleep_mode_interaction()
+
+        #
 
 
 ###############################
 
-    def updt_rate_cblist(self):
+    def set_rate_cblist(self):
         rate = self.main_app.get_setting('booking_rate_details')
         self.rate_cbox['values'] = [self.language_dict['on'],self.language_dict['off']]
         if self.language_dict[rate] == self.language_dict['on']:
@@ -942,17 +968,25 @@ class SetupBody:
         else:
             self.rate_cbox.current(1)
 
-    def btn_rate_cbox_reset(self,event):
-        self.btn_set_rate.configure(text=self.language_dict['apply']) 
-        return
+    def update_btn_set_rate(self,event=None):
+        rate = self.clicked_rate.get()
+        if self.main_app.get_setting('booking_rate_details') == self.language_dict[rate]:
+            self.btn_set_rate.configure(text=u'\U00002713')
+        else:
+            self.btn_set_rate.configure(text=self.language_dict['apply']) 
+            self.btn_set_rate.grid(row=0, column=3, padx=5, pady=5)
     
-    def set_rate(self,rate):
+    def set_rate(self):
+        rate = self.clicked_rate.get()
         self.main_app.change_settings('booking_rate_details',self.language_dict[rate])
-        self.btn_set_rate.configure(text=u'\U00002713') 
+        self.update_btn_set_rate()
+
+        #
+
 
 ###############################
 
-    def updt_dynamic_opacity_cblist(self):
+    def set_dynamic_opacity_cblist(self):
         dynamic_opacity = self.main_app.get_setting('dynamic_opacity')
         dynamic_opacity_list = ['40','45','50','55','60','65','70','75','80','85','90','95']
         self.dynamic_opacity_cbox['values'] = dynamic_opacity_list
@@ -962,23 +996,52 @@ class SetupBody:
                 self.dynamic_opacity_cbox.current(counter)
             counter = counter + 1
 
-    def btn_dynamic_opacity_cbox_reset(self,event):
-        self.btn_set_dynamic_opacity.configure(text=self.language_dict['apply']) 
-        return
+    def update_btn_set_dynamic_opacity(self,event=None):
+        dynamic_opacity = self.clicked_dynamic_opacity.get()
+        if self.main_app.get_setting('dynamic_opacity') == str(float(locale.atof(dynamic_opacity, decimal.Decimal))):
+            self.btn_set_dynamic_opacity.configure(text=u'\U00002713')
+        else:
+            self.btn_set_dynamic_opacity.configure(text=self.language_dict['apply']) 
+            self.btn_set_dynamic_opacity.grid(row=0, column=3, padx=5, pady=5)
     
-    def set_dynamic_opacity(self,dynamic_opacity):
+    def set_dynamic_opacity(self):
+        dynamic_opacity = self.clicked_dynamic_opacity.get()
         self.main_app.change_settings('dynamic_opacity',str(float(locale.atof(dynamic_opacity, decimal.Decimal))))
-        self.btn_set_dynamic_opacity.configure(text=u'\U00002713') 
+        self.update_btn_set_dynamic_opacity()
 
 ###############################
 
-    def update_simplify_data_cblist(self):
+    def set_auto_minimize_cblist(self):
+        auto_minimize = self.main_app.get_setting('auto_minimize_mode')
+        self.auto_minimize_cbox['values'] = [self.language_dict['on'],self.language_dict['off']]
+        if self.language_dict[auto_minimize] == self.language_dict['on']:
+            self.auto_minimize_cbox.current(0)
+        else:
+            self.auto_minimize_cbox.current(1)
+
+    def update_btn_set_auto_minimize(self,event=None):
+        auto_minimize = self.clicked_auto_minimize.get()
+        if self.main_app.get_setting('auto_minimize_mode') == self.language_dict[auto_minimize]:
+            self.btn_set_auto_minimize.configure(text=u'\U00002713')
+        else:
+            self.btn_set_auto_minimize.configure(text=self.language_dict['apply']) 
+            self.btn_set_auto_minimize.grid(row=1, column=3, padx=5, pady=5)
+    
+    def set_auto_minimize(self):
+        auto_minimize = self.clicked_auto_minimize.get()
+        self.main_app.change_settings('auto_minimize_mode',self.language_dict[auto_minimize])
+        self.update_btn_set_auto_minimize()
+
+
+###############################
+
+    def set_simplify_data_cblist(self):
         if self.main_app.get_restricted_data_access() == True:
             self.simplify_data_cbox.configure(state=tk.DISABLED)
-            self.btn_set_simplify_data_cbox.configure(state=tk.DISABLED)
+            self.btn_set_simplify_data.configure(state=tk.DISABLED)
         else:
             self.simplify_data_cbox.configure(state=tk.NORMAL)
-            self.btn_set_simplify_data_cbox.configure(state=tk.NORMAL)
+            self.btn_set_simplify_data.configure(state=tk.NORMAL)
 
         if self.main_app.get_restricted_data_access() == True:
             simplify_data = 'on'
@@ -993,15 +1056,21 @@ class SetupBody:
         else:
             self.simplify_data_cbox.current(1)
 
-    def btn_simplify_data_cbox_reset(self,event):
-        if self.main_app.get_restricted_data_access() != True:
-            self.btn_set_simplify_data_cbox.configure(text=self.language_dict['apply']) 
-        return
+    def update_btn_set_simplify_data(self,event=None):
+        simplify_data = self.clicked_simplify_data.get()
+        if self.main_app.get_setting("simplify_after_two_month") == self.language_dict[simplify_data]:
+            self.btn_set_simplify_data.configure(text=u'\U00002713')
+        else:
+            self.btn_set_simplify_data.configure(text=self.language_dict['apply']) 
+            self.btn_set_simplify_data.grid(row=0, column=3, padx=5, pady=5)
     
-    def set_simplify_data_cbox(self,simplify_data):
+    def set_simplify_data(self):
+        simplify_data = self.clicked_simplify_data.get()
         if self.main_app.get_restricted_data_access() != True:
             self.main_app.change_settings('simplify_after_two_month',self.language_dict[simplify_data])
-            self.btn_set_simplify_data_cbox.configure(text=u'\U00002713') 
+            self.update_btn_set_simplify_data()
+
+            #
 
 ###############################
 
@@ -1011,15 +1080,49 @@ class SetupBody:
 ###############################
 
     def reload_settings(self):
-        self.updt_fs_cblist()
-        self.updt_language_cblist()
-        self.updt_style_cblist()
-        self.updt_sleep_mode_cblist()
-        self.updt_sleep_mode_period_cblist()
-        self.updt_sleep_mode_interaction_cblist()
-        self.updt_rate_cblist()
-        self.updt_dynamic_opacity_cblist()
-        self.update_simplify_data_cblist()
+
+        self.set_style_cblist()
+        self.update_btn_set_style()
+        self.btn_set_style.grid_forget()
+
+        self.set_fs_cblist()
+        self.update_btn_set_font_size()
+        self.btn_set_font_size.grid_forget()
+
+        self.set_language_cblist()
+        self.update_btn_set_language()
+        self.btn_set_language.grid_forget()
+
+        self.set_sleep_mode_cblist()
+        self.update_btn_set_sleep_mode()
+        self.btn_set_sleep_mode.grid_forget()
+
+        self.set_sleep_mode_period_cblist()
+        self.update_btn_set_sleep_mode_period()
+        self.btn_set_sleep_mode_period.grid_forget()
+
+        self.set_sleep_mode_interaction_cblist()
+        self.update_btn_set_sleep_mode_interaction()
+        self.btn_set_sleep_mode_interaction.grid_forget()
+
+        self.set_rate_cblist()
+        self.update_btn_set_rate()
+        self.btn_set_rate.grid_forget()
+
+        self.set_dynamic_opacity_cblist()
+        self.update_btn_set_dynamic_opacity()
+        self.btn_set_dynamic_opacity.grid_forget()
+
+        self.set_auto_minimize_cblist()
+        self.update_btn_set_auto_minimize()
+        self.btn_set_auto_minimize.grid_forget()
+
+        self.set_simplify_data_cblist()
+        self.update_btn_set_simplify_data()
+        self.btn_set_simplify_data.grid_forget()
+
+###############################
+
 
     def refresh(self):
         # configure style and language of main frame
@@ -1146,6 +1249,12 @@ class SetupBody:
 
         self.lbl_dynamic_opacity_info_ttp.refresh()
 
+        self.lbl_auto_minimize_info.refresh_style()
+        self.lbl_auto_minimize.refresh_style()
+        self.btn_set_auto_minimize.refresh_style()
+
+        self.lbl_auto_minimize_info_ttp.refresh()
+
         self.separator_frame_7.refresh_style()
 
         self.head_database_frame.refresh_style()
@@ -1153,7 +1262,7 @@ class SetupBody:
         self.database_frame.refresh_style()
         self.lbl_simplify_data_info.refresh_style()
         self.lbl_simplify_data.refresh_style()
-        self.btn_set_simplify_data_cbox.refresh_style()
+        self.btn_set_simplify_data.refresh_style()
         self.lbl_delete_data_info.refresh_style()
         self.lbl_delete_data.refresh_style()
         self.btn_delete_data.refresh_style()
@@ -1238,6 +1347,11 @@ class SetupBody:
 
         self.lbl_dynamic_opacity_info_ttp.text = self.language_dict['dynamic_opacity_info']
 
+        self.lbl_auto_minimize.configure(text=self.language_dict['auto_minimize'])
+        self.btn_set_auto_minimize.configure(text=self.language_dict['apply'])
+
+        self.lbl_auto_minimize_info_ttp.text = self.language_dict['auto_minimize_info']
+
         self.separator_frame_7.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
 
         self.lbl_category_database.configure(font = Font_tuple)
@@ -1254,6 +1368,6 @@ class SetupBody:
         self.update_start_up_link_status()
         self.update_desktop_link_status()
 
-        self.reload_settings()
+        #self.reload_settings()
         return
 

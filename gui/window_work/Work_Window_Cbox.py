@@ -295,6 +295,7 @@ class WorkWindowCbox(tk.Toplevel):
 #################################################################################
 
     def right_clicked(self,e):
-        self.option_menu.popup(e)
+        if self.main_app.get_action_state() != "study":
+            self.option_menu.popup(e)
 
 #################################################################################

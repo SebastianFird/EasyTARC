@@ -83,6 +83,8 @@ class DataManager:
         self.work_clock = InfoClock(self.main_app,0, 0, 0, 0,"work_time")
         self.pause_clock = InfoClock(self.main_app,0, 0, 0, 0,"break_time")
 
+        self.timer_run_clock = InfoClock(self.main_app,0, 0, 0, 0,"timer_run")
+        self.timer_static_clock = InfoClock(self.main_app,0, 0, 0, 0,"timer_static")
         return
     
 #################################################################
@@ -218,6 +220,12 @@ class DataManager:
 
     def get_work_clock(self):
         return(self.work_clock)
+    
+    def get_timer_run_clock(self):
+        return(self.timer_run_clock)
+
+    def get_timer_static_clock(self):
+        return(self.timer_static_clock)
 
     def get_default_clock(self):
         return(self.default_clock)
@@ -244,7 +252,11 @@ class DataManager:
 
                 for clock in clock_list:
                     clock.stop()
+
                     response_text = clock.get_response_text()
+                    if response_text == '' or response_text.isspace() == True:
+                        response_text = ' - '
+
                     duration = clock.get_total_time()
                     days, seconds = duration.days, duration.seconds
                     hours = days * 24 + seconds / 3600
@@ -382,6 +394,9 @@ class DataManager:
 
             for clock in clock_list:
                 response_text = clock.get_response_text()
+                if response_text == '' or response_text.isspace() == True:
+                    response_text = ' - '
+
                 duration = clock.get_total_time()
                 days, seconds = duration.days, duration.seconds
                 hours = days * 24 + seconds / 3600
@@ -564,6 +579,7 @@ class DataManager:
 
     def create_time_account_dict(self,name,description_text,project_label,order_label,process_label,response_code,response_texts_main,response_texts,external_booking,kind,main_id,group,bookable,date_expiration,available_hours,status = "open"):
         account_id = self.user_db.get_new_accountid()
+        print(response_texts)
         if kind == 1:
             main_id = account_id
 
@@ -597,19 +613,12 @@ class DataManager:
     #################################################################
 
     def check_unbooked_hours(self):
-        if self.main_app.get_restricted_data_access() == True or str(self.main_app.get_setting("simplify_after_two_month")) == 'on':
-            two_month_limit = True
-        else:
-            two_month_limit = False
-
+        two_month_limit = True
         hours = self.user_db.check_unbooked_hours(two_month_limit)
         return(hours)
     
     def get_unbooked_record_dict_list_sum_list(self):
-        if self.main_app.get_restricted_data_access() == True or str(self.main_app.get_setting("simplify_after_two_month")) == 'on':
-            two_month_limit = True
-        else:
-            two_month_limit = False
+        two_month_limit = True
 
         unbooked_record_dict_list_sum_list = []
 
@@ -655,10 +664,7 @@ class DataManager:
         return(unbooked_record_dict_list_sum_list)
     
     def set_unbooked_times_sum_by_main_id(self,main_id,response_text):
-        if self.main_app.get_restricted_data_access() == True or str(self.main_app.get_setting("simplify_after_two_month")) == 'on':
-            two_month_limit = True
-        else:
-            two_month_limit = False
+        two_month_limit = True
 
         booking_status = 'unbooked'
         df = self.user_db.get_passed_times_with_accounts(two_month_limit,booking_status)
@@ -673,10 +679,7 @@ class DataManager:
             self.user_db.set_unbooked_accound_time_sum_booked(account_id,response_text)
 
     def get_unbooked_record_dict_list_sum_subaccounts_list(self):
-        if self.main_app.get_restricted_data_access() == True or str(self.main_app.get_setting("simplify_after_two_month")) == 'on':
-            two_month_limit = True
-        else:
-            two_month_limit = False
+        two_month_limit = True
 
         unbooked_record_dict_list_sum_list = []
         booking_status = 'unbooked'
@@ -877,10 +880,7 @@ class DataManager:
     #################################################################
 
     def get_unbooked_record_dict_list_date_list(self):
-        if self.main_app.get_restricted_data_access() == True or str(self.main_app.get_setting("simplify_after_two_month")) == 'on':
-            two_month_limit = True
-        else:
-            two_month_limit = False
+        two_month_limit = True
 
         booking_status = 'unbooked'
         df = self.user_db.get_passed_times_with_accounts(two_month_limit,booking_status)
@@ -897,10 +897,7 @@ class DataManager:
     #################################################################
 
     def get_passed_record_dict_list_date_list(self):
-        if self.main_app.get_restricted_data_access() == True or str(self.main_app.get_setting("simplify_after_two_month")) == 'on':
-            two_month_limit = True
-        else:
-            two_month_limit = False
+        two_month_limit = True
 
         df = self.user_db.get_passed_times_with_accounts(two_month_limit)
         if df.empty:
@@ -976,7 +973,7 @@ class DataManager:
         df['date_expiration'] = df['date_expiration'].replace([pd.to_datetime(datetime.datetime(2000, 1, 1))], ' - ')
 
         df = df.drop(columns=['status'])
-        df = df.rename(columns={'group_name': 'group','accountid': 'id','account_kind': 'kind'})
+        df = df.rename(columns={'group_name': 'group','accountid': 'id','account_kind': 'kind','response_text': 'comment'})
 
         ######
 
@@ -991,7 +988,7 @@ class DataManager:
         df['weekday'] = df['weekday'].replace(5, 'Saturday')
         df['weekday'] = df['weekday'].replace(6, 'Sunday')
 
-        df = df[['month','date','weekday','id','name','kind','main_account','combined name','description_text','group','project_label','order_label','process_label','response_code','response_text','hours','booked','bookable','date_expiration','available_hours']]
+        df = df[['month','date','weekday','id','name','kind','main_account','combined name','description_text','group','project_label','order_label','process_label','response_code','comment','hours','booked','bookable','date_expiration','available_hours']]
         dt = datetime.datetime.now()
         str_today = dt.strftime("%Y") + "_" + dt.strftime("%m") + "_" + dt.strftime("%d")
         save_str = path + '\Export_' + self.main_app.get_name() + '_' + str_today + '.xlsx'
@@ -1008,22 +1005,20 @@ class DataManager:
             pass
         df_pivot_1.to_excel(writer,self.language_dict['rate'])
 
-        df_pivot_3 = pd.pivot_table(df, values = 'hours', index=['month','project_label','order_label','process_label','main_account','response_text'], aggfunc='sum' , fill_value=0)
+        df_pivot_3 = pd.pivot_table(df, values = 'hours', index=['month','project_label','order_label','process_label','main_account','comment'], aggfunc='sum' , fill_value=0)
         df_pivot_3['Percent of Month'] = round((df_pivot_3.hours / df_pivot_3.groupby(by=["month"]).hours.transform(sum) * 100),2)
         df_pivot_3.to_excel(writer,self.language_dict['pivot_accounts_month_without_sub_accounts'])
 
-        df_pivot_5 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','available_hours','date_expiration','response_text'], aggfunc='sum' , fill_value=0)
+        df_pivot_5 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','available_hours','date_expiration','comment'], aggfunc='sum' , fill_value=0)
         df_pivot_5.to_excel(writer,self.language_dict['pivot_accounts_total_without_sub_accounts'])
 
-        df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['month','project_label','order_label','process_label','main_account','name','response_text'], aggfunc='sum' , fill_value=0)
+        df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['month','project_label','order_label','process_label','main_account','name','comment'], aggfunc='sum' , fill_value=0)
         df_pivot_2['Percent of Month'] = round((df_pivot_2.hours / df_pivot_2.groupby(by=["month"]).hours.transform(sum) * 100),2)
         df_pivot_2.to_excel(writer,self.language_dict['pivot_accounts_month_with_sub_accounts'])
 
-        df_pivot_4 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','name','available_hours','date_expiration','response_text'], aggfunc='sum' , fill_value=0)
+        df_pivot_4 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','name','available_hours','date_expiration','comment'], aggfunc='sum' , fill_value=0)
         df_pivot_4.to_excel(writer,self.language_dict['pivot_accounts_total_with_sub_accounts'])
-
-
-        
+                
         writer.save()
         
     def get_all_account_groups(self,seperate_active=False):

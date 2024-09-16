@@ -49,14 +49,91 @@ class App():
     def __init__(self):
 
         self.app_name = 'EasyTARC'
-        self.desktop_link_extension = '_New'
-        self.restricted_user_group = False          # True / False     
+        self.desktop_link_extension = ''
+        self.manage_desktop_link = False            # True / False
+        self.restricted_user_group = True          # True / False     
         self.restricted_data_access = False         # True / False
+        self.booking_link_access = False           # True / False
+        self.sign_up_auto_stratup_link = "off"         # on / off
+        self.default_language = "english"            # german / english
 
-        self.version = '1.10.1'
+        ##########
+        
+        self.app_version = '1.11.0'
 
+        ##########
+
+        self.default_settings_dict = {
+            "style_name": "light",
+            "language_name": self.default_language,
+            "work_window_default": "list_work_window",
+            "list_work_window_modus": "control_view",
+            "list_work_window_pos_x": "None",
+            "list_work_window_pos_y": "None",
+            "bar_work_window_modus": "info_view",
+            "bar_work_window_pos_x": "None",
+            "bar_work_window_pos_y": "None",
+            "font_size": "11",
+            "font_family": "Segoe UI",
+            "project_label_map": "project_no",
+            "order_label_map": "order_no",
+            "process_label_map": "operation_no",
+            "response_code_map": "confirmation_no",
+            "version": self.app_version,
+            "list_work_window_x": "None",
+            "list_work_window_y": "None",
+            "bar_work_window_x": "None",
+            "bar_work_window_y": "None",
+            "bar_work_window_attach_pos": "top",
+            "geometry_factor": "1.1",
+            "time_view_capture_tab": "single_times",
+            "booking_rate_details": "on",
+            "sleep_mode": "on",
+            "sleep_mode_recording_period_hours": "8.0",
+            "sleep_mode_without_interaction_hours": "2.0",
+            "sec_back_up_path": "",
+            "list_work_window_dynamic_opacity": "off",
+            "bar_work_window_dynamic_opacity": "on",
+            "dynamic_opacity": "80.0",
+            "web_link_1_name": "Github",
+            "web_link_1_url": "https://github.com/SebastianFird/EasyTARC",
+            "web_link_2_name": "EasyTARC.de",
+            "web_link_2_url": "http://easytarc.de/",
+            "desktop_folder": "",
+            "startup_folder": "",
+            "web_link_3_name": "",
+            "web_link_3_url": "",
+            "web_link_4_name": "",
+            "web_link_4_url": "",
+            "simplify_after_two_month": "on",
+            "booking_kind": "sum",
+            "create_start_up_link": self.sign_up_auto_stratup_link,
+            "auto_minimize_mode": "on",
+            "minimize_mode_without_interaction_minutes": "2",
+            "timer_focus_time": "25",
+            "timer_pause_time": "5",
+            "open_booking_website_wait": "on",
+            "open_booking_website_wait_time": "2"
+        }
+
+        ##########
+
+        self.default_booking_link_dict = {
+            "booking_url_1":"",
+            "booking_url_2":"",
+            "booking_url_3":"",
+            "booking_url_4":"",
+            "booking_url_5":"",
+            "booking_url_6":"",
+            "booking_url_sequence":["booking_url_1","booking_url_2","booking_url_3","response_code","booking_url_4","hours","booking_url_5","response_text","booking_url_6"]
+        }
+
+        ##########
+        
         self.authorisation_old = Authorisation('whirlpool') #whirlpool #sha512
         self.authorisation_new = Authorisation('sha512')
+
+        ####################
 
         self.db_name_ending_dict = {               #'database_username_encrypted'  'database_unencrypted'   #database_password_encrypted' -> not ready
             'database_username_encrypted': '_crypted.sql.gz',
@@ -65,8 +142,9 @@ class App():
             }                  
         
 
-        self.old_version = None
+        self.old_version_dict = None
         self.version_update = False
+        self.new_sign_up = False
 
         self.action_state = "disabled"
 
@@ -74,15 +152,14 @@ class App():
         locale.setlocale(locale.LC_ALL, self.local_format)
 
         self.file_path = os.path.dirname(sys.argv[0])
-         
-        response = self.login_process()
-
+        
+        response = self.start_process()
         if response != None:
             self.root = NewRoot()
-            messagebox.showinfo('EasyTARC Login failed',response)
+            messagebox.showinfo('EasyTARC start failed',response)
 
 
-    def login_process(self):
+    def start_process(self):
 
         if self.check_only_task() == False:
             return('not only task')
@@ -93,9 +170,13 @@ class App():
 
         ######
 
-        if self.check_updates() == False:
-            return('Update failed')
-        
+        self.start_version = self.settings_dict['version']
+        self.version_update = self.check_for_update_to_version_str(self.start_version,self.app_version)
+
+        if self.version_update == True:
+            if self.check_updates() == False:
+                return('Update failed')
+
         ######
 
         if os.path.isdir('database') == False:
@@ -104,10 +185,16 @@ class App():
 
         ######
 
-        if os.path.isfile('json/booking_link.json') == False:
+        if os.path.isfile('json/booking_link.json') == False and self.booking_link_access == True:
             booking_link_file = open('json/booking_link.json',"w+",encoding='UTF-8')
+            json.dump(self.default_booking_link_dict, booking_link_file)
+            booking_link_file.close()
 
-            booking_link_dict = {
+        if self.booking_link_access == True:
+            with open('json/booking_link.json',encoding='UTF-8') as json_file:
+                self.booking_link_dict = json.load(json_file)
+        else:
+            empty_booking_link_dict = {
                 "booking_url_1":"",
                 "booking_url_2":"",
                 "booking_url_3":"",
@@ -116,12 +203,7 @@ class App():
                 "booking_url_6":"",
                 "booking_url_sequence":["booking_url_1","booking_url_2","booking_url_3","response_code","booking_url_4","hours","booking_url_5","response_text","booking_url_6"]
             }
-
-            json.dump(booking_link_dict, booking_link_file)
-            booking_link_file.close()
-
-        with open('json/booking_link.json',encoding='UTF-8') as json_file:
-            self.booking_link_dict = json.load(json_file)
+            self.booking_link_dict = empty_booking_link_dict
 
         ######
 
@@ -151,13 +233,40 @@ class App():
             return(sign_in_info)
         else:        
             if self.version_update == True:
-                self.change_settings('version',self.version)
+                self.change_settings('version',self.app_version)
             self.system_start_time = self.system_start_check()
 
             self.data_manager.start_data_management()
             self.gui.run_main_window()
 
         return
+    
+    ####################################################################################################################################
+
+    def convert_version_str_to_dict(self,version_str):
+        split_version = version_str.split(".")
+        version_dict = {
+            "full":version_str,
+            "major":int(split_version[0]),
+            "minor":int(split_version[1]),
+            "patch":int(split_version[2])
+        }
+        return(version_dict)
+    
+    def check_for_update_to_version_str(self,current_version_str,update_version_str):
+        current_version_dict = self.convert_version_str_to_dict(current_version_str)
+        update_version_dict = self.convert_version_str_to_dict(update_version_str)
+
+        if ((current_version_dict['major'] < update_version_dict['major']) 
+            or 
+            (current_version_dict['major'] == update_version_dict['major'] and 
+             current_version_dict['minor'] < update_version_dict['minor']) 
+            or 
+            (current_version_dict['major'] == update_version_dict['major'] and 
+             current_version_dict['minor'] == update_version_dict['minor'] and 
+             current_version_dict['patch'] < update_version_dict['patch'])):
+            return(True)
+        return(False)
             
     ####################################################################################################################################
 
@@ -172,17 +281,6 @@ class App():
                     shutil.copytree(s, d, symlinks, ignore)
                 else:
                     shutil.copy2(s, d)
-
-    def adjust_settings_file(self,old_settings_path):
-        with open(old_settings_path,encoding='UTF-8') as json_file:
-            old_settings_dict = json.load(json_file)
-
-        new_setting_key_list = list(self.settings_dict)
-
-        for old_key in old_settings_dict:
-            if old_key in new_setting_key_list:
-                new_key = old_key
-                self.change_settings(new_key,old_settings_dict[old_key])
 
     def get_start_up_link(self):
         startup_folder = os.environ["APPDATA"] + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
@@ -267,14 +365,26 @@ class App():
             # copy database folder
             self.copytree(self.old_easytarc_path_dict['database_folder_path'], os.path.abspath(os.getcwd())+'\\' + 'database',False,'previous version')
 
-            # adjust settings
-            self.adjust_settings_file(self.old_easytarc_path_dict['settings_file_path'])
+            # copy settings
+            shutil.copy(self.old_easytarc_path_dict['settings_file_path'], os.path.abspath(os.getcwd())+'\\' + 'json')
 
-            if self.settings_dict['create_start_up_link'] == 'on':
-                self.remove_start_up_link()
+            self.remove_start_up_link()
+            if self.sign_up_auto_stratup_link == 'on': 
                 self.set_start_up_link()
 
             return(False,'Um die Anmeldung abzuschließen, starte EasyTARC erneut.\nTo complete the registration, start EasyTARC again.')
+        
+        else:
+            
+            # A new sign up without a data import, so also default settings
+
+            self.new_sign_up = True
+
+            if os.path.isfile('json/settings.json') == True:
+                path = os.path.abspath(os.getcwd())
+                os.remove(path + '\\' + 'json/settings.json')
+                self.load_settings()
+        
 
         if self.sign_up_user_input_successful == False:
             return(False,'sign up failed')
@@ -377,6 +487,12 @@ class App():
     ####################################################################################################################################
         
     def load_settings(self):
+        if os.path.isfile('json/settings.json') == False:
+            settings_file = open('json/settings.json',"w+",encoding='UTF-8')
+
+            json.dump(self.default_settings_dict, settings_file)
+            settings_file.close()
+
         with open('json/settings.json',encoding='UTF-8') as json_file:
             self.settings_dict = json.load(json_file)
 
@@ -394,26 +510,35 @@ class App():
     def get_name(self):
         return(self.app_name)
     
+    def get_manage_desktop_link(self):
+        return(self.manage_desktop_link)
+    
     def get_desktop_link_extension(self):
         return(self.desktop_link_extension)
-    
+        
     def get_system_start_time(self):
         return(self.system_start_time)
 
-    def get_version(self):
-        return(self.version)
+    def get_app_version(self):
+        return(self.app_version)
     
     def get_version_update(self):
         return(self.version_update)
     
-    def get_old_version(self):
-        return(self.old_version)
+    def get_start_version(self):
+        return(self.start_version)
+    
+    def get_new_sign_up(self):
+        return(self.new_sign_up)
 
     def get_filepath(self):
         return(self.file_path)
     
     def get_booking_link_dict(self):
         return(self.booking_link_dict)
+    
+    def get_booking_link_access(self):
+        return(self.booking_link_access)
 
 ############################################################
 
@@ -443,6 +568,10 @@ class App():
     def set_action_state_disabled(self):
         self.action_state = 'disabled'
         return
+    
+    def set_action_state_study(self):
+        self.action_state = 'study'
+        return
 
 ####################################################################################################################################
 
@@ -468,11 +597,9 @@ class App():
     ####################################################################################################################################
             
     def check_updates(self):
-
-        if self.settings_dict['version'] != self.version:
-            self.version_update = True
-            self.old_version = self.settings_dict['version']
-
+        
+        #check for 1.10.1 update
+        if self.check_for_update_to_version_str(self.start_version,'1.10.1') == True:
             update_dict = {"time_view_capture_tab": "full_time",
                            "booking_rate_details": "on",
                            "sleep_mode": "on",
@@ -494,7 +621,8 @@ class App():
                            "desktop_folder":"",
                            "startup_folder":"",
                            "booking_kind":'sum_subaccounts',
-                           "create_start_up_link": "on"}
+                           "create_start_up_link": self.sign_up_auto_stratup_link}
+            
             self.settings_dict.update(update_dict)
 
             setting_json_file = open('json/settings.json',"w",encoding='UTF-8')
@@ -593,7 +721,36 @@ class App():
             json.dump(login_dict_new, login_json_file)
             login_json_file.close()
 
+        #check for 1.11.0 update
+        if self.check_for_update_to_version_str(self.start_version,'1.11.0') == True:
+            update_dict = {"auto_minimize_mode": "on",
+                           "minimize_mode_without_interaction_minutes":"2",
+                           "timer_focus_time":"1",
+                           "timer_pause_time":"1",
+                           "open_booking_website_wait":"on",
+                           "open_booking_website_wait_time":"2"}
+            
+            self.settings_dict.update(update_dict)
+
+            setting_json_file = open('json/settings.json',"w",encoding='UTF-8')
+            json.dump(self.settings_dict, setting_json_file)
+            setting_json_file.close()
+
+        # Ensure that all settings are available
+        update_setting_json = False
+        new_setting_key_list = list(self.settings_dict)
+        for default_setting_key in self.default_settings_dict:
+            if default_setting_key not in new_setting_key_list:
+                update_setting_json = True
+                self.settings_dict.update({default_setting_key:self.default_settings_dict[default_setting_key]})
+        
+        if update_setting_json == True:
+            setting_json_file = open('json/settings.json',"w",encoding='UTF-8')
+            json.dump(self.settings_dict, setting_json_file)
+            setting_json_file.close()
+
         return(True)
+
 
 ############################################################
     

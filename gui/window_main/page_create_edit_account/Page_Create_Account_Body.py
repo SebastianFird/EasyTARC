@@ -27,6 +27,7 @@ from style_classes import MyLabel
 from style_classes import MyButton
 from style_classes import MyEntry 
 from style_classes import MyCheckbutton
+from style_classes import MyCombobox
 
 class CreateEditAccountBody:
     def __init__(self, container, main_app, gui, create_account_page, modus, main_account_dict = None, sub_account_dict = None):
@@ -188,70 +189,51 @@ class CreateEditAccountBody:
         else:
             self.account_response_texts_main = 1
 
-        if self.main_account_dict.get("bookable") == 1:
 
-            self.frame_response_text_main = MyFrame(self.frame_right,self.data_manager)
-            self.frame_response_text_main.pack(side = "top", padx=10, pady=4,fill='x')
+        self.frame_response_text_main = MyFrame(self.frame_right,self.data_manager)
+        self.frame_response_text_main.pack(side = "top", padx=10, pady=4,fill='x')
 
-            self.response_text_main_info = MyLabel(self.frame_response_text_main,self.data_manager,text='',width=3)
-            self.response_text_main_info.pack(side = "left")
+        self.response_text_main_info = MyLabel(self.frame_response_text_main,self.data_manager,text='',width=3)
+        self.response_text_main_info.pack(side = "left")
 
-            lbl_response_text_main = MyLabel(self.frame_response_text_main,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['response_text'] + ':')
-            lbl_response_text_main.pack(side = "left", padx=10)
+        lbl_response_text_main = MyLabel(self.frame_response_text_main,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['response_texts'] + ':')
+        lbl_response_text_main.pack(side = "left", padx=10)
 
-            self.lbl_response_text_main_state = MyLabel(self.frame_response_text_main,self.data_manager, width=25)
-            self.lbl_response_text_main_state.pack(side = "left", padx=10)
+        self.lbl_response_text_main_state = MyLabel(self.frame_response_text_main,self.data_manager, width=25)
+        self.lbl_response_text_main_state.pack(side = "left", padx=10)
 
-            ###############
+        ###############
 
-            self.frame_response_text_main_btn = MyFrame(self.frame_right,self.data_manager)
-            self.frame_response_text_main_btn.pack(side = "top", padx=10, pady=4,fill='x')
+        self.frame_response_text_main_btn = MyFrame(self.frame_right,self.data_manager)
+        self.frame_response_text_main_btn.pack(side = "top", padx=10, pady=4,fill='x')
 
-            self.response_text_main_btn_info = MyLabel(self.frame_response_text_main_btn,self.data_manager,anchor='w',justify='left',width=3)
-            self.response_text_main_btn_info.pack(side = "left")
+        self.response_text_main_btn_info = MyLabel(self.frame_response_text_main_btn,self.data_manager,anchor='w',justify='left',width=3)
+        self.response_text_main_btn_info.pack(side = "left")
 
-            self.lbl_response_text_main_btn = MyLabel(self.frame_response_text_main_btn,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['switch_to'] + ':')
-            self.lbl_response_text_main_btn.pack(side = "left", padx=10)
+        self.lbl_response_text_main_btn = MyLabel(self.frame_response_text_main_btn,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['switch_to'] + ':')
+        self.lbl_response_text_main_btn.pack(side = "left", padx=10)
 
-            self.btn_response_text_main = MyButton(self.frame_response_text_main_btn,self.data_manager, command=self.toggle_response_text_main, width=26)
-            self.btn_response_text_main.pack(side = "left", padx=10, pady=4)
+        self.btn_response_text_main = MyButton(self.frame_response_text_main_btn,self.data_manager, command=self.toggle_response_text_main, width=26)
+        self.btn_response_text_main.pack(side = "left", padx=10, pady=4)
 
-            ###############
+        ###############
 
-            self.frame_response_text = MyFrame(self.frame_right,self.data_manager)
-            self.frame_response_text.pack(side = "top", padx=10, pady=4,fill='x')
+        self.frame_response_text = MyFrame(self.frame_right,self.data_manager)
+        self.frame_response_text.pack(side = "top", padx=10, pady=4,fill='x')
 
-            self.response_text_info = MyLabel(self.frame_response_text,self.data_manager,text=u'\U00002139',width=3)
-            self.response_text_info.pack(side = "left")
-            self.lbl_response_text_ttp = CreateToolTip(self.response_text_info, self.data_manager, 0, 30, self.language_dict["create_response_texts"], True)
+        self.response_text_info = MyLabel(self.frame_response_text,self.data_manager,text=u'\U00002139',width=3)
+        self.response_text_info.pack(side = "left")
+        self.lbl_response_text_ttp = CreateToolTip(self.response_text_info, self.data_manager, 0, 30, self.language_dict["create_response_texts"], True)
 
-            lbl_response_text = MyLabel(self.frame_response_text,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['response_texts'] + ':')
-            lbl_response_text.pack(side = "left", padx=10)
+        lbl_response_text = MyLabel(self.frame_response_text,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['response_text_templates'] + ':')
+        lbl_response_text.pack(side = "left", padx=10)
 
-            self.textBox_response_text = MyEntry(self.frame_response_text,self.data_manager, textvariable=self.account_response_texts, width=36)
-            self.textBox_response_text.pack(side = "left", padx=10)
+        self.textBox_response_text = MyEntry(self.frame_response_text,self.data_manager, textvariable=self.account_response_texts, width=36)
+        self.textBox_response_text.pack(side = "left", padx=10)
 
-            self.update_response_texts()
-            if self.account_response_texts_main == 0 and self.modus in ['edit_sub'] and str(self.sub_account_dict.get("response_texts")) != ' - ':
-                self.account_response_texts.set(str(self.sub_account_dict.get("response_texts")))
-
-        else:
-
-            ###############
-
-            self.frame_response_text = MyFrame(self.frame_right,self.data_manager)
-            self.frame_response_text.pack(side = "top", padx=10, pady=4,fill='x')
-
-            self.response_text_info = MyLabel(self.frame_response_text,self.data_manager,text='',width=3)
-            self.response_text_info.pack(side = "left")
-
-
-            lbl_response_text = MyLabel(self.frame_response_text,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['response_texts'] + ':')
-            lbl_response_text.pack(side = "left", padx=10)
-
-            lbl_response_text = MyLabel(self.frame_response_text,self.data_manager,width=80,anchor='w',justify='left',text=self.language_dict['the_main_account_has_to_be_bookable'])
-            lbl_response_text.pack(side = "left", padx=10)
-
+        self.update_response_texts()
+        if self.account_response_texts_main == 0 and self.modus in ['edit_sub'] and str(self.sub_account_dict.get("response_texts")) != ' - ':
+            self.account_response_texts.set(str(self.sub_account_dict.get("response_texts")))
 
 
         ###################################
@@ -427,7 +409,7 @@ class CreateEditAccountBody:
         self.lbl_group = MyLabel(self.frame_group,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict['group'] + ':')
         self.lbl_group.pack(side = "left", padx=10)
 
-        self.group_cbox = ttk.Combobox(self.frame_group, width = 25, textvariable = self.account_group)
+        self.group_cbox = MyCombobox(self.frame_group, width = 25, textvariable = self.account_group)
         self.group_cbox['values'] = self.data_manager.get_all_account_groups(True)
         self.group_cbox.pack(side="left", padx=10)
 
@@ -558,17 +540,17 @@ class CreateEditAccountBody:
         lbl_expiration_date = MyLabel(self.frame_expiration_date,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['expiration_date'] + ':')
         lbl_expiration_date.pack(side = "left", padx=10)
         
-        self.expiration_year_cbox = ttk.Combobox(self.frame_expiration_date, width = 6, textvariable = self.expiration_year)
+        self.expiration_year_cbox = MyCombobox(self.frame_expiration_date, width = 6, textvariable = self.expiration_year)
         self.expiration_year_cbox['values'] = []
         self.expiration_year_cbox.pack(side="left", padx=(10,2))
         self.expiration_year_cbox.configure(state="readonly")
 
-        self.expiration_month_cbox = ttk.Combobox(self.frame_expiration_date, width = 10, textvariable = self.expiration_month)
+        self.expiration_month_cbox = MyCombobox(self.frame_expiration_date, width = 10, textvariable = self.expiration_month)
         self.expiration_month_cbox['values'] = []
         self.expiration_month_cbox.pack(side="left", padx=2)
         self.expiration_month_cbox.configure(state="readonly")
 
-        self.expiration_day_cbox = ttk.Combobox(self.frame_expiration_date, width = 4, textvariable = self.expiration_day)
+        self.expiration_day_cbox = MyCombobox(self.frame_expiration_date, width = 4, textvariable = self.expiration_day)
         self.expiration_day_cbox['values'] = []
         self.expiration_day_cbox.pack(side="left", padx=2)
         self.expiration_day_cbox.configure(state="readonly")
@@ -605,6 +587,28 @@ class CreateEditAccountBody:
         self.textBox_available_hours.configure(highlightthickness = 1)
         if self.style_dict['name'] == 'dark':
             self.textBox_available_hours.configure(borderwidth = 0)
+
+        ###################################
+
+        self.frame_response_text = MyFrame(self.frame_right,self.data_manager)
+        self.frame_response_text.pack(side = "top", padx=10, pady=4,fill='x')
+
+        self.response_text_info = MyLabel(self.frame_response_text,self.data_manager,text=u'\U00002139',width=3)
+        self.response_text_info.pack(side = "left")
+        self.lbl_response_text_ttp = CreateToolTip(self.response_text_info, self.data_manager, 0, 30, self.language_dict["create_response_texts"], True)
+
+        lbl_response_text = MyLabel(self.frame_response_text,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['response_text_templates'] + ':')
+        lbl_response_text.pack(side = "left", padx=10)
+
+        self.textBox_response_text = MyEntry(self.frame_response_text,self.data_manager, textvariable=self.account_response_texts, width=36)
+        self.textBox_response_text.pack(side = "left", padx=10)
+
+        if self.modus in ['duplicate_main_account','edit_main'] and str(self.main_account_dict.get("response_texts")) != ' - ':
+            self.account_response_texts.set(str(self.main_account_dict.get("response_texts")))
+
+        self.textBox_response_text.configure(highlightthickness = 1)
+        if self.style_dict['name'] == 'dark':
+            self.textBox_response_text.configure(borderwidth = 0)
 
         ###################################
 
@@ -687,24 +691,6 @@ class CreateEditAccountBody:
 
         if self.modus in ['duplicate_main_account','edit_main'] and str(self.main_account_dict.get("response_code")) != ' - ':
             self.account_response_code.set(str(self.main_account_dict.get("response_code")))
-
-        ###############
-
-        self.frame_response_text = MyFrame(self.frame_right,self.data_manager)
-        self.frame_response_text.pack(side = "top", padx=10, pady=4,fill='x')
-
-        self.response_text_info = MyLabel(self.frame_response_text,self.data_manager,text=u'\U00002139',width=3)
-        self.response_text_info.pack(side = "left")
-        self.lbl_response_text_ttp = CreateToolTip(self.response_text_info, self.data_manager, 0, 30, self.language_dict["create_response_texts"], True)
-
-        lbl_response_text = MyLabel(self.frame_response_text,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['response_texts'] + ':')
-        lbl_response_text.pack(side = "left", padx=10)
-
-        self.textBox_response_text = MyEntry(self.frame_response_text,self.data_manager, textvariable=self.account_response_texts, width=36)
-        self.textBox_response_text.pack(side = "left", padx=10)
-
-        if self.modus in ['duplicate_main_account','edit_main'] and str(self.main_account_dict.get("response_texts")) != ' - ':
-            self.account_response_texts.set(str(self.main_account_dict.get("response_texts")))
 
         ###############
 
@@ -874,19 +860,14 @@ class CreateEditAccountBody:
             self.textBox_response_code.configure(highlightthickness = 0)
             self.textBox_response_code.configure(borderwidth = 1)
             self.account_response_code.set("")
-            self.textBox_response_text.configure(highlightthickness = 0)
-            self.textBox_response_text.configure(borderwidth = 1)
-            self.account_response_texts.set("")
 
             self.btn_bookable.configure(state=tk.NORMAL)
             self.checkBox_external_booking.configure(state=tk.DISABLED)
-            self.textBox_response_text.configure(state=tk.DISABLED)
             self.textBox_response_code.configure(state=tk.DISABLED)
 
         elif self.account_bookable == 1 and self.modus in ['new_main','duplicate_main_account','edit_main']:
             self.btn_bookable.configure(state=tk.NORMAL)
             self.checkBox_external_booking.configure(state=tk.NORMAL)
-            self.textBox_response_text.configure(state=tk.NORMAL)
             self.textBox_response_code.configure(state=tk.NORMAL)
 
             self.btn_bookable.configure(text= self.language_dict['not_bookable'])
@@ -897,10 +878,9 @@ class CreateEditAccountBody:
             self.textBox_response_code.configure(highlightthickness = 1)
             if self.style_dict['name'] == 'dark':
                 self.textBox_response_code.configure(borderwidth = 0)
-
-            self.textBox_response_text.configure(highlightthickness = 1)
-            if self.style_dict['name'] == 'dark':
-                self.textBox_response_text.configure(borderwidth = 0)
+        return
+    
+    def update(self):
         return
     
     def toggle_bookable(self):

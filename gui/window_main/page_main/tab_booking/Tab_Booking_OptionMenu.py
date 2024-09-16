@@ -54,14 +54,15 @@ class BookingOptionMenu(tkinter.Listbox):
         else:  
             self.optionmenu.add_command(label=self.language_dict["select_all"],command=self.select_all)
 
-        if len(clicked_record_frame_list) == 1 or self.main_app.get_booking_link_dict()["booking_url_1"] != '':
+        if len(clicked_record_frame_list) == 1 or self.main_app.get_booking_link_access() == True:
             self.optionmenu.add_separator()
 
         if len(clicked_record_frame_list) == 1:
             self.optionmenu.add_command(label=self.language_dict["copie_data"],command=self.copie_data)
         
-        if self.main_app.get_booking_link_dict()["booking_url_1"] != '':
-            self.optionmenu.add_command(label=self.language_dict["booking_website"],command=self.open_booking_website)
+        if self.main_app.get_booking_link_access() == True:
+            if self.main_app.get_booking_link_dict()["booking_url_1"] != '':
+                self.optionmenu.add_command(label=self.language_dict["booking_website"],command=self.booking_tab.open_booking_website)
 
         #self.optionmenu.add_command(label=self.language_dict["copie_json"],command=self.copie_json)
 
@@ -82,6 +83,7 @@ class BookingOptionMenu(tkinter.Listbox):
 
     def select_all(self):
         self.booking_tab.get_clicked_record_frame_list()[0].activate_all_records()
+
 
     def copie_json(self):
         booking_dict = {}
@@ -113,64 +115,6 @@ class BookingOptionMenu(tkinter.Listbox):
         self.gui.main_window.clipboard_clear()
         self.gui.main_window.clipboard_append(booking_dict)
 
-    def open_booking_website(self):
-
-        booking_link_dict = self.main_app.get_booking_link_dict()
-
-        clicked_record_frame_list = self.booking_tab.get_clicked_record_frame_list()
-        failed_text = ''
-
-        for clicked_record_frame  in clicked_record_frame_list:
-            record_dict = clicked_record_frame.record_dict
-
-            booking_url_sequence_list = booking_link_dict['booking_url_sequence']
-            
-            booking_url = ''
-            for booking_url_part in booking_url_sequence_list:
-                if booking_url_part == "response_code":
-                    if record_dict['response_code'] == ' - ':
-                        response_code = ''
-                    else:
-                        response_code = str(record_dict['response_code'])
-                    booking_url = booking_url + urllib.parse.quote(response_code, safe='')
-
-                elif booking_url_part == "hours":
-                    hours = str("{:n}".format(round(record_dict['hours'],3)))
-                    booking_url = booking_url + urllib.parse.quote(hours, safe='')
-
-                elif booking_url_part == "response_text":
-                    if record_dict['response_text'] == ' - ':
-                        response_text = ''
-                    else:
-                        response_text = str(record_dict['response_text'])
-                    booking_url = booking_url  + urllib.parse.quote(response_text, safe='')
-                    
-                else:
-                    booking_url = booking_url + str(booking_link_dict[booking_url_part])
-
-            if record_dict['account_kind'] == 0:
-                name_text = record_dict['name'] +' -> '+ record_dict['main_name']
-            else:
-                name_text = record_dict['name']
-
-            res = self.open_url(booking_url)
-            if res == False:
-                failed_text = failed_text + '\n' + name_text + ': '+ booking_url
-
-        self.gui.root.deiconify()
-        if failed_text != '':
-            text = '\n' + self.language_dict["failed"] + ':\n' + failed_text
-            info_window = InfoWindow(self.main_app, self.gui, self.booking_tab.main_frame ,text,700,350)
-        return
-
-    def open_url(self,url):
-        if url == '':
-            return(False)
-        try:
-            webbrowser.open_new(url)
-            return(True)
-        except:
-            return(False)
 
     def copie_data(self):
 
@@ -217,7 +161,8 @@ class BookingOptionMenu(tkinter.Listbox):
                         self.language_dict["project"]:'='+self.record_dict['project_label'],  
                         self.language_dict["order"]:'='+self.record_dict['order_label'],                              
                         self.language_dict["process"]:'='+self.record_dict['process_label'],
-                        self.language_dict["description"]:self.record_dict['description_text']           
+                        self.language_dict["description"]:self.record_dict['description_text'],
+                        self.language_dict["response_text_templates"]:'='+self.record_dict['response_text']          
                         })
         #############
         if self.record_dict['bookable'] == 1:
@@ -231,10 +176,7 @@ class BookingOptionMenu(tkinter.Listbox):
             else:
                 info_dict.update({self.language_dict["external_booking"]:self.language_dict["no"]}) 
             #########
-            info_dict.update({                     
-                        self.language_dict["response_code"]:'='+self.record_dict['response_code'],                            
-                        self.language_dict["response_texts"]:'='+self.record_dict['response_texts']              
-                        })
+            info_dict.update({self.language_dict["response_code"]:'='+self.record_dict['response_code']})
         #############
         if self.record_dict['account_id'] != 0:
             if int(self.record_dict['date_expiration'].strftime("%Y")) != 2000:

@@ -34,6 +34,7 @@ from style_classes import MyButton
 from style_classes import MyLabelPixel
 from style_classes import MyTipLabel
 from style_classes import MyEntry 
+from style_classes import MyCombobox
 
 
 class CreateToolTip(object):
@@ -435,7 +436,7 @@ class CreateInfo(object):
 
 
 class InfoWindow(tk.Toplevel):
-    def __init__(self ,main_app, gui, widget, text, w, h, login_window = False,  *args, **kwargs):
+    def __init__(self ,main_app, gui, widget, text, w, h, highlight_window = False,  *args, **kwargs):
         tk.Toplevel.__init__(self,widget)
 
         self.gui = gui
@@ -444,7 +445,7 @@ class InfoWindow(tk.Toplevel):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
         self.widget = widget
-        self.login_window = login_window
+        self.highlight_window = highlight_window
 
         geo_factor = float(self.main_app.get_setting("geometry_factor"))
         self.w = int(round(geo_factor*w))
@@ -457,16 +458,17 @@ class InfoWindow(tk.Toplevel):
         x = x + self.widget.winfo_rootx() + self.widget.winfo_width()/2 - self.w/2
         y = y + cy + self.widget.winfo_rooty() + self.widget.winfo_height()/2 - self.h/2
 
-        if  self.login_window == True:
-            self.gui.disable_login_window()
-        else:
-            self.gui.disable_main_window()
+        self.gui.disable_main_window()
 
         self.wm_geometry('%dx%d+%d+%d' % (self.w, self.h, x, y))
         self.wm_overrideredirect(1)
         self.attributes('-topmost',True)
 
-        self.widget_color = self.style_dict["info_color_light_blue"]
+        if self.highlight_window == True:
+            self.widget_color = self.style_dict["highlight_color_yellow"]
+        else:
+            self.widget_color = self.style_dict["info_color_light_blue"]
+
         self.title_fcolor = self.style_dict["font_color"]
 
         self.scroll = Scroll_Frame(self.main_app,self.gui)
@@ -539,11 +541,8 @@ class InfoWindow(tk.Toplevel):
         bodyframe.pack(side = "top", fill = "both", expand = True)
 
     def close_window(self,*event):
-        if  self.login_window == True:
-            self.gui.enable_login_window()
-        else:
-            self.gui.enable_main_window()
-            self.gui.activate_current_tab()
+        self.gui.enable_main_window()
+        self.gui.activate_current_tab()
         self.destroy()
 
 
@@ -1142,7 +1141,6 @@ class DeleteDatabase(tk.Toplevel):
 
     def delete_database(self):
         self.remove_start_up_link()
-        self.main_app.change_settings("sec_back_up_path","")
         path_easytarc = os.path.abspath(os.getcwd())
 
         self.gui.root.quit()
@@ -1164,6 +1162,9 @@ class DeleteDatabase(tk.Toplevel):
 
         if os.path.exists(path_easytarc+'\\' + 'database' +'\\' + 'previous version' + '\\' + 'login.json') == True: 
             os.remove(path_easytarc+'\\' + 'database' +'\\' + 'previous version' + '\\' + 'login.json')
+
+        if os.path.exists(path_easytarc+'\\' + 'json' +'\\' + 'settings.json') == True: 
+            os.remove(path_easytarc+'\\' + 'json' +'\\' + 'settings.json')
 
     def get_pos(self, event):
         self.x_win = self.winfo_x()
@@ -1707,7 +1708,7 @@ class EditGroupName(tk.Toplevel):
         lbl_dropdown_info_ttp = CreateToolTip(lbl_dropdown_info, self.data_manager, 0, 30, self.language_dict["edit_group_name"], True)
 
         self.group_name = tk.StringVar()
-        self.group_cbox = ttk.Combobox(frame_dropdown, width = 50, textvariable = self.group_name)
+        self.group_cbox = MyCombobox(frame_dropdown, width = 50, textvariable = self.group_name)
         self.get_all_group_names()
         self.group_cbox.pack(side="left", padx=10)
 
@@ -1923,6 +1924,7 @@ class SleepModeinfo(tk.Toplevel):
     def close_window(self,*event):
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
+        self.gui.set_sleeping(False)
         self.destroy()
     
     def restore_recording(self,*event):
@@ -1941,6 +1943,7 @@ class SleepModeinfo(tk.Toplevel):
         self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.update()
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
+        self.gui.set_sleeping(False)
         self.destroy()
         return
 
@@ -2056,7 +2059,7 @@ class EditDataDate(tk.Toplevel):
         frame_dropdown.pack(side = "top", padx=15, pady=15,fill='x')
 
         self.date = tk.StringVar()
-        self.date_cbox = ttk.Combobox(frame_dropdown, width = 25, textvariable = self.date)
+        self.date_cbox = MyCombobox(frame_dropdown, width = 25, textvariable = self.date)
 
         # https://codeigo.com/python/get-the-previous-month-or-day/
 
@@ -2102,8 +2105,8 @@ class EditDataDate(tk.Toplevel):
         for record_frame in self.record_frame_list:
             self.data_manager.user_db.change_record_date(record_frame.record_dict["passed_id"],year,month,day)
 
-        self.data_manager.update_clocks()
-        self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.update_clock_properties()
+        #self.data_manager.update_clocks()
+        #self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.update_clock_properties()
 
         self.data_tab.reload()
         self.gui.enable_main_window()

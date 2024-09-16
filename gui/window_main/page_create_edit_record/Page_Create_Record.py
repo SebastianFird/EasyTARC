@@ -154,7 +154,7 @@ class CreateEditRecord(tk.Frame):
         else:
             booked = 0
 
-        if response_text == '':
+        if response_text == '' or response_text.isspace() == True:
             response_text = ' - '
 
         time_dict = {       "account_id": account_id,

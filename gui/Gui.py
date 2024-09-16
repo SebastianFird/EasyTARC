@@ -33,6 +33,8 @@ from gui.window_work.Work_Window_Bar import WorkWindowBar
 from gui.window_work.Work_Window_List import WorkWindowList
 from gui.window_main.Window_Main_CaseFrame_Manager import NotebookFrame
 
+from gui.Window_Additionals import InfoWindow, EditRemainingTime
+
 
 class TkErrorCatcher:
 
@@ -99,6 +101,8 @@ class Gui_Manager:
         self.barWorkWindow = None
         self.boxWorkWindow = None
         self.taskbar_height_window = None
+        self.sleeping = False
+        self.root_window_disabled = False
 
         list_work_window_x = self.main_app.get_setting('list_work_window_x')
         if list_work_window_x == "None":
@@ -202,6 +206,20 @@ class Gui_Manager:
         
         self.root.update()
         self.root.attributes('-alpha',1)
+
+        if self.main_app.get_version_update() == True: 
+            if self.main_app.get_app_version() == '1.11.0':
+                text = '\nUpdate:\n\n' + self.language_dict["release_note_text_19"]
+                info_window = InfoWindow(self.main_app, self, self.main_window.main_frame ,text,700,350,True)
+
+        elif self.main_app.get_new_sign_up() == True:
+            text = '\n' + self.language_dict["welcome_to_easytarc"]
+            if self.main_app.get_setting('create_start_up_link') != "on":
+                text = text + '\n\n' + self.language_dict["add_start_up_link"]
+            text = text + '\n\n' + self.language_dict["add_secondary_back_up"]
+            text = text + '\n\n' + self.language_dict["first_steps"]
+                
+            info_window = InfoWindow(self.main_app, self, self.main_window.main_frame ,text,700,350,True)
         
         self.root.mainloop()
 
@@ -268,15 +286,24 @@ class Gui_Manager:
 
     def disable_main_window(self):
         self.root.attributes('-disabled',True)
+        self.root_window_disabled = True
 
     def enable_main_window(self):
+        self.data_manager.set_last_tracked_interaction()
         self.root.attributes('-disabled', False)
+        self.root_window_disabled = False
 
     def disable_login_window(self):
         self.root.attributes('-disabled',True)
+        self.root_window_disabled = True
 
     def enable_login_window(self):
+        self.data_manager.set_last_tracked_interaction()
         self.root.attributes('-disabled', False)
+        self.root_window_disabled = False
+
+    def get_root_window_disabled(self):
+        return(self.root_window_disabled)
 
     def exit_saving_warning(self):
         ExitSavingWindow(self.root,self.main_app,self,self.main_window)
@@ -298,6 +325,20 @@ class Gui_Manager:
         # This function is important for the info windows
         # Without this Function the canvas rutens a windows path error
         self.main_window.case_frame.frames[NotebookFrame].tab_manager.activate_current_tab()
+
+    def get_sleeping(self):
+        return(self.sleeping)
+
+    def set_sleeping(self, sleeping_state):
+        self.sleeping = sleeping_state
+
+    def pop_up_main_window(self):
+        if self.root.state() == 'iconic':
+            self.unminimize()
+            self.root.deiconify()
+        self.root.attributes('-topmost', True)
+        self.root.update()
+        self.root.attributes('-topmost', False)
 
     def reset_window_pos(self):
         self.main_window.reset_window_pos()

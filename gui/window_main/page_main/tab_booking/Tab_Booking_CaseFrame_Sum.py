@@ -61,6 +61,7 @@ class BookingBySum(tk.Frame):
                 record_frame = BookingRecordFrame(self.sum_list_frame, self.main_app, self.gui, self.booking_tab,self,unbooked_record_dict_list,self)
                 record_frame.pack(side = "top", fill = "x")
                 self.record_frame_list.append(record_frame)
+                self.booking_tab.all_record_frame_list.append(record_frame)
 
         self.update()
         return

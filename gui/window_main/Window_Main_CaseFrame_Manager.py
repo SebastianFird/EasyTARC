@@ -21,6 +21,7 @@ from tkinter import ttk
 from gui.window_main.page_main.Page_Main_Notebook import NotebookFrame
 from gui.window_main.page_create_edit_account.Page_Create_Account import CreateEditAccount
 from gui.window_main.page_create_edit_record.Page_Create_Record import CreateEditRecord
+from gui.window_main.page_study_mode.Page_Study_Mode import StudyMode
 from gui.Gui_CaseFrame_Manager import CaseFrameManager
 from style_classes import MyFrame
 from style_classes import MyLabel
@@ -70,5 +71,18 @@ class CaseFrameManagerMW(CaseFrameManager):
         frame.pack(side = "top", fill = "both", expand = True)
         
         self.show_frame(CreateEditRecord)
+        return(frame)
+    
+    def open_study_mode(self):
+        if StudyMode in self.frames:
+            self.frames[StudyMode].destroy()
+            self.frames.pop(StudyMode, None)
+
+        frame = StudyMode(self,self.gui,self.main_app)
+        
+        self.frames[StudyMode] = frame
+        frame.pack(side = "top", fill = "both", expand = True)
+        
+        self.show_frame(StudyMode)
         return(frame)
     

@@ -298,6 +298,17 @@ class MyCheckbutton(tk.Checkbutton):
         self.configure(foreground=self.style_dict["font_color"])
 
 
+class MyCombobox(ttk.Combobox):
+    def __init__(self, master, **kw):
+        ttk.Combobox.__init__(self, master=master, **kw)
+        self.bind("<MouseWheel>",self.disable_combobox_scroll)
+        self.configure(takefocus=0)
+
+    def disable_combobox_scroll(self,event):
+        return "break"
+
+
+
 
 
 

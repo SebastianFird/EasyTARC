@@ -166,7 +166,7 @@ class AccountsTableHead:
         self.response_texts_frame.configure(background=self.style_dict["background_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.response_texts_frame.pack(side = "left")
 
-        self.lbl_response_texts = MyLabel(self.response_texts_frame, self.data_manager, text=self.language_dict["response_texts"], width=40)
+        self.lbl_response_texts = MyLabel(self.response_texts_frame, self.data_manager, text=self.language_dict["response_text_templates"], width=40)
         self.lbl_response_texts.pack(side='left',padx=19,pady=5)
 
         ################
@@ -258,7 +258,7 @@ class AccountsTableHead:
         self.lbl_bookable.configure(text=self.language_dict["bookable"])
         self.lbl_external_booking.configure(text=self.language_dict["external_booking"])
         self.lbl_response_code.configure(text=self.language_dict["response_code"])
-        self.lbl_response_texts.configure(text=self.language_dict["response_texts"])
+        self.lbl_response_texts.configure(text=self.language_dict["response_text_templates"])
         self.lbl_date_expiration.configure(text=self.language_dict["expiration_date"])
         self.lbl_available_hours.configure(text=self.language_dict["available_hours"])
         

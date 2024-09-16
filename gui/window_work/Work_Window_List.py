@@ -69,7 +69,11 @@ class WorkWindowList(tk.Toplevel):
         self.opacity = 1
         self.opacity_after_method = None
 
-        self.modus = self.main_app.get_setting('list_work_window_modus')
+        if self.main_app.get_action_state() == "study":
+            self.modus = 'info_view'
+        else:
+            self.modus = self.main_app.get_setting('list_work_window_modus')
+
         self.ww_bar_attach_pos = self.main_app.get_setting('bar_work_window_attach_pos')
 
         ###########
@@ -321,10 +325,15 @@ class WorkWindowList(tk.Toplevel):
             else:
                 response_text =  '\n'+ str(self.language_dict['response_text']) + ': ' + self.active_clock.get_response_text()
 
-            if self.modus != 'dynamic_view':
-                self.lbl_name_ttp.text = clock_name + response_text + '\n' + self.language_dict['double_click'] + '\n' + self.language_dict['right_click']
+            if self.main_app.get_action_state() == "study":
+                self.lbl_name_ttp.text = ''
             else:
-                self.lbl_name_ttp.text = clock_name + response_text + '\n' + self.language_dict['right_click']
+                if self.modus != 'dynamic_view':
+                    #self.lbl_name_ttp.text = clock_name + response_text + '\n' + self.language_dict['double_click'] + '\n' + self.language_dict['right_click']
+                    self.lbl_name_ttp.text = self.language_dict['double_click'] + '\n' + self.language_dict['right_click']
+                else:
+                    #self.lbl_name_ttp.text = clock_name + response_text + '\n' + self.language_dict['right_click']
+                    self.lbl_name_ttp.text = self.language_dict['right_click']
 
         elif self.pause_clock.get_runninig() == True:
             background_color = self.style_dict["pause_color_orange"]
@@ -410,8 +419,12 @@ class WorkWindowList(tk.Toplevel):
         self.vertical_name_frame = MyFrame(self.vertical_frame,self.data_manager)
         self.vertical_name_frame.configure(highlightthickness=1, highlightcolor = self.style_dict["titlebar_color"], highlightbackground=self.style_dict["titlebar_color"])
         self.vertical_name_frame.pack(side='top')
+
         if self.modus != 'dynamic_view':
             self.vertical_frame_ttp = CreateToolTip(self.vertical_name_frame, self.data_manager, -90, 150, self.language_dict['right_click'] + '\n' + self.language_dict['double_click'])
+
+        if self.main_app.get_action_state() == "study":
+            self.vertical_frame_ttp.text = ''
 
         font_family = self.main_app.get_setting('font_family')
         font_size = self.main_app.get_setting('font_size')
@@ -547,7 +560,7 @@ class WorkWindowList(tk.Toplevel):
 #################################################################################
 
     def status_double_click(self,e=None):
-        if self.modus != 'dynamic_view':
+        if self.modus != 'dynamic_view' and self.main_app.get_action_state() != "study":
             self.switch_view()     
 
 #################################################################################
@@ -671,7 +684,8 @@ class WorkWindowList(tk.Toplevel):
 #################################################################################
 
     def right_clicked(self,e):
-        self.option_menu.popup(e)
+        if self.main_app.get_action_state() != "study":
+            self.option_menu.popup(e)
 
 ###################################################################################################################################################################################################################################################
 

@@ -54,6 +54,7 @@ class BookingDayFrame:
             record_frame = BookingRecordFrame(self.main_frame, self.main_app, self.gui,self.booking_tab,self.booking_category,record_dict)
             record_frame.pack(side = "top", fill = "x")
             self.record_frame_list.append(record_frame)
+            self.booking_tab.all_record_frame_list.append(record_frame)
 
         self.fold_out_day_records()
         return

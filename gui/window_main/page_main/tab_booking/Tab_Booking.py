@@ -20,6 +20,11 @@ from tkinter import ttk
 from gui.Scroll_Frame import Scroll_Frame
 from gui.window_main.page_main.tab_booking.Tab_Booking_Body import BookingBody
 from gui.window_main.page_main.tab_booking.Tab_Booking_Head import BookingHead
+from gui.Window_Additionals import InfoDictWindow, InfoWindow
+import webbrowser
+import json
+import urllib.parse
+import time
 
 class BookingTab(Scroll_Frame):
     def __init__(self, container, main_app, gui, case_frame_manager):
@@ -30,6 +35,7 @@ class BookingTab(Scroll_Frame):
         if self.booking_kind not in ['date','sum','sum_subaccounts']:
             self.booking_kind = 'sum'
 
+        self.all_record_frame_list = []
         self.clicked_record_frame_list = []
         self.current_record_scope = []
 
@@ -111,6 +117,7 @@ class BookingTab(Scroll_Frame):
         return
     
     def load_booking_by_sum_subaccounts(self):
+        self.all_record_frame_list = []
         self.clicked_record_frame_list = []
         self.body.case_frame.show_loading_frame()
         self.gui.root.update()
@@ -122,6 +129,7 @@ class BookingTab(Scroll_Frame):
         return(self.unbooked_record_dict_list_sum_subaccounts_list)
 
     def load_booking_by_sum(self):
+        self.all_record_frame_list = []
         self.clicked_record_frame_list = []
         self.body.case_frame.show_loading_frame()
         self.gui.root.update()
@@ -133,6 +141,7 @@ class BookingTab(Scroll_Frame):
         return(self.unbooked_record_dict_list_sum_list)
     
     def load_booking_by_date(self):
+        self.all_record_frame_list = []
         self.clicked_record_frame_list = []
         self.body.case_frame.show_loading_frame()
         self.gui.root.update()
@@ -153,6 +162,9 @@ class BookingTab(Scroll_Frame):
         return
     
 #################################################################
+
+    def get_all_record_frame_list(self):
+        return(self.all_record_frame_list)
 
     def get_clicked_record_frame_list(self):
         return(self.clicked_record_frame_list)
@@ -181,6 +193,86 @@ class BookingTab(Scroll_Frame):
         self.reset_clicked_record_frame_list()
 
 #################################################################
+
+    def open_booking_website(self,auto_all=False):
+
+        if self.main_app.get_booking_link_access() == False:
+            return
+
+        booking_link_dict = self.main_app.get_booking_link_dict()
+
+        if auto_all == True:
+            record_frame_list = self.get_all_record_frame_list()
+            self.set_clicked_record_frame_list(record_frame_list)
+            for record_frame  in record_frame_list:
+                record_frame.update()
+        else:
+            record_frame_list = self.get_clicked_record_frame_list()
+
+        failed_text = ''
+
+        record_frame_list = [ele for ele in record_frame_list if ele.booked_check == False]
+
+        if record_frame_list == []:
+            return
+
+        for record_frame  in record_frame_list:
+
+            record_dict = record_frame.record_dict
+
+            booking_url_sequence_list = booking_link_dict['booking_url_sequence']
+            
+            booking_url = ''
+            for booking_url_part in booking_url_sequence_list:
+                if booking_url_part == "response_code":
+                    if record_dict['response_code'] == ' - ':
+                        response_code = ''
+                    else:
+                        response_code = str(record_dict['response_code'])
+                    booking_url = booking_url + urllib.parse.quote(response_code, safe='')
+
+                elif booking_url_part == "hours":
+                    hours = str("{:n}".format(round(record_dict['hours'],3)))
+                    booking_url = booking_url + urllib.parse.quote(hours, safe='')
+
+                elif booking_url_part == "response_text":
+                    if record_dict['response_text'] == ' - ':
+                        response_text = ''
+                    else:
+                        response_text = str(record_dict['response_text'])
+                    booking_url = booking_url  + urllib.parse.quote(response_text, safe='')
+                    
+                else:
+                    booking_url = booking_url + str(booking_link_dict[booking_url_part])
+
+            if record_dict['account_kind'] == 0:
+                name_text = record_dict['name'] +' -> '+ record_dict['main_name']
+            else:
+                name_text = record_dict['name']
+
+            res = self.open_url(booking_url)
+            if res == False:
+                failed_text = failed_text + '\n' + name_text + ': '+ booking_url
+
+            if self.main_app.get_setting('open_booking_website_wait') == "on":
+                time.sleep(float(self.main_app.get_setting('open_booking_website_wait_time')))
+
+        if failed_text != '':
+            text = '\n' + self.language_dict["failed"] + ':\n' + failed_text
+            info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,700,350)
+        else:
+            self.gui.root.deiconify()
+            
+        return
+
+    def open_url(self,url):
+        if url == '':
+            return(False)
+        try:
+            webbrowser.open_new(url)
+            return(True)
+        except:
+            return(False)
 
 
 

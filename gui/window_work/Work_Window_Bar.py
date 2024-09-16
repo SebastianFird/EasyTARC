@@ -23,6 +23,8 @@ from gui.Window_Additionals import CreateInfo
 from style_classes import MyFrame
 from style_classes import MyLabel
 from style_classes import MyLabelPixel
+from style_classes import MyCombobox
+
 from gui.Window_Additionals import CreateToolTip
 from gui.window_work.Work_Window_Cbox import WorkWindowCbox
 
@@ -44,9 +46,13 @@ class WorkWindowBar(WorkWindowCbox):
         self.opacity = 1
         self.opacity_after_method = None
 
-        self.modus = self.main_app.get_setting('bar_work_window_modus')
-        self.attach_pos = self.main_app.get_setting('bar_work_window_attach_pos')
+        if self.main_app.get_action_state() == "study":
+            self.modus = 'info_view'
+        else:
+            self.modus = self.main_app.get_setting('bar_work_window_modus')
+
         self.dynamic_opacity = self.main_app.get_setting('bar_work_window_dynamic_opacity')
+        self.attach_pos = self.main_app.get_setting('bar_work_window_attach_pos')
 
         ###########
         
@@ -282,10 +288,15 @@ class WorkWindowBar(WorkWindowCbox):
             else:
                 response_text =  '\n'+ str(self.language_dict['response_text']) + ': ' + self.active_clock.get_response_text()
             
-            if self.modus != 'dynamic_view':
-                self.lbl_name_ttp.text =  clock_name + response_text + '\n' + self.language_dict['double_click'] + '\n' + self.language_dict['right_click']
+            if self.main_app.get_action_state() == "study":
+                self.lbl_name_ttp.text = ''
             else:
-                self.lbl_name_ttp.text =  clock_name + response_text + '\n' + self.language_dict['right_click']
+                if self.modus != 'dynamic_view':
+                    #self.lbl_name_ttp.text =  clock_name + response_text + '\n' + self.language_dict['double_click'] + '\n' + self.language_dict['right_click']
+                    self.lbl_name_ttp.text =  self.language_dict['double_click'] + '\n' + self.language_dict['right_click']
+                else:
+                    #self.lbl_name_ttp.text =  clock_name + response_text + '\n' + self.language_dict['right_click']
+                    self.lbl_name_ttp.text =  self.language_dict['right_click']
 
         elif self.pause_clock.get_runninig() == True:
             background_color = self.style_dict["pause_color_orange"]
@@ -306,7 +317,7 @@ class WorkWindowBar(WorkWindowCbox):
             self.show_btn_frame()     
 
     def status_double_click(self,e=None):
-        if self.modus != 'dynamic_view':
+        if self.modus != 'dynamic_view' and self.main_app.get_action_state() != "study":
             self.switch_view()     
 
 ##############################################################################################################################
@@ -317,7 +328,7 @@ class WorkWindowBar(WorkWindowCbox):
 
         self.clicked_selectable_account_clock = tk.StringVar()
         
-        self.selectable_account_clock_cbox = ttk.Combobox(self.btn_frame, state="readonly", width = 26, textvariable = self.clicked_selectable_account_clock, postcommand = self.updt_selectable_account_clock_cblist,justify='left')
+        self.selectable_account_clock_cbox = MyCombobox(self.btn_frame, state="readonly", width = 26, textvariable = self.clicked_selectable_account_clock, postcommand = self.updt_selectable_account_clock_cblist,justify='left')
         self.selectable_account_clock_cbox.pack(side='left', padx=5)
         self.selectable_account_clock_cbox_ttp = CreateToolTip(self.selectable_account_clock_cbox, self.data_manager, 0, 30, '')
 

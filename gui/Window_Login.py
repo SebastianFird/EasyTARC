@@ -37,6 +37,7 @@ from style_classes import MyLabelPixel
 from style_classes import MyLabel
 from style_classes import MyButton
 from style_classes import MyEntry 
+from style_classes import MyCombobox
 
 
 class LoginWindow(tk.Frame):
@@ -121,22 +122,14 @@ class LoginWindow(tk.Frame):
 
         if self.kind == 'sign_up':
             self.create_sign_up_body()
-
-            self.password_frame.pack_forget()
-            if self.main_app.get_restricted_user_group() == False:
-                self.permission_frame.pack_forget()
-                self.permission_note_frame.pack_forget()
-
         else:
             self.create_sign_in_body()
 
-##################################################
+    ##################################################
     
-    def close_window(self,event=None):
-        self.root.destroy()
-        return
+
     
-##################################################
+    ##################################################
     
     def create_welcome_frame(self):
         self.main_head_frame = MyFrame(self.body_frame,self.data_manager)
@@ -148,14 +141,41 @@ class LoginWindow(tk.Frame):
         self.lbl_welcome.configure(background=self.style_dict["header_color_blue"],foreground=self.style_dict["font_color_white"])
         self.lbl_welcome.pack(side='top',padx=10,pady=10, fill = "x")
 
-        ######################
+    ######################################################################################################################
 
     def create_sign_up_body(self):
-
         self.scroll_frame = self.scroll.create_scroll_frame(self.body_frame)
+        self.create_sign_up_header()
 
-        self.short_description_frame = MyFrame(self.scroll_frame,self.data_manager)
-        self.short_description_frame.pack(side = "top", fill = "x")
+        self.create_permission_frame()
+        self.create_db_config_frame()
+        self.create_transfer_data_frame()
+
+        self.apply_db_config()
+
+        self.pack_new_db_frame()
+
+
+    def pack_new_db_frame(self):
+        if self.main_app.get_restricted_user_group() == True:
+            self.permission_frame.pack(side = "top", fill = "x" )
+        self.db_config_frame.pack(side = "top", fill = "x" )
+        self.sign_up_state = 'new_db'
+
+
+    def pack_import_data_frame(self):
+        self.transfer_data_frame.pack(side = "top", fill = "x" )
+        self.sign_up_state = 'import'
+
+    ######################################################################################################################
+
+    def create_sign_up_header(self):
+
+        self.top_frame = MyFrame(self.scroll_frame,self.data_manager)
+        self.top_frame.pack(side = "top", fill = "x")
+
+        self.short_description_frame = MyFrame(self.top_frame,self.data_manager)
+        self.short_description_frame.pack(side = "left", fill = "x")
 
         self.lbl_description_info = MyLabel(self.short_description_frame,self.data_manager,text='',anchor='w',justify='left',width=4)
         self.lbl_description_info.pack(side = "left")
@@ -164,22 +184,340 @@ class LoginWindow(tk.Frame):
         self.lbl_short_description.configure(font=self.Font_tuple_small)
         self.lbl_short_description.pack(side='left',pady=10)
 
-        self.btn_already_using_easytarc = MyLabel(self.short_description_frame, self.data_manager, text= u'\U00002B72',width=3)
-        self.btn_already_using_easytarc.pack(side = "right",padx=5,pady=5, anchor='n')
+        self.sign_up_settings_frame = MyFrame(self.top_frame,self.data_manager)
+        self.sign_up_settings_frame.pack(side = "right", fill = "y")
+
+        self.clicked_language = tk.StringVar()
+        self.language_cbox = MyCombobox(self.sign_up_settings_frame, state="readonly", width = 10, textvariable = self.clicked_language)
+        self.language_cbox.pack(side = "top",padx=5,pady=5)
+
+        self.language_list = self.data_manager.get_language_list()
+        language_name = self.language_dict['language_name']
+        language_list = [language_name] + [ele for ele in self.language_list if ele != language_name]
+        self.language_cbox['values'] = language_list
+        self.language_cbox.current(0)
+
+        self.language_cbox.bind("<<ComboboxSelected>>", self.update_language)
+
+        self.btn_already_using_easytarc = MyLabel(self.sign_up_settings_frame, self.data_manager, text= u'\U00002B72',width=3)
+        self.btn_already_using_easytarc.pack(side = "top",padx=5,pady=5, anchor='n')
         self.btn_already_using_easytarc.configure(font = self.Font_tuple_head, foreground=self.style_dict["highlight_color_grey"])
 
-        #########
+        self.btn_already_using_easytarc_ttp = CreateInfo(self.btn_already_using_easytarc, self.data_manager, 0, 30)
+        self.btn_already_using_easytarc_ttp.text = self.language_dict["import_backup"]
         
-        self.btn_already_using_easytarc.bind("<Enter>", lambda e: self.btn_already_using_easytarc.configure(font = self.Font_tuple_head, foreground=self.style_dict["font_color"]))
-        self.btn_already_using_easytarc.bind("<Leave>", lambda e: self.btn_already_using_easytarc.configure(font = self.Font_tuple_head, foreground=self.style_dict["highlight_color_grey"]))
+        self.btn_already_using_easytarc.bind("<Enter>",self.enter_already_using_easytarc)
+        self.btn_already_using_easytarc.bind("<Leave>",self.leave_already_using_easytarc)
+        self.btn_already_using_easytarc.bind("<Button-1>",self.activate_already_using_easytarc)
 
-        self.already_using_easytarc_frame = MyFrame(self.scroll_frame,self.data_manager)
-        self.already_using_easytarc_frame.pack(side = "top", fill = "x" )
+    def enter_already_using_easytarc(self,e=None):
+        self.btn_already_using_easytarc.configure(font = self.Font_tuple_head, foreground=self.style_dict["font_color"])
+        self.btn_already_using_easytarc_ttp.scheduleinfo()
 
-        self.transfer_data_frame = MyFrame(self.already_using_easytarc_frame,self.data_manager)
+    def leave_already_using_easytarc(self,e=None):
+        self.btn_already_using_easytarc.configure(font = self.Font_tuple_head, foreground=self.style_dict["highlight_color_grey"])
+        self.btn_already_using_easytarc_ttp.hideinfo()
+
+    def activate_already_using_easytarc(self,e=None):
+        self.permission_frame.pack_forget()
+        self.db_config_frame.pack_forget()
+        self.transfer_data_frame.pack_forget()
+
+        if self.sign_up_state == 'new_db':
+            self.pack_import_data_frame()
+        else:
+            self.pack_new_db_frame()
+
+    ######################################################################################################################
+
+    def create_permission_frame(self):
+
+        self.permission_frame = MyFrame(self.scroll_frame,self.data_manager)
+
+        self.permission_frame_head = MyFrame(self.permission_frame,self.data_manager)
+        self.permission_frame_head.pack(side = "top", fill = "x")
+
+        self.lbl_empty_8 = MyLabel(self.permission_frame_head,self.data_manager,anchor='w',justify='left',width=4)
+        self.lbl_empty_8.pack(side = "top",fill='x')
+
+        self.separator_frame_1 = MyFrame(self.permission_frame_head,self.data_manager)
+        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_1.pack(side = "top",fill='x',pady=1)
+
+        self.lbl_permisson_headline = MyLabel(self.permission_frame_head,self.data_manager,text = self.language_dict['permission'], anchor = 'w', width=35)
+        self.lbl_permisson_headline.configure(font = self.Font_tuple)
+        self.lbl_permisson_headline.pack(side = "left", padx=5)
+
+        #########
+
+        self.permission_request_frame = MyFrame(self.permission_frame,self.data_manager)
+        self.permission_request_frame.pack(side = "top", fill = "x" )
+
+        self.lbl_permission_request_info = MyLabel(self.permission_request_frame,self.data_manager,text= u'\U00002139',width=3)
+        self.lbl_permission_request_info.pack(side = "left")
+        self.lbl_permission_request_info_ttp = CreateToolTip(self.lbl_permission_request_info, self.data_manager, 0, 30, self.language_dict["permission_request_info"], True)
+
+        self.lbl_permission_request = MyLabel(self.permission_request_frame,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict["permission_request_code"] + ':')
+        self.lbl_permission_request.pack(side = "left", padx=5)
+
+        self.permission_request = tk.StringVar()
+        self.textBox_permission_request = MyEntry(self.permission_request_frame, self.data_manager, textvariable=self.permission_request, width=35)
+        self.textBox_permission_request.pack(side="left", padx=5)
+        self.request_str = self.main_app.authorisation_old.create_user_request_hash(self.main_app.sign_up_dict['sign_up_str_format'])
+        self.permission_request.set(self.request_str)
+        self.textBox_permission_request.configure(state=tk.DISABLED)
+
+        self.btn_copy_request_code = MyLabel(self.permission_request_frame, self.data_manager, text=u'\U0000274F', width=2)
+        self.btn_copy_request_code.configure(foreground=self.style_dict["highlight_color_grey"])
+        self.btn_copy_request_code.pack(side='left',padx=10,pady=5)
+        self.btn_copy_request_code_ttp = CreateInfo(self.btn_copy_request_code, self.data_manager, 30, 25,self.language_dict["copy"])
+        self.btn_copy_request_code_ttp_2 = CreateToolResponse(self.btn_copy_request_code, self.data_manager,30, 25, self.language_dict["copied"])
+        
+        self.btn_copy_request_code.bind('<Button-1>',self.copie_request_str)
+        self.btn_copy_request_code.bind("<Enter>", self.enter_copy_request_code)
+        self.btn_copy_request_code.bind("<Leave>", self.leave_copy_request_code)
+
+        #########
+
+        self.permission_response_frame = MyFrame(self.permission_frame,self.data_manager)
+        self.permission_response_frame.pack(side = "top", fill = "x" )
+
+        self.lbl_permission_response_info = MyLabel(self.permission_response_frame,self.data_manager,text= u'\U00002139',width=3)
+        self.lbl_permission_response_info.pack(side = "left")
+        self.lbl_permission_response_info_ttp = CreateToolTip(self.lbl_permission_response_info, self.data_manager, 0, 30, self.language_dict["permission_response_info"], True)
+
+        self.lbl_permission_response = MyLabel(self.permission_response_frame,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict["permission_response_code"] + ':')
+        self.lbl_permission_response.pack(side = "left", padx=5)
+
+        self.permission_response = tk.StringVar()
+        self.textBox_permission_response = MyEntry(self.permission_response_frame, self.data_manager, textvariable=self.permission_response, width=35)
+        self.textBox_permission_response.pack(side="left", padx=5)
+
+        self.btn_paste_response = MyButton(self.permission_response_frame, self.data_manager, text=self.language_dict["paste"],width=10,command=self.paste_clipboard)
+        self.btn_paste_response.pack(side='left',padx = 10)
+        
+        #########
+
+        self.permission_note_frame = MyFrame(self.permission_frame,self.data_manager)
+        self.permission_note_frame.pack(side = "top", fill = "x" )
+
+        self.lbl_empty_1 = MyLabel(self.permission_note_frame,self.data_manager,anchor='w',justify='left',width=4)
+        self.lbl_empty_1.pack(side = "left")
+
+        self.lbl_empty_2 = MyLabel(self.permission_note_frame,self.data_manager,width=15,anchor='w',justify='left')
+        self.lbl_empty_2.pack(side = "left", padx=5)
+
+        self.lbl_permission_note_info = MyLabel(self.permission_note_frame,self.data_manager,anchor='w',justify='left',width=4)
+        self.lbl_permission_note_info.pack(side = "left")
+
+        self.lbl_permission_note = MyLabel(self.permission_note_frame,self.data_manager,width=35,anchor='w',justify='left')
+        self.lbl_permission_note.pack(side = "left", padx=5)
+
+
+    def enter_copy_request_code(self,e):
+        self.btn_copy_request_code.configure(foreground=self.style_dict["font_color"])
+        self.btn_copy_request_code_ttp.scheduleinfo()
+
+
+    def leave_copy_request_code(self,e):
+        self.btn_copy_request_code.configure(foreground=self.style_dict["highlight_color_grey"])
+        self.btn_copy_request_code_ttp.hideinfo()
+
+
+    def copie_request_str(self,e=None):
+        self.clipboard_clear()
+        self.clipboard_append(self.request_str)
+        self.btn_copy_request_code_ttp.hideinfo()
+        self.btn_copy_request_code_ttp_2.showresponse()
+
+
+    def paste_clipboard(self):
+        try:
+            clipboard = str(self.clipboard_get())
+            self.permission_response.set(clipboard)
+            if clipboard == self.main_app.authorisation_old.create_user_permission_hash(self.main_app.sign_up_dict['sign_up_str_format']):
+                self.textBox_permission_response.configure(state=tk.DISABLED)
+                self.lbl_permission_note_info.configure(text ='   ' +  u'\U00002713',foreground=self.style_dict["highlight_color_green"])
+                self.lbl_permission_note.configure(text = self.language_dict["authorised"])
+            else:
+                self.lbl_permission_note_info.configure(text ='   ' +  u'\U0001F5D9',foreground=self.style_dict["caution_color_red"])
+                self.lbl_permission_note.configure(text = self.language_dict["not_authorised"])
+        except:
+            self.lbl_permission_note_info.configure(text ='   ' +  u'\U0001F5D9',foreground=self.style_dict["caution_color_red"])
+            self.lbl_permission_note.configure(text = self.language_dict["authorisation_failed"])
+        self.permission_note_frame.pack(side = "top", fill = "x")
+        return
+    
+
+    ######################################################################################################################
+
+    def create_db_config_frame(self):
+
+        self.db_config_frame = MyFrame(self.scroll_frame,self.data_manager)
+
+        self.db_config_frame_head = MyFrame(self.db_config_frame,self.data_manager)
+        self.db_config_frame_head.pack(side = "top", fill = "x")
+
+        self.lbl_empty_3 = MyLabel(self.db_config_frame_head,self.data_manager,anchor='w',justify='left',width=4)
+        self.lbl_empty_3.pack(side = "top",fill='x')
+
+        self.separator_frame_2 = MyFrame(self.db_config_frame_head,self.data_manager)
+        self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
+        self.separator_frame_2.pack(side = "top",fill='x',pady=1)
+
+        self.lbl_db_config_headline = MyLabel(self.db_config_frame_head,self.data_manager,text = self.language_dict['db_config'], anchor = 'w', width=35)
+        self.lbl_db_config_headline.configure(font = self.Font_tuple)
+        self.lbl_db_config_headline.pack(side = "left", padx=5)
+
+        #########
+
+        self.option_frame = MyFrame(self.db_config_frame,self.data_manager)
+        self.option_frame.pack(side = "top", fill = "x", pady=5)
+
+        self.lbl_option_info = MyLabel(self.option_frame,self.data_manager,text=u'\U00002139',width=3)
+        self.lbl_option_info.pack(side = "left")
+        
+        self.lbl_option = MyLabel(self.option_frame,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict["options"] + ':')
+        self.lbl_option.pack(side = "left", padx=5)
+        
+        self.clicked_db_config_option = tk.StringVar()
+        self.db_config_cbox = MyCombobox(self.option_frame, state="readonly", width = 25, textvariable = self.clicked_db_config_option)
+        self.db_config_cbox.pack(side="left", padx=5)
+        
+        self.set_up_db_config_cbox()
+
+        self.db_config_cbox.bind("<<ComboboxSelected>>", self.apply_db_config)
+
+        #########
+
+        self.password_frame = MyFrame(self.db_config_frame,self.data_manager)
+        self.password_frame.pack(side = "top", fill = "x" )
+
+        self.password_frame_head = MyFrame(self.password_frame,self.data_manager)
+        self.password_frame_head.pack(side = "top", fill = "x")
+
+        self.lbl_empty_4 = MyLabel(self.password_frame_head,self.data_manager,anchor='w',justify='left',width=4)
+        self.lbl_empty_4.pack(side = "top",fill='x')
+
+        self.lbl_db_password_headline = MyLabel(self.password_frame_head,self.data_manager,text = self.language_dict['set_password'], anchor = 'w', width=35)
+        self.lbl_db_password_headline.configure(font = self.Font_tuple)
+        self.lbl_db_password_headline.pack(side = "left", padx=5)
+
+        #########
+
+        self.password_1_frame = MyFrame(self.password_frame,self.data_manager)
+        self.password_1_frame.pack(side = "top", fill = "x")
+
+        self.password_1_info = MyLabel(self.password_1_frame,self.data_manager,anchor='w',justify='left',width=4)
+        self.password_1_info.pack(side = "left")
+
+        self.lbl_password_1 = MyLabel(self.password_1_frame,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict["password"] + ':')
+        self.lbl_password_1.pack(side = "left", padx=5)
+
+        self.password_1 = tk.StringVar()
+        self.password_1.set('')
+        self.textBox_password_1 = MyEntry(self.password_1_frame, self.data_manager, textvariable=self.password_1, width=35, show="*")
+        self.textBox_password_1.pack(side="left", padx=5)
+
+        #########
+
+        self.password_2_frame = MyFrame(self.password_frame,self.data_manager)
+        self.password_2_frame.pack(side = "top", fill = "x")
+
+        self.password_2_info = MyLabel(self.password_2_frame,self.data_manager,anchor='w',justify='left',width=4)
+        self.password_2_info.pack(side = "left")
+
+        self.lbl_password_2 = MyLabel(self.password_2_frame,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict["repeat"] + ':')
+        self.lbl_password_2.pack(side = "left", padx=5)
+
+        self.password_2 = tk.StringVar()
+        self.password_2.set('')
+        self.textBox_password_2 = MyEntry(self.password_2_frame, self.data_manager, textvariable=self.password_2, width=35, show="*")
+        self.textBox_password_2.pack(side="left", padx=5)
+        self.textBox_password_2.bind('<Return>', self.sign_up)
+
+        #########
+
+        self.apply_frame = MyFrame(self.db_config_frame,self.data_manager)
+        self.apply_frame.pack(side = "bottom", fill = "x" )
+
+        self.apply_frame_head = MyFrame(self.apply_frame,self.data_manager)
+        self.apply_frame_head.pack(side = "top", fill = "x")
+
+        self.lbl_empty_4 = MyLabel(self.apply_frame_head,self.data_manager,anchor='w',justify='left',width=4)
+        self.lbl_empty_4.pack(side = "top",fill='x')
+
+        self.lbl_sign_up_faild_info = MyLabel(self.apply_frame_head,self.data_manager)
+        self.lbl_sign_up_faild_info.configure(foreground=self.style_dict["caution_color_red"])
+        self.lbl_sign_up_faild_info.pack(side = "top",fill='x', pady=5)
+
+        self.btn_start_easytarc = MyButton(self.apply_frame_head, self.data_manager, text=self.language_dict["start_easytarc"],width=40,command=self.sign_up)
+        self.btn_start_easytarc.pack(side='top',padx = 10)
+
+        self.btn_start_easytarc.configure(font = self.Font_tuple)
+
+        self.lbl_empty_5 = MyLabel(self.apply_frame_head,self.data_manager,anchor='w',justify='left',width=4)
+        self.lbl_empty_5.pack(side = "top",fill='x')
+
+
+    def set_up_db_config_cbox(self):
+        if self.main_app.get_restricted_data_access() == True:
+            db_config_list = [self.language_dict['database_username_encrypted'],self.language_dict['database_password_encrypted']] 
+            self.lbl_option_info_ttp = CreateToolTip(self.lbl_option_info, self.data_manager, 0, 30, self.language_dict["db_config_info_2"], True)
+        else:
+            db_config_list = [self.language_dict['database_unencrypted'],self.language_dict['database_password_encrypted'],self.language_dict['database_username_encrypted']]  
+            self.lbl_option_info_ttp = CreateToolTip(self.lbl_option_info, self.data_manager, 0, 30, self.language_dict["db_config_info"], True)
+
+        self.db_config_cbox['values'] = db_config_list
+        self.clicked_db_config_option.set(self.db_config_cbox['values'][0])
+
+
+    def apply_db_config(self,e=None):
+        self.password_frame.pack_forget()
+        if self.language_dict[self.clicked_db_config_option.get()] == 'database_password_encrypted':
+            self.password_frame.pack(side = "top", fill = "x")            
+        return
+    
+    
+    def sign_up(self,e=None):
+        self.main_app.sign_up_dict['sign_up_db_config'] = self.language_dict[self.clicked_db_config_option.get()]
+
+        if self.main_app.get_restricted_user_group() == True:
+            if self.permission_response.get() == self.main_app.authorisation_old.create_user_permission_hash(self.main_app.sign_up_dict['sign_up_str_format']):
+                self.main_app.sign_up_dict['sign_up_permission'] = self.permission_response.get()
+                self.lbl_sign_up_faild_info.configure(text ='')
+            else:
+                self.lbl_sign_up_faild_info.configure(text = self.language_dict["no_permission"])
+                return()
+
+        if self.language_dict[self.clicked_db_config_option.get()] == 'database_password_encrypted':
+            passowrd_1 = self.password_1.get()
+            passowrd_2 = self.password_2.get()
+            if len(passowrd_1) < 6:
+                self.lbl_sign_up_faild_info.configure(text = self.language_dict["passwords_len_too_short"])
+                return()     
+            if passowrd_1 != passowrd_2:
+                self.lbl_sign_up_faild_info.configure(text = self.language_dict["passwords_not_same"])
+                return()
+            else:
+                self.main_app.sign_up_dict['sign_up_password'] = passowrd_1
+                self.lbl_sign_up_faild_info.configure(text ='')           
+
+        self.main_app.sign_up_user_input_successful = True
+        self.close_window()
+        return
+
+        #########################################################################################################################################################
+
+    def create_transfer_data_frame(self):
+
+        self.transfer_data_frame = MyFrame(self.scroll_frame,self.data_manager)
 
         self.transfer_data_frame_head = MyFrame(self.transfer_data_frame,self.data_manager)
         self.transfer_data_frame_head.pack(side = "top", fill = "x")
+
+        self.lbl_empty_7 = MyLabel(self.transfer_data_frame_head,self.data_manager,anchor='w',justify='left',width=4)
+        self.lbl_empty_7.pack(side = "top",fill='x')
 
         self.separator_frame_5 = MyFrame(self.transfer_data_frame_head,self.data_manager)
         self.separator_frame_5.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
@@ -271,211 +609,6 @@ class LoginWindow(tk.Frame):
         self.lbl_empty_6 = MyLabel(self.apply_transfer_frame,self.data_manager,anchor='w',justify='left',width=4)
         self.lbl_empty_6.pack(side = "top",fill='x')
 
-        #########
-
-        self.btn_already_using_easytarc.bind("<Button-1>", lambda e: self.transfer_data_frame.pack(side = "top", fill = "x" ))
-
-        #########
-
-        self.permission_frame = MyFrame(self.scroll_frame,self.data_manager)
-        self.permission_frame.pack(side = "top", fill = "x" )
-
-        self.permission_frame_head = MyFrame(self.permission_frame,self.data_manager)
-        self.permission_frame_head.pack(side = "top", fill = "x")
-
-        self.separator_frame_1 = MyFrame(self.permission_frame_head,self.data_manager)
-        self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_1.pack(side = "top",fill='x',pady=1)
-
-        self.lbl_permisson_headline = MyLabel(self.permission_frame_head,self.data_manager,text = self.language_dict['permission'], anchor = 'w', width=35)
-        self.lbl_permisson_headline.configure(font = self.Font_tuple)
-        self.lbl_permisson_headline.pack(side = "left", padx=5)
-
-        #########
-
-        self.permission_request_frame = MyFrame(self.permission_frame,self.data_manager)
-        self.permission_request_frame.pack(side = "top", fill = "x" )
-
-        self.lbl_permission_request_info = MyLabel(self.permission_request_frame,self.data_manager,text= u'\U00002139',width=3)
-        self.lbl_permission_request_info.pack(side = "left")
-        self.lbl_permission_request_info_ttp = CreateToolTip(self.lbl_permission_request_info, self.data_manager, 0, 30, self.language_dict["permission_request_info"], True)
-
-        self.lbl_permission_request = MyLabel(self.permission_request_frame,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict["permission_request_code"] + ':')
-        self.lbl_permission_request.pack(side = "left", padx=5)
-
-        self.permission_request = tk.StringVar()
-        self.textBox_permission_request = MyEntry(self.permission_request_frame, self.data_manager, textvariable=self.permission_request, width=35)
-        self.textBox_permission_request.pack(side="left", padx=5)
-        self.request_str = self.main_app.authorisation_old.create_user_request_hash(self.main_app.sign_up_dict['sign_up_str_format'])
-        self.permission_request.set(self.request_str)
-        self.textBox_permission_request.configure(state=tk.DISABLED)
-
-        self.btn_copy_request_code = MyLabel(self.permission_request_frame, self.data_manager, text=u'\U0000274F', width=2)
-        self.btn_copy_request_code.configure(foreground=self.style_dict["highlight_color_grey"])
-        self.btn_copy_request_code.pack(side='left',padx=10,pady=5)
-        self.btn_copy_request_code_ttp = CreateInfo(self.btn_copy_request_code, self.data_manager, 30, 25,self.language_dict["copy"])
-        self.btn_copy_request_code_ttp_2 = CreateToolResponse(self.btn_copy_request_code, self.data_manager,30, 25, self.language_dict["copied"])
-        
-        self.btn_copy_request_code.bind('<Button-1>',self.copie_request_str)
-        self.btn_copy_request_code.bind("<Enter>", self.enter_copy_request_code)
-        self.btn_copy_request_code.bind("<Leave>", self.leave_copy_request_code)
-
-        #########
-
-        self.permission_response_frame = MyFrame(self.permission_frame,self.data_manager)
-        self.permission_response_frame.pack(side = "top", fill = "x" )
-
-        self.lbl_permission_response_info = MyLabel(self.permission_response_frame,self.data_manager,text= u'\U00002139',width=3)
-        self.lbl_permission_response_info.pack(side = "left")
-        self.lbl_permission_response_info_ttp = CreateToolTip(self.lbl_permission_response_info, self.data_manager, 0, 30, self.language_dict["permission_response_info"], True)
-
-        self.lbl_permission_response = MyLabel(self.permission_response_frame,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict["permission_response_code"] + ':')
-        self.lbl_permission_response.pack(side = "left", padx=5)
-
-        self.permission_response = tk.StringVar()
-        self.textBox_permission_response = MyEntry(self.permission_response_frame, self.data_manager, textvariable=self.permission_response, width=35)
-        self.textBox_permission_response.pack(side="left", padx=5)
-
-        self.btn_paste_response = MyButton(self.permission_response_frame, self.data_manager, text=self.language_dict["paste"],width=10,command=self.paste_clipboard)
-        self.btn_paste_response.pack(side='left',padx = 10)
-        
-        #########
-
-        self.permission_note_frame = MyFrame(self.permission_frame,self.data_manager)
-        self.permission_note_frame.pack(side = "top", fill = "x" )
-
-        self.lbl_empty_1 = MyLabel(self.permission_note_frame,self.data_manager,anchor='w',justify='left',width=4)
-        self.lbl_empty_1.pack(side = "left")
-
-        self.lbl_empty_2 = MyLabel(self.permission_note_frame,self.data_manager,width=15,anchor='w',justify='left')
-        self.lbl_empty_2.pack(side = "left", padx=5)
-
-        self.lbl_permission_note_info = MyLabel(self.permission_note_frame,self.data_manager,anchor='w',justify='left',width=4)
-        self.lbl_permission_note_info.pack(side = "left")
-
-        self.lbl_permission_note = MyLabel(self.permission_note_frame,self.data_manager,width=35,anchor='w',justify='left')
-        self.lbl_permission_note.pack(side = "left", padx=5)
-
-        ######################
-
-        self.db_config_frame = MyFrame(self.scroll_frame,self.data_manager)
-        self.db_config_frame.pack(side = "top", fill = "x" )
-
-        self.db_config_frame_head = MyFrame(self.db_config_frame,self.data_manager)
-        self.db_config_frame_head.pack(side = "top", fill = "x")
-
-        self.lbl_empty_3 = MyLabel(self.db_config_frame_head,self.data_manager,anchor='w',justify='left',width=4)
-        self.lbl_empty_3.pack(side = "top",fill='x')
-
-        self.separator_frame_2 = MyFrame(self.db_config_frame_head,self.data_manager)
-        self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
-        self.separator_frame_2.pack(side = "top",fill='x',pady=1)
-
-        self.lbl_db_config_headline = MyLabel(self.db_config_frame_head,self.data_manager,text = self.language_dict['db_config'], anchor = 'w', width=35)
-        self.lbl_db_config_headline.configure(font = self.Font_tuple)
-        self.lbl_db_config_headline.pack(side = "left", padx=5)
-
-        #########
-
-        self.option_frame = MyFrame(self.db_config_frame,self.data_manager)
-        self.option_frame.pack(side = "top", fill = "x", pady=5)
-
-        self.lbl_option_info = MyLabel(self.option_frame,self.data_manager,text=u'\U00002139',width=3)
-        self.lbl_option_info.pack(side = "left")
-        
-        self.lbl_option = MyLabel(self.option_frame,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict["options"] + ':')
-        self.lbl_option.pack(side = "left", padx=5)
-        
-        self.clicked_db_config_option = tk.StringVar()
-        self.db_config_cbox = ttk.Combobox(self.option_frame, state="readonly", width = 25, textvariable = self.clicked_db_config_option)
-        self.db_config_cbox.pack(side="left", padx=5)
-        
-        if self.main_app.get_restricted_data_access() == True:
-            db_config_list = [self.language_dict['database_username_encrypted'],self.language_dict['database_password_encrypted']] 
-            self.lbl_option_info_ttp = CreateToolTip(self.lbl_option_info, self.data_manager, 0, 30, self.language_dict["db_config_info_2"], True)
-        else:
-            db_config_list = [self.language_dict['database_unencrypted'],self.language_dict['database_password_encrypted'],self.language_dict['database_username_encrypted']]  
-            self.lbl_option_info_ttp = CreateToolTip(self.lbl_option_info, self.data_manager, 0, 30, self.language_dict["db_config_info"], True)
-
-        self.db_config_cbox['values'] = db_config_list
-        self.clicked_db_config_option.set(self.db_config_cbox['values'][0])
-
-        self.db_config_cbox.bind("<<ComboboxSelected>>", self.apply_db_config)
-
-        ######################
-
-        self.password_frame = MyFrame(self.scroll_frame,self.data_manager)
-        self.password_frame.pack(side = "top", fill = "x" )
-
-        self.password_frame_head = MyFrame(self.password_frame,self.data_manager)
-        self.password_frame_head.pack(side = "top", fill = "x")
-
-        self.lbl_empty_4 = MyLabel(self.password_frame_head,self.data_manager,anchor='w',justify='left',width=4)
-        self.lbl_empty_4.pack(side = "top",fill='x')
-
-
-        self.lbl_db_config_headline = MyLabel(self.password_frame_head,self.data_manager,text = self.language_dict['set_password'], anchor = 'w', width=35)
-        self.lbl_db_config_headline.configure(font = self.Font_tuple)
-        self.lbl_db_config_headline.pack(side = "left", padx=5)
-
-        #########
-
-        self.password_1_frame = MyFrame(self.password_frame,self.data_manager)
-        self.password_1_frame.pack(side = "top", fill = "x")
-
-        self.password_1_info = MyLabel(self.password_1_frame,self.data_manager,anchor='w',justify='left',width=4)
-        self.password_1_info.pack(side = "left")
-
-        self.lbl_password_1 = MyLabel(self.password_1_frame,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict["password"] + ':')
-        self.lbl_password_1.pack(side = "left", padx=5)
-
-        self.password_1 = tk.StringVar()
-        self.password_1.set('')
-        self.textBox_password_1 = MyEntry(self.password_1_frame, self.data_manager, textvariable=self.password_1, width=35, show="*")
-        self.textBox_password_1.pack(side="left", padx=5)
-
-        #########
-
-        self.password_2_frame = MyFrame(self.password_frame,self.data_manager)
-        self.password_2_frame.pack(side = "top", fill = "x")
-
-        self.password_2_info = MyLabel(self.password_2_frame,self.data_manager,anchor='w',justify='left',width=4)
-        self.password_2_info.pack(side = "left")
-
-        self.lbl_password_2 = MyLabel(self.password_2_frame,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict["repeat"] + ':')
-        self.lbl_password_2.pack(side = "left", padx=5)
-
-        self.password_2 = tk.StringVar()
-        self.password_2.set('')
-        self.textBox_password_2 = MyEntry(self.password_2_frame, self.data_manager, textvariable=self.password_2, width=35, show="*")
-        self.textBox_password_2.pack(side="left", padx=5)
-        self.textBox_password_2.bind('<Return>', self.sign_up)
-
-
-        ######################
-
-        self.apply_frame = MyFrame(self.scroll_frame,self.data_manager)
-        self.apply_frame.pack(side = "bottom", fill = "x" )
-
-        self.apply_frame_head = MyFrame(self.apply_frame,self.data_manager)
-        self.apply_frame_head.pack(side = "top", fill = "x")
-
-        self.lbl_empty_4 = MyLabel(self.apply_frame_head,self.data_manager,anchor='w',justify='left',width=4)
-        self.lbl_empty_4.pack(side = "top",fill='x')
-
-        self.lbl_sign_up_faild_info = MyLabel(self.apply_frame_head,self.data_manager)
-        self.lbl_sign_up_faild_info.configure(foreground=self.style_dict["caution_color_red"])
-        self.lbl_sign_up_faild_info.pack(side = "top",fill='x', pady=5)
-
-        self.btn_start_easytarc = MyButton(self.apply_frame_head, self.data_manager, text=self.language_dict["start_easytarc"],width=40,command=self.sign_up)
-        self.btn_start_easytarc.pack(side='top',padx = 10)
-
-        self.btn_start_easytarc.configure(font = self.Font_tuple)
-
-        self.lbl_empty_5 = MyLabel(self.apply_frame_head,self.data_manager,anchor='w',justify='left',width=4)
-        self.lbl_empty_5.pack(side = "top",fill='x')
-
-        ######################
 
     def open_old_easytarc_folder(self):
         self.old_easytarct_directory = filedialog.askdirectory()
@@ -513,6 +646,7 @@ class LoginWindow(tk.Frame):
             self.lbl_setting_file_found.configure(text = u'\U0001F5D9',foreground=self.style_dict["caution_color_red"])
             self.settings_file_found = False
 
+
     def transfer_data(self):
         if self.settings_file_found == False or self.database_folder_found == False or self.login_file_found == False:
             self.lbl_transfer_not_possible_info.configure(text = self.language_dict["transfer_not_possible"])
@@ -525,74 +659,49 @@ class LoginWindow(tk.Frame):
         self.main_app.sign_up_import_data = True
         self.close_window()
         return
-
-    def enter_copy_request_code(self,e):
-        self.btn_copy_request_code.configure(foreground=self.style_dict["font_color"])
-        self.btn_copy_request_code_ttp.scheduleinfo()
-
-    def leave_copy_request_code(self,e):
-        self.btn_copy_request_code.configure(foreground=self.style_dict["highlight_color_grey"])
-        self.btn_copy_request_code_ttp.hideinfo()
-
-    def copie_request_str(self,e=None):
-        self.clipboard_clear()
-        self.clipboard_append(self.request_str)
-        self.btn_copy_request_code_ttp.hideinfo()
-        self.btn_copy_request_code_ttp_2.showresponse()
-
-    def paste_clipboard(self):
-        try:
-            clipboard = str(self.clipboard_get())
-            self.permission_response.set(clipboard)
-            if clipboard == self.main_app.authorisation_old.create_user_permission_hash(self.main_app.sign_up_dict['sign_up_str_format']):
-                self.textBox_permission_response.configure(state=tk.DISABLED)
-                self.lbl_permission_note_info.configure(text ='   ' +  u'\U00002713',foreground=self.style_dict["highlight_color_green"])
-                self.lbl_permission_note.configure(text = self.language_dict["authorised"])
-            else:
-                self.lbl_permission_note_info.configure(text ='   ' +  u'\U0001F5D9',foreground=self.style_dict["caution_color_red"])
-                self.lbl_permission_note.configure(text = self.language_dict["not_authorised"])
-        except:
-            self.lbl_permission_note_info.configure(text ='   ' +  u'\U0001F5D9',foreground=self.style_dict["caution_color_red"])
-            self.lbl_permission_note.configure(text = self.language_dict["authorisation_failed"])
-        self.permission_note_frame.pack(side = "top", fill = "x")
-        return
     
-    def apply_db_config(self,e=None):
-        if self.language_dict[self.clicked_db_config_option.get()] == 'database_password_encrypted':
-            self.password_frame.pack(side = "top", fill = "x")
-        else:
-            self.password_frame.pack_forget()
+    #########################################################################################################################################################
 
-        return
-    
-    def sign_up(self,e=None):
-        self.main_app.sign_up_dict['sign_up_db_config'] = self.language_dict[self.clicked_db_config_option.get()]
+    def update_language(self,e=None):
 
-        if self.main_app.get_restricted_user_group() == True:
-            if self.permission_response.get() == self.main_app.authorisation_old.create_user_permission_hash(self.main_app.sign_up_dict['sign_up_str_format']):
-                self.main_app.sign_up_dict['sign_up_permission'] = self.permission_response.get()
-                self.lbl_sign_up_faild_info.configure(text ='')
-            else:
-                self.lbl_sign_up_faild_info.configure(text = self.language_dict["no_permission"])
-                return()
+        language_name= self.clicked_language.get()
+        self.main_app.default_language = language_name
+        self.data_manager.load_language_dict(language_name)
+        self.language_dict = self.data_manager.get_language_dict()
+        self.gui.language_dict = self.language_dict
 
-        if self.language_dict[self.clicked_db_config_option.get()] == 'database_password_encrypted':
-            passowrd_1 = self.password_1.get()
-            passowrd_2 = self.password_2.get()
-            if len(passowrd_1) < 6:
-                self.lbl_sign_up_faild_info.configure(text = self.language_dict["passwords_len_too_short"])
-                return()     
-            if passowrd_1 != passowrd_2:
-                self.lbl_sign_up_faild_info.configure(text = self.language_dict["passwords_not_same"])
-                return()
-            else:
-                self.main_app.sign_up_dict['sign_up_password'] = passowrd_1
-                self.lbl_sign_up_faild_info.configure(text ='')           
+        self.lbl_welcome.configure(text=self.language_dict['welcome'])
 
-        self.main_app.sign_up_user_input_successful = True
-        self.close_window()
-        return
-    
+        self.lbl_short_description.configure(text=self.language_dict['easy_tarc_short_description'] + '\n\n' + self.language_dict['info_description_1'] + u'\U00002139' + self.language_dict['info_description_2'])
+        self.btn_already_using_easytarc_ttp.text = self.language_dict["import_backup"]
+
+        self.lbl_permisson_headline.configure(text = self.language_dict['permission'])
+        self.lbl_permission_request_info_ttp.text = self.language_dict["permission_request_info"]
+        self.lbl_permission_request.configure(text = self.language_dict["permission_request_code"] + ':')
+        self.btn_copy_request_code_ttp.text = self.language_dict["copy"]
+        self.btn_copy_request_code_ttp_2.text = self.language_dict["copied"]
+        self.lbl_permission_response_info_ttp.text = self.language_dict["permission_response_info"]
+        self.lbl_permission_response.configure(text = self.language_dict["permission_response_code"] + ':')
+        self.btn_paste_response.configure(text=self.language_dict["paste"])
+
+        self.lbl_db_config_headline.configure(text = self.language_dict['db_config'])
+        self.lbl_option.configure(text=self.language_dict["options"] + ':')
+
+        self.set_up_db_config_cbox()
+        self.apply_db_config()
+
+        self.lbl_db_password_headline.configure(text = self.language_dict['set_password'])
+        self.lbl_password_1.configure(text=self.language_dict["password"] + ':')
+        self.lbl_password_2.configure(text=self.language_dict["repeat"] + ':')
+
+        self.btn_start_easytarc.configure(text=self.language_dict["start_easytarc"])
+
+        self.lbl_transfer_data_headline.configure(text = self.language_dict['transfer_data'])
+        self.lbl_folder_request_info_ttp.text = self.language_dict["sign_up_transfer_data_info"]
+        self.lbl_folder_request.configure(text=self.language_dict["old_easytarc_folder"] + ':')
+        self.btn_start_transfer.configure(text=self.language_dict["start_easytarc"])
+
+    #########################################################################################################################################################
 
     def create_sign_in_body(self):
 
@@ -607,9 +716,9 @@ class LoginWindow(tk.Frame):
         self.lbl_empty_4 = MyLabel(self.password_frame_head,self.data_manager,anchor='w',justify='left',width=4)
         self.lbl_empty_4.pack(side = "top",fill='x')
 
-        self.lbl_db_config_headline = MyLabel(self.password_frame_head,self.data_manager,text = self.language_dict['password'], anchor = 'w', width=35)
-        self.lbl_db_config_headline.configure(font = self.Font_tuple)
-        self.lbl_db_config_headline.pack(side = "left", padx=5)
+        self.lbl_db_password_headline = MyLabel(self.password_frame_head,self.data_manager,text = self.language_dict['password'], anchor = 'w', width=35)
+        self.lbl_db_password_headline.configure(font = self.Font_tuple)
+        self.lbl_db_password_headline.pack(side = "left", padx=5)
 
         #########
 
@@ -628,7 +737,7 @@ class LoginWindow(tk.Frame):
         self.textBox_password_sign_in.pack(side="left", padx=5)
         self.textBox_password_sign_in.bind('<Return>', self.sign_in)
 
-        ######################
+        #########
 
         self.apply_frame = MyFrame(self.scroll_frame,self.data_manager)
         self.apply_frame.pack(side = "bottom", fill = "x")
@@ -654,6 +763,12 @@ class LoginWindow(tk.Frame):
         self.main_app.sign_in_password = self.password_sign_in.get()
         self.close_window()
         return    
+    
+    #########################################################################################################################################################
+    
+    def close_window(self,event=None):
+        self.root.destroy()
+        return
     
 
 

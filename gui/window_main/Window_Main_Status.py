@@ -93,9 +93,10 @@ class MainWindowStatus(tk.Frame):
         self.lbl_rate_name.configure(foreground=self.style_dict["font_color"])
         self.lbl_rate_name.pack(side = "right")
 
-        self.lbl_current = MyLabel(self.main_frame, self.data_manager, text=self.language_dict["current"] + ': ', width=10, anchor='center')
-        self.lbl_current.configure(foreground=self.style_dict["font_color"])
-        self.lbl_current.pack(side = "left")
+        self.lbl_btn_study_mode = MyLabel(self.main_frame, self.data_manager, text=u'\U0001F393',width=5)  #1F4CA #U00002139 # U0001F4C8 # U0001F4CA
+        self.lbl_btn_study_mode.configure(foreground=self.style_dict["selected_color_grey"])
+        self.lbl_btn_study_mode.pack(side = "left")
+        self.lbl_btn_study_mode.bind('<Button-1>', self.open_study_mode)
 
         self.lbl_status_text = MyLabel(self.main_frame, self.data_manager, anchor='w')
         self.lbl_status_text.configure(foreground=self.style_dict["font_color"])
@@ -106,13 +107,17 @@ class MainWindowStatus(tk.Frame):
         self.lbl_btn_info.bind("<Enter>", self.info_enter)
         self.lbl_btn_info.bind("<Leave>", self.info_leave)
 
+        self.on_study_mode_btn = False
+
+        self.lbl_btn_study_mode.bind("<Enter>", self.study_mode_enter)
+        self.lbl_btn_study_mode.bind("<Leave>", self.study_mode_leave)
+
         self.lbl_pausetime.bind("<Button-3>", self.right_clicked)
         self.lbl_pausetime_name.bind("<Button-3>", self.right_clicked)
         self.lbl_worktime.bind("<Button-3>", self.right_clicked)
         self.lbl_worktime_name.bind("<Button-3>", self.right_clicked)
         self.lbl_rate.bind("<Button-3>", self.right_clicked)
         self.lbl_rate_name.bind("<Button-3>", self.right_clicked)
-        self.lbl_current.bind("<Button-3>", self.right_clicked)
         self.lbl_status_text.bind("<Button-3>", self.right_clicked)
         self.main_frame.bind("<Button-3>", self.right_clicked)
 
@@ -124,6 +129,16 @@ class MainWindowStatus(tk.Frame):
 
     def info_leave(self,e):
         self.on_info_btn = False
+        self.start_auto_update_status_frame()
+
+    def study_mode_enter(self,e):
+        self.on_study_mode_btn = True
+        work_clock = self.data_manager.get_work_clock()
+        if self.main_app.get_action_state() == 'normal' and work_clock.get_runninig() == True:
+            self.lbl_btn_study_mode.configure(background=self.style_dict["selected_color_grey"])
+
+    def study_mode_leave(self,e):
+        self.on_study_mode_btn = False
         self.start_auto_update_status_frame()
 
     def backup_saved_on(self):
@@ -178,7 +193,23 @@ class MainWindowStatus(tk.Frame):
 
         ################
 
-        if self.main_app.get_setting('sleep_mode') == 'on':
+        if self.main_app.get_action_state() == 'normal' and work_clock.get_runninig() == True:
+            self.lbl_btn_study_mode.configure(foreground=self.style_dict["font_color"])
+        else:
+            self.lbl_btn_study_mode.configure(foreground=self.style_dict["selected_color_grey"])
+
+        ################
+
+        if self.main_app.get_setting('auto_minimize_mode') == 'on' and self.gui.get_sleeping() == False and self.main_app.get_action_state() == "normal" and self.gui.root.state() != 'iconic' and self.gui.root.state() != 'disabled' and self.gui.get_root_window_disabled() == False:
+
+                last_tracked_interaction = self.data_manager.get_last_tracked_interaction()
+                without_interaction_period = datetime.datetime.now() - last_tracked_interaction
+                without_interaction_hours = without_interaction_period.seconds/3600
+
+                if without_interaction_hours >= (float(self.main_app.get_setting("minimize_mode_without_interaction_minutes"))/60):
+                    self.gui.root.iconify()
+
+        if self.main_app.get_setting('sleep_mode') == 'on' and self.main_app.get_action_state() == "normal":
             if work_clock.get_runninig() == True:   
 
                 recording_period = datetime.datetime.now() - self.data_manager.get_start_timestamp()
@@ -191,7 +222,9 @@ class MainWindowStatus(tk.Frame):
                 recording_period_hours = recording_period.seconds/3600
                 without_interaction_hours = without_interaction_period.seconds/3600
 
-                if recording_period_hours >= float(self.main_app.get_setting("sleep_mode_recording_period_hours")) and without_interaction_hours >= float(self.main_app.get_setting("sleep_mode_without_interaction_hours")):
+                if recording_period_hours >= float(self.main_app.get_setting("sleep_mode_recording_period_hours")) and without_interaction_hours >= float(self.main_app.get_setting("sleep_mode_without_interaction_hours")) and self.gui.get_root_window_disabled() == False:
+
+                    self.gui.set_sleeping(True)
 
                     self.gui.unminimize()
                     self.gui.root.deiconify()
@@ -243,7 +276,6 @@ class MainWindowStatus(tk.Frame):
 
         self.main_frame.configure(background=background_color)
         self.lbl_status_text.configure(background=background_color)
-        self.lbl_current.configure(background=background_color)
         self.lbl_worktime_name.configure(background=background_color)
         self.lbl_rate.configure(background=background_color)
         self.lbl_rate_name.configure(background=background_color)
@@ -253,6 +285,8 @@ class MainWindowStatus(tk.Frame):
         self.lbl_pausetime.configure(background=background_color)
         if self.on_info_btn == False:
             self.lbl_btn_info.configure(background=background_color)
+        if self.on_study_mode_btn == False:
+            self.lbl_btn_study_mode.configure(background=background_color)
  
         self.after_func = self.main_frame.after(1000, lambda:self.auto_update_status_frame())
 
@@ -264,8 +298,8 @@ class MainWindowStatus(tk.Frame):
         self.language_dict = self.data_manager.get_language_dict()
         self.lbl_backup_ttp.refresh()
         self.main_frame.refresh_style()
-        self.lbl_current.refresh_style()
         self.lbl_btn_info.refresh_style()
+        self.lbl_btn_study_mode.refresh_style()
         self.lbl_pausetime.refresh_style()
         self.lbl_pausetime_name.refresh_style()
         self.lbl_worktime.refresh_style()
@@ -279,11 +313,15 @@ class MainWindowStatus(tk.Frame):
         self.lbl_backup_ttp.text = self.language_dict["data_are_stored_temporarily"]
         self.lbl_pausetime_name.configure(text= self.language_dict["break_time"] + ': ')
         self.lbl_worktime_name.configure(text=self.language_dict["working_time"] + ': ')
-        self.lbl_current.configure(text=self.language_dict["current"] + ': ')
         self.lbl_rate_name.configure(text=self.language_dict["rate"] + ': ')
 
         self.start_auto_update_status_frame()
         return
+    
+    def open_study_mode(self,e=None):
+        work_clock = self.data_manager.get_work_clock()
+        if self.main_app.get_action_state() == 'normal' and work_clock.get_runninig() == True:
+            self.main_window.case_frame.open_study_mode()
         
     def info_work_time(self,event):
         if self.main_app.get_action_state() == 'disabled':
@@ -305,7 +343,10 @@ class MainWindowStatus(tk.Frame):
         if pause_shift_list_list != []:
             pause_counter = 1
             for pause_shift in pause_shift_list_list:
-                pause_text =  pause_shift[0] + ' '+ self.language_dict["o_clock"] + ' ' + self.language_dict["to"] +' ' + pause_shift[1] + ' '+ self.language_dict["o_clock"] + '\n(' + self.language_dict["duration"] + ': ' + pause_shift[2] + ')'
+                #pause_text =  pause_shift[0] + ' '+ self.language_dict["o_clock"] + ' ' + self.language_dict["to"] +' ' + pause_shift[1] + ' '+ self.language_dict["o_clock"] + '\n(' + self.language_dict["duration"] + ': ' + pause_shift[2] + ')'
+                pause_text =  pause_shift[0] + ' '+ self.language_dict["o_clock"] + '\n -> ' + pause_shift[2] + '\n' + pause_shift[1] + ' '+ self.language_dict["o_clock"]
+                #pause_text =  pause_shift[0] + ' '+ self.language_dict["o_clock"] + '\n' + pause_shift[2] + '\n' + pause_shift[1] + ' '+ self.language_dict["o_clock"]
+                #pause_text =  pause_shift[0] + ' '+ self.language_dict["o_clock"] + ' ' + self.language_dict["to"] +'\n' + pause_shift[1] + ' '+ self.language_dict["o_clock"]
                 info_dict.update({self.language_dict["break"] + ' ' + str(pause_counter):pause_text})
                 pause_counter = pause_counter + 1
 
