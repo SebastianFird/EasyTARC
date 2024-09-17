@@ -874,7 +874,7 @@
         "saving_process":"Saving process",
         "booking_website":"Booking website",
         "compression_of_data":"Compression of data",
-        "book_sums_subaccounts":"Book sums (sub-aacounts differentiate)",
+        "book_sums_subaccounts":"Book sums (sub-accounts differentiate)",
         "without_correction_time":"Without correction",
         "subaccount_creation_note":"Sub-accounts have two functions: Firstly, they can be used to sort comment templates and secondly to record\nseveral times with different comments in the same time account during a session.\nThe distinction between sub-accounts is not relevant for booking; only the Booking-ID of the main account,\nthe comment and the recorded hours count.",
         "note":"Note",
