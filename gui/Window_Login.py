@@ -263,7 +263,7 @@ class LoginWindow(tk.Frame):
         self.permission_request = tk.StringVar()
         self.textBox_permission_request = MyEntry(self.permission_request_frame, self.data_manager, textvariable=self.permission_request, width=35)
         self.textBox_permission_request.pack(side="left", padx=5)
-        self.request_str = self.main_app.authorisation_old.create_user_request_hash(self.main_app.sign_up_dict['sign_up_str_format'])
+        self.request_str = self.main_app.authorisation.create_user_request_hash(self.main_app.sign_up_dict['sign_up_str_format'])
         self.permission_request.set(self.request_str)
         self.textBox_permission_request.configure(state=tk.DISABLED)
 
@@ -335,7 +335,7 @@ class LoginWindow(tk.Frame):
         try:
             clipboard = str(self.clipboard_get())
             self.permission_response.set(clipboard)
-            if clipboard == self.main_app.authorisation_old.create_user_permission_hash(self.main_app.sign_up_dict['sign_up_str_format']):
+            if clipboard == self.main_app.authorisation.create_user_permission_hash(self.main_app.sign_up_dict['sign_up_str_format']):
                 self.textBox_permission_response.configure(state=tk.DISABLED)
                 self.lbl_permission_note_info.configure(text ='   ' +  u'\U00002713',foreground=self.style_dict["highlight_color_green"])
                 self.lbl_permission_note.configure(text = self.language_dict["authorised"])
@@ -461,12 +461,22 @@ class LoginWindow(tk.Frame):
 
 
     def set_up_db_config_cbox(self):
-        if self.main_app.get_restricted_data_access() == True:
-            db_config_list = [self.language_dict['database_username_encrypted'],self.language_dict['database_password_encrypted']] 
-            self.lbl_option_info_ttp = CreateToolTip(self.lbl_option_info, self.data_manager, 0, 30, self.language_dict["db_config_info_2"], True)
-        else:
-            db_config_list = [self.language_dict['database_unencrypted'],self.language_dict['database_password_encrypted'],self.language_dict['database_username_encrypted']]  
-            self.lbl_option_info_ttp = CreateToolTip(self.lbl_option_info, self.data_manager, 0, 30, self.language_dict["db_config_info"], True)
+        db_config_list = []
+        db_config_info_text = self.language_dict["db_config_info"]
+
+        if self.main_app.get_sign_option_database_username_encrypted() == True:
+            db_config_list.append(self.language_dict['database_username_encrypted'])
+            db_config_info_text = db_config_info_text + '\n\n' + self.language_dict["db_config_info_username_encrypted"]
+
+        if self.main_app.get_sign_option_database_unencrypted() == True:
+            db_config_list.append(self.language_dict['database_unencrypted'])
+            db_config_info_text = db_config_info_text + '\n\n' + self.language_dict["db_config_info_unencrypted"]
+
+        if self.main_app.get_sign_option_database_password_encrypted() == True:
+            db_config_list.append(self.language_dict['database_password_encrypted'])
+            db_config_info_text = db_config_info_text + '\n\n' + self.language_dict["db_config_info_password_encrypted"]
+ 
+        self.lbl_option_info_ttp = CreateToolTip(self.lbl_option_info, self.data_manager, 0, 30, db_config_info_text, True)
 
         self.db_config_cbox['values'] = db_config_list
         self.clicked_db_config_option.set(self.db_config_cbox['values'][0])
@@ -483,7 +493,7 @@ class LoginWindow(tk.Frame):
         self.main_app.sign_up_dict['sign_up_db_config'] = self.language_dict[self.clicked_db_config_option.get()]
 
         if self.main_app.get_restricted_user_group() == True:
-            if self.permission_response.get() == self.main_app.authorisation_old.create_user_permission_hash(self.main_app.sign_up_dict['sign_up_str_format']):
+            if self.permission_response.get() == self.main_app.authorisation.create_user_permission_hash(self.main_app.sign_up_dict['sign_up_str_format']):
                 self.main_app.sign_up_dict['sign_up_permission'] = self.permission_response.get()
                 self.lbl_sign_up_faild_info.configure(text ='')
             else:
@@ -700,6 +710,8 @@ class LoginWindow(tk.Frame):
         self.lbl_folder_request_info_ttp.text = self.language_dict["sign_up_transfer_data_info"]
         self.lbl_folder_request.configure(text=self.language_dict["old_easytarc_folder"] + ':')
         self.btn_start_transfer.configure(text=self.language_dict["start_easytarc"])
+
+        self.main_app.set_local_format(language_name)
 
     #########################################################################################################################################################
 

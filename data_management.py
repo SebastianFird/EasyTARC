@@ -288,7 +288,7 @@ class DataManager:
         except:
             return('failed')
 
-        if self.main_app.get_restricted_data_access() == True or str(self.main_app.get_setting("simplify_after_two_month")) == 'on':
+        if self.main_app.get_simplify_passed_times_on() == True or str(self.main_app.get_setting("simplify_after_two_month")) == 'on':
             self.user_db.simplify_passed_times()
 
         path_easytarc = os.path.abspath(os.getcwd())
@@ -498,27 +498,27 @@ class DataManager:
             correction_btn_1_size = (20,20)
             correction_btn_2_size = (35,20)
 
-        photo_icon = ImageTk.PhotoImage(photo_icon.resize(icon_btn_size, Image.ANTIALIAS))
+        photo_icon = ImageTk.PhotoImage(photo_icon.resize(icon_btn_size, Image.LANCZOS))
 
-        photo_btn_on = ImageTk.PhotoImage(photo_btn_on.resize(activation_btn_size, Image.ANTIALIAS))
-        photo_btn_not_bookable = ImageTk.PhotoImage(photo_btn_not_bookable.resize(activation_btn_size, Image.ANTIALIAS))
-        photo_btn_highlight = ImageTk.PhotoImage(photo_btn_highlight.resize(activation_btn_size, Image.ANTIALIAS))
-        photo_btn_off = ImageTk.PhotoImage(photo_btn_off.resize(activation_btn_size, Image.ANTIALIAS))
-        photo_btn_pause = ImageTk.PhotoImage(photo_btn_pause.resize(activation_btn_size, Image.ANTIALIAS))
+        photo_btn_on = ImageTk.PhotoImage(photo_btn_on.resize(activation_btn_size, Image.LANCZOS))
+        photo_btn_not_bookable = ImageTk.PhotoImage(photo_btn_not_bookable.resize(activation_btn_size, Image.LANCZOS))
+        photo_btn_highlight = ImageTk.PhotoImage(photo_btn_highlight.resize(activation_btn_size, Image.LANCZOS))
+        photo_btn_off = ImageTk.PhotoImage(photo_btn_off.resize(activation_btn_size, Image.LANCZOS))
+        photo_btn_pause = ImageTk.PhotoImage(photo_btn_pause.resize(activation_btn_size, Image.LANCZOS))
 
-        photo_btn_highlight_head = ImageTk.PhotoImage(photo_btn_highlight_head.resize(activation_btn_size, Image.ANTIALIAS))
-        photo_btn_off_head = ImageTk.PhotoImage(photo_btn_off_head.resize(activation_btn_size, Image.ANTIALIAS))
-        photo_btn_pause_head = ImageTk.PhotoImage(photo_btn_pause_head.resize(activation_btn_size, Image.ANTIALIAS))
+        photo_btn_highlight_head = ImageTk.PhotoImage(photo_btn_highlight_head.resize(activation_btn_size, Image.LANCZOS))
+        photo_btn_off_head = ImageTk.PhotoImage(photo_btn_off_head.resize(activation_btn_size, Image.LANCZOS))
+        photo_btn_pause_head = ImageTk.PhotoImage(photo_btn_pause_head.resize(activation_btn_size, Image.LANCZOS))
 
-        photo_btn_plus_strong_highlight = ImageTk.PhotoImage(photo_btn_plus_strong_highlight.resize(correction_btn_1_size, Image.ANTIALIAS))
-        photo_btn_plus_font = ImageTk.PhotoImage(photo_btn_plus_font.resize(correction_btn_1_size, Image.ANTIALIAS))
-        photo_btn_minus_strong_highlight = ImageTk.PhotoImage(photo_btn_minus_strong_highlight.resize(correction_btn_1_size, Image.ANTIALIAS))
-        photo_btn_minus_font = ImageTk.PhotoImage(photo_btn_minus_font.resize(correction_btn_1_size, Image.ANTIALIAS))
+        photo_btn_plus_strong_highlight = ImageTk.PhotoImage(photo_btn_plus_strong_highlight.resize(correction_btn_1_size, Image.LANCZOS))
+        photo_btn_plus_font = ImageTk.PhotoImage(photo_btn_plus_font.resize(correction_btn_1_size, Image.LANCZOS))
+        photo_btn_minus_strong_highlight = ImageTk.PhotoImage(photo_btn_minus_strong_highlight.resize(correction_btn_1_size, Image.LANCZOS))
+        photo_btn_minus_font = ImageTk.PhotoImage(photo_btn_minus_font.resize(correction_btn_1_size, Image.LANCZOS))
 
-        photo_btn_plus_plus_strong_highlight = ImageTk.PhotoImage(photo_btn_plus_plus_strong_highlight.resize(correction_btn_2_size, Image.ANTIALIAS))
-        photo_btn_plus_plus_font = ImageTk.PhotoImage(photo_btn_plus_plus_font.resize(correction_btn_2_size, Image.ANTIALIAS))
-        photo_btn_minus_minus_strong_highlight = ImageTk.PhotoImage(photo_btn_minus_minus_strong_highlight.resize(correction_btn_2_size, Image.ANTIALIAS))
-        photo_btn_minus_minus_font = ImageTk.PhotoImage(photo_btn_minus_minus_font.resize(correction_btn_2_size, Image.ANTIALIAS))
+        photo_btn_plus_plus_strong_highlight = ImageTk.PhotoImage(photo_btn_plus_plus_strong_highlight.resize(correction_btn_2_size, Image.LANCZOS))
+        photo_btn_plus_plus_font = ImageTk.PhotoImage(photo_btn_plus_plus_font.resize(correction_btn_2_size, Image.LANCZOS))
+        photo_btn_minus_minus_strong_highlight = ImageTk.PhotoImage(photo_btn_minus_minus_strong_highlight.resize(correction_btn_2_size, Image.LANCZOS))
+        photo_btn_minus_minus_font = ImageTk.PhotoImage(photo_btn_minus_minus_font.resize(correction_btn_2_size, Image.LANCZOS))
 
         self.image_dict = {
             "photo_icon":photo_icon,
@@ -993,33 +993,32 @@ class DataManager:
         str_today = dt.strftime("%Y") + "_" + dt.strftime("%m") + "_" + dt.strftime("%d")
         save_str = path + '\Export_' + self.main_app.get_name() + '_' + str_today + '.xlsx'
 
-        writer = pd.ExcelWriter(save_str)
+        with pd.ExcelWriter(save_str, engine='openpyxl') as writer:
 
-        df.to_excel(writer,self.language_dict['overview'], index=False)
+            df.to_excel(writer,self.language_dict['overview'], index=False)
 
-        df_pivot_1 = pd.pivot_table(df, values = 'hours', index=['month','date','weekday'], columns = 'booked', aggfunc='sum' , fill_value=0)
-        try:
-            df_pivot_1['Sum [h]'] = df_pivot_1['booked'] + df_pivot_1['not booked']
-            df_pivot_1['Rate [%]'] = round((100*(df_pivot_1['booked'] / df_pivot_1['Sum [h]'])))
-        except KeyError:
-            pass
-        df_pivot_1.to_excel(writer,self.language_dict['rate'])
+            df_pivot_1 = pd.pivot_table(df, values = 'hours', index=['month','date','weekday'], columns = 'booked', aggfunc='sum' , fill_value=0)
+            try:
+                df_pivot_1['Sum [h]'] = df_pivot_1['booked'] + df_pivot_1['not booked']
+                df_pivot_1['Rate [%]'] = round((100*(df_pivot_1['booked'] / df_pivot_1['Sum [h]'])))
+            except KeyError:
+                pass
+            df_pivot_1.to_excel(writer,self.language_dict['rate'])
 
-        df_pivot_3 = pd.pivot_table(df, values = 'hours', index=['month','project_label','order_label','process_label','main_account','comment'], aggfunc='sum' , fill_value=0)
-        df_pivot_3['Percent of Month'] = round((df_pivot_3.hours / df_pivot_3.groupby(by=["month"]).hours.transform(sum) * 100),2)
-        df_pivot_3.to_excel(writer,self.language_dict['pivot_accounts_month_without_sub_accounts'])
+            df_pivot_3 = pd.pivot_table(df, values = 'hours', index=['month','project_label','order_label','process_label','main_account','comment'], aggfunc='sum' , fill_value=0)
+            df_pivot_3['Percent of Month'] = round((df_pivot_3.hours / df_pivot_3.groupby(by=["month"]).hours.transform(sum) * 100),2)
+            df_pivot_3.to_excel(writer,self.language_dict['pivot_accounts_month_without_sub_accounts'])
 
-        df_pivot_5 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','available_hours','date_expiration','comment'], aggfunc='sum' , fill_value=0)
-        df_pivot_5.to_excel(writer,self.language_dict['pivot_accounts_total_without_sub_accounts'])
+            df_pivot_5 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','available_hours','date_expiration','comment'], aggfunc='sum' , fill_value=0)
+            df_pivot_5.to_excel(writer,self.language_dict['pivot_accounts_total_without_sub_accounts'])
 
-        df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['month','project_label','order_label','process_label','main_account','name','comment'], aggfunc='sum' , fill_value=0)
-        df_pivot_2['Percent of Month'] = round((df_pivot_2.hours / df_pivot_2.groupby(by=["month"]).hours.transform(sum) * 100),2)
-        df_pivot_2.to_excel(writer,self.language_dict['pivot_accounts_month_with_sub_accounts'])
+            df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['month','project_label','order_label','process_label','main_account','name','comment'], aggfunc='sum' , fill_value=0)
+            df_pivot_2['Percent of Month'] = round((df_pivot_2.hours / df_pivot_2.groupby(by=["month"]).hours.transform(sum) * 100),2)
+            df_pivot_2.to_excel(writer,self.language_dict['pivot_accounts_month_with_sub_accounts'])
 
-        df_pivot_4 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','name','available_hours','date_expiration','comment'], aggfunc='sum' , fill_value=0)
-        df_pivot_4.to_excel(writer,self.language_dict['pivot_accounts_total_with_sub_accounts'])
-                
-        writer.save()
+            df_pivot_4 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','name','available_hours','date_expiration','comment'], aggfunc='sum' , fill_value=0)
+            df_pivot_4.to_excel(writer,self.language_dict['pivot_accounts_total_with_sub_accounts'])
+
         
     def get_all_account_groups(self,seperate_active=False):
         if seperate_active == True:

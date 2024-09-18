@@ -599,6 +599,7 @@ class SetupBody:
         language_name= self.clicked_language.get()
         self.main_app.change_settings('language_name',language_name)
         self.data_manager.load_language_dict(language_name)
+        self.main_app.set_local_format()
         self.gui.refresh()
         self.update_btn_set_language()
         return
@@ -1036,14 +1037,14 @@ class SetupBody:
 ###############################
 
     def set_simplify_data_cblist(self):
-        if self.main_app.get_restricted_data_access() == True:
+        if self.main_app.get_simplify_passed_times_on() == True:
             self.simplify_data_cbox.configure(state=tk.DISABLED)
             self.btn_set_simplify_data.configure(state=tk.DISABLED)
         else:
             self.simplify_data_cbox.configure(state=tk.NORMAL)
             self.btn_set_simplify_data.configure(state=tk.NORMAL)
 
-        if self.main_app.get_restricted_data_access() == True:
+        if self.main_app.get_simplify_passed_times_on() == True:
             simplify_data = 'on'
             self.main_app.change_settings('simplify_after_two_month','on')
         else:
@@ -1066,7 +1067,7 @@ class SetupBody:
     
     def set_simplify_data(self):
         simplify_data = self.clicked_simplify_data.get()
-        if self.main_app.get_restricted_data_access() != True:
+        if self.main_app.get_simplify_passed_times_on() != True:
             self.main_app.change_settings('simplify_after_two_month',self.language_dict[simplify_data])
             self.update_btn_set_simplify_data()
 

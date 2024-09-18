@@ -297,8 +297,7 @@
         "authorised":"Autorisiert",
         "not_authorised":"Falscher Code",
         "authorisation_failed":"Einfügen gescheitert",
-        "db_config_info":"Passwort verschlüsselt:\nDie Datenbank wird mit einen von dir festgelegten Passwort verschlüsselt.\n\nBenutzernamen verschlüsselt:\nDie Datenbank wird auf deinen Benutzernamen verschlüsselt.\n\nUnverschlüsselt:\nDie Datenbank wird nicht verschlüsselt\n\nDie Datenbank wird nur in deinem persönlichen EasyTARC Verzeichnis gespeichert.",
-        "db_config_info_2":"Benutzernamen verschlüsselt:\nDie Datenbank wird auf deinen Benutzernamen verschlüsselt.\n\nPasswort verschlüsselt:\nDie Datenbank wird mit einen von dir festgelegten Passwort verschlüsselt.\n\nDie Datenbank wird nur in deinem persönlichen EasyTARC Verzeichnis gespeichert.",        
+        "db_config_info":"Die Datenbank wird nur in deinem persönlichen EasyTARC Verzeichnis gespeichert.",        
         "options":"Optionen",
         "database_password_encrypted":"Passwort verschlüsselt",
         "database_username_encrypted":"Benutzernamen verschlüsselt",
@@ -450,9 +449,12 @@
         "release_note_text_19":"1.11.0 (20.09.2024)\n - Überarbeitung des Updateprozesses.\n - Umbenennung von Rückmeldetexten in Kommentar.\n - Kommentare können nun auch bei nicht buchbaren Zeitkonten hinterlegt werden.\n - Automatische Aktivierung der Arbeitsfenster nach 2 Minuten ohne Interaktion\n   (kann in den Einstellungen deaktiviert werden).\n - Ein Lernmodus wurde hinzugefügt (links in der Statusleiste).\n - Die Darstellung der Pausen wurde in den Sessioninfos angepasst.\n - Die Möglichkeit auf externen Websites zu buchen wurde erweitert.",
         "welcome_to_easytarc":"Willkommen bei EasyTARC!",
         "add_start_up_link":"Empfehlung:\nFüge im Tab Einstellung EasyTARC deinem Autostart hinzu.",
-        "add_secondary_back_up":"Empfehlung:\nRichte uim Tab Einstellung ein sekundäre Sicherung ein.",
+        "add_secondary_back_up":"Empfehlung:\nRichte im Tab Einstellung ein sekundäre Sicherung ein.",
         "first_steps":"Erste Schritte:\nIm Hintergrunf läuft bereits das Zeitkonto 'Ohne Zuordnung'. Dieses Zeitkonto läuft immer zum Beginn einer Erfassung, mithilfe des Buttons 'Neues Zeitkonto' kannst du dein erstes Zeitkonto erstellen. Mithilfe des Sliders, links in der Zeile eines Zeitkontos, kannst du dieses aktivieren.",
-        "import_backup":"Backup importieren"
+        "import_backup":"Backup importieren",
+        "db_config_info_username_encrypted":"Benutzernamen verschlüsselt:\nDie Datenbank wird auf deinen Benutzernamen verschlüsselt.",
+        "db_config_info_unencrypted":"Unverschlüsselt:\nDie Datenbank wird nicht verschlüsselt.",
+        "db_config_info_password_encrypted":"Passwort verschlüsselt:\nDie Datenbank wird mit einen von dir festgelegten Passwort verschlüsselt."
     },
     "english": 
     {
@@ -752,8 +754,7 @@
         "authorised":"Authorised",
         "not_authorised":"Incorrect code",
         "authorisation_failed":"Paste failed",
-        "db_config_info":"Password encrypted:\nThe database is encrypted with a password you specify.\n\nUser name encrypted:\nThe database is encrypted to your user name.\n\nUnencrypted:\nThe database is not encrypted\n\nThe database is only saved in your personal EasyTARC directory.",
-        "db_config_info_2":"User name encrypted:\nThe database is encrypted to your user name.\n\nPassword encrypted:\nThe database is encrypted with a password you specify.\n\nThe database is only saved in your personal EasyTARC directory.",
+        "db_config_info":"The database is only saved in your personal EasyTARC directory.",
         "options":"Options",
         "database_password_encrypted":"Password encrypted",
         "database_username_encrypted":"User name encrypted",
@@ -907,6 +908,9 @@
         "add_start_up_link":"Recommendation:\nAdd EasyTARC to your autostart in the Settings tab.",
         "add_secondary_back_up":"Recommendation:\nSet up a secondary backup in the Settings tab.",
         "first_steps":"First steps:\nThe 'Without allocation' time account is already running in the background. This time account always runs at the start of a recording. You can create your first time account using the 'New time account' button. You can activate a time account using the slider on the left in the time account line.",
-        "import_backup":"Import backup"
+        "import_backup":"Import backup",
+        "db_config_info_username_encrypted":"User name encrypted:\nThe database is encrypted to your user name.",
+        "db_config_info_unencrypted":"Unencrypted:\nThe database is not encrypted.",
+        "db_config_info_password_encrypted":"Password encrypted:\nThe database is encrypted with a password you specify."
     }
 }

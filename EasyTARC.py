@@ -49,17 +49,35 @@ class App():
     def __init__(self):
 
         self.app_name = 'EasyTARC'
+
+        # desktop link options
+        self.manage_desktop_link = False                            # True / False
         self.desktop_link_extension = ''
-        self.manage_desktop_link = False            # True / False
-        self.restricted_user_group = True          # True / False     
-        self.restricted_data_access = False         # True / False
-        self.booking_link_access = False           # True / False
-        self.sign_up_auto_stratup_link = "off"         # on / off
-        self.default_language = "english"            # german / english
+
+        # permission needed for using
+        self.restricted_user_group = False                          # True / False   
+
+        # sign up and sign in config db options
+        self.sign_option_database_unencrypted = True                # True / False 
+        self.sign_option_database_password_encrypted = True         # True / False 
+        self.sign_option_database_username_encrypted = False         # True / False 
+
+        # no setting to disable the data simplification
+        self.simplify_passed_times_on = False                       # True / False
+
+        # access to using a booking link
+        self.booking_link_access = False                            # True / False
+
+        # creating auto start up link by sign up
+        self.sign_up_auto_stratup_link = "off"                      # on / off
+
+        # default language
+        self.default_language = "english"                           # german / english
 
         ##########
         
-        self.app_version = '1.11.0'
+        # this app version
+        self.app_version = '1.12.0'
 
         ##########
 
@@ -130,12 +148,11 @@ class App():
 
         ##########
         
-        self.authorisation_old = Authorisation('whirlpool') #whirlpool #sha512
-        self.authorisation_new = Authorisation('sha512')
+        self.authorisation = Authorisation('sha512')
 
-        ####################
+        ####################################################################################################
 
-        self.db_name_ending_dict = {               #'database_username_encrypted'  'database_unencrypted'   #database_password_encrypted' -> not ready
+        self.db_name_ending_dict = {               #'database_username_encrypted'  'database_unencrypted'   #database_password_encrypted' 
             'database_username_encrypted': '_crypted.sql.gz',
             'database_unencrypted': '.db',
             'database_password_encrypted': '_crypted.sql.gz'
@@ -147,9 +164,6 @@ class App():
         self.new_sign_up = False
 
         self.action_state = "disabled"
-
-        self.local_format = 'de_DE.UTF-8'
-        locale.setlocale(locale.LC_ALL, self.local_format)
 
         self.file_path = os.path.dirname(sys.argv[0])
         
@@ -392,7 +406,7 @@ class App():
         ##########
 
         if  self.sign_up_dict.get("sign_up_db_config") == 'database_username_encrypted':
-            self.sign_up_dict['sign_up_password'] = self.authorisation_new.create_user_db_password(self.sign_up_dict.get("sign_up_str_format"))
+            self.sign_up_dict['sign_up_password'] = self.authorisation.create_user_db_password(self.sign_up_dict.get("sign_up_str_format"))
 
         ##########
 
@@ -427,13 +441,19 @@ class App():
         ##########
 
         if self.restricted_user_group == True:
-            if login_dict.get("user_permission") != self.authorisation_old.create_user_permission_hash(login_dict.get("user_str_format")):
-                return(False,'no permission')
+            if login_dict.get("user_permission") != self.authorisation.create_user_permission_hash(login_dict.get("user_str_format")):
+                return(False,'no permission, no user permission')
             
         ##########
 
-        if self.restricted_data_access == True and login_dict.get("user_db_config") == 'database_unencrypted':
-            return(False,'no permission')
+        if self.sign_option_database_unencrypted == False and login_dict.get("user_db_config") == 'database_unencrypted':
+            return(False,'no permission, database unencrypted not supported')
+        
+        if self.sign_option_database_password_encrypted == False and login_dict.get("user_db_config") == 'database_password_encrypted':
+            return(False,'no permission, database password encrypted not supported')
+        
+        if self.sign_option_database_username_encrypted == False and login_dict.get("user_db_config") == 'database_username_encrypted':
+            return(False,'no permission, database username encrypted not supported')
 
         ##########
 
@@ -448,7 +468,7 @@ class App():
         ##########
             
         if login_dict.get("user_db_config") == 'database_username_encrypted':
-            self.sign_in_password = self.authorisation_new.create_user_db_password(login_dict.get("user_str_format"))
+            self.sign_in_password = self.authorisation.create_user_db_password(login_dict.get("user_str_format"))
             
         ##########
         if login_dict.get("user_db_config") == 'database_password_encrypted':
@@ -496,6 +516,21 @@ class App():
         with open('json/settings.json',encoding='UTF-8') as json_file:
             self.settings_dict = json.load(json_file)
 
+        self.set_local_format()
+
+    ####################################################################################################################################
+
+    def set_local_format(self,language_name=None):
+        if language_name == None:
+            language_name = self.get_setting('language_name')
+
+        if language_name == "german": 
+            local_format = 'de_DE.UTF-8'
+        else:
+            local_format = 'en_US.UTF-8'
+
+        locale.setlocale(locale.LC_ALL, local_format)
+
     ####################################################################################################################################
 
     def get_data_manager(self):
@@ -504,8 +539,8 @@ class App():
     def get_restricted_user_group(self):
         return(self.restricted_user_group)
     
-    def get_restricted_data_access(self):
-        return(self.restricted_data_access)
+    def get_simplify_passed_times_on(self):
+        return(self.simplify_passed_times_on)
     
     def get_name(self):
         return(self.app_name)
@@ -539,6 +574,15 @@ class App():
     
     def get_booking_link_access(self):
         return(self.booking_link_access)
+    
+    def get_sign_option_database_unencrypted(self):
+        return(self.sign_option_database_unencrypted)
+    
+    def get_sign_option_database_password_encrypted(self):
+        return(self.sign_option_database_password_encrypted)
+    
+    def get_sign_option_database_username_encrypted(self):
+        return(self.sign_option_database_username_encrypted)
 
 ############################################################
 
@@ -595,132 +639,83 @@ class App():
             return(None)
         
     ####################################################################################################################################
-            
-    def check_updates(self):
-        
-        #check for 1.10.1 update
-        if self.check_for_update_to_version_str(self.start_version,'1.10.1') == True:
-            update_dict = {"time_view_capture_tab": "full_time",
-                           "booking_rate_details": "on",
-                           "sleep_mode": "on",
-                           "sleep_mode_recording_period_hours": "10.0",
-                           "sleep_mode_without_interaction_hours": "2.0",
-                           "sec_back_up_path": "",
-                           "list_work_window_dynamic_opacity": "on",
-                           "bar_work_window_dynamic_opacity": "on",
-                           "dynamic_opacity": "80.0",
-                           "simplify_after_two_month":"on",
-                           "web_link_1_name": "Github",
-                           "web_link_1_url": "https://github.com/SebastianFird/EasyTARC",
-                           "web_link_2_name": "EasyTARC.de",
-                           "web_link_2_url": "http://easytarc.de/",
-                           "web_link_3_name": "",
-                           "web_link_3_url": "",
-                           "web_link_4_name": "",
-                           "web_link_4_url": "",
-                           "desktop_folder":"",
-                           "startup_folder":"",
-                           "booking_kind":'sum_subaccounts',
-                           "create_start_up_link": self.sign_up_auto_stratup_link}
-            
-            self.settings_dict.update(update_dict)
 
-            setting_json_file = open('json/settings.json',"w",encoding='UTF-8')
-            json.dump(self.settings_dict, setting_json_file)
-            setting_json_file.close()
+    # not used yet
+    def change_db_encryption(self):
+
+        with open('login.json',encoding='UTF-8') as json_file:
+            login_dict = json.load(json_file)
+
+        if login_dict.get("user_db_config") != 'database_unencrypted':
+
+            if  login_dict.get("user_db_config") == 'database_password_encrypted':
+                self.data_manager = DataManager(self)
+                self.gui = Gui_Manager(self)
+                self.sign_in_user_input_successful = False
+                self.gui.run_login_window('sign_in')
+                if self.sign_in_user_input_successful == False:
+                    return(False,'no valid sign in')
+
+            old_user_db = SqlUserDataManager(self)
+            old_user_db_salt = login_dict.get("user_db_salt")
+
+            if  login_dict.get("user_db_config") == 'database_password_encrypted':
+                db_password = self.sign_in_password
+                old_user_db.set_db_config('database_password_encrypted','database','EasyTARC_Database_User','_crypted.sql.gz',db_password,old_user_db_salt)
+            else:
+                str_format = login_dict.get("user_str_format")
+                db_password = self.authorisation.create_user_db_password(str_format)
+                old_user_db.set_db_config('database_username_encrypted','database','EasyTARC_Database_User','_crypted.sql.gz',db_password,old_user_db_salt)
 
             ######
 
-            with open('login.json',encoding='UTF-8') as json_file:
-                login_dict = json.load(json_file)
+            old_memory_db_conn = old_user_db.open_db_conn()
+            query = "".join(line for line in old_memory_db_conn.iterdump())
+            old_memory_db_conn.close()
+
+            ######
+
+            new_user_db = SqlUserDataManager(self)
+            new_db_salt = ''
+
+            if  login_dict.get("user_db_config") == 'database_password_encrypted':
+                db_password = self.sign_in_password
+                new_user_db.create_empty_db('database_password_encrypted','database','New_EasyTARC_Database_User','_crypted.sql.gz',db_password,new_db_salt)
+            else:
+                str_format = login_dict.get("user_str_format")
+                db_password = self.authorisation.create_user_db_password(str_format)
+                new_user_db.create_empty_db('database_username_encrypted','database','New_EasyTARC_Database_User','_crypted.sql.gz',db_password,new_db_salt)
+            
+            ######
+            
+            new_memory_db_conn = new_user_db.open_db_conn()
+            new_memory_db_conn.executescript(query)
+            new_user_db.save_and_close_db(new_memory_db_conn)
+            new_memory_db_conn.close()
+
+            ######
 
             path = os.path.abspath(os.getcwd())
-  
-            if os.path.isdir('database'+'\\' + 'previous version') == False:
-                new_path = os.path.abspath(os.getcwd()) +'\\' + 'database' +'\\' + 'previous version'
-                os.makedirs(new_path)
+            # renaming the old db in old_db 
+            file_path = path +'\\' + 'database'  + '\\' + 'EasyTARC_Database_User' + '_crypted.sql.gz'
+            file_path_old = path +'\\' + 'database' + '\\old_' + 'EasyTARC_Database_User' + '_crypted.sql.gz'
+            os.rename(file_path, file_path_old)
 
-            shutil.copy(path+'\\'+ 'login.json', path + '\\' + 'database' +'\\' + 'previous version' + '\\' + 'login.json')
+            # renaming the new_db in db 
+            file_path_new = path +'\\' + 'database'  + '\\' + 'New_EasyTARC_Database_User'  + '_crypted.sql.gz'
+            os.rename(file_path_new, file_path)
 
-            if login_dict.get("user_db_config") != 'database_unencrypted':
-                if os.path.isfile('database' + '\\' + 'EasyTARC_Database_User' + '_crypted.sql.gz') == True:
-                    shutil.copy(path + '\\' + 'database' + '\\' + 'EasyTARC_Database_User' + '_crypted.sql.gz', path + '\\' + 'database' +'\\' + 'previous version' + '\\' + 'EasyTARC_Database_User' + '_crypted.sql.gz')
-            else:
-                if os.path.isfile('database' + '\\' + 'EasyTARC_Database_User' + '.db') == True:
-                    shutil.copy(path + '\\' + 'database' + '\\' + 'EasyTARC_Database_User' + '.db', path + '\\' + 'database' +'\\' + 'previous version' + '\\' + 'EasyTARC_Database_User' + '.db')
+            ######
 
-            if login_dict.get("user_db_config") != 'database_unencrypted':
+            os.remove(path+'\\' + 'database' + '\\' + 'old_' + 'EasyTARC_Database_User' + '_crypted.sql.gz')
 
-                if  login_dict.get("user_db_config") == 'database_password_encrypted':
-                    self.data_manager = DataManager(self)
-                    self.gui = Gui_Manager(self)
-                    self.sign_in_user_input_successful = False
-                    self.gui.run_login_window('sign_in')
-                    if self.sign_in_user_input_successful == False:
-                        return(False,'no valid sign in')
+            
+    def check_updates(self):
 
-                old_user_db = SqlUserDataManager(self)
-                old_user_db_salt = login_dict.get("user_db_salt")
-
-                if  login_dict.get("user_db_config") == 'database_password_encrypted':
-                    db_password = self.sign_in_password
-                    old_user_db.set_db_config('database_password_encrypted','database','EasyTARC_Database_User','_crypted.sql.gz',db_password,old_user_db_salt)
-                else:
-                    str_format = login_dict.get("user_str_format")
-                    db_password = self.authorisation_old.create_user_db_password(str_format)
-                    old_user_db.set_db_config('database_username_encrypted','database','EasyTARC_Database_User','_crypted.sql.gz',db_password,old_user_db_salt)
-
-                ######
-
-                old_memory_db_conn = old_user_db.open_db_conn()
-                query = "".join(line for line in old_memory_db_conn.iterdump())
-                old_memory_db_conn.close()
-
-                ######
-
-                new_user_db = SqlUserDataManager(self)
-                new_db_salt = ''
-
-                if  login_dict.get("user_db_config") == 'database_password_encrypted':
-                    db_password = self.sign_in_password
-                    new_user_db.create_empty_db('database_password_encrypted','database','New_EasyTARC_Database_User','_crypted.sql.gz',db_password,new_db_salt)
-                else:
-                    str_format = login_dict.get("user_str_format")
-                    db_password = self.authorisation_new.create_user_db_password(str_format)
-                    new_user_db.create_empty_db('database_username_encrypted','database','New_EasyTARC_Database_User','_crypted.sql.gz',db_password,new_db_salt)
-                
-                ######
-                
-                new_memory_db_conn = new_user_db.open_db_conn()
-                new_memory_db_conn.executescript(query)
-                new_user_db.save_and_close_db(new_memory_db_conn)
-                new_memory_db_conn.close()
-
-                ######
-
-                path = os.path.abspath(os.getcwd())
-                # renaming the old db in old_db 
-                file_path = path +'\\' + 'database'  + '\\' + 'EasyTARC_Database_User' + '_crypted.sql.gz'
-                file_path_old = path +'\\' + 'database' + '\\old_' + 'EasyTARC_Database_User' + '_crypted.sql.gz'
-                os.rename(file_path, file_path_old)
-
-                # renaming the new_db in db 
-                file_path_new = path +'\\' + 'database'  + '\\' + 'New_EasyTARC_Database_User'  + '_crypted.sql.gz'
-                os.rename(file_path_new, file_path)
-
-                ######
-
-                os.remove(path+'\\' + 'database' + '\\' + 'old_' + 'EasyTARC_Database_User' + '_crypted.sql.gz')
-
-            login_dict_new = {
-                'user_db_config': login_dict.get("user_db_config"),
-                'user_str_format': login_dict.get("user_str_format"),
-                'user_permission': login_dict.get("user_permission")
-                }
-            login_json_file = open('login.json',"w+",encoding='UTF-8')
-            json.dump(login_dict_new, login_json_file)
-            login_json_file.close()
-
+        #older version than 1.10.1 are not supported
+        if self.check_for_update_to_version_str(self.start_version,'1.10.1') == True:
+            return(False)
+        
         #check for 1.11.0 update
         if self.check_for_update_to_version_str(self.start_version,'1.11.0') == True:
             update_dict = {"auto_minimize_mode": "on",

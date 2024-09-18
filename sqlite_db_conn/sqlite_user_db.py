@@ -55,10 +55,6 @@ class SqlUserDataManager(SqlManager):
             try:
                 if self.main_app.get_version_update() == True:
 
-                    #check for 1.10.0 update
-                    if self.main_app.check_for_update_to_version_str(self.main_app.get_start_version(),'1.10.0') == True and self.check_column_name_accounts_auto_booking() == True:
-                        self.update_1_10_0()
-
                     #check for 1.11.0 update
                     if self.main_app.check_for_update_to_version_str(self.main_app.get_start_version(),'1.11.0') == True:
                         self.update_1_11_0()
@@ -71,109 +67,6 @@ class SqlUserDataManager(SqlManager):
             return(True)
         except:
             return(False)
-        
-    def check_column_name_accounts_auto_booking(self):
-        conn = self.open_db_conn()
-        cur = conn.cursor()
-
-        info = cur.execute("select * from accounts")
-        columns = [item[0] for item in info.description]
-        self.save_and_close_db(conn)
-        if 'auto_booking' in columns:
-            return(True)
-        else:
-            return(False)
-        
-    def update_1_10_0(self):
-        conn = self.open_db_conn()
-        cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS new_table_accounts (
-            accountid INT PRIMARY KEY,
-            account_kind INT,
-            main_id INT,
-            name TEXT,
-            description_text TEXT,
-            project_label TEXT,
-            order_label TEXT,
-            process_label TEXT,
-            response_code TEXT,
-            response_texts_main INT,
-            response_texts TEXT,
-            external_booking INT,
-            status TEXT,
-            group_name TEXT,
-            bookable INT,
-            expiration_year INT,
-            expiration_month INT,
-            expiration_day INT,
-            available_hours REAL
-            );
-            """)
-
-        cur = conn.cursor()
-        cur.execute("""INSERT INTO new_table_accounts (
-                    accountid,
-                    account_kind,
-                    main_id,
-                    name,
-                    description_text,
-                    project_label,
-                    order_label,
-                    process_label,
-                    response_code,
-                    response_texts,
-                    external_booking,
-                    status,
-                    group_name,
-                    bookable,
-                    expiration_year,
-                    expiration_month,
-                    expiration_day,
-                    available_hours
-                    )
-                    SELECT 
-
-                    accountid,
-                    account_kind,
-                    main_id,
-                    name,
-                    description_text,
-                    project_label,
-                    order_label,
-                    process_label,
-                    response_code,
-                    default_response_text,
-                    auto_booking,
-                    status,
-                    group_name,
-                    bookable,
-                    expiration_year,
-                    expiration_month,
-                    expiration_day,
-                    available_hours REAL
-                    FROM accounts;
-                    """)
-        
-        cur = conn.cursor()
-        cur.execute("DROP TABLE accounts;")
-
-        cur = conn.cursor()
-        cur.execute("ALTER TABLE new_table_accounts RENAME TO accounts;")
-
-        cur = conn.cursor()
-        cur.execute("""UPDATE accounts SET response_texts_main = ? WHERE account_kind = ?""",(1,1,))
-
-        cur = conn.cursor()
-        cur.execute("""UPDATE accounts SET response_texts_main = ? WHERE account_kind = ?""",(0,0,))
-
-        cur = conn.cursor()
-        cur.execute("""UPDATE accounts SET status = ? WHERE status = ?""",('open','hidden',))
-
-        cur = conn.cursor()
-        cur.execute("DROP TABLE response_text_templates;")
-
-        self.save_and_close_db(conn)
-        print("sql_update_1_10_0")
 
     def update_1_11_0(self):
         conn = self.open_db_conn()

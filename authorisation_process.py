@@ -25,7 +25,7 @@ class Authorisation():
         self.algorithm = algorithm
         self.request_hash_complement= 'hash_complement_A'
         self.permission_hash_complement = 'hash_complement_B'
-        self.user_db_hash_complement = 'hash_complement_X'
+        self.user_db_hash_complement = 'hash_complement_X' #hash_complement_X
 
     def create_user_data_str(self,str_format):
         if str_format == 'u':

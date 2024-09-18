@@ -329,6 +329,9 @@ class AccountClock(Clock):
     def get_time_left(self):
             return(0,'')
     
+    def get_response_texts_main(self):
+        return(self.response_texts_main)
+    
     def set_response_text(self,response_text):
         self.response_text = response_text
 

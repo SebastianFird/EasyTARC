@@ -529,6 +529,9 @@ class ClockFrame(tk.Frame):
         self.on_clock_frame = False
         self.lbl_current_added_time_ttp.set_count_down_near_end()
         self.update_background_color()
+        if self.response_text_edit == True:
+            self.response_text_edit = False
+            self.update_response_text_lbl_state()
 
     def clock_frame_clicked(self,e=None):
         if self.main_app.get_action_state() == "normal" or self.main_app.get_action_state() == "endofwork":
@@ -731,7 +734,7 @@ class ClockFrame(tk.Frame):
                 self.response_text_lbl_state = "cbox"
                 update_pack = True
 
-        elif (self.clock.get_runninig() == True or total_time != "00:00:00") and self.response_text_edit == False and self.clock.get_clock_kind() == 'main' and self.clock.get_id() != 0:
+        elif (self.clock.get_runninig() == True or total_time != "00:00:00") and self.response_text_edit == False and (self.clock.get_clock_kind() == 'main' or (self.clock.get_clock_kind() == 'sub' and self.clock.get_response_texts_main() != 1)) and self.clock.get_id() != 0:
             if self.response_text_lbl_state != "edit":
                 self.response_text_lbl_state = "edit"
                 update_pack = True
