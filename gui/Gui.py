@@ -255,6 +255,7 @@ class Gui_Manager:
     
     
     def unminimize(self,event = None):
+        self.data_manager.set_last_tracked_interaction()
         if self.status_main_window == False and self.on_window_switch == False:
             self.on_window_switch = True
             self.activate_current_tab()
@@ -272,6 +273,7 @@ class Gui_Manager:
             self.main_window.after(10, lambda:self.save_work_window_pos())
             
     def minimize(self,event = None):
+        self.data_manager.set_last_tracked_interaction()
         if self.status_main_window == True:
             self.status_main_window = False
             if self.main_app.get_action_state() != 'disabled' and self.on_window_switch == False:

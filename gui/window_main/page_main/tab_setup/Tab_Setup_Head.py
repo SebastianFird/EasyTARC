@@ -75,7 +75,12 @@ class SetupHead:
         self.main_head_frame.configure(background=self.style_dict["header_color_blue"])
         self.main_head_frame.pack(side = "top", fill = "x")
 
-        self.lbl_version = MyLabel(self.main_head_frame, self.data_manager,text=self.language_dict['version'] + ': ' + str(self.main_app.get_app_version()))
+        version_text=self.language_dict['version'] + ': ' + str(self.main_app.get_app_version())
+
+        if str(self.main_app.get_customization_name()) != "":
+            version_text = version_text + ' - ' + str(self.main_app.get_customization_name())
+               
+        self.lbl_version = MyLabel(self.main_head_frame, self.data_manager,text = version_text)
         self.lbl_version.configure(background=self.style_dict["header_color_blue"],foreground = self.style_dict["font_color_white"])
         self.lbl_version.pack(side='left',padx = 10,pady=10)
 
@@ -127,7 +132,8 @@ class SetupHead:
         return
     
     def show_your_data(self):
-        text = self.language_dict['your_data_text_1'] 
+        text = self.main_app.get_privacy_policy_dict()[self.language_dict['language_name']]
+        text = text + "\n______________________________________________________________________\n\n" + self.language_dict['your_data_text_1'] 
         text = text + "\n\n" + self.language_dict["your_data_text_2"]
 
         info_window = InfoWindow(self.main_app, self.gui, self.setup_tab.main_frame ,text,600,400)

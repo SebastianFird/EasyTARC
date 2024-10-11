@@ -31,6 +31,8 @@ from gui.Window_Additionals import CreateInfo
 from gui.Window_Additionals import CreateToolTip
 from gui.Window_Additionals import CreateToolResponse
 from gui.Scroll_Frame import Scroll_Frame
+from style_classes import MyCheckbutton
+from tkinter import font
 
 from style_classes import MyFrame
 from style_classes import MyLabelPixel
@@ -64,6 +66,8 @@ class LoginWindow(tk.Frame):
 
         font_size_3 = str(int(self.main_app.get_setting('font_size')) - 1)
         self.Font_tuple_small = (font_family, font_size_3, "normal")
+
+        self.Font_tuple_underline = font.Font(family=font_family, size=int(self.main_app.get_setting('font_size')),underline=True)
 
         self.x_win = None
         self.y_win = None
@@ -147,7 +151,8 @@ class LoginWindow(tk.Frame):
         self.scroll_frame = self.scroll.create_scroll_frame(self.body_frame)
         self.create_sign_up_header()
 
-        self.create_permission_frame()
+        if self.main_app.get_restricted_user_group() == True:
+            self.create_permission_frame()
         self.create_db_config_frame()
         self.create_transfer_data_frame()
 
@@ -170,6 +175,9 @@ class LoginWindow(tk.Frame):
     ######################################################################################################################
 
     def create_sign_up_header(self):
+
+        self.accept = tk.IntVar()
+        self.accept.set(0)
 
         self.top_frame = MyFrame(self.scroll_frame,self.data_manager)
         self.top_frame.pack(side = "top", fill = "x")
@@ -219,7 +227,8 @@ class LoginWindow(tk.Frame):
         self.btn_already_using_easytarc_ttp.hideinfo()
 
     def activate_already_using_easytarc(self,e=None):
-        self.permission_frame.pack_forget()
+        if self.main_app.get_restricted_user_group() == True:
+            self.permission_frame.pack_forget()
         self.db_config_frame.pack_forget()
         self.transfer_data_frame.pack_forget()
 
@@ -441,11 +450,38 @@ class LoginWindow(tk.Frame):
         self.apply_frame = MyFrame(self.db_config_frame,self.data_manager)
         self.apply_frame.pack(side = "bottom", fill = "x" )
 
+        self.apply_frame_empty = MyFrame(self.apply_frame,self.data_manager)
+        self.apply_frame_empty.pack(side = "top", fill = "x")
+
+        self.lbl_empty_4 = MyLabel(self.apply_frame_empty,self.data_manager,anchor='w',justify='left',width=4)
+        self.lbl_empty_4.pack(side = "top",fill='x')
+
+        self.apply_frame_accept = MyFrame(self.apply_frame,self.data_manager)
+        self.apply_frame_accept.pack(side = "top", fill = "x")
+
+        self.checkBox_accept = MyCheckbutton(self.apply_frame_accept, self.data_manager,
+                                                variable=self.accept)
+        self.checkBox_accept.pack(side="left", padx=10)
+        self.checkBox_accept.deselect()
+
+        self.lbl_accept_2 = MyLabel(self.apply_frame_accept,self.data_manager,anchor='w',justify='left',width=15,text=self.language_dict["I_accept"])
+        self.lbl_accept_2.pack(side = "left")
+        self.lbl_accept_2.bind('<Button-1>',self.toogle_checkBox_accept)
+
+        self.btn_policy_2 = MyLabel(self.apply_frame_accept,self.data_manager,anchor='w',justify='left',width=20,text=self.language_dict["privacy_policy"], font=self.Font_tuple_underline)
+        self.btn_policy_2.configure(foreground=self.style_dict["header_color_blue"])
+        self.btn_policy_2.pack(side = "left")
+
+        self.btn_policy_2.bind('<Button-1>',self.show_privacy_policy)
+
+        self.btn_license_2 = MyLabel(self.apply_frame_accept,self.data_manager,anchor='w',justify='left',width=10,text=self.language_dict["license"], font=self.Font_tuple_underline)
+        self.btn_license_2.configure(foreground=self.style_dict["header_color_blue"])
+        self.btn_license_2.pack(side = "left")
+
+        self.btn_license_2.bind('<Button-1>',self.show_liecense)
+
         self.apply_frame_head = MyFrame(self.apply_frame,self.data_manager)
         self.apply_frame_head.pack(side = "top", fill = "x")
-
-        self.lbl_empty_4 = MyLabel(self.apply_frame_head,self.data_manager,anchor='w',justify='left',width=4)
-        self.lbl_empty_4.pack(side = "top",fill='x')
 
         self.lbl_sign_up_faild_info = MyLabel(self.apply_frame_head,self.data_manager)
         self.lbl_sign_up_faild_info.configure(foreground=self.style_dict["caution_color_red"])
@@ -488,6 +524,21 @@ class LoginWindow(tk.Frame):
             self.password_frame.pack(side = "top", fill = "x")            
         return
     
+    def show_privacy_policy(self,e=None):
+        text = self.main_app.get_privacy_policy_dict()[self.language_dict['language_name']]
+        info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,700,500,False,True)
+        return
+    
+    def show_liecense(self,e=None):
+        text = self.main_app.get_license()
+        info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,700,500,False,True)
+        return
+    
+    def toogle_checkBox_accept(self,e=None):
+        if self.accept.get() == 0:
+            self.accept.set(1)
+        else:
+            self.accept.set(0)
     
     def sign_up(self,e=None):
         self.main_app.sign_up_dict['sign_up_db_config'] = self.language_dict[self.clicked_db_config_option.get()]
@@ -511,7 +562,12 @@ class LoginWindow(tk.Frame):
                 return()
             else:
                 self.main_app.sign_up_dict['sign_up_password'] = passowrd_1
-                self.lbl_sign_up_faild_info.configure(text ='')           
+                self.lbl_sign_up_faild_info.configure(text ='')       
+
+        if self.accept.get() == 0:
+            self.lbl_sign_up_faild_info.configure(text = self.language_dict["please_accept_license_privacy_policy"])
+            return()
+
 
         self.main_app.sign_up_user_input_successful = True
         self.close_window()
@@ -604,7 +660,40 @@ class LoginWindow(tk.Frame):
 
         #########
 
-        self.apply_transfer_frame = MyFrame(self.transfer_data_frame,self.data_manager)
+        self.apply_frame = MyFrame(self.transfer_data_frame,self.data_manager)
+        self.apply_frame.pack(side = "bottom", fill = "x" )
+
+        self.apply_frame_empty = MyFrame(self.apply_frame,self.data_manager)
+        self.apply_frame_empty.pack(side = "top", fill = "x")
+
+        self.lbl_empty_4 = MyLabel(self.apply_frame_empty,self.data_manager,anchor='w',justify='left',width=4)
+        self.lbl_empty_4.pack(side = "top",fill='x')
+
+        self.apply_frame_accept = MyFrame(self.apply_frame,self.data_manager)
+        self.apply_frame_accept.pack(side = "top", fill = "x")
+
+        self.checkBox_accept = MyCheckbutton(self.apply_frame_accept, self.data_manager,
+                                                variable=self.accept)
+        self.checkBox_accept.pack(side="left", padx=10)
+        self.checkBox_accept.deselect()
+
+        self.lbl_accept_1 = MyLabel(self.apply_frame_accept,self.data_manager,anchor='w',justify='left',width=15,text=self.language_dict["I_accept"])
+        self.lbl_accept_1.pack(side = "left")
+        self.lbl_accept_2.bind('<Button-1>',self.toogle_checkBox_accept)
+
+        self.btn_policy_1 = MyLabel(self.apply_frame_accept,self.data_manager,anchor='w',justify='left',width=20,text=self.language_dict["privacy_policy"], font=self.Font_tuple_underline)
+        self.btn_policy_1.configure(foreground=self.style_dict["header_color_blue"])
+        self.btn_policy_1.pack(side = "left")
+
+        self.btn_policy_1.bind('<Button-1>',self.show_privacy_policy)
+
+        self.btn_license_1 = MyLabel(self.apply_frame_accept,self.data_manager,anchor='w',justify='left',width=20,text=self.language_dict["license"], font=self.Font_tuple_underline)
+        self.btn_license_1.configure(foreground=self.style_dict["header_color_blue"])
+        self.btn_license_1.pack(side = "left")
+
+        self.btn_license_1.bind('<Button-1>',self.show_liecense)
+
+        self.apply_transfer_frame = MyFrame(self.apply_frame,self.data_manager)
         self.apply_transfer_frame.pack(side = "top", fill = "x")
 
         self.lbl_transfer_not_possible_info = MyLabel(self.apply_transfer_frame,self.data_manager,text ='')
@@ -661,6 +750,10 @@ class LoginWindow(tk.Frame):
         if self.settings_file_found == False or self.database_folder_found == False or self.login_file_found == False:
             self.lbl_transfer_not_possible_info.configure(text = self.language_dict["transfer_not_possible"])
             return
+        
+        if self.accept.get() == 0:
+            self.lbl_transfer_not_possible_info.configure(text = self.language_dict["please_accept_license_privacy_policy"])
+            return()
 
         self.lbl_transfer_not_possible_info.configure(text = '')
         self.main_app.old_easytarc_path_dict['login_file_path'] = self.login_file_path
@@ -685,14 +778,15 @@ class LoginWindow(tk.Frame):
         self.lbl_short_description.configure(text=self.language_dict['easy_tarc_short_description'] + '\n\n' + self.language_dict['info_description_1'] + u'\U00002139' + self.language_dict['info_description_2'])
         self.btn_already_using_easytarc_ttp.text = self.language_dict["import_backup"]
 
-        self.lbl_permisson_headline.configure(text = self.language_dict['permission'])
-        self.lbl_permission_request_info_ttp.text = self.language_dict["permission_request_info"]
-        self.lbl_permission_request.configure(text = self.language_dict["permission_request_code"] + ':')
-        self.btn_copy_request_code_ttp.text = self.language_dict["copy"]
-        self.btn_copy_request_code_ttp_2.text = self.language_dict["copied"]
-        self.lbl_permission_response_info_ttp.text = self.language_dict["permission_response_info"]
-        self.lbl_permission_response.configure(text = self.language_dict["permission_response_code"] + ':')
-        self.btn_paste_response.configure(text=self.language_dict["paste"])
+        if self.main_app.get_restricted_user_group() == True:
+            self.lbl_permisson_headline.configure(text = self.language_dict['permission'])
+            self.lbl_permission_request_info_ttp.text = self.language_dict["permission_request_info"]
+            self.lbl_permission_request.configure(text = self.language_dict["permission_request_code"] + ':')
+            self.btn_copy_request_code_ttp.text = self.language_dict["copy"]
+            self.btn_copy_request_code_ttp_2.text = self.language_dict["copied"]
+            self.lbl_permission_response_info_ttp.text = self.language_dict["permission_response_info"]
+            self.lbl_permission_response.configure(text = self.language_dict["permission_response_code"] + ':')
+            self.btn_paste_response.configure(text=self.language_dict["paste"])
 
         self.lbl_db_config_headline.configure(text = self.language_dict['db_config'])
         self.lbl_option.configure(text=self.language_dict["options"] + ':')
@@ -710,6 +804,14 @@ class LoginWindow(tk.Frame):
         self.lbl_folder_request_info_ttp.text = self.language_dict["sign_up_transfer_data_info"]
         self.lbl_folder_request.configure(text=self.language_dict["old_easytarc_folder"] + ':')
         self.btn_start_transfer.configure(text=self.language_dict["start_easytarc"])
+
+        self.btn_license_1.configure(text=self.language_dict["license"])
+        self.btn_policy_1.configure(text=self.language_dict["privacy_policy"])
+        self.lbl_accept_1.configure(text=self.language_dict["I_accept"])
+        self.btn_license_2.configure(text=self.language_dict["license"])
+        self.btn_policy_2.configure(text=self.language_dict["privacy_policy"])
+        self.lbl_accept_2.configure(text=self.language_dict["I_accept"])
+
 
         self.main_app.set_local_format(language_name)
 

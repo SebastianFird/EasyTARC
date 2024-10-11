@@ -436,7 +436,7 @@ class CreateInfo(object):
 
 
 class InfoWindow(tk.Toplevel):
-    def __init__(self ,main_app, gui, widget, text, w, h, highlight_window = False,  *args, **kwargs):
+    def __init__(self ,main_app, gui, widget, text, w, h, highlight_window = False, login_window = False,  *args, **kwargs):
         tk.Toplevel.__init__(self,widget)
 
         self.gui = gui
@@ -446,6 +446,7 @@ class InfoWindow(tk.Toplevel):
         self.language_dict = self.data_manager.get_language_dict()
         self.widget = widget
         self.highlight_window = highlight_window
+        self.login_window = login_window
 
         geo_factor = float(self.main_app.get_setting("geometry_factor"))
         self.w = int(round(geo_factor*w))
@@ -541,8 +542,12 @@ class InfoWindow(tk.Toplevel):
         bodyframe.pack(side = "top", fill = "both", expand = True)
 
     def close_window(self,*event):
-        self.gui.enable_main_window()
-        self.gui.activate_current_tab()
+        
+        if self.login_window == True:
+            self.gui.enable_login_window()
+        else:
+            self.gui.enable_main_window()
+            self.gui.activate_current_tab()
         self.destroy()
 
 
