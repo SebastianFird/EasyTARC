@@ -336,7 +336,7 @@
         "available_hours_see_main":"Da für dieses Unterkonto kein Stundenvolumen angegeben ist,\nfließt diese Zeit in das Stundenvolumen des Hauptkontos.",
         "main_share_of_available_hours":"Anteil der erfassten Stunden des Hauptkontos\nam Stundenvolumen:",
         "sub_share_of_available_hours":"Anteil der erfassten Stunden dieses Unterkontos\nam Stundenvolumen:",
-        "hours_used":"Verbrauchte Stunden",
+        "hours_used":"Erfasste Stunden",
         "days":"d",
         "weeks":"w",
         "performance_indicators":"Leistungskennzahlen",
@@ -361,7 +361,7 @@
         "restore_step_4_text":"Im Tab 'Erfasste Zeiten' taucht nun die korrigierte Erfassung unter dem Datum von heute auf. Per 'Rechtsklick' kannst du den Tag auswählen und mithilfe eines zweiten 'Rechtsklick' das richtige Datum einstellen.",
         "change_date":"Datum ändern",
         "progress" : "Fortschritt",
-        "hours_used_sub_info":"Diese verbrauchten Stunden sind Teil der\nverbrauchten Stunden des Hauptkontos.",
+        "hours_used_sub_info":"Diese erfassten Stunden sind Teil der\nerfassten Stunden des Hauptkontos.",
         "share_of_the_main_account":"Anteil des Hauptkontos",
         "choose_folder":"Ordner wählen",
         "back_up_2":"Sekundäre Sicherung",
@@ -402,7 +402,7 @@
         "invalid_remaining_time":"Die Eingabe ist ungültig, da das Stundenvolumen negativ wäre.",
         "total_time_info":"Erfasste Zeit",
         "single_times_info":"In der Ansicht Korrektur kann die erfasste Zeit angepasst werden.\nLinks die erfasste Zeit und rechts die durchgeführten Korrekturen.\nDurch das Hovern über den Korrekturen wird der Verlauf dieser angezeigt.",
-        "progress_info":"Die Ansicht Fortschritt zeigt den zeitlichen Abstand zu dem\nangegebenen Gültigkeits-Datum, die verbleibenden Stunden,\nden  prozenutalen Fortschritt und die verbrauchten Stunden.\nHover über den Werten für mehr Infos.",
+        "progress_info":"Die Ansicht Fortschritt zeigt den zeitlichen Abstand zu dem\nangegebenen Gültigkeits-Datum, die verbleibenden Stunden,\nden  prozenutalen Fortschritt und die erfassten Stunden.\nHover über den Werten für mehr Infos.",
         "notifications":"Mitteilungen",
         "duplicate_main_account":"Hauptkonto duplizieren",
         "main_response_texts":"Hauptkonto Vorlagen",
@@ -458,7 +458,8 @@
         "privacy_policy":"Datenschutzerklärung",
         "license":"Lizenz",
         "please_accept_license_privacy_policy":"Bitte akzeptiere die Lizenz und die Datenschutzerklärung.",
-        "I_accept":"Ich akzeptiere:"
+        "I_accept":"Ich akzeptiere:",
+        "release_note_text_20":"1.12.2 (15.10.2024)\n - Verbesserung der Arbeitsfenster.\n - Update der Datenschutzerklärung."
     },
     "english": 
     {
@@ -797,7 +798,7 @@
         "available_hours_see_main":"As no available hours is specified for this sub-account,\nthis time flows into the available hours of the main-account.",
         "main_share_of_available_hours":"Share of the recorded hours of the main-account\n in the volume of available hours:",
         "sub_share_of_available_hours":"Share of the recorded hours of this sub-account\n in the volume of available hours:",
-        "hours_used":"Hours used",
+        "hours_used":"Hours recorded",
         "days":"d",
         "weeks":"w",
         "performance_indicators":"Performance indicators",
@@ -822,7 +823,7 @@
         "restore_step_4_text":"The corrected recording now appears under today's date in the 'Recorded times' tab. Right-click to select the day and right-click a second time to set the correct date.",
         "change_date":"Change Date",
         "progress" : "Progress",
-        "hours_used_sub_info":"These used hours are part of the\nused hours of the main-account",
+        "hours_used_sub_info":"These recorded hours are part of the\nrecorded hours of the main-account",
         "share_of_the_main_account":"Share of the main-account",
         "choose_folder":"Choose folder",
         "back_up_2":"Secondary back up",
@@ -863,7 +864,7 @@
         "percent_progress":"Percentage progress",
         "total_time_info":"Recorded time",
         "single_times_info":"The recorded time can be adjusted in the Correction view.\nThe recorded time on the left and the corrections made on the right.\nHovering over the corrections displays their progress.",
-        "progress_info":"The Progress view shows the time interval to the\nspecified validity date, the remaining hours,\nthe percentage progress and the hours used.\nHover over the values for more information.",
+        "progress_info":"The Progress view shows the time interval to the\nspecified validity date, the remaining hours,\nthe percentage progress and the hours recorded.\nHover over the values for more information.",
         "notifications":"Notifications",
         "duplicate_main_account":"Duplicate main-account",
         "main_response_texts":"Main-account templates",
@@ -919,6 +920,7 @@
         "privacy_policy":"Privacy policy",
         "license":"License",
         "please_accept_license_privacy_policy":"Please accept the licenseand the privacy policy.",
-        "I_accept":"I accept:"
+        "I_accept":"I accept:",
+        "release_note_text_20":"1.12.2 (15.10.2024)\n - Improvement of the working windows.\n - Update of the privacy policy."
     }
 }

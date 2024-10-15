@@ -350,9 +350,9 @@ class WorkWindowList(tk.Toplevel):
         self.title_bar.configure(background=background_color)
         self.lbl_name.configure(background=background_color)
         self.lbl_emtpy.configure(background=background_color)
-        if self.on_close_button == False:
-            self.close_button.configure(background=background_color)
-            self.close_button_v.configure(background=background_color)
+        if self.on_option_button == False:
+            self.option_button.configure(background=background_color)
+            self.option_button_v.configure(background=background_color)
         if self.on_expand_button == False:
             self.expand_btn.configure(background=background_color)
             self.expand_btn_v.configure(background=background_color)
@@ -382,15 +382,15 @@ class WorkWindowList(tk.Toplevel):
         self.vertical_btn_frame = MyFrame(self.vertical_frame,self.data_manager)
         self.vertical_btn_frame.pack(side='top')
 
-        self.close_button_v = MyLabelPixel(self.vertical_btn_frame, self.data_manager, text=' X ')
-        self.close_button_v.configure(background=self.style_dict["titlebar_color"], width=30, height=30)
-        self.close_button_v.pack(side='top')
-        self.close_button_v.bind('<Button-1>', self.close_window)
-        self.on_close_button_v = False
-        self.close_work_window_v_ttp = CreateInfo(self.close_button_v, self.data_manager, -150, 40, self.language_dict["close_work_window"])
-        self.close_button_v.bind("<Enter>", self.enter_close_v)
-        self.close_button_v.bind("<Leave>", self.leave_close_v)
-        self.close_button_v.bind("<Button-3>", self.right_clicked)
+        self.option_button_v = MyLabelPixel(self.vertical_btn_frame, self.data_manager, text=u'\U00002026')
+        self.option_button_v.configure(background=self.style_dict["titlebar_color"], width=30, height=20)
+        self.option_button_v.pack(side='top')
+        self.option_button_v.bind('<Button-1>', self.option_clicked)
+        self.on_option_button_v = False
+        self.option_work_window_v_ttp = CreateInfo(self.option_button_v, self.data_manager, -70, 40, self.language_dict["options"])
+        self.option_button_v.bind("<Enter>", self.enter_option_v)
+        self.option_button_v.bind("<Leave>", self.leave_option_v)
+        self.option_button_v.bind("<Button-3>", self.right_clicked)
 
         self.expand_btn_v = MyLabelPixel(self.vertical_btn_frame, self.data_manager)
         self.expand_btn_v.configure(text = u'\U00002302', background=self.style_dict["titlebar_color"], width=30, height=30) # u'\U0001F532'
@@ -430,15 +430,15 @@ class WorkWindowList(tk.Toplevel):
         font_size = self.main_app.get_setting('font_size')
         Font_tuple = (font_family, font_size)
 
-        self.canvas_lbl_name = tk.Canvas(self.vertical_name_frame, width= self.win_vertical_width, height= 200, bg=self.style_dict["recording_color_green"], bd=0, highlightthickness=0)
+        self.canvas_lbl_name = tk.Canvas(self.vertical_name_frame, width= self.win_vertical_width, height= 210, bg=self.style_dict["recording_color_green"], bd=0, highlightthickness=0)
         self.canvas_lbl_name.pack(side='top')
-        self.canvas_text = self.canvas_lbl_name.create_text((15,180),text="Hello", fill=self.style_dict["font_color"], angle=90, font=Font_tuple,anchor="w")
-        self.canvas_lbl_name.bind("<Button-3>", self.right_clicked)
+        self.canvas_text = self.canvas_lbl_name.create_text((15,190),text="Hello", fill=self.style_dict["font_color"], angle=90, font=Font_tuple,anchor="w")
         self.canvas_lbl_name.bind("<Double-Button-1>", self.status_double_click)
         self.canvas_lbl_name.bind('<B1-Motion>', self.move_window)
         self.canvas_lbl_name.bind('<Button-1>', self.get_pos)
         self.canvas_lbl_name.bind('<ButtonRelease-1>', self.save_and_adjust_pos)
         self.canvas_lbl_name.bind("<Enter>", self.canvas_enter)
+        self.canvas_lbl_name.bind("<Button-3>", self.right_clicked)
         
 
 ##############################################################################################################################
@@ -452,15 +452,15 @@ class WorkWindowList(tk.Toplevel):
         self.title_bar_btn.configure(background=self.style_dict["titlebar_color"])
         self.title_bar_btn.pack(side='right', fill = "y")
 
-        self.close_button = MyLabel(self.title_bar_btn, self.data_manager, text='  X  ')
-        self.close_button.configure(background=self.style_dict["titlebar_color"], width = 5)
-        self.close_button.pack(side='right', fill = "y")
-        self.close_button.bind('<Button-1>', self.close_window)
-        self.on_close_button = False
-        self.close_work_window_ttp = CreateInfo(self.close_button, self.data_manager, -150, 40, self.language_dict["close_work_window"])
-        self.close_button.bind("<Enter>", self.enter_close)
-        self.close_button.bind("<Leave>", self.leave_close)
-        self.close_button.bind("<Button-3>", self.right_clicked)
+        self.option_button = MyLabel(self.title_bar_btn, self.data_manager, text=u'\U0000205D')
+        self.option_button.configure(background=self.style_dict["titlebar_color"], width = 3)
+        self.option_button.pack(side='right', fill = "y")
+        self.option_button.bind('<Button-1>', self.option_clicked)
+        self.on_option_button = False
+        self.option_work_window_ttp = CreateInfo(self.option_button, self.data_manager, -70, 40, self.language_dict["options"])
+        self.option_button.bind("<Enter>", self.enter_option)
+        self.option_button.bind("<Leave>", self.leave_option)
+        self.option_button.bind("<Button-3>", self.right_clicked)
 
         self.expand_btn = MyLabel(self.title_bar_btn, self.data_manager)
         self.expand_btn.configure(text = u'\U00002302', background=self.style_dict["titlebar_color"], width = 5) # u'\U0001F532'
@@ -493,8 +493,8 @@ class WorkWindowList(tk.Toplevel):
         self.lbl_emtpy = MyLabelPixel(self.title_bar_name, self.data_manager)
         self.lbl_emtpy.configure(text = '', background=self.style_dict["titlebar_color"],height=30) # u'\U0001F532'
         self.lbl_emtpy.pack(side='right')
-        self.lbl_emtpy.bind("<Button-3>", self.right_clicked)
         self.lbl_emtpy.bind("<Double-Button-1>", self.status_double_click)
+        self.lbl_emtpy.bind("<Button-3>", self.right_clicked)
 
         self.lbl_name = MyLabel(self.title_bar_name, self.data_manager)
         self.lbl_name.configure(background=self.style_dict["titlebar_color"],foreground=self.style_dict["font_color"], anchor='w',width=20)
@@ -502,9 +502,9 @@ class WorkWindowList(tk.Toplevel):
         self.lbl_name.bind('<B1-Motion>', self.move_window)
         self.lbl_name.bind('<Button-1>', self.get_pos)
         self.lbl_name.bind('<ButtonRelease-1>', self.save_and_adjust_pos)
-        self.lbl_name.bind("<Button-3>", self.right_clicked)
         self.lbl_name.bind("<Double-Button-1>", self.status_double_click)
         self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, 0, 40,'')
+        self.lbl_name.bind("<Button-3>", self.right_clicked)
 
     def create_btn_frame(self):
 
@@ -598,31 +598,25 @@ class WorkWindowList(tk.Toplevel):
 
 #################################################################################
 
-    def enter_close(self,e):
-        self.on_close_button = True
-        self.close_button.configure(background=self.style_dict["caution_color_red"])
-        self.close_work_window_ttp.scheduleinfo()
+    def enter_option(self,e):
+        self.on_option_button = True
+        self.option_button.configure(background=self.style_dict["header_color_blue"])
+        self.option_work_window_ttp.scheduleinfo()
 
-    def leave_close(self,e):
-        self.on_close_button = False
-        self.close_work_window_ttp.hideinfo()
+    def leave_option(self,e):
+        self.on_option_button = False
+        self.option_work_window_ttp.hideinfo()
         self.update()
 
-    def enter_close_v(self,e):
-        self.on_close_button_v = True
-        self.close_button_v.configure(background=self.style_dict["caution_color_red"])
-        self.close_work_window_v_ttp.scheduleinfo()
+    def enter_option_v(self,e):
+        self.on_option_button_v = True
+        self.option_button_v.configure(background=self.style_dict["header_color_blue"])
+        self.option_work_window_v_ttp.scheduleinfo()
 
-    def leave_close_v(self,e):
-        self.on_close_button_v = False
-        self.close_work_window_v_ttp.hideinfo()
+    def leave_option_v(self,e):
+        self.on_option_button_v = False
+        self.option_work_window_v_ttp.hideinfo()
         self.update()
-
-    def close_window(self,event):
-        if self.after_func_leave != None:
-            self.main_frame.after_cancel(self.after_func_leave)
-            self.after_func_leave = None
-        self.destroy()
 
 #################################################################################
 
@@ -683,9 +677,13 @@ class WorkWindowList(tk.Toplevel):
 
 #################################################################################
 
-    def right_clicked(self,e):
+    def option_clicked(self,e=None):
         if self.main_app.get_action_state() != "study":
             self.option_menu.popup(e)
+
+    def right_clicked(self,e):
+        if self.main_app.get_action_state() != "study":
+            self.option_menu.popup_small(e)
 
 ###################################################################################################################################################################################################################################################
 

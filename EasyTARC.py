@@ -71,13 +71,21 @@ class App():
         # creating auto start up link by sign up
         self.sign_up_auto_stratup_link = "off"                      # on / off          # OV: off
 
+        # Get the system's default locale
+        system_locale = locale.getlocale()
+        print(system_locale[0])
+        if system_locale[0] == "de_DE":
+            self.default_language = "german" 
+        else:
+            self.default_language = "english"                       # german / english  # OV: english
+
         # default language
-        self.default_language = "english"                           # german / english  # OV: english
+        self.only_task = True                                       # True / False      # OV: True
 
         ##########
         
         # this app version
-        self.app_version = '1.12.1'
+        self.app_version = '1.12.2'
 
         ##########
 
@@ -155,7 +163,7 @@ class App():
                 "english":"""
 Privacy Policy
 
-Last updated: 08/10/2024
+Last updated: 15/10/2024
 
 Introduction
 
@@ -167,8 +175,11 @@ Our App may access the following information during its execution:
 
 - Username
 - Start time of the PC
+- Date and time
+- Default system language
 - Locale folder in which the executable is saved
 - Width, height, and position of the screen
+- List of the executed subprocesses
 
 How We Use Your Information
 
@@ -176,7 +187,8 @@ The information accessed by our App is used solely to enhance your user experien
 
 - Optimize the performance of the App
 - Ensure the App functions correctly based on your system configuration
-- Data Storage and Transmission
+- Data Storage 
+- Ensure the App is not executed multiple times in parallel
 
 We do not store or transmit any of the information accessed by our App. All data is used in real-time during the execution of the App and is not retained after the App is closed.
 
@@ -202,7 +214,7 @@ If you have any questions about this privacy policy, please contact us at: easyt
                 "german":"""
 Datenschutzerklärung
 
-Zuletzt aktualisiert: 08.10.2024
+Zuletzt aktualisiert: 15.10.2024
 
 Einführung
 
@@ -213,9 +225,12 @@ Informationen, die wir erfassen
 Unsere App kann während ihrer Ausführung auf folgende Informationen zugreifen:
 
 - Benutzername
+- Standardsystemsprache
 - Startzeit des PCs
+- Datum und Uhrzeit
 - Lokaler Ordner, in dem die ausführbare Datei gespeichert ist
 - Breite, Höhe und Position des Bildschirms
+- Liste der ausgeführten Unterprozesse
 
 Wie wir Ihre Informationen nutzen
 
@@ -223,7 +238,8 @@ Die von unserer App erfassten Informationen werden ausschließlich zur Verbesser
 
 - Die Leistung der App zu optimieren
 - Sicherzustellen, dass die App basierend auf Ihrer Systemkonfiguration korrekt funktioniert
-- Datenspeicherung und -übertragung
+- Datenspeicherung
+- Sicherstellen, dass die App nicht mehrfach parallel ausgeführt wird
 
 Wir speichern oder übertragen keine der von unserer App erfassten Informationen. Alle Daten werden in Echtzeit während der Ausführung der App verwendet und nach dem Schließen der App nicht weiter aufbewahrt.
 
@@ -255,7 +271,7 @@ Wenn Sie Fragen zu dieser Datenschutzerklärung haben, kontaktieren Sie uns bitt
                 "english":"""
 Privacy Policy
 
-Last updated: 08/10/2024
+Last updated: 15/10/2024
 
 Introduction
 
@@ -266,8 +282,11 @@ Information We Collect
 Our App may access the following information during its execution:
 
 - Start time of the PC
+- Date and time
+- Default system language
 - Locale folder in which the executable is saved
 - Width, height, and position of the screen
+- List of the executed subprocesses
 
 How We Use Your Information
 
@@ -275,7 +294,8 @@ The information accessed by our App is used solely to enhance your user experien
 
 - Optimize the performance of the App
 - Ensure the App functions correctly based on your system configuration
-- Data Storage and Transmission
+- Data Storage
+- Ensure the App is not executed multiple times in parallel
 
 We do not store or transmit any of the information accessed by our App. All data is used in real-time during the execution of the App and is not retained after the App is closed.
 
@@ -301,7 +321,7 @@ If you have any questions about this privacy policy, please contact us at: easyt
                 "german":"""
 Datenschutzerklärung
 
-Zuletzt aktualisiert: 08.10.2024
+Zuletzt aktualisiert: 15.10.2024
 
 Einführung
 
@@ -312,8 +332,11 @@ Informationen, die wir erfassen
 Unsere App kann während ihrer Ausführung auf folgende Informationen zugreifen:
 
 - Startzeit des PCs
+- Standardsystemsprache
+- Datum und Uhrzeit
 - Lokaler Ordner, in dem die ausführbare Datei gespeichert ist
 - Breite, Höhe und Position des Bildschirms
+- Liste der ausgeführten Unterprozesse
 
 Wie wir Ihre Informationen nutzen
 
@@ -321,7 +344,8 @@ Die von unserer App erfassten Informationen werden ausschließlich zur Verbesser
 
 - Die Leistung der App zu optimieren
 - Sicherzustellen, dass die App basierend auf Ihrer Systemkonfiguration korrekt funktioniert
-- Datenspeicherung und -übertragung
+- Datenspeicherung 
+- Sicherstellen, dass die App nicht mehrfach parallel ausgeführt wird
 
 Wir speichern oder übertragen keine der von unserer App erfassten Informationen. Alle Daten werden in Echtzeit während der Ausführung der App verwendet und nach dem Schließen der App nicht weiter aufbewahrt.
 
@@ -578,8 +602,9 @@ Wenn Sie Fragen zu dieser Datenschutzerklärung haben, kontaktieren Sie uns bitt
 
     def start_process(self):
 
-        if self.check_only_task() == False:
-            return('not only task')
+        if self.only_task == True:
+            if self.check_only_task() == False:
+                return('not only task')
         
         ######
         

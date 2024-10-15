@@ -98,14 +98,8 @@ class WorkWindowOptionMenu(tkinter.Listbox):
                 self.optionmenu.add_separator()
 
             ##########
-                    
 
-            if self.main_app.get_action_state() == "normal" and self.work_window.pause_clock.get_runninig() == False:
-                self.optionmenu.add_command(label=self.language_dict["break"],command=self.activate_pause)
-            if self.main_app.get_action_state() == "normal" and self.work_window.pause_clock.get_runninig() == True:
-                last_active_clock = self.data_manager.get_last_active_clock()
-                if last_active_clock != None:
-                    self.optionmenu.add_command(label=self.language_dict["end_break"],command=lambda:self.activate_clock(last_active_clock))
+            self.optionmenu.add_command(label=self.language_dict["hide"],command=self.hide_window)
 
             ##########
 
@@ -113,12 +107,7 @@ class WorkWindowOptionMenu(tkinter.Listbox):
 
             ##########
 
-            if self.main_app.get_action_state() == "normal" and self.work_window.pause_clock.get_runninig() == False:
-                self.optionmenu.add_command(label=self.language_dict["break"],command=self.activate_pause)
-            if self.main_app.get_action_state() == "normal" and self.work_window.pause_clock.get_runninig() == True:
-                last_active_clock = self.data_manager.get_last_active_clock()
-                if last_active_clock != None:
-                    self.optionmenu.add_command(label=self.language_dict["end_break"],command=lambda:self.activate_clock(last_active_clock))
+            self.optionmenu.add_command(label=self.language_dict["hide"],command=self.hide_window)
             self.optionmenu.add_separator()
 
             ##########
@@ -179,12 +168,26 @@ class WorkWindowOptionMenu(tkinter.Listbox):
             if self.work_window.ww_kind == 'ww_bar' and self.work_window.attach_pos == 'down':
                 self.optionmenu.add_command(label=self.language_dict["ww_up"],command=lambda:self.attach_ww_bar_pos("top"))
 
+    def build_options_small(self):
+        self.optionmenu.delete(0, "end")
 
-
+        if self.main_app.get_action_state() == "normal" and self.work_window.pause_clock.get_runninig() == False:
+            self.optionmenu.add_command(label='        '+self.language_dict["break"]+'        ',command=self.activate_pause)
+        if self.main_app.get_action_state() == "normal" and self.work_window.pause_clock.get_runninig() == True:
+            last_active_clock = self.data_manager.get_last_active_clock()
+            if last_active_clock != None:
+                self.optionmenu.add_command(label='    '+self.language_dict["end_break"]+'    ',command=lambda:self.activate_clock(last_active_clock))
 
     def popup(self, event):
         try:
             self.build_options()
+            self.optionmenu.tk_popup((event.x_root), event.y_root)
+        finally:
+            self.optionmenu.grab_release()
+
+    def popup_small(self, event):
+        try:
+            self.build_options_small()
             self.optionmenu.tk_popup((event.x_root), event.y_root)
         finally:
             self.optionmenu.grab_release()
@@ -278,4 +281,10 @@ class WorkWindowOptionMenu(tkinter.Listbox):
     def attach_ww_bar_pos(self,attach_pos):
         self.work_window.set_attach_pos(attach_pos)
         return
+    
+    def hide_window(self,event=None):
+        if self.work_window.after_func_leave != None:
+            self.work_window.main_frame.after_cancel(self.work_window.after_func_leave)
+            self.work_window.after_func_leave = None
+        self.work_window.destroy()
     

@@ -250,15 +250,14 @@ class WorkWindowBar(WorkWindowCbox):
         self.status_frame.bind('<B1-Motion>', self.move_window)
         self.status_frame.bind('<Button-1>', self.get_pos)
         self.status_frame.bind('<ButtonRelease-1>', self.save_and_adjust_pos)
-        self.status_frame.bind("<Button-3>", self.right_clicked)
         self.status_frame.bind("<Enter>", self.status_enter)
         self.status_frame.bind("<Double-Button-1>", self.status_double_click)
 
         self.lbl_emtpy = MyLabelPixel(self.status_frame, self.data_manager)
         self.lbl_emtpy.configure(text = '', background=self.style_dict["titlebar_color"],height=30) # u'\U0001F532'
         self.lbl_emtpy.pack(side='left')
-        self.lbl_emtpy.bind("<Button-3>", self.right_clicked)
         self.lbl_emtpy.bind("<Double-Button-1>", self.status_double_click)
+        self.lbl_emtpy.bind("<Button-3>", self.right_clicked)
 
         self.lbl_name = MyLabel(self.status_frame, self.data_manager)
         self.lbl_name.configure(background=self.style_dict["titlebar_color"],foreground=self.style_dict["font_color"], anchor='w',width=18)
@@ -266,9 +265,9 @@ class WorkWindowBar(WorkWindowCbox):
         self.lbl_name.bind('<B1-Motion>', self.move_window)
         self.lbl_name.bind('<Button-1>', self.get_pos)
         self.lbl_name.bind('<ButtonRelease-1>', self.save_and_adjust_pos)
-        self.lbl_name.bind("<Button-3>", self.right_clicked)
         self.lbl_name.bind("<Double-Button-1>", self.status_double_click)
         self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, 50, 30,'')
+        self.lbl_name.bind("<Button-3>", self.right_clicked)
 
     def update_status_frame(self):
         if self.main_app.get_action_state() == 'disabled':
@@ -394,17 +393,16 @@ class WorkWindowBar(WorkWindowCbox):
         self.title_bar.bind('<B1-Motion>', self.move_window)
         self.title_bar.bind('<Button-1>', self.get_pos)
         self.title_bar.bind('<ButtonRelease-1>', self.save_and_adjust_pos)
-        self.title_bar.bind("<Button-3>", self.right_clicked)
 
-        self.close_button = MyLabel(self.title_bar, self.data_manager, text='X')
-        self.close_button.configure(background=self.style_dict["titlebar_color"], width = 5)
-        self.close_button.pack(side='right',fill='y',expand=True)
-        self.close_button.bind('<Button-1>', self.close_window)
-        self.on_close_button = False
-        self.close_work_window_ttp = CreateInfo(self.close_button, self.data_manager, 30, 25, self.language_dict["close_work_window"])
-        self.close_button.bind("<Enter>", self.enter_close)
-        self.close_button.bind("<Leave>", self.leave_close)
-        self.close_button.bind("<Button-3>", self.right_clicked)
+        self.option_button = MyLabel(self.title_bar, self.data_manager, text=u'\U0000205D')
+        self.option_button.configure(background=self.style_dict["titlebar_color"], width = 3)
+        self.option_button.pack(side='right',fill='y',expand=True)
+        self.option_button.bind('<Button-1>', self.option_clicked)
+        self.on_option_button = False
+        self.option_work_window_ttp = CreateInfo(self.option_button, self.data_manager, 30, 25, self.language_dict["options"])
+        self.option_button.bind("<Enter>", self.enter_option)
+        self.option_button.bind("<Leave>", self.leave_option)
+        self.option_button.bind("<Button-3>", self.right_clicked)
 
         self.expand_btn = MyLabel(self.title_bar, self.data_manager)
         self.expand_btn.configure(text = u'\U00002302', background=self.style_dict["titlebar_color"], width = 5) # u'\U0001F532'
@@ -442,8 +440,8 @@ class WorkWindowBar(WorkWindowCbox):
             background_color = self.style_dict["titlebar_color"]
 
         self.title_bar.configure(background=background_color)
-        if self.on_close_button == False:
-            self.close_button.configure(background=background_color)
+        if self.on_option_button == False:
+            self.option_button.configure(background=background_color)
         if self.on_expand_button == False:
             self.expand_btn.configure(background=background_color)
         if self.on_list_btn == False:

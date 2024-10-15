@@ -257,21 +257,25 @@ class WorkWindowCbox(tk.Toplevel):
 
 #################################################################################
 
-    def enter_close(self,e):
-        self.on_close_button = True
-        self.close_button.configure(background=self.style_dict["caution_color_red"])
-        self.close_work_window_ttp.scheduleinfo()
+    def enter_option(self,e):
+        self.on_option_button = True
+        self.option_button.configure(background=self.style_dict["header_color_blue"])
+        self.option_work_window_ttp.scheduleinfo()
 
-    def leave_close(self,e):
-        self.on_close_button = False
-        self.close_work_window_ttp.hideinfo()
+    def leave_option(self,e):
+        self.on_option_button = False
+        self.option_work_window_ttp.hideinfo()
         self.update()
 
-    def close_window(self,event):
-        if self.after_func_leave != None:
-            self.main_frame.after_cancel(self.after_func_leave)
-            self.after_func_leave = None
-        self.destroy()
+    def option_clicked(self,e):
+        if self.main_app.get_action_state() != "study":
+            self.option_menu.popup(e)
+
+#################################################################################
+
+    def right_clicked(self,e):
+        if self.main_app.get_action_state() != "study":
+            self.option_menu.popup_small(e)
 
 #################################################################################
 
@@ -291,11 +295,5 @@ class WorkWindowCbox(tk.Toplevel):
             self.after_func_leave = None
         self.gui.unminimize()
         self.root.deiconify()
-
-#################################################################################
-
-    def right_clicked(self,e):
-        if self.main_app.get_action_state() != "study":
-            self.option_menu.popup(e)
 
 #################################################################################

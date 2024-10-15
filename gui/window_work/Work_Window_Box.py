@@ -150,7 +150,6 @@ class WorkWindowBox(WorkWindowCbox):
         self.title_bar.bind('<B1-Motion>', self.move_window)
         self.title_bar.bind('<Button-1>', self.get_pos)
         self.title_bar.bind('<ButtonRelease-1>', self.save_pos)
-        self.title_bar.bind("<Button-3>", self.right_clicked)
         self.title_bar.bind("<Double-Button-1>", self.status_double_click)
         self.title_bar.bind("<Enter>", self.title_bar_enter)
 
@@ -158,15 +157,15 @@ class WorkWindowBox(WorkWindowCbox):
         self.title_bar_btn.configure(background=self.style_dict["titlebar_color"])
         self.title_bar_btn.pack(side='right', fill = "y")
 
-        self.close_button = MyLabel(self.title_bar_btn, self.data_manager, text='  X  ')
-        self.close_button.configure(background=self.style_dict["titlebar_color"], width = 5)
-        self.close_button.pack(side='right',fill='y',expand=True)
-        self.close_button.bind('<Button-1>', self.close_window)
-        self.on_close_button = False
-        self.close_work_window_ttp = CreateInfo(self.close_button, self.data_manager, 30, 25, self.language_dict["close_work_window"])
-        self.close_button.bind("<Enter>", self.enter_close)
-        self.close_button.bind("<Leave>", self.leave_close)
-        self.close_button.bind("<Button-3>", self.right_clicked)
+        self.option_button = MyLabel(self.title_bar_btn, self.data_manager, text=u'\U0000205D')
+        self.option_button.configure(background=self.style_dict["titlebar_color"], width = 3)
+        self.option_button.pack(side='right',fill='y',expand=True)
+        self.option_button.bind('<Button-1>', self.option_clicked)
+        self.on_option_button = False
+        self.option_work_window_ttp = CreateInfo(self.option_button, self.data_manager, 30, 25, self.language_dict["options"])
+        self.option_button.bind("<Enter>", self.enter_option)
+        self.option_button.bind("<Leave>", self.leave_option)
+        self.option_button.bind("<Button-3>", self.right_clicked)
 
         self.expand_btn = MyLabel(self.title_bar_btn, self.data_manager)
         self.expand_btn.configure(text = u'\U00002302', background=self.style_dict["titlebar_color"], width = 5) # u'\U0001F532'
@@ -195,18 +194,18 @@ class WorkWindowBox(WorkWindowCbox):
         self.lbl_emtpy = MyLabelPixel(self.title_bar_name, self.data_manager)
         self.lbl_emtpy.configure(text = '', background=self.style_dict["titlebar_color"],height=30) # u'\U0001F532'
         self.lbl_emtpy.pack(side='right')
-        self.lbl_emtpy.bind("<Button-3>", self.right_clicked)
         self.lbl_emtpy.bind("<Double-Button-1>", self.status_double_click)
+        self.lbl_emtpy.bind("<Button-3>", self.right_clicked)
 
         self.lbl_name = MyLabel(self.title_bar_name, self.data_manager)
-        self.lbl_name.configure(background=self.style_dict["titlebar_color"],foreground=self.style_dict["font_color"], anchor='w',justify='left',width=18)
+        self.lbl_name.configure(background=self.style_dict["titlebar_color"],foreground=self.style_dict["font_color"], anchor='w',justify='left',width=20)
         self.lbl_name.pack(side='left',fill='both')
         self.lbl_name.bind('<B1-Motion>', self.move_window)
         self.lbl_name.bind('<Button-1>', self.get_pos)
         self.lbl_name.bind('<ButtonRelease-1>', self.save_pos)
-        self.lbl_name.bind("<Button-3>", self.right_clicked)
         self.lbl_name.bind("<Double-Button-1>", self.status_double_click)
         self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, 50, 30,'')
+        self.lbl_name.bind("<Button-3>", self.right_clicked)
 
     def title_bar_enter(self,e=None):
         return
@@ -232,7 +231,6 @@ class WorkWindowBox(WorkWindowCbox):
             else:
                 response_text =  '\n'+ str(self.language_dict['response_text']) + ': ' + self.active_clock.get_response_text()
 
-            #self.lbl_name_ttp.text =  clock_name + response_text + '\n' + self.language_dict['right_click']
             self.lbl_name_ttp.text =  self.language_dict['right_click']
 
         elif self.pause_clock.get_runninig() == True:
@@ -247,8 +245,8 @@ class WorkWindowBox(WorkWindowCbox):
         self.title_bar.configure(background=background_color)
         self.lbl_name.configure(background=background_color)
         self.lbl_emtpy.configure(background=background_color)
-        if self.on_close_button == False:
-            self.close_button.configure(background=background_color)
+        if self.on_option_button == False:
+            self.option_button.configure(background=background_color)
         if self.on_expand_button == False:
             self.expand_btn.configure(background=background_color)
         if self.on_attach_btn == False:
