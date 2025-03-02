@@ -611,7 +611,6 @@ class InfoDictWindow(tk.Toplevel):
         #self.main_frame.grid_rowconfigure(0, weight = 1)
         #self.main_frame.grid_columnconfigure(0, weight = 1)
 
-
         # make a frame for the title bar
         self.title_bar = MyFrame(self.main_frame,self.data_manager)
         self.title_bar.configure(background=self.widget_color)
@@ -1541,8 +1540,11 @@ class Endofworkinfo(tk.Toplevel):
             btn_close_easytarc = MyButton(btnframe, self.data_manager,width=20,text=self.language_dict["close_easytarc"],command=self.close_easytarc)
             btn_close_easytarc.pack(side = 'right', pady = 5, padx=5)
 
+            btn_booking = MyButton(btnframe, self.data_manager,width=8,text=self.language_dict["booking"],command=self.close_window_go_to_booking)
+            btn_booking.pack(side = 'right', pady = 5, padx=5)
+
             btn_ok = MyButton(btnframe, self.data_manager,width=8,text=self.language_dict["ok"],command=self.close_window)
-            btn_ok.pack(side = 'right', pady = 5, padx=5)
+            btn_ok.pack(side = 'left', pady = 5, padx=5)
 
             return(btnframe)
 
@@ -1590,6 +1592,11 @@ class Endofworkinfo(tk.Toplevel):
     def close_window(self,*event):
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
+        self.destroy()
+
+    def close_window_go_to_booking(self,*event):
+        self.gui.enable_main_window()
+        self.gui.change_to_booking_tab()
         self.destroy()
 
     def close_easytarc(self,*event):
@@ -2393,3 +2400,4 @@ class EditRemainingTime(tk.Toplevel):
         self.geometry('+{0}+{1}'.format(event.x_root + self.x_win, event.y_root + self.y_win))
         self.start_x = event.x_root
         self.start_y = event.y_root
+

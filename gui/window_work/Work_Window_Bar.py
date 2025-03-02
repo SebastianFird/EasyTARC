@@ -53,6 +53,7 @@ class WorkWindowBar(WorkWindowCbox):
 
         self.dynamic_opacity = self.main_app.get_setting('bar_work_window_dynamic_opacity')
         self.attach_pos = self.main_app.get_setting('bar_work_window_attach_pos')
+        self.ww_list_attach_pos = self.main_app.get_setting('list_work_window_attach_pos')
 
         ###########
         
@@ -92,9 +93,12 @@ class WorkWindowBar(WorkWindowCbox):
         self.attributes("-alpha", 1) 
         self.save_window_pos()
 
+        self.main_app.change_settings('work_window_default',"bar_work_window")
+
         self.root.update()
 
         self.opacity_after_method = self.after(300, lambda:self.delay_opacity())
+
 
     def get_dynamic_opacity(self):
         return(self.main_app.get_setting('bar_work_window_dynamic_opacity'))
@@ -122,11 +126,15 @@ class WorkWindowBar(WorkWindowCbox):
 ##############################################################################################################################
 
     def set_modus(self,modus):
-        if modus == 'control_view' and self.btn_frame_displayed == False:
-            self.show_btn_frame()
+        if modus == 'control_view':
+            self.main_app.change_settings('bar_work_window_modus',"control_view")
+            if self.btn_frame_displayed == False:
+                self.show_btn_frame()
 
-        if modus == 'info_view' and self.btn_frame_displayed == True:
-            self.hide_btn_frame()
+        if modus == 'info_view':
+            self.main_app.change_settings('bar_work_window_modus',"info_view")
+            if self.btn_frame_displayed == True:
+                self.hide_btn_frame()
 
         self.modus = modus
 
@@ -164,6 +172,7 @@ class WorkWindowBar(WorkWindowCbox):
         self.main_app.change_settings('bar_work_window_attach_pos',"top")
         self.attach_pos = "top"
         self.geometry("+%d+%d" % (x, self.y_pos_pinned))
+        self.save_window_pos()
 
     def set_attach_pos(self,attach_pos):
         self.main_app.change_settings('bar_work_window_attach_pos',attach_pos)
@@ -177,6 +186,7 @@ class WorkWindowBar(WorkWindowCbox):
             screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(x,y,True)
             self.y_pos_pinned = screen_height + screen_root_y - self.win_height - task_bar_height_offset
         self.geometry("+%d+%d" % (x, self.y_pos_pinned))
+        self.save_window_pos()
 
     def save_window_pos(self):
         self.gui.set_bar_work_window_pos(self.winfo_x(),self.winfo_y())
@@ -415,7 +425,11 @@ class WorkWindowBar(WorkWindowCbox):
         self.expand_btn.bind("<Button-3>", self.right_clicked)
 
         self.list_btn = MyLabel(self.title_bar, self.data_manager)
-        self.list_btn.configure(text = u'\U00002192', background=self.style_dict["titlebar_color"], width = 5) # u'\U0001F881'
+        self.list_btn.configure(background=self.style_dict["titlebar_color"], width = 5) # u'\U0001F881'
+        if self.ww_list_attach_pos == "right":
+            self.list_btn.configure(text = u'\U00002192')
+        else:
+            self.list_btn.configure(text = u'\U00002190')
         self.list_btn.pack(side='right',fill='y',expand=True)
         self.list_btn.bind('<Button-1>', self.change_to_list_work_window)
         self.on_list_btn = False
@@ -462,9 +476,9 @@ class WorkWindowBar(WorkWindowCbox):
 
     def switch_view(self):
         if self.btn_frame_displayed == True:
-            self.hide_btn_frame()
+            self.set_modus("info_view")
         elif self.btn_frame_displayed == False:
-            self.show_btn_frame()
+            self.set_modus("control_view")
         else:
             pass
 

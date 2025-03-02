@@ -106,6 +106,10 @@ class DataTab(Scroll_Frame):
     
     def get_record_dict_list_date_list(self):
         return(self.record_dict_list_date_list)
+    
+    def load_data_summary_dict_list(self):
+        record_summary_dict_list = self.data_manager.get_passed_record_summary_dict_list()
+        return(record_summary_dict_list)
 
     def load_data_by_date(self):
         self.clicked_record_frame_list = []

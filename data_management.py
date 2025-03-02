@@ -732,6 +732,66 @@ class DataManager:
 
     #################################################################
 
+    def create_record_dict_summary_list(self, df):
+        accounts_df = self.user_db.get_accounts_df()
+        ######
+        main_account_list = df['main_id'].tolist()
+        main_account_list = list(set(main_account_list))
+
+        df['main_account'] = df['main_id']
+
+        for main_account_id in main_account_list:
+            name = accounts_df.loc[accounts_df['accountid'] == main_account_id, 'name'].values[0]
+            df['main_account'] = df['main_account'].replace([main_account_id],str(name))
+
+        df = df.drop(columns=['status'])
+
+        ######
+
+        df['date'] = df['date_record'].dt.date
+        df['month'] = df['date_record'].dt.strftime('%Y-%m')
+
+        df = df[['month','main_account','hours','booked']]
+
+        month_list = df['month'].unique().tolist()
+        month_list.sort()
+        month_list.reverse()
+
+        record_dict_summary_list = []
+
+        count_nbr = 1
+
+        for month in month_list:
+            df_current_month = df[df['month'] == month]
+            count = count_nbr*" "
+
+            record_dict_summary = {str(month):"#"}
+
+            df_pivot = pd.pivot_table(df_current_month, values='hours', index=['main_account'], aggfunc='sum', fill_value=0)
+            df_pivot['hours_rounded'] = round(df_pivot.hours,1)
+            df_pivot['percent_month'] = round((df_pivot['hours'] / df_pivot['hours'].sum() * 100))
+            df_pivot['ranked'] = df_pivot['hours'].rank(method='dense', ascending=False)
+            df_pivot = df_pivot.reset_index()
+            df_sorted = df_pivot.sort_values(by='ranked', ascending=True)
+
+            ranked_list = df_sorted.main_account.values.tolist()
+
+            for main_account in ranked_list:
+                record_dict_summary.update({count + main_account:str('{:n}'.format(df_pivot.loc[(df_pivot['main_account'] == main_account)].percent_month.values.tolist()[0])) + " %    " +str('{:n}'.format(df_pivot.loc[(df_pivot['main_account'] == main_account)].hours_rounded.values.tolist()[0]))+ " h"})
+            
+            hours_sum = df_current_month['hours'].sum()
+            month_rate = 100*(df_current_month.loc[(df_current_month['booked'] == 1)].hours.values.sum() / df_current_month['hours'].sum())
+
+            record_dict_summary.update({count + self.language_dict['analysis']:"-------------"})
+            record_dict_summary.update({count + self.language_dict['hours']:str('{:n}'.format(round(hours_sum,1)))+ " h"})
+            record_dict_summary.update({count + self.language_dict['rate']:str('{:n}'.format(round(month_rate))) + " %"})
+
+            record_dict_summary_list.append(record_dict_summary)
+
+            count_nbr = count_nbr+1
+
+        return(record_dict_summary_list)
+
     def create_record_dict_list_date_list(self,df):
 
         record_dict_list_date_list = []
@@ -906,6 +966,17 @@ class DataManager:
 
         record_dict_list_date_list = self.create_record_dict_list_date_list(df)
         return(record_dict_list_date_list)
+    
+    def get_passed_record_summary_dict_list(self):
+        two_month_limit = True
+
+        df = self.user_db.get_passed_times_with_accounts(two_month_limit)
+        if df.empty:
+            return([])
+        df = df.fillna('')
+
+        record_dict_summary_list = self.create_record_dict_summary_list(df)
+        return(record_dict_summary_list)
     
     def get_time_account_report(self,kind,account_id):
         df = self.user_db.get_passed_times_with_accounts()

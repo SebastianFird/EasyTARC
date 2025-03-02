@@ -16,6 +16,7 @@ limitations under the License.
 __author__ = 'Sebastian Feiert'
 
 import tkinter # Tkinter -> tkinter in Python 3
+import json
 
 
 class WorkWindowOptionMenu(tkinter.Listbox):
@@ -42,9 +43,9 @@ class WorkWindowOptionMenu(tkinter.Listbox):
             ##########
 
             if self.work_window.ww_kind == 'ww_bar' and self.work_window.attach_pos == 'top':
-                self.optionmenu.add_command(label=self.language_dict["ww_down"],command=lambda:self.attach_ww_bar_pos("down"))
+                self.optionmenu.add_command(label=self.language_dict["ww_down"],command=lambda:self.attach_ww_pos("down"))
             if self.work_window.ww_kind == 'ww_bar' and self.work_window.attach_pos == 'down':
-                self.optionmenu.add_command(label=self.language_dict["ww_up"],command=lambda:self.attach_ww_bar_pos("top"))
+                self.optionmenu.add_command(label=self.language_dict["ww_up"],command=lambda:self.attach_ww_pos("top"))
                 
             ##########
 
@@ -71,30 +72,15 @@ class WorkWindowOptionMenu(tkinter.Listbox):
             ##########
 
             if self.work_window.ww_kind == 'ww_bar' or self.work_window.ww_kind == 'ww_list':
-                if self.work_window.modus == 'control_view':
-                    self.optionmenu.add_command(label=self.language_dict["control_view"] + " (" + self.language_dict["active"] + ")",command=self.set_control_view) 
-                else:
+                if self.work_window.modus != 'control_view':
                     self.optionmenu.add_command(label=self.language_dict["control_view"],command=self.set_control_view)
-                if self.work_window.modus == 'info_view':
-                    self.optionmenu.add_command(label=self.language_dict["info_view"] + " (" + self.language_dict["active"] + ")",command=self.set_info_view) 
-                else:
+                if self.work_window.modus != 'info_view':
                     self.optionmenu.add_command(label=self.language_dict["info_view"],command=self.set_info_view)
                 if self.work_window.modus == 'dynamic_view':
                     self.optionmenu.add_command(label=self.language_dict["dynamic_view"] + " (" + self.language_dict["active"] + ")",command=self.set_dynamic_view) 
                 else:
                     self.optionmenu.add_command(label=self.language_dict["dynamic_view"],command=self.set_dynamic_view)
 
-                self.optionmenu.add_separator()
-
-            ##########
-
-            if self.work_window.ww_kind == 'ww_bar' or self.work_window.ww_kind == 'ww_list':         
-                if self.main_app.get_setting('work_window_default') == 'list_work_window' and self.work_window.ww_kind == 'ww_list':
-                    self.optionmenu.add_command(label=self.language_dict["default_work_window"] + " (" + self.language_dict["active"] + ")",command=self.set_as_default)
-                elif self.main_app.get_setting('work_window_default') == 'bar_work_window' and self.work_window.ww_kind == 'ww_bar':
-                    self.optionmenu.add_command(label=self.language_dict["default_work_window"] + " (" + self.language_dict["active"] + ")",command=self.set_as_default)
-                else:
-                    self.optionmenu.add_command(label=self.language_dict["default_work_window"],command=self.set_as_default)
                 self.optionmenu.add_separator()
 
             ##########
@@ -112,25 +98,10 @@ class WorkWindowOptionMenu(tkinter.Listbox):
 
             ##########
 
-            if self.work_window.ww_kind == 'ww_bar' or self.work_window.ww_kind == 'ww_list':         
-                if self.main_app.get_setting('work_window_default') == 'list_work_window' and self.work_window.ww_kind == 'ww_list':
-                    self.optionmenu.add_command(label=self.language_dict["default_work_window"] + " (" + self.language_dict["active"] + ")",command=self.set_as_default)
-                elif self.main_app.get_setting('work_window_default') == 'bar_work_window' and self.work_window.ww_kind == 'ww_bar':
-                    self.optionmenu.add_command(label=self.language_dict["default_work_window"] + " (" + self.language_dict["active"] + ")",command=self.set_as_default)
-                else:
-                    self.optionmenu.add_command(label=self.language_dict["default_work_window"],command=self.set_as_default)
-                self.optionmenu.add_separator()
-
-            ##########
-
             if self.work_window.ww_kind == 'ww_bar' or self.work_window.ww_kind == 'ww_list':
-                if self.work_window.modus == 'control_view':
-                    self.optionmenu.add_command(label=self.language_dict["control_view"] + " (" + self.language_dict["active"] + ")",command=self.set_control_view) 
-                else:
+                if self.work_window.modus != 'control_view':
                     self.optionmenu.add_command(label=self.language_dict["control_view"],command=self.set_control_view)
-                if self.work_window.modus == 'info_view':
-                    self.optionmenu.add_command(label=self.language_dict["info_view"] + " (" + self.language_dict["active"] + ")",command=self.set_info_view) 
-                else:
+                if self.work_window.modus != 'info_view':
                     self.optionmenu.add_command(label=self.language_dict["info_view"],command=self.set_info_view)
                 if self.work_window.modus == 'dynamic_view':
                     self.optionmenu.add_command(label=self.language_dict["dynamic_view"] + " (" + self.language_dict["active"] + ")",command=self.set_dynamic_view) 
@@ -164,9 +135,14 @@ class WorkWindowOptionMenu(tkinter.Listbox):
             ##########
 
             if self.work_window.ww_kind == 'ww_bar' and self.work_window.attach_pos == 'top':
-                self.optionmenu.add_command(label=self.language_dict["ww_down"],command=lambda:self.attach_ww_bar_pos("down"))
+                self.optionmenu.add_command(label=self.language_dict["ww_down"],command=lambda:self.attach_ww_pos("down"))
             if self.work_window.ww_kind == 'ww_bar' and self.work_window.attach_pos == 'down':
-                self.optionmenu.add_command(label=self.language_dict["ww_up"],command=lambda:self.attach_ww_bar_pos("top"))
+                self.optionmenu.add_command(label=self.language_dict["ww_up"],command=lambda:self.attach_ww_pos("top"))
+
+            if self.work_window.ww_kind == 'ww_list' and self.work_window.attach_pos == 'right':
+                self.optionmenu.add_command(label=self.language_dict["ww_left"],command=lambda:self.attach_ww_pos("left"))
+            if self.work_window.ww_kind == 'ww_list' and self.work_window.attach_pos == 'left':
+                self.optionmenu.add_command(label=self.language_dict["ww_right"],command=lambda:self.attach_ww_pos("right"))
 
     def build_options_small(self):
         self.optionmenu.delete(0, "end")
@@ -178,6 +154,10 @@ class WorkWindowOptionMenu(tkinter.Listbox):
             if last_active_clock != None:
                 self.optionmenu.add_command(label='    '+self.language_dict["end_break"]+'    ',command=lambda:self.activate_clock(last_active_clock))
 
+    def build_options_time_account(self,clock):
+        self.optionmenu.delete(0, "end")
+        self.optionmenu.add_command(label=self.language_dict["copy_reference_data"],command=lambda:self.copy_reference_data_to_clipboard(clock))
+
     def popup(self, event):
         try:
             self.build_options()
@@ -188,6 +168,13 @@ class WorkWindowOptionMenu(tkinter.Listbox):
     def popup_small(self, event):
         try:
             self.build_options_small()
+            self.optionmenu.tk_popup((event.x_root), event.y_root)
+        finally:
+            self.optionmenu.grab_release()
+
+    def popup_time_account(self, event, clock):
+        try:
+            self.build_options_time_account(clock)
             self.optionmenu.tk_popup((event.x_root), event.y_root)
         finally:
             self.optionmenu.grab_release()
@@ -222,20 +209,8 @@ class WorkWindowOptionMenu(tkinter.Listbox):
         self.gui.reset_window_pos()
         return
     
-    def set_as_default(self):
-        if self.work_window.ww_kind == 'ww_bar':
-            self.main_app.change_settings('work_window_default',"bar_work_window")
-        elif self.work_window.ww_kind == 'ww_list':
-            self.main_app.change_settings('work_window_default',"list_work_window")
-        return
-    
     def set_control_view(self):
-        if self.work_window.ww_kind == 'ww_bar':
-            self.main_app.change_settings('bar_work_window_modus',"control_view")
-            self.work_window.set_modus("control_view")
-        elif self.work_window.ww_kind == 'ww_list':
-            self.main_app.change_settings('list_work_window_modus',"control_view")
-            self.work_window.set_modus("control_view")
+        self.work_window.set_modus("control_view")
         return
     
     def set_dynamic_opacity(self):
@@ -245,12 +220,7 @@ class WorkWindowOptionMenu(tkinter.Listbox):
 
     
     def set_info_view(self):
-        if self.work_window.ww_kind == 'ww_bar':
-            self.main_app.change_settings('bar_work_window_modus',"info_view")
-            self.work_window.set_modus("info_view")
-        elif self.work_window.ww_kind == 'ww_list':
-            self.main_app.change_settings('list_work_window_modus',"info_view")
-            self.work_window.set_modus("info_view")
+        self.work_window.set_modus("info_view")
         return
     
     def set_dynamic_view(self):
@@ -278,13 +248,41 @@ class WorkWindowOptionMenu(tkinter.Listbox):
         self.work_window.attach_ww() 
         return
     
-    def attach_ww_bar_pos(self,attach_pos):
+    def attach_ww_pos(self,attach_pos):
         self.work_window.set_attach_pos(attach_pos)
         return
-    
+
     def hide_window(self,event=None):
         if self.work_window.after_func_leave != None:
             self.work_window.main_frame.after_cancel(self.work_window.after_func_leave)
             self.work_window.after_func_leave = None
         self.work_window.destroy()
+
     
+    def copy_reference_data_to_clipboard(self,clock):
+
+        project_label = str(clock.get_project_label())
+        if project_label == ' - ':
+            project_label = ''
+        order_label = str(clock.get_order_label())
+        if order_label == ' - ':
+            order_label = ''
+        process_label = str(clock.get_process_label())
+        if process_label == ' - ':
+            process_label = ''
+        response_code = str(clock.get_response_code())
+        if response_code == ' - ':
+            response_code = ''
+
+        refernce_dict = {
+            self.main_app.get_setting("project_label_map"):project_label,
+            self.main_app.get_setting("order_label_map"):order_label,
+            self.main_app.get_setting("process_label_map"):process_label,
+            self.main_app.get_setting("response_code_map"):response_code
+            }
+        
+        refernce_dict = json.dumps(refernce_dict)
+
+        self.gui.main_window.clipboard_clear()
+        self.gui.main_window.clipboard_append(refernce_dict)
+        return

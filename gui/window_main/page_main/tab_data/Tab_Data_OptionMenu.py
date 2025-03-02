@@ -52,11 +52,22 @@ class DataOptionMenu(tkinter.Listbox):
         self.optionmenu.add_command(label=self.language_dict["select_day"],command=self.select_all)
         self.optionmenu.add_command(label=self.language_dict["change_date"],command=self.change_date)
 
+    def build_options_date_frame(self,data_category):
+        self.optionmenu.delete(0, "end")
 
+        self.optionmenu.add_command(label=self.language_dict["show_all"],command=lambda:self.show_all(data_category))
+        self.optionmenu.add_command(label=self.language_dict["hide_all"],command=lambda:self.hide_all(data_category))
 
     def popup(self, event):
         try:
             self.build_options()
+            self.optionmenu.tk_popup((event.x_root), event.y_root)
+        finally:
+            self.optionmenu.grab_release()
+
+    def popup_date_frame(self, event,data_category):
+        try:
+            self.build_options_date_frame(data_category)
             self.optionmenu.tk_popup((event.x_root), event.y_root)
         finally:
             self.optionmenu.grab_release()
@@ -77,6 +88,14 @@ class DataOptionMenu(tkinter.Listbox):
 
     def edit_record(self):
         self.data_tab.edit_record(self.record_dict)
+        return
+    
+    def show_all(self,data_category):
+        data_category.expand_all_date_frames()
+        return
+    
+    def hide_all(self,data_category):
+        data_category.collapse_all_date_frames()
         return
     
     def change_date(self):

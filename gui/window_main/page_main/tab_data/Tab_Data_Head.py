@@ -22,6 +22,7 @@ from style_classes import MyFrame
 from style_classes import MyLabel
 from style_classes import MyButton
 from style_classes import MyLabelPixel
+from gui.Window_Additionals import InfoDictWindow
 
 
 class DataHead:
@@ -86,8 +87,26 @@ class DataHead:
         self.btn_records_to_excel = MyButton(self.main_head_frame, self.data_manager, text=self.language_dict["output_times_in_excel"],width=30,command=lambda:self.data_tab.export_all_passed_times())
         self.btn_records_to_excel.pack(side='right',padx = 10,pady=10)
 
+        self.btn_summary = MyButton(self.main_head_frame, self.data_manager, text=self.language_dict["summary"],width=20,command=lambda:self.show_summary())
+        self.btn_summary.pack(side='right',padx = 10,pady=10)
+
         self.update_main_head()
         return
+    
+    def show_summary(self):
+        summary_dict_list = self.data_tab.load_data_summary_dict_list()
+        if summary_dict_list == []:
+            return
+        info_dict = {}  
+
+        info_dict.update(summary_dict_list[0])
+
+        if len(summary_dict_list) > 1:
+            info_dict.update(summary_dict_list[1])
+
+        info_dict.update({self.language_dict["info"]:"#"+self.language_dict["archiv_info"]}) 
+
+        info_window = InfoDictWindow(self.main_app, self.gui, self.data_tab.main_frame ,info_dict,500,500)
     
     def update_main_head(self):
         return
@@ -96,12 +115,14 @@ class DataHead:
 
         self.main_head_frame.refresh_style()
         self.btn_records_to_excel.refresh_style()
+        self.btn_summary.refresh_style()
         self.btn_add_record.refresh_style()
 
         self.main_head_frame.configure(background=self.style_dict["header_color_blue"])
         self.update_main_head()
 
         self.btn_records_to_excel.configure(text=self.language_dict["output_times_in_excel"])
+        self.btn_summary.configure(text=self.language_dict["summary"])
         self.btn_add_record.configure(text=self.language_dict["new_record"])
         return
 

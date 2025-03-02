@@ -217,6 +217,10 @@ class Gui_Manager:
                 text = text +'\n'+ self.main_app.get_privacy_policy_dict()[self.language_dict['language_name']]
                 info_window = InfoWindow(self.main_app, self, self.main_window.main_frame ,text,700,350,True)
 
+            if self.main_app.get_app_version() == '1.12.3':
+                text = '\nUpdate:\n\n' + self.language_dict["release_note_text_21"]
+                info_window = InfoWindow(self.main_app, self, self.main_window.main_frame ,text,700,350,True)
+
         elif self.main_app.get_new_sign_up() == True:
             text = '\n' + self.language_dict["welcome_to_easytarc"]
             if self.main_app.get_setting('create_start_up_link') != "on":
@@ -281,7 +285,7 @@ class Gui_Manager:
         self.data_manager.set_last_tracked_interaction()
         if self.status_main_window == True:
             self.status_main_window = False
-            if self.main_app.get_action_state() != 'disabled' and self.on_window_switch == False:
+            if self.main_app.get_action_state() != 'disabled' and self.on_window_switch == False: #and self.main_app.get_setting('auto_minimize_mode') == 'on'
                 self.on_window_switch = True
                 work_window = self.main_app.get_setting('work_window_default')
                 if work_window == 'list_work_window':
@@ -333,6 +337,9 @@ class Gui_Manager:
         # Without this Function the canvas rutens a windows path error
         self.main_window.case_frame.frames[NotebookFrame].tab_manager.activate_current_tab()
 
+    def change_to_booking_tab(self):
+        self.main_window.case_frame.frames[NotebookFrame].tab_manager.change_to_tab(1)
+
     def get_sleeping(self):
         return(self.sleeping)
 
@@ -382,9 +389,15 @@ class Gui_Manager:
     def list_work_window_to_box_work_window(self):
         if self.on_window_switch == False:
             self.on_window_switch = True
+            attach_pos = self.listWorkWindow.attach_pos
             self.listWorkWindow.destroy()
             self.listWorkWindow = None
-            x_offset = -100
+
+            if attach_pos == 'right':
+                x_offset = -100
+            else:
+                x_offset = +100
+
             y_offset = 0
             self.box_work_window("ww_list",x_offset,y_offset)
             self.on_window_switch = False

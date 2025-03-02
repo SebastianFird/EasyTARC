@@ -122,6 +122,7 @@ class TabManager:
         self.booking_tab.body.case_frame.show_empty_frame()
 
     def on_tab_change(self,event=None):
+
         tab = event.widget.tab('current')['text']
         if tab == self.tab_name_capture:
             self.clear_frames()
@@ -161,6 +162,8 @@ class TabManager:
         if self.active_tab == self.capture_tab:
             self.capture_tab.update()
 
+    def change_to_tab(self,tab_nbr):
+        self.notebook.select(tab_nbr)  
 
     def refresh(self):
         # configure style and language of main frame

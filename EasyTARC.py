@@ -85,7 +85,7 @@ class App():
         ##########
         
         # this app version
-        self.app_version = '1.12.2'
+        self.app_version = '1.12.3'
 
         ##########
 
@@ -139,7 +139,8 @@ class App():
             "timer_focus_time": "25",
             "timer_pause_time": "5",
             "open_booking_website_wait": "on",
-            "open_booking_website_wait_time": "2"
+            "open_booking_website_wait_time": "2",
+            "list_work_window_attach_pos": "right",
         }
 
         ##########
@@ -1170,6 +1171,17 @@ Wenn Sie Fragen zu dieser Datenschutzerklärung haben, kontaktieren Sie uns bitt
             json.dump(self.settings_dict, setting_json_file)
             setting_json_file.close()
 
+        #check for 1.12.3 update
+        if self.check_for_update_to_version_str(self.start_version,'1.12.3') == True:
+            update_dict = {"auto_minimize_mode": "on",
+                           "list_work_window_attach_pos": "right"}
+            
+            self.settings_dict.update(update_dict)
+
+            setting_json_file = open('json/settings.json',"w",encoding='UTF-8')
+            json.dump(self.settings_dict, setting_json_file)
+            setting_json_file.close()
+
         # Ensure that all settings are available
         update_setting_json = False
         new_setting_key_list = list(self.settings_dict)
@@ -1184,7 +1196,6 @@ Wenn Sie Fragen zu dieser Datenschutzerklärung haben, kontaktieren Sie uns bitt
             setting_json_file.close()
 
         return(True)
-
 
 ############################################################
     

@@ -16,10 +16,9 @@ limitations under the License.
 __author__ = 'Sebastian Feiert'
 
 import tkinter # Tkinter -> tkinter in Python 3
-from gui.Window_Additionals import InfoWindow, DeleteAccountWarning
+from gui.Window_Additionals import InfoWindow, DeleteAccountWarning,CloseAccountWarning
 from gui.Window_Additionals import InfoDictWindow
 from tkinter import messagebox
-
 import datetime
 import json
 import os
@@ -56,8 +55,10 @@ class AccountsOptionMenu(tkinter.Listbox):
             self.optionmenu.add_command(label=self.language_dict["edit"],command=self.edit_account)
 
             if self.account_dict['status'] == 'closed':
+                self.optionmenu.add_command(label=self.language_dict["open_up"],command=self.open_account)
                 self.optionmenu.add_command(label=self.language_dict["delete"],command=self.ask_delete_account)
             else:
+                self.optionmenu.add_command(label=self.language_dict["close"],command=self.close_account)
                 self.optionmenu.add_command(label=self.language_dict["delete"],command=lambda:self.show_info(self.language_dict["edit_delete_info_text"]))
 
             if self.account_dict['account_kind'] == 1:
@@ -90,6 +91,13 @@ class AccountsOptionMenu(tkinter.Listbox):
         self.optionmenu.configure(background=self.style_dict["background_color_grey"])
         self.optionmenu.configure(foreground=self.style_dict["font_color"])
         self.optionmenu.configure(activebackground=self.style_dict["selected_color_grey"])
+
+    def open_account(self,e=None):
+        self.account_tab.open_account(self.account_dict)
+        return
+    
+    def close_account(self,e=None):
+        CloseAccountWarning(self.main_app,self.gui,self.account_tab.main_frame, self.account_tab,self.account_dict,self)
 
     def ask_delete_account(self):
         DeleteAccountWarning(self.main_app,self.gui,self.account_tab.main_frame, self.account_tab,self.account_dict)

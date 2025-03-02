@@ -75,6 +75,15 @@ class WorkWindowList(tk.Toplevel):
             self.modus = self.main_app.get_setting('list_work_window_modus')
 
         self.ww_bar_attach_pos = self.main_app.get_setting('bar_work_window_attach_pos')
+        self.attach_pos = self.main_app.get_setting('list_work_window_attach_pos')
+
+        if self.attach_pos =="left":
+            self.info_v_rel_x_1 = 0
+            self.info_v_rel_x_2 = 0
+        else:
+            self.info_v_rel_x_1 = -150
+            self.info_v_rel_x_2 = -80
+
 
         ###########
 
@@ -97,14 +106,29 @@ class WorkWindowList(tk.Toplevel):
                 screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(x,y)
                 if (screen_root_x <= x) and (x <= screen_root_x + screen_width) and (screen_root_y <= y) and (y <= screen_height + screen_root_y):
                     
-                    self.x_pos_right = screen_root_x + screen_width
-                    
-                    self.win_vertical_x_pos = self.x_pos_right - self.win_vertical_width
+                    if self.attach_pos == "right": 
+                        self.x_pos_right = screen_root_x + screen_width
+                        
+                        self.win_vertical_x_pos = self.x_pos_right - self.win_vertical_width
 
-                    self.win_expand_x_pos = self.x_pos_right - self.win_expand_width
-                    self.win_expand_height = screen_height/1.5
-                    
-                    self.y_pos = y
+                        self.win_expand_x_pos = self.x_pos_right - self.win_expand_width
+                        self.win_expand_height = screen_height/1.5
+                        
+                        self.y_pos = y
+
+                    elif self.attach_pos == "left": 
+                        self.x_pos_right = screen_root_x
+                        
+                        self.win_vertical_x_pos = self.x_pos_right
+
+                        self.win_expand_x_pos = self.x_pos_right
+                        self.win_expand_height = screen_height/1.5
+                        
+                        self.y_pos = y
+
+                    else:
+                        self.reset_window_pos()
+
                 else:
                     self.reset_window_pos()
 
@@ -123,6 +147,7 @@ class WorkWindowList(tk.Toplevel):
         self.attributes('-topmost',True) 
         self.attributes("-alpha", 1)
         self.save_window_pos()
+        self.main_app.change_settings('work_window_default',"list_work_window")
 
         self.root.update()
 
@@ -155,11 +180,15 @@ class WorkWindowList(tk.Toplevel):
 ##############################################################################################################################
 
     def set_modus(self,modus):
-        if modus == 'control_view' and self.expand_frame_displayed == False:
-            self.show_expand_frame()
+        if modus == 'control_view':
+            self.main_app.change_settings('list_work_window_modus',"control_view")
+            if self.expand_frame_displayed == False:
+                self.show_expand_frame()
 
-        if modus == 'info_view' and self.expand_frame_displayed == True:
-            self.show_vertical_frame()
+        if modus == 'info_view':
+            self.main_app.change_settings('list_work_window_modus',"info_view")
+            if self.expand_frame_displayed == True:
+                self.show_vertical_frame()
 
         self.modus = modus
 
@@ -194,12 +223,13 @@ class WorkWindowList(tk.Toplevel):
             self.geometry('%dx%d+%d+%d' % (self.win_vertical_width,300, self.win_vertical_x_pos, self.y_pos))
             self.vertical_frame.pack(side='top', fill = "x")
             self.expand_frame_displayed = False
+            
 
     def switch_view(self):
         if self.expand_frame_displayed == True:
-            self.show_vertical_frame()
+            self.set_modus("info_view")
         elif self.expand_frame_displayed == False:
-            self.show_expand_frame()
+            self.set_modus("control_view")
 
     def save_and_adjust_pos(self, event):
         if self.pos_moved == True:
@@ -207,10 +237,18 @@ class WorkWindowList(tk.Toplevel):
             self.y_pos = self.winfo_y()
             y=self.y_pos
             screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(x,y)
-            if self.x_pos_right != (screen_width + screen_root_x):
+
+            if self.attach_pos == "right" and self.x_pos_right != (screen_width + screen_root_x):
                 self.x_pos_right = screen_width + screen_root_x
                 self.win_vertical_x_pos = self.x_pos_right - self.win_vertical_width
                 self.win_expand_x_pos = self.x_pos_right - self.win_expand_width
+                self.win_expand_height = screen_height/1.5
+                x = self.win_expand_x_pos 
+
+            if self.attach_pos == "left" and self.x_pos_right != screen_root_x:
+                self.x_pos_right = screen_root_x
+                self.win_vertical_x_pos = self.x_pos_right
+                self.win_expand_x_pos = self.x_pos_right
                 self.win_expand_height = screen_height/1.5
                 x = self.win_expand_x_pos 
 
@@ -227,6 +265,10 @@ class WorkWindowList(tk.Toplevel):
 
     def reset_window_pos(self):
         screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(0,0)
+
+        self.main_app.change_settings('list_work_window_attach_pos',"right")
+        self.attach_pos = "right"
+
         self.x_pos_right = screen_root_x + screen_width
         self.y_pos = (screen_root_y + screen_height)/10
         self.win_expand_height = screen_height/1.5
@@ -239,6 +281,50 @@ class WorkWindowList(tk.Toplevel):
         else:
             self.expand_frame_displayed = True
             self.show_vertical_frame()
+
+        self.save_window_pos()
+
+    def set_attach_pos(self,attach_pos):
+        self.main_app.change_settings('list_work_window_attach_pos',attach_pos)
+        self.attach_pos = attach_pos
+        x=self.win_expand_x_pos
+        y=self.winfo_y()
+        print(x)
+        print(y)
+        if self.attach_pos == 'right':
+            screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(x,y)
+            self.x_pos_right = screen_width + screen_root_x
+            self.win_vertical_x_pos = self.x_pos_right - self.win_vertical_width
+            self.win_expand_x_pos = self.x_pos_right - self.win_expand_width
+            self.win_expand_height = screen_height/1.5
+            x = self.win_expand_x_pos 
+            self.info_v_rel_x_1 = -150
+            self.info_v_rel_x_2 = -80
+
+        else:
+            screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(x,y)
+            self.x_pos_right = screen_root_x
+            self.win_vertical_x_pos = self.x_pos_right
+            self.win_expand_x_pos = self.x_pos_right
+            self.win_expand_height = screen_height/1.5
+            x = self.win_expand_x_pos 
+            self.info_v_rel_x_1 = 0
+            self.info_v_rel_x_2 = 0
+
+        self.open_main_window_v_ttp.rel_x= self.info_v_rel_x_1
+        self.change_work_window_v_ttp.rel_x= self.info_v_rel_x_1
+
+        self.vertical_frame_ttp.rel_x= self.info_v_rel_x_2
+        self.option_work_window_v_ttp.rel_x= self.info_v_rel_x_2
+
+        if self.expand_frame_displayed == True:
+            self.expand_frame_displayed = False
+            self.show_expand_frame()
+        else:
+            self.expand_frame_displayed = True
+            self.show_vertical_frame()
+
+        self.save_window_pos()
 
     def save_window_pos(self):
         self.gui.set_list_work_window_pos(self.win_expand_x_pos,self.winfo_y())
@@ -259,7 +345,6 @@ class WorkWindowList(tk.Toplevel):
 
         self.update()
 
-
     def main_enter(self,e):
         if self.expand_frame_displayed == True and self.after_func_leave != None:
             self.main_frame.after_cancel(self.after_func_leave)
@@ -270,7 +355,6 @@ class WorkWindowList(tk.Toplevel):
         if self.opacity != 1:
             self.opacity = 1
             self.attributes("-alpha", self.opacity)
-
 
     def main_leave(self,e=None):
         if self.modus == 'dynamic_view':
@@ -387,7 +471,7 @@ class WorkWindowList(tk.Toplevel):
         self.option_button_v.pack(side='top')
         self.option_button_v.bind('<Button-1>', self.option_clicked)
         self.on_option_button_v = False
-        self.option_work_window_v_ttp = CreateInfo(self.option_button_v, self.data_manager, -70, 40, self.language_dict["options"])
+        self.option_work_window_v_ttp = CreateInfo(self.option_button_v, self.data_manager, self.info_v_rel_x_2, 40, self.language_dict["options"])
         self.option_button_v.bind("<Enter>", self.enter_option_v)
         self.option_button_v.bind("<Leave>", self.leave_option_v)
         self.option_button_v.bind("<Button-3>", self.right_clicked)
@@ -397,7 +481,7 @@ class WorkWindowList(tk.Toplevel):
         self.expand_btn_v.pack(side='top')
         self.expand_btn_v.bind('<Button-1>', self.expand_to_main_window)
         self.on_expand_button_v = False
-        self.open_main_window_v_ttp = CreateInfo(self.expand_btn_v, self.data_manager, -150, 40, self.language_dict["open_main_window"])
+        self.open_main_window_v_ttp = CreateInfo(self.expand_btn_v, self.data_manager, self.info_v_rel_x_1, 40, self.language_dict["open_main_window"])
         self.expand_btn_v.bind("<Enter>", self.enter_expand_window_v)
         self.expand_btn_v.bind("<Leave>", self.leave_expand_window_v)
         self.expand_btn_v.bind("<Button-3>", self.right_clicked)
@@ -411,7 +495,7 @@ class WorkWindowList(tk.Toplevel):
         self.bar_btn_v.pack(side='top')
         self.bar_btn_v.bind('<Button-1>', self.change_to_bar_work_window)
         self.on_bar_btn_v = False
-        self.change_work_window_v_ttp = CreateInfo(self.bar_btn_v, self.data_manager, -150, 40, self.language_dict["change_work_window"])
+        self.change_work_window_v_ttp = CreateInfo(self.bar_btn_v, self.data_manager, self.info_v_rel_x_1, 40, self.language_dict["change_work_window"])
         self.bar_btn_v.bind("<Enter>", self.enter_change_to_bar_v)
         self.bar_btn_v.bind("<Leave>", self.leave_change_to_bar_v)
         self.bar_btn_v.bind("<Button-3>", self.right_clicked)
@@ -421,7 +505,7 @@ class WorkWindowList(tk.Toplevel):
         self.vertical_name_frame.pack(side='top')
 
         if self.modus != 'dynamic_view':
-            self.vertical_frame_ttp = CreateToolTip(self.vertical_name_frame, self.data_manager, -90, 150, self.language_dict['right_click'] + '\n' + self.language_dict['double_click'])
+            self.vertical_frame_ttp = CreateToolTip(self.vertical_name_frame, self.data_manager, self.info_v_rel_x_2, 150, self.language_dict['right_click'] + '\n' + self.language_dict['double_click'])
 
         if self.main_app.get_action_state() == "study":
             self.vertical_frame_ttp.text = ''
@@ -734,6 +818,7 @@ class ClockFrame((tk.Frame)):
     def __init__(self, container, main_app, gui, clock, work_window):
          
         self.main_app = main_app
+        self.gui = gui
         self.data_manager = self.main_app.get_data_manager()
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
@@ -772,7 +857,8 @@ class ClockFrame((tk.Frame)):
         else:
             response_text =  '\n'+ str(self.language_dict['response_text']) + ': ' + self.clock.get_response_text()
 
-        self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, -80, 30,name + response_text)
+        self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, -60, 30,name + response_text)
+        self.lbl_name.bind("<Button-3>", self.right_clicked)
 
         self.lbl_activate_account_clock.bind("<Enter>", self.account_clock_enter)
         self.lbl_activate_account_clock.bind("<Leave>", self.account_clock_leave)
@@ -817,3 +903,8 @@ class ClockFrame((tk.Frame)):
 
     def refresh(self):
         return
+
+    def right_clicked(self,e):
+        print('test')
+        if self.main_app.get_action_state() != "study" and self.clock.get_id() != 0:
+            self.work_window.option_menu.popup_time_account(e,self.clock)

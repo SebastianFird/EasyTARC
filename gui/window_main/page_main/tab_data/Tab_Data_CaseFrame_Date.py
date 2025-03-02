@@ -23,6 +23,7 @@ from style_classes import MyLabel
 from style_classes import MyButtonPixel 
 
 from gui.window_main.page_main.tab_data.Tab_Data_Record import DataRecordFrame
+from gui.window_main.page_main.tab_data.Tab_Data_OptionMenu import DataOptionMenu
 
 class DataByDate(tk.Frame):
     def __init__(self, container, main_app, gui, data_tab):
@@ -60,6 +61,16 @@ class DataByDate(tk.Frame):
             self.day_frame_list.append(day_frame)
 
         self.update()
+        return
+    
+    def expand_all_date_frames(self):
+        for day_frame in self.day_frame_list:
+            day_frame.fold_out_day_records()
+        return
+    
+    def collapse_all_date_frames(self):
+        for day_frame in self.day_frame_list:
+            day_frame.fold_up_day_records()
         return
 
     def update(self):
@@ -190,6 +201,8 @@ class DataDateFrame:
         self.day_frame = day_frame
         self.date_record = date_record
 
+        self.option_menu = DataOptionMenu(container,self.main_app,self.gui, self.day_frame.data_tab)
+
 
         # run the main frame of this layer
         self.create_main_frame(container)
@@ -209,6 +222,7 @@ class DataDateFrame:
 
         self.date_frame = MyFrame(self.main_frame,self.data_manager)
         self.date_frame.pack(side = "top",fill='x')
+        self.date_frame.bind("<Button-3>", self.right_clicked)
 
         date_str = self.date_record.strftime('%d.%m.%Y')
         weekday_nbr = self.date_record.dayofweek
@@ -226,14 +240,17 @@ class DataDateFrame:
         self.lbl_date = MyLabel(self.date_frame,self.data_manager,text = date_info, anchor = 'w', width=25)
         self.lbl_date.configure(font = Font_tuple)
         self.lbl_date.pack(side = "left")
+        self.lbl_date.bind("<Button-3>", self.right_clicked)
 
         self.lbl_work_time = MyLabel(self.date_frame,self.data_manager, anchor = 'e', width=6)
         self.lbl_work_time.configure(font = Font_tuple)
         self.lbl_work_time.pack(side = "left")
+        self.lbl_work_time.bind("<Button-3>", self.right_clicked)
 
         self.lbl_booking_rate = MyLabel(self.date_frame,self.data_manager, anchor = 'e', width=6)
         self.lbl_booking_rate.configure(font = Font_tuple)
         self.lbl_booking_rate.pack(side = "left")
+        self.lbl_booking_rate.bind("<Button-3>", self.right_clicked)
 
         #############
 
@@ -276,6 +293,11 @@ class DataDateFrame:
         self.booking_rate = booking_rate
         self.lbl_booking_rate.configure(text = str('{:n}'.format(round(self.booking_rate))) + ' %')
 
+    def right_clicked(self,e=None):
+        if self.main_app.get_action_state() == "normal" or self.main_app.get_action_state() == "endofwork": #!
+            self.day_frame.data_tab.reset_clicked_record_frame_list()
+            self.option_menu.popup_date_frame(e,self.day_frame.data_category)
+
     def update(self):
         if self.day_frame.tree_view == True:
             self.lbl_date.configure(foreground=self.style_dict["font_color"])
@@ -295,6 +317,8 @@ class DataDateFrame:
         font_family = self.main_app.get_setting('font_family')
         font_size = self.main_app.get_setting('font_size')
         Font_tuple = (font_family, font_size, "bold")
+
+        self.option_menu.refresh()
 
         self.main_frame.refresh_style()
         self.separator_frame_1.refresh_style()
