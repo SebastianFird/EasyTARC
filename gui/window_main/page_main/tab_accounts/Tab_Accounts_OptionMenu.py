@@ -55,11 +55,13 @@ class AccountsOptionMenu(tkinter.Listbox):
             self.optionmenu.add_command(label=self.language_dict["edit"],command=self.edit_account)
 
             if self.account_dict['status'] == 'closed':
-                self.optionmenu.add_command(label=self.language_dict["open_up"],command=self.open_account)
                 self.optionmenu.add_command(label=self.language_dict["delete"],command=self.ask_delete_account)
+                if self.account_dict['account_kind'] == 1:
+                    self.optionmenu.add_command(label=self.language_dict["open_up"],command=self.open_account)
             else:
-                self.optionmenu.add_command(label=self.language_dict["close"],command=self.close_account)
                 self.optionmenu.add_command(label=self.language_dict["delete"],command=lambda:self.show_info(self.language_dict["edit_delete_info_text"]))
+                if self.account_dict['account_kind'] == 1:
+                    self.optionmenu.add_command(label=self.language_dict["close"],command=self.close_account)
 
             if self.account_dict['account_kind'] == 1:
                 self.optionmenu.add_separator()
