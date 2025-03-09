@@ -340,6 +340,10 @@ class Gui_Manager:
     def change_to_booking_tab(self):
         self.main_window.case_frame.frames[NotebookFrame].tab_manager.change_to_tab(1)
 
+    def get_active_tab_nbr(self):
+        tab_nbr = self.main_window.case_frame.frames[NotebookFrame].tab_manager.get_active_tab_nbr()
+        return(tab_nbr)
+
     def get_sleeping(self):
         return(self.sleeping)
 

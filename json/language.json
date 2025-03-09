@@ -468,7 +468,8 @@
         "month":"Monat",
         "show_all":"Alle Einträge aufklappen",
         "hide_all":"Alle Einträge einklappen",
-        "release_note_text_21":"1.12.3 (02.03.2025)\n - Verbesserung der Arbeitsfenster.\n - Monatlicher Überblick im Tab Erfasste Zeiten."
+        "release_note_text_21":"1.12.3 (02.03.2025)\n - Verbesserung der Arbeitsfenster.\n - Monatlicher Überblick im Tab Erfasste Zeiten.",
+        "release_note_text_22":"1.12.4 (09.03.2025)\n - Fehlerbehebungen."
     },
     "english": 
     {
@@ -939,6 +940,7 @@
         "month":"Month",
         "show_all":"Expand all entries",
         "hide_all":"Collapse all entries",
-        "release_note_text_21":"1.12.3 (02.03.2025)\n - Improvement of the working windows.\n - Monthly summary in the Recorded times tab."
+        "release_note_text_21":"1.12.3 (02.03.2025)\n - Improvement of the working windows.\n - Monthly summary in the Recorded times tab.",
+        "release_note_text_22":"1.12.4 (09.03.2025)\n - Bug fixes."
     }
 }

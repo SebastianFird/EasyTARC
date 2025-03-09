@@ -85,7 +85,7 @@ class App():
         ##########
         
         # this app version
-        self.app_version = '1.12.3'
+        self.app_version = '1.12.4'
 
         ##########
 

@@ -784,7 +784,7 @@ class DataManager:
 
             record_dict_summary.update({count + self.language_dict['analysis']:"-------------"})
             record_dict_summary.update({count + self.language_dict['hours']:str('{:n}'.format(round(hours_sum,1)))+ " h"})
-            record_dict_summary.update({count + self.language_dict['rate']:str('{:n}'.format(round(month_rate))) + " %"})
+            record_dict_summary.update({count + self.language_dict['booked']:str('{:n}'.format(round(month_rate))) + " %"})
 
             record_dict_summary_list.append(record_dict_summary)
 

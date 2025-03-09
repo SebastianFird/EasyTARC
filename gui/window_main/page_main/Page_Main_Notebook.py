@@ -165,6 +165,10 @@ class TabManager:
     def change_to_tab(self,tab_nbr):
         self.notebook.select(tab_nbr)  
 
+    def get_active_tab_nbr(self):
+        current_tab_nbr = self.notebook.index(self.notebook.select())
+        return(current_tab_nbr)
+
     def refresh(self):
         # configure style and language of main frame
 
