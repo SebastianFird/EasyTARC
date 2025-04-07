@@ -54,7 +54,7 @@ class MainWindow(tk.Frame):
 
         ########
 
-        geo_factor = float(self.main_app.get_setting("geometry_factor"))
+        geo_factor = self.main_app.get_geometry_factor()
         width = int(round(geo_factor*1400))
         height = int(round(geo_factor*650))
 
@@ -104,9 +104,9 @@ class MainWindow(tk.Frame):
         self.data_manager.set_last_tracked_interaction()
         
     def reset_window_pos(self):
-        geo_factor = float(self.main_app.get_setting("geometry_factor"))
-        width = int(round(geo_factor*1200))
-        height = int(round(geo_factor*600))
+        geo_factor = self.main_app.get_geometry_factor()
+        width = int(round(geo_factor*1400))
+        height = int(round(geo_factor*650))
         self.root.geometry(str(width)+ 'x' + str(height) + '+100+100')
 
 ##################################################

@@ -25,8 +25,6 @@ from gui.Window_Additionals import CreateToolTip
 from style_classes import MyFrame
 from style_classes import MyLabel
 from style_classes import MyButton
-from style_classes import MyEntry 
-from style_classes import MyCheckbutton
 from style_classes import MyCombobox
 
 class StudyModeBody:
@@ -46,11 +44,11 @@ class StudyModeBody:
         self.after_func = None
 
         font_family = self.main_app.get_setting('font_family')
-        font_size = str(int(self.main_app.get_setting('font_size'))+30)
+        font_size = str(int(self.main_app.get_setting("font_size"))+30)
         self.Font_tuple1 = (font_family, font_size, "bold")
 
         font_family = self.main_app.get_setting('font_family')
-        font_size = str(int(self.main_app.get_setting('font_size'))+5)
+        font_size = str(int(self.main_app.get_setting("font_size"))+5)
         self.Font_tuple2 = (font_family, font_size, "normal")
 
         self.scroll = Scroll_Frame(self.main_app,self.gui)

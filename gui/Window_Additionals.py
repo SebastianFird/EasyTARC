@@ -47,7 +47,7 @@ class CreateToolTip(object):
         self.data_manager = data_manager
         self.style_dict = self.data_manager.get_style_dict()
         self.rel_x = rel_x
-        self.rey_y = rey_y
+        self.rey_y = int(rey_y*round(self.data_manager.main_app.get_geometry_factor()))
         self.text = text
         self.highlight = highlight
         self.waittime = 500     #miliseconds
@@ -124,7 +124,7 @@ class TimeTip(object):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
         self.rel_x = rel_x
-        self.rey_y = rey_y
+        self.rey_y = int(rey_y*round(self.data_manager.main_app.get_geometry_factor()))
         self.clock = clock
         self.time_column = time_column
         self.normal_bg = None
@@ -210,7 +210,7 @@ class CurrentAddedTimeTip(object):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
         self.rel_x = rel_x
-        self.rey_y = rey_y
+        self.rey_y = int(rey_y*round(self.data_manager.main_app.get_geometry_factor()))
         self.clock_frame = clock_frame
 
         self.waittime = 10     #miliseconds
@@ -321,7 +321,7 @@ class CreateToolResponse(object):
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
         self.rel_x = rel_x
-        self.rey_y = rey_y
+        self.rey_y = int(rey_y*round(self.data_manager.main_app.get_geometry_factor()))
         self.text = text
 
         self.waittime = 1000     #miliseconds
@@ -373,7 +373,7 @@ class CreateInfo(object):
         self.data_manager = data_manager
         self.style_dict = self.data_manager.get_style_dict()
         self.rel_x = rel_x
-        self.rey_y = rey_y
+        self.rey_y = int(rey_y*round(self.data_manager.main_app.get_geometry_factor()))
         self.text = text
 
         self.id = None
@@ -448,9 +448,9 @@ class InfoWindow(tk.Toplevel):
         self.highlight_window = highlight_window
         self.login_window = login_window
 
-        geo_factor = float(self.main_app.get_setting("geometry_factor"))
-        self.w = int(round(geo_factor*w))
-        self.h = int(round(geo_factor*h))
+        self.geo_factor = self.main_app.get_geometry_factor()
+        self.w = int(round(self.geo_factor*w))
+        self.h = int(round(self.geo_factor*h))
 
         self.text = text
 
@@ -498,7 +498,7 @@ class InfoWindow(tk.Toplevel):
 
 
         close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
-        close_button.configure(background=self.widget_color,height=30)
+        close_button.configure(background=self.widget_color,height=int(round(self.geo_factor*30)))
         close_button.pack(side='right')
         close_button.bind('<Button-1>', self.close_window)
 
@@ -512,7 +512,7 @@ class InfoWindow(tk.Toplevel):
         close_button.bind("<Leave>", on_leave1)
 
         lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text = '   ' + self.language_dict["info"])
-        lbl_name.configure(background=self.widget_color,height=30,foreground=self.title_fcolor)
+        lbl_name.configure(background=self.widget_color,height=int(round(self.geo_factor*30)),foreground=self.title_fcolor)
         lbl_name.pack(side='left')
         lbl_name.bind('<B1-Motion>', self.move_window)
         lbl_name.bind('<Button-1>', self.get_pos)
@@ -575,9 +575,9 @@ class InfoDictWindow(tk.Toplevel):
         self.language_dict = self.data_manager.get_language_dict()
         self.widget = widget
 
-        geo_factor = float(self.main_app.get_setting("geometry_factor"))
-        self.w = int(round(geo_factor*w))
-        self.h = int(round(geo_factor*h))
+        self.geo_factor = self.main_app.get_geometry_factor()
+        self.w = int(round(self.geo_factor*w))
+        self.h = int(round(self.geo_factor*h))
 
         self.text_dict = text_dict
 
@@ -620,7 +620,7 @@ class InfoDictWindow(tk.Toplevel):
 
 
         close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
-        close_button.configure(background=self.widget_color,height=30)
+        close_button.configure(background=self.widget_color,height=int(round(self.geo_factor*30)))
         close_button.pack(side='right')
         close_button.bind('<Button-1>', self.close_window)
 
@@ -634,7 +634,7 @@ class InfoDictWindow(tk.Toplevel):
         close_button.bind("<Leave>", on_leave1)
 
         lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text = '   ' + self.language_dict["info"])
-        lbl_name.configure(background=self.widget_color,height=30,foreground=self.title_fcolor)
+        lbl_name.configure(background=self.widget_color,height=int(round(self.geo_factor*30)),foreground=self.title_fcolor)
         lbl_name.pack(side='left')
         lbl_name.bind('<B1-Motion>', self.move_window)
         lbl_name.bind('<Button-1>', self.get_pos)
@@ -656,7 +656,7 @@ class InfoDictWindow(tk.Toplevel):
             scroll_frame = self.scroll.create_scroll_frame(bodyframe)
 
             font_family = self.main_app.get_setting('font_family')
-            font_size = self.main_app.get_setting('font_size')
+            font_size = self.main_app.get_setting("font_size")
             Font_tuple = (font_family, font_size, "bold")
 
             row_nbr = 0
@@ -767,9 +767,9 @@ class ExitSavingWindow(tk.Toplevel):
         self.language_dict = self.data_manager.get_language_dict()
         self.widget = widget
 
-        geo_factor = float(self.main_app.get_setting("geometry_factor"))
-        self.w = int(round(geo_factor*350))
-        self.h = int(round(geo_factor*200))
+        self.geo_factor = self.main_app.get_geometry_factor()
+        self.w = int(round(self.geo_factor*350))
+        self.h = int(round(self.geo_factor*200))
 
         self.user_db = self.main_app.data_manager.user_db
 
@@ -809,7 +809,7 @@ class ExitSavingWindow(tk.Toplevel):
         self.title_bar.bind('<Button-1>', self.get_pos)
 
         close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
-        close_button.configure(background=self.widget_color, height=30)
+        close_button.configure(background=self.widget_color, height=int(round(self.geo_factor*30)))
         close_button.pack(side='right')
         close_button.bind('<Button-1>', self.return_window)
 
@@ -823,7 +823,7 @@ class ExitSavingWindow(tk.Toplevel):
         close_button.bind("<Leave>", on_leave1)
 
         lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text=self.language_dict["warning"])
-        lbl_name.configure(background=self.widget_color, height=30, foreground=self.title_fcolor)
+        lbl_name.configure(background=self.widget_color, height=int(round(self.geo_factor*30)), foreground=self.title_fcolor)
         lbl_name.pack(side='left')
         lbl_name.bind('<B1-Motion>', self.move_window)
         lbl_name.bind('<Button-1>', self.get_pos)
@@ -899,9 +899,9 @@ class DeleteRecordWarning(tk.Toplevel):
         self.data_tab = data_tab
         self.record_dict = record_dict
 
-        geo_factor = float(self.main_app.get_setting("geometry_factor"))
-        self.w = int(round(geo_factor*350))
-        self.h = int(round(geo_factor*200))
+        self.geo_factor = self.main_app.get_geometry_factor()
+        self.w = int(round(self.geo_factor*350))
+        self.h = int(round(self.geo_factor*200))
 
         self.user_db = self.main_app.data_manager.user_db
 
@@ -941,7 +941,7 @@ class DeleteRecordWarning(tk.Toplevel):
         self.title_bar.bind('<Button-1>', self.get_pos)
 
         close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
-        close_button.configure(background=self.widget_color, height=30)
+        close_button.configure(background=self.widget_color, height=int(round(self.geo_factor*30)))
         close_button.pack(side='right')
         close_button.bind('<Button-1>', self.return_window)
 
@@ -955,7 +955,7 @@ class DeleteRecordWarning(tk.Toplevel):
         close_button.bind("<Leave>", on_leave1)
 
         lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text=self.language_dict["warning"])
-        lbl_name.configure(background=self.widget_color, height=30, foreground=self.title_fcolor)
+        lbl_name.configure(background=self.widget_color, height=int(round(self.geo_factor*30)), foreground=self.title_fcolor)
         lbl_name.pack(side='left')
         lbl_name.bind('<B1-Motion>', self.move_window)
         lbl_name.bind('<Button-1>', self.get_pos)
@@ -1026,9 +1026,9 @@ class DeleteDatabase(tk.Toplevel):
         self.language_dict = self.data_manager.get_language_dict()
         self.widget = widget
 
-        geo_factor = float(self.main_app.get_setting("geometry_factor"))
-        self.w = int(round(geo_factor*350))
-        self.h = int(round(geo_factor*200))
+        self.geo_factor = self.main_app.get_geometry_factor()
+        self.w = int(round(self.geo_factor*350))
+        self.h = int(round(self.geo_factor*200))
 
         self.user_db = self.main_app.data_manager.user_db
 
@@ -1068,7 +1068,7 @@ class DeleteDatabase(tk.Toplevel):
         self.title_bar.bind('<Button-1>', self.get_pos)
 
         close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
-        close_button.configure(background=self.widget_color, height=30)
+        close_button.configure(background=self.widget_color, height=int(round(self.geo_factor*30)))
         close_button.pack(side='right')
         close_button.bind('<Button-1>', self.return_window)
 
@@ -1082,7 +1082,7 @@ class DeleteDatabase(tk.Toplevel):
         close_button.bind("<Leave>", on_leave1)
 
         lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text=self.language_dict["warning"])
-        lbl_name.configure(background=self.widget_color, height=30, foreground=self.title_fcolor)
+        lbl_name.configure(background=self.widget_color, height=int(round(self.geo_factor*30)), foreground=self.title_fcolor)
         lbl_name.pack(side='left')
         lbl_name.bind('<B1-Motion>', self.move_window)
         lbl_name.bind('<Button-1>', self.get_pos)
@@ -1196,9 +1196,9 @@ class DeleteAccountWarning(tk.Toplevel):
         self.account_tab = account_tab
         self.account_dict = account_dict
 
-        geo_factor = float(self.main_app.get_setting("geometry_factor"))
-        self.w = int(round(geo_factor*500))
-        self.h = int(round(geo_factor*200))
+        self.geo_factor = self.main_app.get_geometry_factor()
+        self.w = int(round(self.geo_factor*500))
+        self.h = int(round(self.geo_factor*200))
 
         self.user_db = self.main_app.data_manager.user_db
 
@@ -1238,7 +1238,7 @@ class DeleteAccountWarning(tk.Toplevel):
         self.title_bar.bind('<Button-1>', self.get_pos)
 
         close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
-        close_button.configure(background=self.widget_color, height=30)
+        close_button.configure(background=self.widget_color, height=int(round(self.geo_factor*30)))
         close_button.pack(side='right')
         close_button.bind('<Button-1>', self.return_window)
 
@@ -1252,7 +1252,7 @@ class DeleteAccountWarning(tk.Toplevel):
         close_button.bind("<Leave>", on_leave1)
 
         lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text=self.language_dict["warning"])
-        lbl_name.configure(background=self.widget_color, height=30, foreground=self.title_fcolor)
+        lbl_name.configure(background=self.widget_color, height=int(round(self.geo_factor*30)), foreground=self.title_fcolor)
         lbl_name.pack(side='left')
         lbl_name.bind('<B1-Motion>', self.move_window)
         lbl_name.bind('<Button-1>', self.get_pos)
@@ -1337,9 +1337,9 @@ class CloseAccountWarning(tk.Toplevel):
         self.account_dict = account_dict
         self.account_frame = account_frame
 
-        geo_factor = float(self.main_app.get_setting("geometry_factor"))
-        self.w = int(round(geo_factor*450))
-        self.h = int(round(geo_factor*200))
+        self.geo_factor = self.main_app.get_geometry_factor()
+        self.w = int(round(self.geo_factor*450))
+        self.h = int(round(self.geo_factor*200))
 
         self.user_db = self.main_app.data_manager.user_db
 
@@ -1379,7 +1379,7 @@ class CloseAccountWarning(tk.Toplevel):
         self.title_bar.bind('<Button-1>', self.get_pos)
 
         close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
-        close_button.configure(background=self.widget_color, height=30)
+        close_button.configure(background=self.widget_color, height=int(round(self.geo_factor*30)))
         close_button.pack(side='right')
         close_button.bind('<Button-1>', self.return_window)
 
@@ -1393,7 +1393,7 @@ class CloseAccountWarning(tk.Toplevel):
         close_button.bind("<Leave>", on_leave1)
 
         lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text=self.language_dict["warning"])
-        lbl_name.configure(background=self.widget_color, height=30, foreground=self.title_fcolor)
+        lbl_name.configure(background=self.widget_color, height=int(round(self.geo_factor*30)), foreground=self.title_fcolor)
         lbl_name.pack(side='left')
         lbl_name.bind('<B1-Motion>', self.move_window)
         lbl_name.bind('<Button-1>', self.get_pos)
@@ -1468,9 +1468,9 @@ class Endofworkinfo(tk.Toplevel):
         self.language_dict = self.data_manager.get_language_dict()
         self.widget = widget
 
-        geo_factor = float(self.main_app.get_setting("geometry_factor"))
-        self.w = int(round(geo_factor*w))
-        self.h = int(round(geo_factor*h))
+        self.geo_factor = self.main_app.get_geometry_factor()
+        self.w = int(round(self.geo_factor*w))
+        self.h = int(round(self.geo_factor*h))
 
         self.text_dict = text_dict
 
@@ -1514,7 +1514,7 @@ class Endofworkinfo(tk.Toplevel):
 
 
         close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
-        close_button.configure(background=self.widget_color,height=30)
+        close_button.configure(background=self.widget_color,height=int(round(self.geo_factor*30)))
         close_button.pack(side='right')
         close_button.bind('<Button-1>', self.close_window)
 
@@ -1528,7 +1528,7 @@ class Endofworkinfo(tk.Toplevel):
         close_button.bind("<Leave>", on_leave1)
 
         lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text = '   ' + self.language_dict["recording_closed_saved"])
-        lbl_name.configure(background=self.widget_color,height=30,foreground=self.title_fcolor)
+        lbl_name.configure(background=self.widget_color,height=int(round(self.geo_factor*30)),foreground=self.title_fcolor)
         lbl_name.pack(side='left')
         lbl_name.bind('<B1-Motion>', self.move_window)
         lbl_name.bind('<Button-1>', self.get_pos)
@@ -1556,7 +1556,7 @@ class Endofworkinfo(tk.Toplevel):
             scroll_frame = self.scroll.create_scroll_frame(bodyframe)
 
             font_family = self.main_app.get_setting('font_family')
-            font_size = self.main_app.get_setting('font_size')
+            font_size = self.main_app.get_setting("font_size")
             Font_tuple = (font_family, font_size, "bold")
 
             row_nbr = 0
@@ -1630,9 +1630,9 @@ class EditGroupName(tk.Toplevel):
         self.original_group_name = group_name
         self.account_tab = account_tab
 
-        geo_factor = float(self.main_app.get_setting("geometry_factor"))
-        self.w = int(round(geo_factor*550))
-        self.h = int(round(geo_factor*200))
+        self.geo_factor = self.main_app.get_geometry_factor()
+        self.w = int(round(self.geo_factor*550))
+        self.h = int(round(self.geo_factor*200))
 
         self.user_db = self.main_app.data_manager.user_db
 
@@ -1672,7 +1672,7 @@ class EditGroupName(tk.Toplevel):
         self.title_bar.bind('<Button-1>', self.get_pos)
 
         close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
-        close_button.configure(background=self.widget_color, height=30)
+        close_button.configure(background=self.widget_color, height=int(round(self.geo_factor*30)))
         close_button.pack(side='right')
         close_button.bind('<Button-1>', self.return_window)
 
@@ -1686,7 +1686,7 @@ class EditGroupName(tk.Toplevel):
         close_button.bind("<Leave>", on_leave1)
 
         lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text=self.language_dict["rename_group"])
-        lbl_name.configure(background=self.widget_color, height=30, foreground=self.title_fcolor)
+        lbl_name.configure(background=self.widget_color, height=int(round(self.geo_factor*30)), foreground=self.title_fcolor)
         lbl_name.pack(side='left')
         lbl_name.bind('<B1-Motion>', self.move_window)
         lbl_name.bind('<Button-1>', self.get_pos)
@@ -1717,7 +1717,7 @@ class EditGroupName(tk.Toplevel):
 
         lbl_dropdown_info = MyLabel(frame_dropdown,self.data_manager,text=u'\U00002139',width=3)
         lbl_dropdown_info.pack(side = "left")
-        lbl_dropdown_info_ttp = CreateToolTip(lbl_dropdown_info, self.data_manager, 0, 30, self.language_dict["edit_group_name"], True)
+        lbl_dropdown_info_ttp = CreateToolTip(lbl_dropdown_info, self.data_manager, 0, int(round(self.geo_factor*30)), self.language_dict["edit_group_name"], True)
 
         self.group_name = tk.StringVar()
         self.group_cbox = MyCombobox(frame_dropdown, width = 50, textvariable = self.group_name)
@@ -1810,9 +1810,9 @@ class SleepModeinfo(tk.Toplevel):
         self.language_dict = self.data_manager.get_language_dict()
         self.widget = widget
 
-        geo_factor = float(self.main_app.get_setting("geometry_factor"))
-        self.w = int(round(geo_factor*w))
-        self.h = int(round(geo_factor*h))
+        self.geo_factor = self.main_app.get_geometry_factor()
+        self.w = int(round(self.geo_factor*w))
+        self.h = int(round(self.geo_factor*h))
 
         self.last_active_clock = last_active_clock
         self.restore_time_diff = time_diff
@@ -1861,7 +1861,7 @@ class SleepModeinfo(tk.Toplevel):
 
 
         close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
-        close_button.configure(background=self.widget_color,height=30)
+        close_button.configure(background=self.widget_color,height=int(round(self.geo_factor*30)))
         close_button.pack(side='right')
         close_button.bind('<Button-1>', self.close_window)
 
@@ -1875,7 +1875,7 @@ class SleepModeinfo(tk.Toplevel):
         close_button.bind("<Leave>", on_leave1)
 
         lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text = '   EasyTARC   ' + self.language_dict["sleep_mode"])
-        lbl_name.configure(background=self.widget_color,height=30,foreground=self.title_fcolor)
+        lbl_name.configure(background=self.widget_color,height=int(round(self.geo_factor*30)),foreground=self.title_fcolor)
         lbl_name.pack(side='left')
         lbl_name.bind('<B1-Motion>', self.move_window)
         lbl_name.bind('<Button-1>', self.get_pos)
@@ -1900,7 +1900,7 @@ class SleepModeinfo(tk.Toplevel):
             scroll_frame = self.scroll.create_scroll_frame(bodyframe)
 
             font_family = self.main_app.get_setting('font_family')
-            font_size = self.main_app.get_setting('font_size')
+            font_size = self.main_app.get_setting("font_size")
             Font_tuple = (font_family, font_size, "bold")
 
             row_nbr = 0
@@ -1985,9 +1985,9 @@ class EditDataDate(tk.Toplevel):
         self.record_frame_list = record_frame_list
         self.data_tab = data_tab
 
-        geo_factor = float(self.main_app.get_setting("geometry_factor"))
-        self.w = int(round(geo_factor*350))
-        self.h = int(round(geo_factor*150))
+        self.geo_factor = self.main_app.get_geometry_factor()
+        self.w = int(round(self.geo_factor*350))
+        self.h = int(round(self.geo_factor*150))
 
         self.user_db = self.main_app.data_manager.user_db
 
@@ -2027,7 +2027,7 @@ class EditDataDate(tk.Toplevel):
         self.title_bar.bind('<Button-1>', self.get_pos)
 
         close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
-        close_button.configure(background=self.widget_color, height=30)
+        close_button.configure(background=self.widget_color, height=int(round(self.geo_factor*30)))
         close_button.pack(side='right')
         close_button.bind('<Button-1>', self.return_window)
 
@@ -2041,7 +2041,7 @@ class EditDataDate(tk.Toplevel):
         close_button.bind("<Leave>", on_leave1)
 
         lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text=self.language_dict["change_date"])
-        lbl_name.configure(background=self.widget_color, height=30, foreground=self.title_fcolor)
+        lbl_name.configure(background=self.widget_color, height=int(round(self.geo_factor*30)), foreground=self.title_fcolor)
         lbl_name.pack(side='left')
         lbl_name.bind('<B1-Motion>', self.move_window)
         lbl_name.bind('<Button-1>', self.get_pos)
@@ -2151,9 +2151,9 @@ class EditRemainingTime(tk.Toplevel):
         self.widget = widget
         self.clock = clock
 
-        geo_factor = float(self.main_app.get_setting("geometry_factor"))
-        self.w = int(round(geo_factor*600))
-        self.h = int(round(geo_factor*400))
+        self.geo_factor = self.main_app.get_geometry_factor()
+        self.w = int(round(self.geo_factor*600))
+        self.h = int(round(self.geo_factor*400))
 
         self.user_db = self.main_app.data_manager.user_db
 
@@ -2193,7 +2193,7 @@ class EditRemainingTime(tk.Toplevel):
         self.title_bar.bind('<Button-1>', self.get_pos)
 
         close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
-        close_button.configure(background=self.widget_color, height=30)
+        close_button.configure(background=self.widget_color, height=int(round(self.geo_factor*30)))
         close_button.pack(side='right')
         close_button.bind('<Button-1>', self.return_window)
 
@@ -2207,7 +2207,7 @@ class EditRemainingTime(tk.Toplevel):
         close_button.bind("<Leave>", on_leave1)
 
         lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text=self.language_dict["edit_remaining_time"])
-        lbl_name.configure(background=self.widget_color, height=30, foreground=self.title_fcolor)
+        lbl_name.configure(background=self.widget_color, height=int(round(self.geo_factor*30)), foreground=self.title_fcolor)
         lbl_name.pack(side='left')
         lbl_name.bind('<B1-Motion>', self.move_window)
         lbl_name.bind('<Button-1>', self.get_pos)

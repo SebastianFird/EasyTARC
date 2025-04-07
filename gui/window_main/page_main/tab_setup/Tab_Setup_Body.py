@@ -18,6 +18,7 @@ __author__ = 'Sebastian Feiert'
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
+import ctypes as ct
 
 import decimal
 import json
@@ -63,7 +64,7 @@ class SetupBody:
     def create_main_frame(self,container):
 
         font_family = self.main_app.get_setting('font_family')
-        font_size = self.main_app.get_setting('font_size')
+        font_size = self.main_app.get_setting("font_size")
         Font_tuple = (font_family, font_size, "bold")
 
         self.main_frame = MyFrame(container,self.data_manager)
@@ -131,6 +132,24 @@ class SetupBody:
         
         self.set_language_cblist()
         self.language_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_language)
+
+        #########
+
+        self.lbl_dpi_awareness_info = MyLabel(self.appearance_frame,self.data_manager,text=u'\U00002139',width=3)
+        self.lbl_dpi_awareness_info.grid(row=3, column=0, padx=5, pady=5)
+        self.lbl_dpi_awareness_info_ttp = CreateToolTip(self.lbl_dpi_awareness_info, self.data_manager, 0, 30, self.language_dict['dpi_awareness_info'], True)
+
+        self.lbl_dpi_awareness = MyLabel(self.appearance_frame,self.data_manager,text = self.language_dict['dpi_awareness'], anchor = 'w', width=25)
+        self.lbl_dpi_awareness.grid(row=3, column=1, padx=5, pady=5)
+
+        self.clicked_dpi_awareness = tk.StringVar()
+        self.dpi_awareness_cbox = MyCombobox(self.appearance_frame, state="readonly", width = 30, textvariable = self.clicked_dpi_awareness)
+        self.dpi_awareness_cbox.grid(row=3, column=2, padx=5, pady=10)
+
+        self.btn_set_dpi_awareness = MyButton(self.appearance_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=self.set_dpi_awareness)
+
+        self.set_dpi_awareness_cblist()
+        self.dpi_awareness_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_dpi_awareness)
 
         #########################
 
@@ -575,7 +594,7 @@ class SetupBody:
         style_name = self.clicked_style.get()
         self.main_app.change_settings('style_name',style_name)
         self.data_manager.load_style_dict(style_name)
-        self.data_manager.load_image_dict(self.main_app.get_setting('font_size'),self.main_app.get_setting('style_name'))
+        self.data_manager.load_image_dict(self.main_app.get_setting("font_size"),self.main_app.get_setting('style_name'))
         self.gui.refresh()
         self.update_btn_set_style()
         return
@@ -608,7 +627,7 @@ class SetupBody:
 
     def set_fs_cblist(self):
         font_size = self.main_app.get_setting('font_size')
-        self.font_size_cbox['values'] = ['8','9','10','11','12']
+        self.font_size_cbox['values'] = ['8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25']
         if font_size == '8':
             self.font_size_cbox.current(0)
         elif font_size == '9':
@@ -619,6 +638,33 @@ class SetupBody:
             self.font_size_cbox.current(3)
         elif font_size == '12':
             self.font_size_cbox.current(4)
+        elif font_size == '13':
+            self.font_size_cbox.current(5)
+        elif font_size == '14':
+            self.font_size_cbox.current(6)
+        elif font_size == '15':
+            self.font_size_cbox.current(7)
+        elif font_size == '16':
+            self.font_size_cbox.current(8)
+        elif font_size == '17':
+            self.font_size_cbox.current(9)
+        elif font_size == '18':
+            self.font_size_cbox.current(10)
+        elif font_size == '19':
+            self.font_size_cbox.current(11)
+        elif font_size == '20':
+            self.font_size_cbox.current(12)
+        elif font_size == '21':
+            self.font_size_cbox.current(13)
+        elif font_size == '22':
+            self.font_size_cbox.current(14)
+        elif font_size == '23':
+            self.font_size_cbox.current(15)
+        elif font_size == '24':
+            self.font_size_cbox.current(16)
+        elif font_size == '25':
+            self.font_size_cbox.current(17)
+
     
     def update_btn_set_font_size(self,event=None):
         if self.main_app.get_setting('font_size') == self.clicked_font_size.get():
@@ -630,10 +676,55 @@ class SetupBody:
     def set_font_size(self):
         size = self.clicked_font_size.get()
         self.main_app.change_settings('font_size',size)
-        self.data_manager.load_image_dict(self.main_app.get_setting('font_size'),self.main_app.get_setting('style_name'))
+
+        if size in ['8','9']:
+            self.main_app.change_settings('geometry_factor',"0.9")
+        elif size in ['10','11']:
+            self.main_app.change_settings('geometry_factor',"1.0")
+        elif size in ['12','13']:
+            self.main_app.change_settings('geometry_factor',"1.1")
+        elif size in ['14','15']:
+            self.main_app.change_settings('geometry_factor',"1.2")
+        elif size in ['16','17']:
+            self.main_app.change_settings('geometry_factor',"1.3")
+        elif size in ['18','19']:
+            self.main_app.change_settings('geometry_factor',"1.4")
+        elif size in ['20','21']:
+            self.main_app.change_settings('geometry_factor',"1.5")
+        elif size in ['22','23']:
+            self.main_app.change_settings('geometry_factor',"1.6")
+        elif size in ['24','25']:
+            self.main_app.change_settings('geometry_factor',"1.7")
+
+
+
+        self.data_manager.load_image_dict(self.main_app.get_setting("font_size"),self.main_app.get_setting('style_name'))
         self.gui.myttk.set_defaultFont_size(int(size))
         self.gui.refresh()
         self.update_btn_set_font_size()
+
+#########
+
+    def set_dpi_awareness_cblist(self):
+        dpi_awareness = self.main_app.get_setting('win_dpi_awareness')
+        self.dpi_awareness_cbox['values'] = [self.language_dict['on'],self.language_dict['off']]
+        if self.language_dict[dpi_awareness] == self.language_dict['on']:
+            self.dpi_awareness_cbox.current(0)
+        else:
+            self.dpi_awareness_cbox.current(1)
+
+    def update_btn_set_dpi_awareness(self,event=None):
+        dpi_awareness = self.clicked_dpi_awareness.get()
+        if self.main_app.get_setting('win_dpi_awareness') == self.language_dict[dpi_awareness]:
+            self.btn_set_dpi_awareness.configure(text=u'\U00002713')
+        else:
+            self.btn_set_dpi_awareness.configure(text=self.language_dict['apply']) 
+            self.btn_set_dpi_awareness.grid(row=3, column=3, padx=5, pady=5)
+    
+    def set_dpi_awareness(self):
+        dpi_awareness = self.clicked_dpi_awareness.get()
+        self.main_app.change_settings('win_dpi_awareness',self.language_dict[dpi_awareness])
+        self.update_btn_set_dpi_awareness()
 
 
 ###############################
@@ -1071,8 +1162,6 @@ class SetupBody:
             self.main_app.change_settings('simplify_after_two_month',self.language_dict[simplify_data])
             self.update_btn_set_simplify_data()
 
-            #
-
 ###############################
 
     def delete_database(self):
@@ -1093,6 +1182,10 @@ class SetupBody:
         self.set_language_cblist()
         self.update_btn_set_language()
         self.btn_set_language.grid_forget()
+
+        self.set_dpi_awareness_cblist()
+        self.update_btn_set_dpi_awareness()
+        self.btn_set_dpi_awareness.grid_forget()
 
         self.set_sleep_mode_cblist()
         self.update_btn_set_sleep_mode()
@@ -1144,6 +1237,12 @@ class SetupBody:
         self.lbl_font_size_info.refresh_style()
         self.lbl_font_size.refresh_style()
         self.btn_set_font_size.refresh_style()
+
+        self.lbl_dpi_awareness_info.refresh_style()
+        self.lbl_dpi_awareness.refresh_style()
+        self.btn_set_dpi_awareness.refresh_style()
+
+        self.lbl_dpi_awareness_info_ttp.refresh()
 
         self.separator_frame_1.refresh_style()
 
@@ -1272,7 +1371,7 @@ class SetupBody:
         self.lbl_delete_data_info_ttp.refresh()
 
         font_family = self.main_app.get_setting('font_family')
-        font_size = self.main_app.get_setting('font_size')
+        font_size = self.main_app.get_setting("font_size")
         Font_tuple = (font_family, font_size, "bold")
 
         self.lbl_category_appearance.configure(font = Font_tuple)
@@ -1283,6 +1382,10 @@ class SetupBody:
         self.btn_set_language.configure(text=self.language_dict['apply'])
         self.lbl_font_size.configure(text = '   ' + self.language_dict['font_size'])
         self.btn_set_font_size.configure(text=self.language_dict['apply'])
+
+        self.lbl_dpi_awareness.configure(text=self.language_dict['dpi_awareness'])
+        self.btn_set_dpi_awareness.configure(text=self.language_dict['apply'])
+        self.lbl_dpi_awareness_info_ttp.text = self.language_dict['dpi_awareness_info']
         
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
 
@@ -1351,7 +1454,7 @@ class SetupBody:
         self.lbl_auto_minimize.configure(text=self.language_dict['auto_minimize'])
         self.btn_set_auto_minimize.configure(text=self.language_dict['apply'])
 
-        self.lbl_auto_minimize_info_ttp.text = self.language_dict['auto_minimize_info']
+        self.lbl_auto_minimize_info_ttp.text = self.language_dict['auto_minimize_info']        
 
         self.separator_frame_7.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
 
@@ -1369,6 +1472,6 @@ class SetupBody:
         self.update_start_up_link_status()
         self.update_desktop_link_status()
 
-        #self.reload_settings()
+        self.reload_settings()
         return
 

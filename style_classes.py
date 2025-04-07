@@ -27,7 +27,7 @@ class Myttk:
         self.my_ttk = ttk.Style()
 
         self.defaultFont = tk.font.nametofont("TkDefaultFont")
-        self.defaultFont.configure(family=self.main_app.get_setting('font_family'),size=self.main_app.get_setting('font_size'))
+        self.defaultFont.configure(family=self.main_app.get_setting('font_family'),size=self.main_app.get_setting("font_size"))
         #self.my_ttk.configure('App.TCombobox', font=self.defaultFont)
 
         self.theme_name_list = []
@@ -254,6 +254,13 @@ class MyEntry(tk.Entry):
         self['highlightbackground'] = self.style_dict["highlight_color_yellow"]
         self['highlightthickness'] = 0
 
+        self.update_font_size()
+
+    def update_font_size(self):
+        defaultFont = tk.font.nametofont(self.cget("font"))
+        defaultFont.configure(size=self.data_manager.main_app.get_setting("font_size"))
+        self.configure(font=defaultFont)
+
     def refresh_style(self):
         self.style_dict = self.data_manager.get_style_dict()
         self.configure(background=self.style_dict["background_color_grey"])
@@ -264,6 +271,8 @@ class MyEntry(tk.Entry):
 
         self.configure(highlightcolor=self.style_dict["highlight_color_yellow"])
         self.configure(highlightbackground=self.style_dict["highlight_color_yellow"])
+
+        self.update_font_size()
         
 
 class MyText(tk.Text):
@@ -274,29 +283,19 @@ class MyText(tk.Text):
         self['background'] = self.style_dict["background_color_grey"]
         self['foreground'] = self.style_dict["font_color"]
 
+        self.update_font_size()
+
+    def update_font_size(self):
+        defaultFont = tk.font.nametofont(self.cget("font"))
+        defaultFont.configure(size=self.data_manager.main_app.get_setting("font_size"))
+        self.configure(font=defaultFont)
+
     def refresh_style(self):
         self.style_dict = self.data_manager.get_style_dict()
         self.configure(background=self.style_dict["background_color_grey"])
         self.configure(foreground=self.style_dict["font_color"])
 
-
-class MyCheckbutton(tk.Checkbutton):
-    def __init__(self, master, data_manager, **kw):
-        tk.Checkbutton.__init__(self, master=master, **kw)
-        self.data_manager = data_manager
-        self.style_dict = self.data_manager.get_style_dict()
-        self['background'] = self.style_dict["background_color_grey"]
-        self['selectcolor'] = self.style_dict["background_color_grey"]
-        self['activebackground'] = self.style_dict["background_color_grey"]
-        self['foreground'] = self.style_dict["font_color"]
-
-    def refresh_style(self):
-        self.style_dict = self.data_manager.get_style_dict()
-        self.configure(background=self.style_dict["background_color_grey"])
-        self.configure(selectcolor=self.style_dict["background_color_grey"])
-        self.configure(activebackground=self.style_dict["background_color_grey"])
-        self.configure(foreground=self.style_dict["font_color"])
-
+        self.update_font_size()
 
 class MyCombobox(ttk.Combobox):
     def __init__(self, master, **kw):

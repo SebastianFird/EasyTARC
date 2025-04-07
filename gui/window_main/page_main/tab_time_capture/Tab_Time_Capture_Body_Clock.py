@@ -67,7 +67,7 @@ class ClockFrame(tk.Frame):
 ################################################################################################################################
 
         self.lbl_empty0 = MyLabelPixel(self,self.data_manager, anchor='w')
-        self.lbl_empty0.configure(height=35)
+        self.lbl_empty0.configure(height=int(35*round(self.main_app.get_geometry_factor())))
         self.lbl_empty0.pack(side = "left")
 
         self.lbl_view_sub_clocks = MyLabel(self, self.data_manager, anchor='w',width = 2, text = ' ')
@@ -1141,6 +1141,8 @@ class ClockFrame(tk.Frame):
         self.btn_edit_response_text.refresh_style()
 
         self.lbl_name.refresh_style()
+
+        self.lbl_empty0.configure(height=int(35*round(self.main_app.get_geometry_factor())))
 
         self.btn_minus.configure(image=self.image_dict['photo_btn_minus_strong_highlight'])
         self.btn_minus.image = self.image_dict['photo_btn_minus_strong_highlight']

@@ -81,11 +81,14 @@ class App():
 
         # default language
         self.only_task = True                                       # True / False      # OV: True
+        
+        # default scale
+        self.scale_factor = 1                                       # 1                 # OV: 1
 
         ##########
         
         # this app version
-        self.app_version = '1.12.4'
+        self.app_version = '1.12.5'
 
         ##########
 
@@ -99,7 +102,7 @@ class App():
             "bar_work_window_modus": "info_view",
             "bar_work_window_pos_x": "None",
             "bar_work_window_pos_y": "None",
-            "font_size": "11",
+            "font_size": "12",
             "font_family": "Segoe UI",
             "project_label_map": "project_no",
             "order_label_map": "order_no",
@@ -141,6 +144,7 @@ class App():
             "open_booking_website_wait": "on",
             "open_booking_website_wait_time": "2",
             "list_work_window_attach_pos": "right",
+            "win_dpi_awareness":"on"
         }
 
         ##########
@@ -1038,6 +1042,16 @@ Wenn Sie Fragen zu dieser Datenschutzerklärung haben, kontaktieren Sie uns bitt
 
 ############################################################
 
+    def set_scale_factor(self,scale_factor):
+        self.scale_factor = scale_factor
+        return()
+
+    def get_geometry_factor(self):
+        geometry_factor = float(self.get_setting("geometry_factor"))*self.scale_factor
+        return(geometry_factor)
+        
+############################################################
+
     def get_action_state(self):
         return (self.action_state)
 
@@ -1175,6 +1189,17 @@ Wenn Sie Fragen zu dieser Datenschutzerklärung haben, kontaktieren Sie uns bitt
         if self.check_for_update_to_version_str(self.start_version,'1.12.3') == True:
             update_dict = {"auto_minimize_mode": "on",
                            "list_work_window_attach_pos": "right"}
+            
+            self.settings_dict.update(update_dict)
+
+            setting_json_file = open('json/settings.json',"w",encoding='UTF-8')
+            json.dump(self.settings_dict, setting_json_file)
+            setting_json_file.close()
+
+        #check for 1.12.5 update
+        if self.check_for_update_to_version_str(self.start_version,'1.12.5') == True:
+            update_dict = {"font_size": "12",
+                            "win_dpi_awareness": "on"}
             
             self.settings_dict.update(update_dict)
 

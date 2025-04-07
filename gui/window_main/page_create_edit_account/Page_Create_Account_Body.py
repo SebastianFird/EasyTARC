@@ -26,7 +26,6 @@ from style_classes import MyFrame
 from style_classes import MyLabel
 from style_classes import MyButton
 from style_classes import MyEntry 
-from style_classes import MyCheckbutton
 from style_classes import MyCombobox
 
 class CreateEditAccountBody:
@@ -37,6 +36,7 @@ class CreateEditAccountBody:
         self.data_manager = self.main_app.get_data_manager()
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
+        self.image_dict = self.data_manager.get_image_dict()
 
         # get gui for additional windows
         # capture tab for updating tab
@@ -58,9 +58,11 @@ class CreateEditAccountBody:
         self.expiration_month = tk.StringVar()
         self.expiration_day = tk.StringVar()
         self.available_hours = tk.StringVar()
-        self.account_external_booking = tk.StringVar()
         self.account_response_code = tk.StringVar()
         self.account_response_texts = tk.StringVar()
+        
+        self.bookable = 0
+        self.external_booking = 0
 
         if self.modus == 'new_sub' or self.modus == 'edit_sub':
             self.create_sub_account(container)
@@ -290,9 +292,17 @@ class CreateEditAccountBody:
         self.account_order.set(str(self.main_account_dict.get("order_label")))
         self.account_process.set(str(self.main_account_dict.get("process_label")))
         self.account_response_code.set(str(self.main_account_dict.get("response_code")))
-        self.account_external_booking.set(str(self.main_account_dict.get("external_booking")))
         self.account_group.set(str(self.main_account_dict.get("group")))
-        self.account_bookable = self.main_account_dict.get("bookable") 
+
+        if self.main_account_dict.get("bookable") == 1:
+            self.bookable = 1
+        else:
+            self.bookable = 0
+
+        if self.main_account_dict.get("external_booking") == 1:
+            self.external_booking = 1
+        else:
+            self.external_booking = 0
 
         self.expiration_year.set(str(self.main_account_dict["date_expiration"].strftime("%Y")))
         self.expiration_month.set(str(self.language_dict['month_' + self.main_account_dict["date_expiration"].strftime("%m")]))
@@ -612,16 +622,6 @@ class CreateEditAccountBody:
 
         ###################################
 
-        if self.modus in ['duplicate_main_account','edit_main']:
-            if self.main_account_dict.get("bookable") == 0:
-                self.account_bookable = 0
-            else:
-                self.account_bookable = 1
-        elif self.modus in ['new_main']:
-            self.account_bookable = 0
-
-        ###################################
-
         self.frame_bookable_state = MyFrame(self.frame_right,self.data_manager)
         self.frame_bookable_state.pack(side = "top", padx=10, pady=4,fill='x')
 
@@ -631,49 +631,63 @@ class CreateEditAccountBody:
 
         self.lbl_bookable = MyLabel(self.frame_bookable_state,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['bookable'] + ':')
         self.lbl_bookable.pack(side = "left", padx=10)
+
+        self.lbl_check_bookable = MyLabel(self.frame_bookable_state, self.data_manager, image=self.image_dict['photo_btn_off_mirrored'])
+        self.lbl_check_bookable.image = self.image_dict['photo_btn_off_mirrored']
+        self.lbl_check_bookable.pack(side="left", padx=10)
+
+        self.lbl_check_bookable.bind("<Enter>", self.enter_check_bookable)
+        self.lbl_check_bookable.bind("<Leave>", self.leave_check_bookable)
+        self.lbl_check_bookable.bind("<Button-1>", self.toggle_bookable)
+
+        if self.modus in ['duplicate_main_account','edit_main']:
+            if self.main_account_dict.get("bookable") == 0:
+                self.bookable = 0
+            else:
+                self.bookable = 1
+        elif self.modus in ['new_main']:
+            self.bookable = 0
+
+        self.lbl_bookable_highlight = MyLabel(self.frame_bookable_state,self.data_manager,text='  '+u'\U0001F808'+' ')
+        self.lbl_bookable_highlight.pack(side = "left")
         
-        self.lbl_bookable_state = MyLabel(self.frame_bookable_state,self.data_manager,width=25)
-        self.lbl_bookable_state.pack(side = "left", padx=10)
-
-        ###################################
-
-        self.frame_bookable_btn = MyFrame(self.frame_right,self.data_manager)
-        self.frame_bookable_btn.pack(side = "top", padx=10, pady=4,fill='x')
-
-        self.bookable_btn_info = MyLabel(self.frame_bookable_btn,self.data_manager,anchor='w',justify='left',width=3)
-        self.bookable_btn_info.pack(side = "left")
-
-        self.lbl_booking = MyLabel(self.frame_bookable_btn,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['switch_to'] + ':')
-        self.lbl_booking.pack(side = "left", padx=10)
-
-        self.btn_bookable = MyButton(self.frame_bookable_btn,self.data_manager, command=self.toggle_bookable, width=26)
-        self.btn_bookable.pack(side = "left", padx=10, pady=4)
+        self.lbl_bookable_highlight.configure(foreground=self.style_dict["highlight_color_yellow"]) 
 
         ###################################
 
         self.frame_external_booking = MyFrame(self.frame_right,self.data_manager)
         self.frame_external_booking.pack(side = "top", padx=10, pady=4,fill='x')
 
-        self.lbl_checkBox_external_booking_info = MyLabel(self.frame_external_booking,self.data_manager,text= u'\U00002139',width=3)
-        self.lbl_checkBox_external_booking_info.pack(side = "left")
-        self.lbl_external_booking_ttp = CreateToolTip(self.lbl_checkBox_external_booking_info, self.data_manager, 0, 30, self.language_dict["create_account_external_booking_text"], True)
+        self.lbl_external_booking_info = MyLabel(self.frame_external_booking,self.data_manager,text= u'\U00002139',width=3)
+        self.lbl_external_booking_info.pack(side = "left")
+        self.lbl_external_booking_ttp = CreateToolTip(self.lbl_external_booking_info, self.data_manager, 0, 30, self.language_dict["create_account_external_booking_text"], True)
 
         self.lbl_external_booking = MyLabel(self.frame_external_booking,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['external_booking'] + ':')
         self.lbl_external_booking.pack(side = "left", padx=10)
 
-        self.checkBox_external_booking = MyCheckbutton(self.frame_external_booking, self.data_manager,
-                                                variable=self.account_external_booking)
-        self.checkBox_external_booking.pack(side="left", padx=10)
+        self.lbl_check_external_booking = MyLabel(self.frame_external_booking, self.data_manager, anchor='w',width = 3, text = ' ')
+        self.lbl_check_external_booking.configure(foreground=self.style_dict["highlight_color_grey"])
+        self.lbl_check_external_booking.pack(side="left", padx=10)
 
-
+        self.lbl_check_external_booking.bind("<Enter>", self.enter_check_external_booking)
+        self.lbl_check_external_booking.bind("<Leave>", self.leave_check_external_booking)
+        self.lbl_check_external_booking.bind("<Button-1>", self.toggle_external_booking)
+    
         if self.modus in ['duplicate_main_account','edit_main']:
-            if self.main_account_dict.get("external_booking") == 0:
-                self.checkBox_external_booking.deselect()
+            if self.main_account_dict.get("external_booking") == 1:
+                self.external_booking = 1
             else:
-                self.checkBox_external_booking.select()
+                self.external_booking = 0
 
         elif self.modus in ['new_main']:
-            self.checkBox_external_booking.deselect()            
+            self.external_booking = 0  
+
+        self.update_check_external_booking()
+
+        self.lbl_external_booking_highlight = MyLabel(self.frame_external_booking,self.data_manager,text='  '+u'\U0001F808'+' ')
+        self.lbl_external_booking_highlight.pack(side = "left")
+        
+        self.lbl_external_booking_highlight.configure(foreground=self.style_dict["background_color_grey"])     
 
         ###############
 
@@ -759,7 +773,7 @@ class CreateEditAccountBody:
                 self.account_response_code.set(str(account_data["response_code"]))
 
                 if str(account_data["response_code"]) != '':
-                    self.account_bookable = 1
+                    self.bookable = 1
                     self.update_bookable()
 
                 self.lbl_error_info.configure(text ='')
@@ -778,9 +792,9 @@ class CreateEditAccountBody:
                                                        self.account_response_code,
                                                        self.account_response_texts_main,
                                                        self.account_response_texts,
-                                                       self.account_external_booking,
+                                                       self.external_booking,
                                                        self.account_group,
-                                                       self.account_bookable,
+                                                       self.bookable,
                                                        self.expiration_year,
                                                        self.expiration_month,
                                                        self.expiration_day,
@@ -850,49 +864,111 @@ class CreateEditAccountBody:
             self.expiration_day_cbox['values'] = expiration_day_list
             self.expiration_day.set(expiration_day_list[0])
 
+    def update_check_external_booking(self):
+        if self.bookable == 1:
+            if self.external_booking == 0:
+                self.lbl_check_external_booking.configure(text = ' ' + u'\U00002610')
+            else:
+                self.lbl_check_external_booking.configure(text = ' ' + u'\U00002612')
+        else:
+            self.lbl_check_external_booking.configure(text = ' ' + u'\U00002610')
+            self.lbl_check_external_booking.configure(foreground=self.style_dict["highlight_color_grey"])
+            self.external_booking = 0
 
-    def update_bookable(self):
-        if self.account_bookable == 0 and self.modus in ['new_main','duplicate_main_account','edit_main']:
-            self.btn_bookable.configure(text= self.language_dict['bookable'])
-            self.lbl_bookable_state.configure(text= self.language_dict['no'])
 
-            self.checkBox_external_booking.deselect() 
+    def enter_check_external_booking(self,e=None):
+        if self.bookable == 1:
+            self.lbl_check_external_booking.configure(foreground=self.style_dict["font_color"])
+
+    def leave_check_external_booking(self,e=None):
+        if self.external_booking == 0:
+            self.lbl_check_external_booking.configure(foreground=self.style_dict["highlight_color_grey"])
+
+    def toggle_external_booking(self,e=None):
+        if self.bookable == 1:
+            if self.external_booking == 0:
+                self.external_booking = 1
+            else:
+                self.external_booking = 0
+            self.update_check_external_booking()
+    
+    def update_bookable(self,manual=0):
+        if self.bookable == 0 and self.modus in ['new_main','duplicate_main_account','edit_main']:
+
+            self.lbl_external_booking_info.pack_forget()
+            self.lbl_external_booking.pack_forget()
+            self.lbl_check_external_booking.pack_forget()
+            self.lbl_external_booking_highlight.pack_forget()
+
+            self.lbl_response_code.pack_forget()
+            self.textBox_response_code.pack_forget()
+
             self.textBox_response_code.configure(highlightthickness = 0)
             self.textBox_response_code.configure(borderwidth = 1)
             self.account_response_code.set("")
-
-            self.btn_bookable.configure(state=tk.NORMAL)
-            self.checkBox_external_booking.configure(state=tk.DISABLED)
+            self.lbl_external_booking_highlight.configure(foreground=self.style_dict["background_color_grey"])  
             self.textBox_response_code.configure(state=tk.DISABLED)
 
-        elif self.account_bookable == 1 and self.modus in ['new_main','duplicate_main_account','edit_main']:
-            self.btn_bookable.configure(state=tk.NORMAL)
-            self.checkBox_external_booking.configure(state=tk.NORMAL)
+        elif self.bookable == 1 and self.modus in ['new_main','duplicate_main_account','edit_main']:
+
+            self.lbl_external_booking_info.pack(side="left")
+            self.lbl_external_booking.pack(side="left", padx=10)
+            self.lbl_check_external_booking.pack(side="left", padx=10)
+            self.lbl_external_booking_highlight.pack(side = "left")
+
+            self.lbl_response_code.pack(side = "left", padx=10)
+            self.textBox_response_code.pack(side="left", padx=10)
+
             self.textBox_response_code.configure(state=tk.NORMAL)
 
-            self.btn_bookable.configure(text= self.language_dict['not_bookable'])
-            self.lbl_bookable_state.configure(text= self.language_dict['yes'])
-
-            self.checkBox_external_booking.configure(selectcolor=self.style_dict["highlight_color_yellow"],foreground=self.style_dict["font_color_black"] )
-
             self.textBox_response_code.configure(highlightthickness = 1)
+            self.lbl_external_booking_highlight.configure(foreground=self.style_dict["highlight_color_yellow"])  
             if self.style_dict['name'] == 'dark':
                 self.textBox_response_code.configure(borderwidth = 0)
-        return
+        if manual == 0:
+            if self.bookable == 0:
+                self.lbl_check_bookable.configure(image=self.image_dict['photo_btn_off'])
+                self.lbl_check_bookable.image = self.image_dict['photo_btn_off']
+            else:
+                self.lbl_check_bookable.configure(image=self.image_dict['photo_btn_off_mirrored'])
+                self.lbl_check_bookable.image = self.image_dict['photo_btn_off_mirrored']
+        self.update_check_external_booking()
+
+
+    def enter_check_bookable(self,e=None):
+        if self.bookable == 0:
+            self.lbl_check_bookable.configure(image=self.image_dict['photo_btn_not_bookable_mirrored'])
+            self.lbl_check_bookable.image = self.image_dict['photo_btn_not_bookable_mirrored']
+        else:
+            self.lbl_check_bookable.configure(image=self.image_dict['photo_btn_on'])
+            self.lbl_check_bookable.image = self.image_dict['photo_btn_on']
+
+
+
+    def leave_check_bookable(self,e=None):
+        if self.bookable == 0:
+            self.lbl_check_bookable.configure(image=self.image_dict['photo_btn_off'])
+            self.lbl_check_bookable.image = self.image_dict['photo_btn_off']
+        else:
+            self.lbl_check_bookable.configure(image=self.image_dict['photo_btn_off_mirrored'])
+            self.lbl_check_bookable.image = self.image_dict['photo_btn_off_mirrored']
+
+    def toggle_bookable(self,e=None):
+        if self.modus in ['new_main','duplicate_main_account','edit_main']:
+            if self.bookable == 0:
+                self.bookable = 1
+                self.lbl_check_bookable.configure(image=self.image_dict['photo_btn_on'])
+                self.lbl_check_bookable.image = self.image_dict['photo_btn_on']
+            else:
+                self.bookable = 0
+                self.lbl_check_bookable.configure(image=self.image_dict['photo_btn_not_bookable_mirrored'])
+                self.lbl_check_bookable.image = self.image_dict['photo_btn_not_bookable_mirrored']
+            self.update_bookable(1)
+        
     
     def update(self):
         return
-    
-    def toggle_bookable(self):
-        if self.account_bookable == 0:
-            self.account_bookable = 1
-            self.update_bookable()
-
-        elif self.account_bookable == 1:
-            self.account_bookable = 0
-            self.update_bookable()
-        return
-    
+        
     def refresh(self):
         # configure style and language of main frame
         self.style_dict = self.data_manager.get_style_dict()

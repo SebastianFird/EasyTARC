@@ -76,6 +76,10 @@ class CaptureOptionMenu(tkinter.Listbox):
         self.optionmenu.configure(foreground=self.style_dict["font_color"])
         self.optionmenu.configure(activebackground=self.style_dict["selected_color_grey"])
 
+        defaultFont = tkinter.font.nametofont(self.cget("font"))
+        defaultFont.configure(size=str(int(self.data_manager.main_app.get_setting("font_size"))-2))
+        self.optionmenu.configure(font=defaultFont)
+
     def show_clock_info(self):
         info_dict = self.selected_clock.get_info_dict()
         info_window = InfoDictWindow(self.main_app, self.gui, self.capture_tab.main_frame ,info_dict,550,300)

@@ -16,7 +16,7 @@ limitations under the License.
 __author__ = 'Sebastian Feiert'
 
 import datetime
-from PIL import ImageTk, Image
+from PIL import ImageTk, Image, ImageOps
 from os import getcwd
 import os
 import shutil
@@ -438,6 +438,10 @@ class DataManager:
         photo_btn_off = Image.open("images/btn_off.png").convert('RGBA')
         photo_btn_pause = Image.open("images/btn_pause.png").convert('RGBA')
 
+        photo_btn_not_bookable_mirrored = ImageOps.mirror(photo_btn_not_bookable)
+        photo_btn_off_mirrored = ImageOps.mirror(photo_btn_off)
+
+
         if style_name == "dark":
             photo_btn_highlight_head = photo_btn_highlight
             photo_btn_off_head = photo_btn_off
@@ -466,6 +470,8 @@ class DataManager:
             photo_btn_plus_plus_font = Image.open("images/btn_plus_plus_0.png").convert('RGBA')
             photo_btn_minus_minus_strong_highlight = Image.open("images/btn_minus_minus_146.png").convert('RGBA')
             photo_btn_minus_minus_font = Image.open("images/btn_minus_minus_0.png").convert('RGBA')
+
+        '''
 
         if font_size == '8':
             icon_btn_size = (28, 28)
@@ -496,7 +502,22 @@ class DataManager:
             icon_btn_size = (30,30)
             activation_btn_size = (40,20)
             correction_btn_1_size = (20,20)
-            correction_btn_2_size = (35,20)
+            correction_btn_2_size = (35,20)'
+        '''
+
+        icon_width = 28
+        icon_height = 28
+        btn_1_width = 36
+        btn_2_width = 18
+        btn_3_width = 32
+        btn_height = 18
+
+        geometry_factor = self.main_app.get_geometry_factor()*1.1
+
+        icon_btn_size = (int(round(geometry_factor*icon_width)),int(round(geometry_factor*icon_height)))
+        activation_btn_size = (int(round(geometry_factor*btn_1_width)),int(round(geometry_factor*btn_height)))
+        correction_btn_1_size = (int(round(geometry_factor*btn_2_width)),int(round(geometry_factor*btn_height)))
+        correction_btn_2_size = (int(round(geometry_factor*btn_3_width)),int(round(geometry_factor*btn_height)))
 
         photo_icon = ImageTk.PhotoImage(photo_icon.resize(icon_btn_size, Image.LANCZOS))
 
@@ -509,6 +530,9 @@ class DataManager:
         photo_btn_highlight_head = ImageTk.PhotoImage(photo_btn_highlight_head.resize(activation_btn_size, Image.LANCZOS))
         photo_btn_off_head = ImageTk.PhotoImage(photo_btn_off_head.resize(activation_btn_size, Image.LANCZOS))
         photo_btn_pause_head = ImageTk.PhotoImage(photo_btn_pause_head.resize(activation_btn_size, Image.LANCZOS))
+
+        photo_btn_not_bookable_mirrored = ImageTk.PhotoImage(photo_btn_not_bookable_mirrored.resize(activation_btn_size, Image.LANCZOS))
+        photo_btn_off_mirrored = ImageTk.PhotoImage(photo_btn_off_mirrored.resize(activation_btn_size, Image.LANCZOS))
 
         photo_btn_plus_strong_highlight = ImageTk.PhotoImage(photo_btn_plus_strong_highlight.resize(correction_btn_1_size, Image.LANCZOS))
         photo_btn_plus_font = ImageTk.PhotoImage(photo_btn_plus_font.resize(correction_btn_1_size, Image.LANCZOS))
@@ -537,7 +561,9 @@ class DataManager:
             "photo_btn_minus_strong_highlight":photo_btn_minus_strong_highlight,
             "photo_btn_minus_font":photo_btn_minus_font,
             "photo_btn_minus_minus_strong_highlight":photo_btn_minus_minus_strong_highlight,
-            "photo_btn_minus_minus_font":photo_btn_minus_minus_font
+            "photo_btn_minus_minus_font":photo_btn_minus_minus_font,
+            "photo_btn_not_bookable_mirrored":photo_btn_not_bookable_mirrored,
+            "photo_btn_off_mirrored":photo_btn_off_mirrored
         }
 
     def get_image_dict(self):

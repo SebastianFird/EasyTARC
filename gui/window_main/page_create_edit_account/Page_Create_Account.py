@@ -113,7 +113,7 @@ class CreateEditAccount(tk.Frame):
         return(account_data)
         
 
-    def user_input(self,account_name,account_description_text,account_project,account_order,account_process,account_response,account_response_texts_main,account_response_texts,account_external_booking,group,bookable,expiration_year,expiration_month,expiration_day,available_hours):
+    def user_input(self,account_name,account_description_text,account_project,account_order,account_process,account_response,account_response_texts_main,account_response_texts,external_booking,group,bookable,expiration_year,expiration_month,expiration_day,available_hours):
 
         main_list = ['new_main','duplicate_main_account','edit_main']
         sub_list = ['new_sub','edit_sub']
@@ -122,14 +122,16 @@ class CreateEditAccount(tk.Frame):
             kind = 1
             main_id = 0
 
+            #bookable = bookable 
+
         elif self.modus in sub_list:
             kind = 0
             main_id = self.main_account_dict.get("account_id")
             
             if self.main_account_dict.get("bookable") == 1:
-                bookable = True 
+                bookable = 1 
             else:
-                bookable = False
+                bookable = 0
 
         project_label = account_project.get()
         order_label = account_order.get()
@@ -137,7 +139,6 @@ class CreateEditAccount(tk.Frame):
         group = group.get()
         name = account_name.get()
         description_text = account_description_text.get()
-        external_booking = account_external_booking.get()
         response_code = account_response.get()
         response_texts = account_response_texts.get()
         expiration_year = expiration_year.get()
@@ -148,11 +149,6 @@ class CreateEditAccount(tk.Frame):
         response_texts_main = account_response_texts_main
         
         ############################
-
-        if bookable == True:
-            bookable = 1
-        else:
-            bookable = 0
 
         if project_label == '' or project_label.isspace() == True:
             project_label = ' - '
@@ -194,6 +190,11 @@ class CreateEditAccount(tk.Frame):
 
         if available_hours == '' or available_hours.isspace() == True:
             available_hours = '0'
+
+        if external_booking == 1:
+            external_booking = '1'
+        else:
+            external_booking = '0'
 
         input_checked = self.check_new_account_input(name,[group],[name,project_label,order_label,process_label,group,description_text,response_code,response_texts],available_hours)
 

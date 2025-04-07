@@ -98,7 +98,7 @@
         "create_account_project_label_text" : "Hier kann das dem Zeitkonto zugehörige Projekt eigegeben werden.",
         "create_account_order_label_text": "Ein Projekt kann mehrere Aufträge beinhalten.\nHier kann der dem Zeitkonto zugehörige Auftrag eigegeben werden.",
         "create_account_process_label_text" : "Ein Auftrag kann mehrere Vorgänge beinhalten.\nHier kann der dem Zeitkonto zugehörige Vorgang eigegeben werden.",
-        "create_account_external_booking_text" : "Wenn dieses Kästchen aktiviert ist, werden die erfassten Stunden auf diesem\nZeitkonto automatisch als gebucht erfasst. (Beispiel: Der Vorgesetzte bucht\nfür alle Gruppenmitglieder die Stunden für Gruppenabsprachen)",
+        "create_account_external_booking_text" : "Wenn Fremdbuchung aktiviert ist, werden die erfassten Stunden auf diesem\nZeitkonto automatisch als gebucht erfasst. (Beispiel: Der Vorgesetzte bucht\nfür alle Gruppenmitglieder die Stunden für Gruppenabsprachen)",
         "complete_editing" : "Bearbeitung abschließen",
         "reset_all_windows": "Fensterpositionen zurücksetzen",
         "identification" : "Kennung",
@@ -390,7 +390,7 @@
         "pivot_accounts_total_with_sub_accounts":"2 mit Unterkonten",
         "pivot_accounts_total_without_sub_accounts":"2 Pivot Gesamt",
         "info_description_1":"Immer wenn du dieses Symbol ",
-        "info_description_2":" siehst, kannst\ndu für mehr Infos darüber mit dem Cursor hovern.\n\nWenn du eine EasyTARC Sicherung wiederherstellen möchtest,\nklicke auf den Pfeil oben rechts.",
+        "info_description_2":" siehst, kannst\ndu für mehr Infos darüber mit dem Cursor hovern.\n\nWenn du eine EasyTARC Sicherung wiederherstellen möchtest,\nklicke auf Sekundäre Sicherung oben rechts.",
         "copie_data":"Daten kopieren",
         "edit_remaining_time":"Verbleibende Stunden anpassen",
         "new_hours_left":"Neu verbleibende Stunden",
@@ -469,7 +469,14 @@
         "show_all":"Alle Einträge aufklappen",
         "hide_all":"Alle Einträge einklappen",
         "release_note_text_21":"1.12.3 (02.03.2025)\n - Verbesserung der Arbeitsfenster.\n - Monatlicher Überblick im Tab Erfasste Zeiten.",
-        "release_note_text_22":"1.12.4 (09.03.2025)\n - Fehlerbehebungen."
+        "release_note_text_22":"1.12.4 (09.03.2025)\n - Fehlerbehebungen.",
+        "dpi_awareness":"Dpi Awareness",
+        "dpi_awareness_info":"Die Einstellung hilft bei der Skalierung und Anpassung an die Bildschirmauflösung.\nDiese Einstellung wird nach dem Schließen und Neustart von EasyTARC aktiv.",
+        "check_dpi_awareness":"Aufgrund des Updates musst du eventuell die Schriftgröße im Tab 'Einstellungen' für dich erneut anpassen. Solltest du Probleme mit der neuen Skalierung durch das Update haben, kannst du im Tab 'Einstellungen' die 'Dpi Awareness' deaktivieren und EasyTARC neu starten. Sollte dies nicht helfen, wende dich bitte an den Support.",
+        "release_note_text_23":"1.12.5 (05.04.2025)\n - Fehlerbehebungen.\n - Anpassung der Skalierung.",
+        "Nein":"no",
+        "Ja":"yes",
+        "new_db":"Neue Datenbank"
     },
     "english": 
     {
@@ -570,7 +577,7 @@
         "create_account_project_label_text" : "Here you can enter a project associated with the time account.",
         "create_account_order_label_text": "A project can contain several orders.\nHere you can enter an order associated with the time account.",
         "create_account_process_label_text" : "An order can contain several processes.\nHere you can enter a process associated with the time account.",
-        "create_account_external_booking_text" : "If this box is checked, the hours recorded in this time account will automatically be\nrecorded as booked. (Example: The supervisor books\nthe hours for group arrangements for all group members)",
+        "create_account_external_booking_text" : "If external booking is activated, the hours recorded in this time account will\nautomatically be recorded as booked. (Example: The supervisor books\nthe hours for group arrangements for all group members)",
         "complete_editing" : "Complete editing",
         "reset_all_windows": "Reset window positions",
         "identification" : "Identification",
@@ -862,7 +869,7 @@
         "pivot_accounts_total_with_sub_accounts":"2 with sub-accounts",
         "pivot_accounts_total_without_sub_accounts":"2 Pivot Total",
         "info_description_1":"Whenever you see this symbol ",
-        "info_description_2":", you can hover\nover it with the cursor for more information.\n\nIf you want to restore an EasyTARC backup,\nclick on the arrow at the top right.",
+        "info_description_2":", you can hover\nover it with the cursor for more information.\n\nIf you want to restore an EasyTARC backup,\nclick on secondary back up at the top right.",
         "copie_data":"Copie data",
         "edit_remaining_time":"Edit remaining hours",
         "new_hours_left":"New remaining hours",
@@ -941,6 +948,13 @@
         "show_all":"Expand all entries",
         "hide_all":"Collapse all entries",
         "release_note_text_21":"1.12.3 (02.03.2025)\n - Improvement of the working windows.\n - Monthly summary in the Recorded times tab.",
-        "release_note_text_22":"1.12.4 (09.03.2025)\n - Bug fixes."
+        "release_note_text_22":"1.12.4 (09.03.2025)\n - Bug fixes.",
+        "dpi_awareness":"Dpi awareness",
+        "dpi_awareness_info":"The setting helps with scaling and adaptation to the screen resolution.\nThis setting becomes active after closing and restarting EasyTARC.",
+        "check_dpi_awareness":"Due to the update, you may have to adjust the font size in the 'Settings' tab again. If you have problems with the new scaling due to the update, you can deactivate 'Dpi Awareness' in the 'Settings' tab and restart EasyTARC. If this does not help, please contact support.",
+        "release_note_text_23":"1.12.5 (05.04.2025)\n - Bug fixes.\n - Adjustment of the scaling.",
+        "No":"no",
+        "Yes":"yes",
+        "new_db":"New database"
     }
 }

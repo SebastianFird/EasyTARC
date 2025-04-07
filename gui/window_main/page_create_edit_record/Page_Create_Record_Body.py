@@ -26,7 +26,6 @@ from style_classes import MyFrame
 from style_classes import MyLabel
 from style_classes import MyButton
 from style_classes import MyEntry 
-from style_classes import MyCheckbutton
 from style_classes import MyCombobox
 from gui.Window_Additionals import CreateToolTip
 

@@ -139,7 +139,7 @@ class GroupFrame((tk.Frame)):
     def create_group_head_frame(self):
 
         font_family = self.main_app.get_setting('font_family')
-        font_size = self.main_app.get_setting('font_size')
+        font_size = self.main_app.get_setting("font_size")
         Font_tuple = (font_family, font_size, "bold")
 
         self.separator_frame_1 = MyFrame(self.group_frame,self.data_manager)

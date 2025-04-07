@@ -52,6 +52,10 @@ class MainWindowOptionMenu(tkinter.Listbox):
         self.optionmenu.configure(foreground=self.style_dict["font_color"])
         self.optionmenu.configure(activebackground=self.style_dict["selected_color_grey"])
 
+        defaultFont = tkinter.font.nametofont(self.cget("font"))
+        defaultFont.configure(size=str(int(self.data_manager.main_app.get_setting("font_size"))-2))
+        self.optionmenu.configure(font=defaultFont)
+
     def reset_all_windows(self):
         self.gui.reset_window_pos()
         return

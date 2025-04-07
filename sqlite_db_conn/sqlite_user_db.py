@@ -29,6 +29,8 @@ import numpy as np
 import datetime
 import tkinter as tk
 from tkinter import messagebox
+import shutil
+import random
 
 from sqlite_db_conn.sqlite_db import SqlManager
 
@@ -49,25 +51,36 @@ class SqlUserDataManager(SqlManager):
     def start_db(self,db_config,folder_name,name,name_ending,db_password,db_salt):
         self.set_db_config(db_config,folder_name,name,name_ending,db_password,db_salt)
         print('start_db')
+
+        #connection_check
         try:
-            test_id = self.get_new_accountid()
+            conn = self.open_db_conn()
+            cur = conn.cursor()
 
-            try:
-                if self.main_app.get_version_update() == True:
+            cur.execute("SELECT MAX(accountid) FROM accounts")
+            result = cur.fetchone()
+            self.save_and_close_db(conn)
 
-                    #check for 1.11.0 update
-                    if self.main_app.check_for_update_to_version_str(self.main_app.get_start_version(),'1.11.0') == True:
-                        self.update_1_11_0()
-
-            except:
-                self.root = NewRoot()
-                messagebox.showinfo('EasyTARC','sql_updates_failed')
-                return(False)
-
-            return(True)
         except:
+            conn.close()
+            self.request_restoring_backup()
+            return(False)
+            
+        #updates
+        try:
+            if self.main_app.get_version_update() == True:
+
+                #check for 1.11.0 update
+                if self.main_app.check_for_update_to_version_str(self.main_app.get_start_version(),'1.11.0') == True:
+                    self.update_1_11_0()
+
+        except:
+            self.root = NewRoot()
+            messagebox.showinfo('EasyTARC','sql_updates_failed')
             return(False)
 
+        return(True)
+    
     def update_1_11_0(self):
         conn = self.open_db_conn()
 
@@ -93,26 +106,30 @@ class SqlUserDataManager(SqlManager):
 
     def request_restoring_backup(self):
         self.root = NewRoot()
-        full_db_backup_db_name_enc = self.folder_name + '\\' + self.name + '_backup' + self.name_ending 
-        if os.path.isfile(full_db_backup_db_name_enc) == True:
-            result = messagebox.askquestion("EasyTARC", 'EsayTARC cannot retrieve any data, there is a database error. However, a backup was found, should the backup be used at the next start? Please restart EasyTARC after clicking Yes.')
+        full_db_backup_db_name = self.folder_name + '\\' + self.name + '_backup' + self.name_ending 
+        if os.path.isfile(full_db_backup_db_name) == True:
+            result = messagebox.askquestion("EasyTARC", 'EsayTARC cannot retrieve any data, there is a database error. However, a backup was found. This backup does not contain the last session. Should the backup be used?')
             if result == 'yes':
                 self.restore_backup()
             else:
-                messagebox.showinfo('EasyTARC','EsayTARC cannot retrieve data, there is a database error. Please contact the admin.')
+                messagebox.showinfo('EasyTARC','EsayTARC cannot retrieve data. Please contact the support.')
         else:
-            messagebox.showinfo('EasyTARC','EsayTARC cannot retrieve data, there is a database error. Please contact the admin.')
+            messagebox.showinfo('EasyTARC','EsayTARC cannot retrieve data, there is a database error. Please contact the support.')
         self.main_app.fast_exit()
 
     def restore_backup(self):
         path = os.path.abspath(os.getcwd())
         # renaming the crashed db in error_db 
         file_path = path + '\\' + self.folder_name + '\\' + self.name + self.name_ending 
-        file_path_err = path + '\\' + self.folder_name + '\\error_' + self.name + self.name_ending 
+        random_number = random.randint(10**9, 10**10 - 1)
+        file_path_err = path + '\\' + self.folder_name + '\\error_' + self.name+ '_' + str(random_number) + self.name_ending 
         os.rename(file_path, file_path_err)
         # renaming the backup_db in db 
         full_db_backup_path  = path + '\\' + self.folder_name + '\\' + self.name + '_backup' + self.name_ending 
-        os.rename(full_db_backup_path, file_path)
+        shutil.copy(full_db_backup_path, file_path)
+        #os.rename(full_db_backup_path, file_path)
+        self.root = NewRoot()
+        result = messagebox.showinfo("EasyTARC", 'Please restart EasyTARC.')
         return
 
 ####################################################################################################################

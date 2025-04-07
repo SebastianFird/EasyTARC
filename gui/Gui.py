@@ -132,6 +132,15 @@ class Gui_Manager:
         self.on_window_switch = False
         self.start_recording = False
 
+        if self.main_app.get_setting('win_dpi_awareness') == "on":
+            try:
+                ct.windll.shcore.SetProcessDpiAwareness(1)
+                scale_factor = ct.windll.shcore.GetScaleFactorForDevice(0)*0.01
+                print(scale_factor) 
+                self.main_app.set_scale_factor(scale_factor)
+            except Exception:
+                pass
+
     def run_login_window(self,kind,user_permission=None):
 
         self.root = tk.Tk()
@@ -153,7 +162,7 @@ class Gui_Manager:
 
         self.screen_size_window = ScreenSizeWindow(self.main_app, self.root)
 
-        self.data_manager.load_image_dict(self.main_app.get_setting('font_size'),self.main_app.get_setting('style_name'))
+        self.data_manager.load_image_dict(self.main_app.get_setting("font_size"),self.main_app.get_setting('style_name'))
 
         self.login_window = LoginWindow(self.main_app,self.root,self,kind,user_permission)
         self.login_window.pack(fill=tk.BOTH, expand=True)
@@ -191,7 +200,7 @@ class Gui_Manager:
 
         self.screen_size_window = ScreenSizeWindow(self.main_app, self.root)
 
-        self.data_manager.load_image_dict(self.main_app.get_setting('font_size'),self.main_app.get_setting('style_name'))
+        self.data_manager.load_image_dict(self.main_app.get_setting("font_size"),self.main_app.get_setting('style_name'))
 
         self.main_window = MainWindow(self.main_app,self.root,self)
         self.main_window.pack(fill=tk.BOTH, expand=True)
@@ -219,6 +228,11 @@ class Gui_Manager:
 
             if self.main_app.get_app_version() == '1.12.3':
                 text = '\nUpdate:\n\n' + self.language_dict["release_note_text_21"]
+                info_window = InfoWindow(self.main_app, self, self.main_window.main_frame ,text,700,350,True)
+
+            if self.main_app.get_app_version() == '1.12.5':
+                text = '\nUpdate:\n\n' + self.language_dict["release_note_text_23"]
+                text = text + '\n\n' + self.language_dict["check_dpi_awareness"]
                 info_window = InfoWindow(self.main_app, self, self.main_window.main_frame ,text,700,350,True)
 
         elif self.main_app.get_new_sign_up() == True:

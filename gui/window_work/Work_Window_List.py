@@ -77,6 +77,19 @@ class WorkWindowList(tk.Toplevel):
         self.ww_bar_attach_pos = self.main_app.get_setting('bar_work_window_attach_pos')
         self.attach_pos = self.main_app.get_setting('list_work_window_attach_pos')
 
+        self.geometry_factor = round(self.main_app.get_geometry_factor())
+
+        if self.geometry_factor <= 1.2:
+            self.geometry_factor_vertical = 1
+        elif self.geometry_factor > 1.2 and self.geometry_factor <= 1.4:
+            self.geometry_factor_vertical = 1.2
+        elif self.geometry_factor > 1.4 and self.geometry_factor <= 1.6:
+            self.geometry_factor_vertical = 1.4
+        elif self.geometry_factor > 1.6:
+            self.geometry_factor_vertical = 1.6
+        else:
+            self.geometry_factor_vertical = 1
+
         if self.attach_pos =="left":
             self.info_v_rel_x_1 = 0
             self.info_v_rel_x_2 = 0
@@ -220,7 +233,7 @@ class WorkWindowList(tk.Toplevel):
             self.vertical_frame.pack_forget()
             self.btn_frame.pack_forget()
             self.title_bar.pack_forget()
-            self.geometry('%dx%d+%d+%d' % (self.win_vertical_width,300, self.win_vertical_x_pos, self.y_pos))
+            self.geometry('%dx%d+%d+%d' % (self.win_vertical_width,int(300*self.geometry_factor_vertical), self.win_vertical_x_pos, self.y_pos))
             self.vertical_frame.pack(side='top', fill = "x")
             self.expand_frame_displayed = False
             
@@ -434,6 +447,8 @@ class WorkWindowList(tk.Toplevel):
         self.title_bar.configure(background=background_color)
         self.lbl_name.configure(background=background_color)
         self.lbl_emtpy.configure(background=background_color)
+        self.title_bar_btn.configure(background=background_color)
+        self.vertical_frame.configure(background=background_color)
         if self.on_option_button == False:
             self.option_button.configure(background=background_color)
             self.option_button_v.configure(background=background_color)
@@ -464,11 +479,11 @@ class WorkWindowList(tk.Toplevel):
         self.vertical_frame.configure(background=self.style_dict["titlebar_color"])
 
         self.vertical_btn_frame = MyFrame(self.vertical_frame,self.data_manager)
-        self.vertical_btn_frame.pack(side='top')
+        self.vertical_btn_frame.pack(side='top', fill = "x")
 
         self.option_button_v = MyLabelPixel(self.vertical_btn_frame, self.data_manager, text=u'\U00002026')
-        self.option_button_v.configure(background=self.style_dict["titlebar_color"], width=30, height=20)
-        self.option_button_v.pack(side='top')
+        self.option_button_v.configure(background=self.style_dict["titlebar_color"], height=int(20*self.geometry_factor_vertical))
+        self.option_button_v.pack(side='top', fill = "x")
         self.option_button_v.bind('<Button-1>', self.option_clicked)
         self.on_option_button_v = False
         self.option_work_window_v_ttp = CreateInfo(self.option_button_v, self.data_manager, self.info_v_rel_x_2, 40, self.language_dict["options"])
@@ -477,8 +492,8 @@ class WorkWindowList(tk.Toplevel):
         self.option_button_v.bind("<Button-3>", self.right_clicked)
 
         self.expand_btn_v = MyLabelPixel(self.vertical_btn_frame, self.data_manager)
-        self.expand_btn_v.configure(text = u'\U00002302', background=self.style_dict["titlebar_color"], width=30, height=30) # u'\U0001F532'
-        self.expand_btn_v.pack(side='top')
+        self.expand_btn_v.configure(text = u'\U00002302', background=self.style_dict["titlebar_color"], height=int(30*self.geometry_factor_vertical)) # u'\U0001F532'
+        self.expand_btn_v.pack(side='top', fill = "x")
         self.expand_btn_v.bind('<Button-1>', self.expand_to_main_window)
         self.on_expand_button_v = False
         self.open_main_window_v_ttp = CreateInfo(self.expand_btn_v, self.data_manager, self.info_v_rel_x_1, 40, self.language_dict["open_main_window"])
@@ -487,12 +502,12 @@ class WorkWindowList(tk.Toplevel):
         self.expand_btn_v.bind("<Button-3>", self.right_clicked)
 
         self.bar_btn_v = MyLabelPixel(self.vertical_btn_frame, self.data_manager)
-        self.bar_btn_v.configure(background=self.style_dict["titlebar_color"], width=30, height=30) # u'\U0001F881'
+        self.bar_btn_v.configure(background=self.style_dict["titlebar_color"], height=int(30*self.geometry_factor_vertical)) # u'\U0001F881'
         if self.ww_bar_attach_pos == "top":
             self.bar_btn_v.configure(text = u'\U00002191')
         else:
             self.bar_btn_v.configure(text = u'\U00002193')
-        self.bar_btn_v.pack(side='top')
+        self.bar_btn_v.pack(side='top', fill = "x")
         self.bar_btn_v.bind('<Button-1>', self.change_to_bar_work_window)
         self.on_bar_btn_v = False
         self.change_work_window_v_ttp = CreateInfo(self.bar_btn_v, self.data_manager, self.info_v_rel_x_1, 40, self.language_dict["change_work_window"])
@@ -511,12 +526,12 @@ class WorkWindowList(tk.Toplevel):
             self.vertical_frame_ttp.text = ''
 
         font_family = self.main_app.get_setting('font_family')
-        font_size = self.main_app.get_setting('font_size')
+        font_size = self.main_app.get_setting("font_size")
         Font_tuple = (font_family, font_size)
 
-        self.canvas_lbl_name = tk.Canvas(self.vertical_name_frame, width= self.win_vertical_width, height= 210, bg=self.style_dict["recording_color_green"], bd=0, highlightthickness=0)
+        self.canvas_lbl_name = tk.Canvas(self.vertical_name_frame, width= self.win_vertical_width, height= int(210*self.geometry_factor_vertical), bg=self.style_dict["recording_color_green"], bd=0, highlightthickness=0)
         self.canvas_lbl_name.pack(side='top')
-        self.canvas_text = self.canvas_lbl_name.create_text((15,190),text="Hello", fill=self.style_dict["font_color"], angle=90, font=Font_tuple,anchor="w")
+        self.canvas_text = self.canvas_lbl_name.create_text((int(15*self.geometry_factor),int(190*self.geometry_factor_vertical)),text="Hello", fill=self.style_dict["font_color"], angle=90, font=Font_tuple,anchor="w")
         self.canvas_lbl_name.bind("<Double-Button-1>", self.status_double_click)
         self.canvas_lbl_name.bind('<B1-Motion>', self.move_window)
         self.canvas_lbl_name.bind('<Button-1>', self.get_pos)
@@ -575,8 +590,8 @@ class WorkWindowList(tk.Toplevel):
         self.title_bar_name.pack(side='right', fill = "both")
 
         self.lbl_emtpy = MyLabelPixel(self.title_bar_name, self.data_manager)
-        self.lbl_emtpy.configure(text = '', background=self.style_dict["titlebar_color"],height=30) # u'\U0001F532'
-        self.lbl_emtpy.pack(side='right')
+        self.lbl_emtpy.configure(text = '', background=self.style_dict["titlebar_color"],height=int(30*self.geometry_factor)) # u'\U0001F532'
+        self.lbl_emtpy.pack(side='right', fill = "y")
         self.lbl_emtpy.bind("<Double-Button-1>", self.status_double_click)
         self.lbl_emtpy.bind("<Button-3>", self.right_clicked)
 
@@ -791,7 +806,7 @@ class GroupFrame((tk.Frame)):
     def create_main_frame(self):
 
         font_family = self.main_app.get_setting('font_family')
-        font_size = self.main_app.get_setting('font_size')
+        font_size = self.main_app.get_setting("font_size")
         Font_tuple = (font_family, font_size, "bold")
 
         self.separator_frame_1 = MyFrame(self,self.data_manager)

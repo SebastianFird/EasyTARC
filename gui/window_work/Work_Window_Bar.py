@@ -264,7 +264,7 @@ class WorkWindowBar(WorkWindowCbox):
         self.status_frame.bind("<Double-Button-1>", self.status_double_click)
 
         self.lbl_emtpy = MyLabelPixel(self.status_frame, self.data_manager)
-        self.lbl_emtpy.configure(text = '', background=self.style_dict["titlebar_color"],height=30) # u'\U0001F532'
+        self.lbl_emtpy.configure(text = '', background=self.style_dict["titlebar_color"],height=int(30*round(self.main_app.get_geometry_factor()))) # u'\U0001F532'
         self.lbl_emtpy.pack(side='left')
         self.lbl_emtpy.bind("<Double-Button-1>", self.status_double_click)
         self.lbl_emtpy.bind("<Button-3>", self.right_clicked)
@@ -276,7 +276,7 @@ class WorkWindowBar(WorkWindowCbox):
         self.lbl_name.bind('<Button-1>', self.get_pos)
         self.lbl_name.bind('<ButtonRelease-1>', self.save_and_adjust_pos)
         self.lbl_name.bind("<Double-Button-1>", self.status_double_click)
-        self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, 50, 30,'')
+        self.lbl_name_ttp = CreateToolTip(self.lbl_name, self.data_manager, 50, 40,'')
         self.lbl_name.bind("<Button-3>", self.right_clicked)
 
     def update_status_frame(self):
@@ -339,7 +339,7 @@ class WorkWindowBar(WorkWindowCbox):
         
         self.selectable_account_clock_cbox = MyCombobox(self.btn_frame, state="readonly", width = 26, textvariable = self.clicked_selectable_account_clock, postcommand = self.updt_selectable_account_clock_cblist,justify='left')
         self.selectable_account_clock_cbox.pack(side='left', padx=5)
-        self.selectable_account_clock_cbox_ttp = CreateToolTip(self.selectable_account_clock_cbox, self.data_manager, 0, 30, '')
+        self.selectable_account_clock_cbox_ttp = CreateToolTip(self.selectable_account_clock_cbox, self.data_manager, 0, 40, '')
 
         self.selectable_account_clock_cbox.bind("<<ComboboxSelected>>", self.cbox_selected)
 
@@ -409,7 +409,7 @@ class WorkWindowBar(WorkWindowCbox):
         self.option_button.pack(side='right',fill='y',expand=True)
         self.option_button.bind('<Button-1>', self.option_clicked)
         self.on_option_button = False
-        self.option_work_window_ttp = CreateInfo(self.option_button, self.data_manager, 30, 25, self.language_dict["options"])
+        self.option_work_window_ttp = CreateInfo(self.option_button, self.data_manager, 40, 25, self.language_dict["options"])
         self.option_button.bind("<Enter>", self.enter_option)
         self.option_button.bind("<Leave>", self.leave_option)
         self.option_button.bind("<Button-3>", self.right_clicked)
@@ -419,7 +419,7 @@ class WorkWindowBar(WorkWindowCbox):
         self.expand_btn.pack(side='right',fill='y',expand=True)
         self.expand_btn.bind('<Button-1>', self.expand_to_main_window)
         self.on_expand_button = False
-        self.open_main_window_ttp = CreateInfo(self.expand_btn, self.data_manager, 30, 25, self.language_dict["open_main_window"])
+        self.open_main_window_ttp = CreateInfo(self.expand_btn, self.data_manager, 40, 25, self.language_dict["open_main_window"])
         self.expand_btn.bind("<Enter>", self.enter_expand_window)
         self.expand_btn.bind("<Leave>", self.leave_expand_window)
         self.expand_btn.bind("<Button-3>", self.right_clicked)
@@ -433,7 +433,7 @@ class WorkWindowBar(WorkWindowCbox):
         self.list_btn.pack(side='right',fill='y',expand=True)
         self.list_btn.bind('<Button-1>', self.change_to_list_work_window)
         self.on_list_btn = False
-        self.change_work_window_ttp = CreateInfo(self.list_btn, self.data_manager, 30, 25, self.language_dict["change_work_window"])
+        self.change_work_window_ttp = CreateInfo(self.list_btn, self.data_manager, 40, 25, self.language_dict["change_work_window"])
         self.list_btn.bind("<Enter>", self.enter_change_to_list)
         self.list_btn.bind("<Leave>", self.leave_change_to_list)
         self.list_btn.bind("<Button-3>", self.right_clicked)

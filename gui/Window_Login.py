@@ -31,7 +31,6 @@ from gui.Window_Additionals import CreateInfo
 from gui.Window_Additionals import CreateToolTip
 from gui.Window_Additionals import CreateToolResponse
 from gui.Scroll_Frame import Scroll_Frame
-from style_classes import MyCheckbutton
 from tkinter import font
 
 from style_classes import MyFrame
@@ -58,16 +57,16 @@ class LoginWindow(tk.Frame):
         self.image_dict = self.data_manager.get_image_dict()
 
         font_family = self.main_app.get_setting('font_family')
-        font_size = self.main_app.get_setting('font_size')
+        font_size = self.main_app.get_setting("font_size")
         self.Font_tuple = (font_family, font_size, "bold")
 
-        font_size_2 = str(int(self.main_app.get_setting('font_size')) + 5)
+        font_size_2 = str(int(self.main_app.get_setting("font_size")) + 5)
         self.Font_tuple_head = (font_family, font_size_2, "bold")
 
-        font_size_3 = str(int(self.main_app.get_setting('font_size')) - 1)
+        font_size_3 = str(int(self.main_app.get_setting("font_size")) - 1)
         self.Font_tuple_small = (font_family, font_size_3, "normal")
 
-        self.Font_tuple_underline = font.Font(family=font_family, size=int(self.main_app.get_setting('font_size')),underline=True)
+        self.Font_tuple_underline = font.Font(family=font_family, size=int(self.main_app.get_setting("font_size")),underline=True)
 
         self.x_win = None
         self.y_win = None
@@ -78,7 +77,7 @@ class LoginWindow(tk.Frame):
         self.database_folder_found = False
         self.settings_file_found = False
 
-        geo_factor = float(self.main_app.get_setting("geometry_factor"))
+        geo_factor = self.main_app.get_geometry_factor()
 
         if self.kind == 'sign_up':
             width = int(round(geo_factor*600))
@@ -131,10 +130,6 @@ class LoginWindow(tk.Frame):
 
     ##################################################
     
-
-    
-    ##################################################
-    
     def create_welcome_frame(self):
         self.main_head_frame = MyFrame(self.body_frame,self.data_manager)
         self.main_head_frame.configure(background=self.style_dict["header_color_blue"])
@@ -176,8 +171,8 @@ class LoginWindow(tk.Frame):
 
     def create_sign_up_header(self):
 
-        self.accept = tk.IntVar()
-        self.accept.set(0)
+        self.accept_1 = 0
+        self.accept_2 = 0
 
         self.top_frame = MyFrame(self.scroll_frame,self.data_manager)
         self.top_frame.pack(side = "top", fill = "x")
@@ -195,9 +190,12 @@ class LoginWindow(tk.Frame):
         self.sign_up_settings_frame = MyFrame(self.top_frame,self.data_manager)
         self.sign_up_settings_frame.pack(side = "right", fill = "y")
 
+        self.sign_up_settings_language_frame = MyFrame(self.sign_up_settings_frame,self.data_manager)
+        self.sign_up_settings_language_frame.pack(side = "top", fill = "x")
+
         self.clicked_language = tk.StringVar()
-        self.language_cbox = MyCombobox(self.sign_up_settings_frame, state="readonly", width = 10, textvariable = self.clicked_language)
-        self.language_cbox.pack(side = "top",padx=5,pady=5)
+        self.language_cbox = MyCombobox(self.sign_up_settings_language_frame, state="readonly", width = 10, textvariable = self.clicked_language)
+        self.language_cbox.pack(side = "right",padx=5,pady=5)
 
         self.language_list = self.data_manager.get_language_list()
         language_name = self.language_dict['language_name']
@@ -207,9 +205,12 @@ class LoginWindow(tk.Frame):
 
         self.language_cbox.bind("<<ComboboxSelected>>", self.update_language)
 
-        self.btn_already_using_easytarc = MyLabel(self.sign_up_settings_frame, self.data_manager, text= u'\U00002B72',width=3)
-        self.btn_already_using_easytarc.pack(side = "top",padx=5,pady=5, anchor='n')
-        self.btn_already_using_easytarc.configure(font = self.Font_tuple_head, foreground=self.style_dict["highlight_color_grey"])
+        self.sign_up_settings_db_frame = MyFrame(self.sign_up_settings_frame,self.data_manager)
+        self.sign_up_settings_db_frame.pack(side = "top", fill = "x")
+
+        self.btn_already_using_easytarc = MyLabel(self.sign_up_settings_db_frame, self.data_manager, text=u'\U00002B72'+ ' ' + self.language_dict["back_up_2"] + ' ')
+        self.btn_already_using_easytarc.pack(side = "right",padx=5,pady=5)
+        self.btn_already_using_easytarc.configure(foreground=self.style_dict["highlight_color_grey"])
 
         self.btn_already_using_easytarc_ttp = CreateInfo(self.btn_already_using_easytarc, self.data_manager, 0, 30)
         self.btn_already_using_easytarc_ttp.text = self.language_dict["import_backup"]
@@ -219,11 +220,11 @@ class LoginWindow(tk.Frame):
         self.btn_already_using_easytarc.bind("<Button-1>",self.activate_already_using_easytarc)
 
     def enter_already_using_easytarc(self,e=None):
-        self.btn_already_using_easytarc.configure(font = self.Font_tuple_head, foreground=self.style_dict["font_color"])
+        self.btn_already_using_easytarc.configure(foreground=self.style_dict["font_color"])
         self.btn_already_using_easytarc_ttp.scheduleinfo()
 
     def leave_already_using_easytarc(self,e=None):
-        self.btn_already_using_easytarc.configure(font = self.Font_tuple_head, foreground=self.style_dict["highlight_color_grey"])
+        self.btn_already_using_easytarc.configure(foreground=self.style_dict["highlight_color_grey"])
         self.btn_already_using_easytarc_ttp.hideinfo()
 
     def activate_already_using_easytarc(self,e=None):
@@ -234,8 +235,10 @@ class LoginWindow(tk.Frame):
 
         if self.sign_up_state == 'new_db':
             self.pack_import_data_frame()
+            self.btn_already_using_easytarc.configure(text=u'\U00002B72'+ ' ' + self.language_dict["new_db"] + ' ')
         else:
             self.pack_new_db_frame()
+            self.btn_already_using_easytarc.configure(text=u'\U00002B72'+ ' ' + self.language_dict["back_up_2"] + ' ')
 
     ######################################################################################################################
 
@@ -459,14 +462,17 @@ class LoginWindow(tk.Frame):
         self.apply_frame_accept = MyFrame(self.apply_frame,self.data_manager)
         self.apply_frame_accept.pack(side = "top", fill = "x")
 
-        self.checkBox_accept = MyCheckbutton(self.apply_frame_accept, self.data_manager,
-                                                variable=self.accept)
-        self.checkBox_accept.pack(side="left", padx=10)
-        self.checkBox_accept.deselect()
+        self.lbl_check_accept_2 = MyLabel(self.apply_frame_accept, self.data_manager, anchor='w',width = 3, text = ' ')
+        self.lbl_check_accept_2.configure(foreground=self.style_dict["highlight_color_grey"])
+        self.lbl_check_accept_2.pack(side='left')
+
+        self.lbl_check_accept_2.bind("<Enter>", self.enter_check_accept_2)
+        self.lbl_check_accept_2.bind("<Leave>", self.leave_check_accept_2)
+        self.lbl_check_accept_2.bind("<Button-1>", self.toggle_accept_2)
 
         self.lbl_accept_2 = MyLabel(self.apply_frame_accept,self.data_manager,anchor='w',justify='left',width=15,text=self.language_dict["I_accept"])
         self.lbl_accept_2.pack(side = "left")
-        self.lbl_accept_2.bind('<Button-1>',self.toogle_checkBox_accept)
+        self.lbl_accept_2.bind('<Button-1>',self.toggle_accept_2)
 
         self.btn_policy_2 = MyLabel(self.apply_frame_accept,self.data_manager,anchor='w',justify='left',width=20,text=self.language_dict["privacy_policy"], font=self.Font_tuple_underline)
         self.btn_policy_2.configure(foreground=self.style_dict["header_color_blue"])
@@ -494,6 +500,28 @@ class LoginWindow(tk.Frame):
 
         self.lbl_empty_5 = MyLabel(self.apply_frame_head,self.data_manager,anchor='w',justify='left',width=4)
         self.lbl_empty_5.pack(side = "top",fill='x')
+
+        self.update_check_accept_2()
+
+    def update_check_accept_2(self):
+        if self.accept_2 == 0:
+            self.lbl_check_accept_2.configure(text = ' ' + u'\U00002610')
+        else:
+            self.lbl_check_accept_2.configure(text = ' ' + u'\U00002612')
+
+    def enter_check_accept_2(self,e=None):
+        self.lbl_check_accept_2.configure(foreground=self.style_dict["font_color"])
+
+    def leave_check_accept_2(self,e=None):
+        if self.accept_2 == 0:
+            self.lbl_check_accept_2.configure(foreground=self.style_dict["highlight_color_grey"])
+
+    def toggle_accept_2(self,e=None):
+        if self.accept_2 == 0:
+            self.accept_2 = 1
+        else:
+            self.accept_2 = 0
+        self.update_check_accept_2()
 
 
     def set_up_db_config_cbox(self):
@@ -534,11 +562,6 @@ class LoginWindow(tk.Frame):
         info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,700,500,False,True)
         return
     
-    def toogle_checkBox_accept(self,e=None):
-        if self.accept.get() == 0:
-            self.accept.set(1)
-        else:
-            self.accept.set(0)
     
     def sign_up(self,e=None):
         self.main_app.sign_up_dict['sign_up_db_config'] = self.language_dict[self.clicked_db_config_option.get()]
@@ -564,7 +587,7 @@ class LoginWindow(tk.Frame):
                 self.main_app.sign_up_dict['sign_up_password'] = passowrd_1
                 self.lbl_sign_up_faild_info.configure(text ='')       
 
-        if self.accept.get() == 0:
+        if self.accept_2 == 0:
             self.lbl_sign_up_faild_info.configure(text = self.language_dict["please_accept_license_privacy_policy"])
             return()
 
@@ -672,14 +695,17 @@ class LoginWindow(tk.Frame):
         self.apply_frame_accept = MyFrame(self.apply_frame,self.data_manager)
         self.apply_frame_accept.pack(side = "top", fill = "x")
 
-        self.checkBox_accept = MyCheckbutton(self.apply_frame_accept, self.data_manager,
-                                                variable=self.accept)
-        self.checkBox_accept.pack(side="left", padx=10)
-        self.checkBox_accept.deselect()
+        self.lbl_check_accept_1 = MyLabel(self.apply_frame_accept, self.data_manager, anchor='w',width = 3, text = ' ')
+        self.lbl_check_accept_1.configure(foreground=self.style_dict["highlight_color_grey"])
+        self.lbl_check_accept_1.pack(side='left')
+
+        self.lbl_check_accept_1.bind("<Enter>", self.enter_check_accept_1)
+        self.lbl_check_accept_1.bind("<Leave>", self.leave_check_accept_1)
+        self.lbl_check_accept_1.bind("<Button-1>", self.toggle_accept_1)
 
         self.lbl_accept_1 = MyLabel(self.apply_frame_accept,self.data_manager,anchor='w',justify='left',width=15,text=self.language_dict["I_accept"])
         self.lbl_accept_1.pack(side = "left")
-        self.lbl_accept_2.bind('<Button-1>',self.toogle_checkBox_accept)
+        self.lbl_accept_1.bind('<Button-1>',self.toggle_accept_1)
 
         self.btn_policy_1 = MyLabel(self.apply_frame_accept,self.data_manager,anchor='w',justify='left',width=20,text=self.language_dict["privacy_policy"], font=self.Font_tuple_underline)
         self.btn_policy_1.configure(foreground=self.style_dict["header_color_blue"])
@@ -707,6 +733,28 @@ class LoginWindow(tk.Frame):
 
         self.lbl_empty_6 = MyLabel(self.apply_transfer_frame,self.data_manager,anchor='w',justify='left',width=4)
         self.lbl_empty_6.pack(side = "top",fill='x')
+
+        self.update_check_accept_1()
+
+    def update_check_accept_1(self):
+        if self.accept_1 == 0:
+            self.lbl_check_accept_1.configure(text = ' ' + u'\U00002610')
+        else:
+            self.lbl_check_accept_1.configure(text = ' ' + u'\U00002612')
+
+    def enter_check_accept_1(self,e=None):
+        self.lbl_check_accept_1.configure(foreground=self.style_dict["font_color"])
+
+    def leave_check_accept_1(self,e=None):
+        if self.accept_1 == 0:
+            self.lbl_check_accept_1.configure(foreground=self.style_dict["highlight_color_grey"])
+
+    def toggle_accept_1(self,e=None):
+        if self.accept_1 == 0:
+            self.accept_1 = 1
+        else:
+            self.accept_1 = 0
+        self.update_check_accept_1()
 
 
     def open_old_easytarc_folder(self):
@@ -751,7 +799,7 @@ class LoginWindow(tk.Frame):
             self.lbl_transfer_not_possible_info.configure(text = self.language_dict["transfer_not_possible"])
             return
         
-        if self.accept.get() == 0:
+        if self.accept_1 == 0:
             self.lbl_transfer_not_possible_info.configure(text = self.language_dict["please_accept_license_privacy_policy"])
             return()
 
@@ -811,6 +859,12 @@ class LoginWindow(tk.Frame):
         self.btn_license_2.configure(text=self.language_dict["license"])
         self.btn_policy_2.configure(text=self.language_dict["privacy_policy"])
         self.lbl_accept_2.configure(text=self.language_dict["I_accept"])
+
+        if self.sign_up_state == 'new_db':
+            self.btn_already_using_easytarc.configure(text=u'\U00002B72'+ ' ' + self.language_dict["back_up_2"] + ' ')
+            
+        else:
+            self.btn_already_using_easytarc.configure(text=u'\U00002B72'+ ' ' + self.language_dict["new_db"] + ' ')
 
 
         self.main_app.set_local_format(language_name)
