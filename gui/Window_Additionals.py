@@ -175,14 +175,14 @@ class TimeTip(object):
         frame = tk.Frame(self.tw, highlightthickness=1, highlightcolor = self.style_dict["font_color"], highlightbackground = self.style_dict["font_color"])
         frame.pack()
         if self.time_column == 'without_correction_time':
-            time_text = self.without_correction_time + ': '+ self.clock.str_timedelta(self.clock.get_passed_time())
+            time_text = self.without_correction_time + ': '+ self.data_manager.duration_dt_to_duration_str(self.clock.get_passed_time())
         self.label = MyTipLabel(frame,self.data_manager, text=time_text, justify='left')
         self.label.pack()
         self.update_frame()
 
     def update_frame(self):
         if self.time_column == 'without_correction_time':
-            time_text = self.without_correction_time + ': ' + self.clock.str_timedelta(self.clock.get_passed_time())
+            time_text = self.without_correction_time + ': ' + self.data_manager.duration_dt_to_duration_str(self.clock.get_passed_time())
         self.label.configure(text = time_text)
         self.tw.after(500, lambda:self.update_frame())
         
@@ -260,7 +260,8 @@ class CurrentAddedTimeTip(object):
         else:
             full_time_sign = ''
 
-        full_time_text = full_time_sign +' '+ str(abs(self.added_full_time)) + ' ' + self.language_dict['min'] + '\n______________'
+        #full_time_text = full_time_sign +' '+ str(abs(self.added_full_time)) + ' ' + self.language_dict['min'] + '\n______________'
+        full_time_text = full_time_sign +' '+ self.data_manager.min_float_to_time_str(abs(self.added_full_time)) + '\n______________'
 
         info_text = full_time_text + self.operation_text
         self.label.configure(text = info_text)
@@ -291,8 +292,8 @@ class CurrentAddedTimeTip(object):
                 "timestamp": datetime.datetime.now(),
                 "kind":"correction",
                 "sign":full_time_sign,
-                "abs_time":str(abs(self.added_full_time)),
-                "unit":"min"
+                "abs_time":self.data_manager.min_float_to_time_str(abs(self.added_full_time)),
+                "unit":""
             }
             self.clock_frame.clock.append_recording_correction_dict_list(event_dict)
 
@@ -1946,7 +1947,7 @@ class SleepModeinfo(tk.Toplevel):
                 "timestamp": datetime.datetime.now(),
                 "kind":"restored",
                 "sign":'',
-                "abs_time":self.last_active_clock.str_timedelta(self.last_active_clock.get_total_time()),
+                "abs_time":self.data_manager.duration_dt_to_duration_str(self.last_active_clock.get_total_time()),
                 "unit":""
             }
             self.last_active_clock.append_recording_correction_dict_list(event_dict)
@@ -2236,21 +2237,21 @@ class EditRemainingTime(tk.Toplevel):
         time_left,state = self.clock.get_time_left()
         if state == '+' and self.clock.get_clock_kind() == 'main':
             #########
-            self.hours_left = round(float(self.clock.float_hourdelta(time_left)),1)
+            self.hours_left = round(float(self.data_manager.duration_dt_to_hour_float(time_left)),1)
             recorded_time = self.clock.get_recorded_time_with_sub_clocks()
-            self.hours_used = round(float(self.clock.float_hourdelta(recorded_time)),1)
+            self.hours_used = round(float(self.data_manager.duration_dt_to_hour_float(recorded_time)),1)
             #########
         elif state == '-' and self.clock.get_clock_kind() == 'main':
-            self.hours_left = round(float(self.clock.float_hourdelta(time_left)),1)              
+            self.hours_left = round(float(self.data_manager.duration_dt_to_hour_float(time_left)),1)              
             recorded_time = self.clock.get_recorded_time_with_sub_clocks()
-            self.hours_used = round(float(self.clock.float_hourdelta(recorded_time)),1)
+            self.hours_used = round(float(self.data_manager.duration_dt_to_hour_float(recorded_time)),1)
             #########
         else:
             state = ' ' 
             if self.clock.get_clock_kind() == 'main':
                 self.hours_left = 0            
                 recorded_time = self.clock.get_recorded_time_with_sub_clocks()
-                self.hours_used = round(float(self.clock.float_hourdelta(recorded_time)),1)
+                self.hours_used = round(float(self.data_manager.duration_dt_to_hour_float(recorded_time)),1)
 
 
         frame_current = MyFrame(scroll_frame,self.data_manager)

@@ -164,19 +164,48 @@ class CreateEditRecordBody:
         self.lbl_time_info = MyLabel(self.frame_time,self.data_manager,text=' ',anchor='w',justify='left',width=3)
         self.lbl_time_info.pack(side = "left")
 
-        self.lbl_time = MyLabel(self.frame_time,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict['hours']  + ' [' + self.language_dict["hours_abbreviation"] + ']' + ':')
+        self.lbl_time = MyLabel(self.frame_time,self.data_manager,width=15,anchor='w',justify='left',text=self.language_dict['working_time'] + ':')
         self.lbl_time.pack(side = "left", padx=10)
 
-        self.time = tk.StringVar()
-        self.textBox_time = MyEntry(self.frame_time, self.data_manager, textvariable=self.time, width=36)
-        self.textBox_time.pack(side="left", padx=10)
+        self.hours = tk.StringVar()
+        self.textBox_hours = MyEntry(self.frame_time, self.data_manager, textvariable=self.hours, width=3)
+        self.textBox_hours.pack(side="left", padx=10)
+        self.textBox_hours.bind("<KeyRelease>", self.build_hours)
+
+        self.lbl_1 = MyLabel(self.frame_time,self.data_manager,width=1,anchor='w',justify='left',text=':')
+        self.lbl_1.pack(side = "left")
+
+        self.minutes = tk.StringVar()
+        self.textBox_minutes = MyEntry(self.frame_time, self.data_manager, textvariable=self.minutes, width=3)
+        self.textBox_minutes.pack(side="left", padx=10)
+        self.textBox_minutes.bind("<KeyRelease>", self.build_hours)
+
+        self.lbl_2 = MyLabel(self.frame_time,self.data_manager,width=1,anchor='w',justify='left',text=':')
+        self.lbl_2.pack(side = "left")
+
+        self.seconds = tk.StringVar()
+        self.textBox_seconds = MyEntry(self.frame_time, self.data_manager, textvariable=self.seconds, width=3)
+        self.textBox_seconds.pack(side="left", padx=10)
+        self.textBox_seconds.bind("<KeyRelease>", self.build_hours)
+
+        self.lbl_3 = MyLabel(self.frame_time,self.data_manager,anchor='w',justify='left',text='0 ' + self.language_dict["hours"])
+        self.lbl_3.configure(foreground=self.style_dict["highlight_color_grey"])
+        self.lbl_3.pack(side = "left", padx=30)
 
         if self.modus in  ['edit_record']:
-            self.time.set(str('{:n}'.format(round(self.record_dict['hours'],3))))    # round_time
+            duration_str_list = self.data_manager.hour_float_to_duration_str_list(self.record_dict['hours'])
+            self.hours.set(duration_str_list[0])
+            self.minutes.set(duration_str_list[1])
+            self.seconds.set(duration_str_list[2])
+            self.lbl_3.configure(text=str('{:n}'.format(round(self.record_dict['hours'],3))) + ' ' + self.language_dict["hours"])
 
-        self.textBox_time.configure(highlightthickness = 1, state=tk.NORMAL)
+        self.textBox_hours.configure(highlightthickness = 1, state=tk.NORMAL)
+        self.textBox_minutes.configure(highlightthickness = 1, state=tk.NORMAL)
+        self.textBox_seconds.configure(highlightthickness = 1, state=tk.NORMAL)
         if self.style_dict['name'] == 'dark':
-            self.textBox_time.configure(borderwidth = 0)
+            self.textBox_hours.configure(borderwidth = 0)
+            self.textBox_minutes.configure(borderwidth = 0)
+            self.textBox_seconds.configure(borderwidth = 0)
 
         ###################################
 
@@ -304,6 +333,24 @@ class CreateEditRecordBody:
             self.cbox_selected()
         return
     
+    def build_hours(self,e=None):
+        try:
+            hours = self.hours.get()
+            if hours == '' or hours.isspace() == True:
+                hours = '0'
+            minutes = self.minutes.get()
+            if minutes == '' or minutes.isspace() == True:
+                minutes = '0'
+            seconds = self.seconds.get()
+            if seconds == '' or seconds.isspace() == True:
+                seconds = '0'
+            duration = datetime.timedelta(hours = float(hours),minutes = float(minutes),seconds=float(seconds))
+            time = self.data_manager.duration_dt_to_hour_float(duration)
+            self.lbl_3.configure(text=str('{:n}'.format(round(time,3))) + ' ' + self.language_dict["hours"])
+        except:
+            self.lbl_3.configure(text="x") 
+        return
+    
     def cbox_selected(self,e=None):
         account_name = self.account_name.get()
         account_dict = [ele for ele in self.account_dict_list if ele['full_name'] == account_name][0]
@@ -356,7 +403,9 @@ class CreateEditRecordBody:
 
         response = self.create_record_page.user_input(self.account_name,
                                                     self.date,
-                                                    self.time,
+                                                    self.hours,
+                                                    self.minutes,
+                                                    self.seconds,
                                                     self.status,
                                                     self.account_dict_list,
                                                     self.response_text)

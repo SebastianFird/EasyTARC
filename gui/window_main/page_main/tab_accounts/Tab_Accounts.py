@@ -94,6 +94,7 @@ class AccountsTab(Scroll_Frame_2):
         self.refresh_scroll_frame()
         self.table_head.refresh()
         self.body.refresh()
+        self.my_canvas_2.configure(height = self.canvas_container_2.winfo_height())
         return
 
     def reload(self):

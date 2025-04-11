@@ -291,7 +291,7 @@ class StudyModeBody:
             timer_time = time_zero
             self.lbl_timer.configure(foreground=self.style_dict["caution_color_red"])
 
-        self.lbl_timer.configure(text=timer_static_clock.str_timedelta(timer_time))
+        self.lbl_timer.configure(text=self.data_manager.duration_dt_to_duration_str(timer_time))
         self.after_func = self.main_frame.after(1000, lambda:self.auto_update_timer_frame())
     
     def refresh(self):

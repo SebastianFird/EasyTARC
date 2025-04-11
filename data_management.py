@@ -603,6 +603,68 @@ class DataManager:
     
 #################################################################
 
+    def duration_dt_to_hour_float(self,duration):
+        days, seconds = duration.days, duration.seconds
+        hour_float = days * 24 + seconds / 3600
+        return (hour_float)
+    
+    def duration_dt_to_duration_str_list(self,duration):
+        days, seconds = duration.days, duration.seconds
+
+        def add_zero(time_count):
+            if time_count < 10:
+                time_str = '0'+str(time_count)
+            else:
+                time_str = str(time_count)
+            return(time_str)
+
+        hours = days * 24 + seconds // 3600
+        str_hours = add_zero(hours)
+
+        minutes = (seconds % 3600) // 60
+        str_minutes = add_zero(minutes)
+
+        seconds = (seconds % 60)
+        str_seconds = add_zero(seconds)
+
+        return ([str_hours,str_minutes,str_seconds])
+
+    def duration_dt_to_duration_str(self,duration):
+        duration_list = self.duration_dt_to_duration_str_list(duration)
+        duration_str = duration_list[0] + ':' + duration_list[1] + ':' + duration_list[2]
+        return (duration_str)
+    
+    def hour_float_to_duration_str_list(self,decimal_hours):
+        duration_dt = datetime.timedelta(hours = decimal_hours,minutes = 0,seconds=0)
+        duration_list = self.duration_dt_to_duration_str_list(duration_dt)
+        return (duration_list)
+    
+    def hour_float_to_duration_str(self,decimal_hours):
+        duration_dt = datetime.timedelta(hours = decimal_hours,minutes = 0,seconds=0)
+        duration_str = self.duration_dt_to_duration_str(duration_dt)
+        return (duration_str)
+    
+    def hour_float_to_time_str(self,decimal_hours):
+        hours = int(decimal_hours) 
+        minutes = round((decimal_hours - hours) * 60)
+        if hours == 0:
+            time_str = str(minutes) + self.language_dict["minutes_abbreviation"]
+        else:
+            time_str = str(hours) + self.language_dict["hours_abbreviation"] + ' ' + str(minutes) + self.language_dict["minutes_abbreviation"]
+        return (time_str)
+    
+    def min_float_to_time_str(self,decimal_minutes):
+        total_minutes = round(decimal_minutes)
+        hours = total_minutes // 60 
+        minutes = total_minutes % 60  
+        if hours == 0:
+            time_str = str(minutes) + self.language_dict["minutes_abbreviation"]
+        else:
+            time_str = str(hours) + self.language_dict["hours_abbreviation"] + ' ' + str(minutes) + self.language_dict["minutes_abbreviation"]
+        return (time_str)
+
+#################################################################
+
     def create_time_account_dict(self,name,description_text,project_label,order_label,process_label,response_code,response_texts_main,response_texts,external_booking,kind,main_id,group,bookable,date_expiration,available_hours,status = "open"):
         account_id = self.user_db.get_new_accountid()
         print(response_texts)
@@ -803,13 +865,13 @@ class DataManager:
             ranked_list = df_sorted.main_account.values.tolist()
 
             for main_account in ranked_list:
-                record_dict_summary.update({count + main_account:str('{:n}'.format(df_pivot.loc[(df_pivot['main_account'] == main_account)].percent_month.values.tolist()[0])) + " %    " +str('{:n}'.format(df_pivot.loc[(df_pivot['main_account'] == main_account)].hours_rounded.values.tolist()[0]))+ " h"})
+                record_dict_summary.update({count + main_account:str('{:n}'.format(df_pivot.loc[(df_pivot['main_account'] == main_account)].percent_month.values.tolist()[0])) + " %    " + self.hour_float_to_time_str(df_pivot.loc[(df_pivot['main_account'] == main_account)].hours_rounded.values.tolist()[0])})
             
             hours_sum = df_current_month['hours'].sum()
             month_rate = 100*(df_current_month.loc[(df_current_month['booked'] == 1)].hours.values.sum() / df_current_month['hours'].sum())
 
             record_dict_summary.update({count + self.language_dict['analysis']:"-------------"})
-            record_dict_summary.update({count + self.language_dict['hours']:str('{:n}'.format(round(hours_sum,1)))+ " h"})
+            record_dict_summary.update({count + self.language_dict['hours']:self.hour_float_to_time_str(hours_sum)})
             record_dict_summary.update({count + self.language_dict['booked']:str('{:n}'.format(round(month_rate))) + " %"})
 
             record_dict_summary_list.append(record_dict_summary)

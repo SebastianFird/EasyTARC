@@ -154,7 +154,7 @@ class DataDateFrame:
             5:self.language_dict["saturday"],
             6:self.language_dict["sunday"],
         }
-        date_info = date_str + '   -   ' + weekdy_dict[weekday_nbr]
+        date_info = ' ' + date_str + '   -   ' + weekdy_dict[weekday_nbr]
         self.lbl_date = MyLabel(self.date_frame,self.data_manager,text = date_info, anchor = 'w', width=30)
         self.lbl_date.configure(font = Font_tuple)
         self.lbl_date.pack(side = "left")
@@ -215,6 +215,6 @@ class DataDateFrame:
             5:self.language_dict["saturday"],
             6:self.language_dict["sunday"],
         }
-        date_info = date_str + '   -   ' + weekdy_dict[weekday_nbr]
+        date_info = ' ' + date_str + '   -   ' + weekdy_dict[weekday_nbr]
         self.lbl_date.configure(text = date_info)
         return

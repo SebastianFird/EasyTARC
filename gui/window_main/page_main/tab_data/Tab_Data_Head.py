@@ -186,7 +186,7 @@ class DataHead:
         self.lbl_empty3 = MyLabel(self.passed_time_visible_frame, self.data_manager, width=2)
         self.lbl_empty3.pack(side='right',padx=3)
 
-        self.lbl_passed_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=self.language_dict["hours"] + ' [' + self.language_dict["hours_abbreviation"] + ']',width=9)
+        self.lbl_passed_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=self.language_dict['working_time'],width=15)
         self.lbl_passed_time.pack(side='right',padx = 3)
 
         self.lbl_empty4 = MyLabel(self.passed_time_visible_frame, self.data_manager, width=2)
@@ -290,7 +290,7 @@ class DataHead:
         self.name_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
 
         self.lbl_status_name.configure(text=self.language_dict["status"])
-        self.lbl_passed_time.configure(text=self.language_dict["hours"])
+        self.lbl_passed_time.configure(text=self.language_dict['working_time'])
         self.lbl_response_text.configure(text=self.language_dict["response_text"])
         self.lbl_name.configure(text=self.language_dict["name"])
 

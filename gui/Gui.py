@@ -340,7 +340,7 @@ class Gui_Manager:
         self.work_clock = self.main_app.data_manager.get_work_clock()
         if self.data_manager.times_saved == True:
             self.root.quit()
-        elif str(self.work_clock.str_timedelta(self.work_clock.get_total_time())) == '00:00:00':
+        elif str(self.data_manager.duration_dt_to_duration_str(self.work_clock.get_total_time())) == '00:00:00':
             self.root.quit()
         else:
             self.exit_saving_warning()

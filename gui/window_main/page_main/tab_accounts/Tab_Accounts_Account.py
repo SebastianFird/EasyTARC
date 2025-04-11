@@ -250,6 +250,19 @@ class AccountFrame(tk.Frame):
         self.lbl_response_texts.bind("<Button-3>", self.right_clicked)
         self.lbl_date_expiration.bind("<Button-3>", self.right_clicked)
         self.lbl_available_hours.bind("<Button-3>", self.right_clicked)
+
+        self.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_name.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_project.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_order.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_process.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_description.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_bookable.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_external_booking.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_response_code.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_response_texts.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_date_expiration.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_available_hours.bind("<Double-Button-1>", self.double_clicked)
         
         
         
@@ -355,6 +368,10 @@ class AccountFrame(tk.Frame):
 
         self.btn_status.configure(text=status_text)
         self.btn_status_ttp.text = action_text
+
+    def double_clicked(self,e=None):
+        if self.account_dict['account_id'] != 0:
+            self.accounts_tab.edit_selected_account(self.account_dict)
 
     def update(self):
 

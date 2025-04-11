@@ -70,8 +70,11 @@ class DataRecordFrame(tk.Frame):
         self.lbl_empty0 = MyLabel(self, self.data_manager, text='', width=2)
         self.lbl_empty0.pack(side='right',padx=3)
 
-        self.lbl_passed_time = MyLabel(self, self.data_manager,width=9,text=str('{:n}'.format(round(self.record_dict['hours'],3)))) # round_time
+        #self.lbl_passed_time = MyLabel(self, self.data_manager,width=9,text=str('{:n}'.format(round(self.record_dict['hours'],3)))) # round_time
+        self.lbl_passed_time = MyLabel(self, self.data_manager,width=15,text=self.data_manager.hour_float_to_duration_str(self.record_dict['hours'])) # round_time
         self.lbl_passed_time.pack(side='right',padx=3)
+        passed_hours = str('{:n}'.format(round(self.record_dict['hours'],3))) + ' ' + self.language_dict["hours"]
+        self.lbl_passed_time_ttp = CreateToolTip(self.lbl_passed_time, self.data_manager, 30, 25, passed_hours,True)
 
         self.lbl_empty1 = MyLabel(self, self.data_manager, text='', width=2)
         self.lbl_empty1.pack(side='right',padx=3)
@@ -151,6 +154,17 @@ class DataRecordFrame(tk.Frame):
         self.lbl_response_text.bind("<Button-3>", self.right_clicked)
         self.lbl_empty3.bind("<Button-3>", self.right_clicked)
 
+        self.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_status_name.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_status.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_name.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_passed_time.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_empty2.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_empty0.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_empty1.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_response_text.bind("<Double-Button-1>", self.double_clicked)
+        self.lbl_empty3.bind("<Double-Button-1>", self.double_clicked)
+
         return
     
 ##################################################
@@ -206,6 +220,10 @@ class DataRecordFrame(tk.Frame):
                 self.data_tab.set_clicked_record_frame_list(new_clicked_record_frame_list)
                 self.update()
             self.option_menu.popup(e)
+
+    def double_clicked(self,e=None):
+        self.data_tab.edit_record(self.record_dict)
+        return
 
     def update(self):
         if self in self.data_tab.get_clicked_record_frame_list():

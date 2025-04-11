@@ -236,13 +236,13 @@ class DataDateFrame:
             5:self.language_dict["saturday"],
             6:self.language_dict["sunday"],
         }
-        date_info = date_str + '   -   ' + weekdy_dict[weekday_nbr]
+        date_info = ' ' + date_str + '   -   ' + weekdy_dict[weekday_nbr]
         self.lbl_date = MyLabel(self.date_frame,self.data_manager,text = date_info, anchor = 'w', width=25)
         self.lbl_date.configure(font = Font_tuple)
         self.lbl_date.pack(side = "left")
         self.lbl_date.bind("<Button-3>", self.right_clicked)
 
-        self.lbl_work_time = MyLabel(self.date_frame,self.data_manager, anchor = 'e', width=6)
+        self.lbl_work_time = MyLabel(self.date_frame,self.data_manager, anchor = 'e', width=8)
         self.lbl_work_time.configure(font = Font_tuple)
         self.lbl_work_time.pack(side = "left")
         self.lbl_work_time.bind("<Button-3>", self.right_clicked)
@@ -287,7 +287,8 @@ class DataDateFrame:
     
     def set_work_time(self, work_time):
         self.work_time = work_time
-        self.lbl_work_time.configure(text = str('{:n}'.format(round(self.work_time,1))) + ' ' + self.language_dict["hours_abbreviation"])
+        #self.lbl_work_time.configure(text = str('{:n}'.format(round(self.work_time,1))) + ' ' + self.language_dict["hours_abbreviation"]) 
+        self.lbl_work_time.configure(text = self.data_manager.hour_float_to_time_str(self.work_time))
 
     def set_booking_rate(self, booking_rate):
         self.booking_rate = booking_rate
@@ -344,9 +345,10 @@ class DataDateFrame:
             5:self.language_dict["saturday"],
             6:self.language_dict["sunday"],
         }
-        date_info = date_str + '   -   ' + weekdy_dict[weekday_nbr]
+        date_info = ' ' + date_str + '   -   ' + weekdy_dict[weekday_nbr]
         self.lbl_date.configure(text = date_info)
-        self.lbl_work_time.configure(text = '   -   ' + str('{:n}'.format(round(self.work_time,1))) + self.language_dict["hours_abbreviation"])
+        #self.lbl_work_time.configure(text = '   -   ' + str('{:n}'.format(round(self.work_time,1))) + self.language_dict["hours_abbreviation"])
+        self.lbl_work_time.configure(text = self.data_manager.hour_float_to_time_str(self.work_time))
 
         self.update()
         return

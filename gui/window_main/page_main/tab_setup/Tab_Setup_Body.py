@@ -70,6 +70,8 @@ class SetupBody:
         self.main_frame = MyFrame(container,self.data_manager)
         self.main_frame.pack(side = "top", fill = "both", expand = True)
 
+        self.main_frame.bind("<Enter>", self.setup_tab.rebind_scrolling)
+
         #########################
 
         self.head_appearance_frame = MyFrame(self.main_frame,self.data_manager)
@@ -98,6 +100,7 @@ class SetupBody:
 
         self.set_style_cblist()
         self.styles_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_style)
+        self.styles_cbox.bind("<Button-1>", self.setup_tab.unbind_scrolling) 
 
         #########
 
@@ -115,6 +118,7 @@ class SetupBody:
 
         self.set_fs_cblist()
         self.font_size_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_font_size)
+        self.font_size_cbox.bind("<Button-1>", self.setup_tab.unbind_scrolling) 
 
         #########
 
@@ -132,6 +136,8 @@ class SetupBody:
         
         self.set_language_cblist()
         self.language_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_language)
+        self.language_cbox.bind("<Button-1>", self.setup_tab.unbind_scrolling) 
+
 
         #########
 
@@ -150,6 +156,8 @@ class SetupBody:
 
         self.set_dpi_awareness_cblist()
         self.dpi_awareness_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_dpi_awareness)
+        self.dpi_awareness_cbox.bind("<Button-1>", self.setup_tab.unbind_scrolling) 
+
 
         #########################
 
@@ -397,6 +405,7 @@ class SetupBody:
 
         self.set_sleep_mode_cblist()
         self.sleep_mode_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_sleep_mode)
+        self.sleep_mode_cbox.bind("<Button-1>", self.setup_tab.unbind_scrolling) 
 
         #########
 
@@ -415,6 +424,7 @@ class SetupBody:
 
         self.set_sleep_mode_period_cblist()
         self.sleep_mode_period_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_sleep_mode_period)
+        self.sleep_mode_period_cbox.bind("<Button-1>", self.setup_tab.unbind_scrolling) 
 
         #########
 
@@ -433,6 +443,7 @@ class SetupBody:
 
         self.set_sleep_mode_interaction_cblist()
         self.sleep_mode_interaction_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_sleep_mode_interaction)
+        self.sleep_mode_interaction_cbox.bind("<Button-1>", self.setup_tab.unbind_scrolling) 
 
 
         #########################
@@ -470,6 +481,7 @@ class SetupBody:
 
         self.set_rate_cblist()
         self.rate_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_rate)
+        self.rate_cbox.bind("<Button-1>", self.setup_tab.unbind_scrolling) 
         
         #########################
 
@@ -506,6 +518,7 @@ class SetupBody:
 
         self.set_dynamic_opacity_cblist()
         self.dynamic_opacity_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_dynamic_opacity)
+        self.dynamic_opacity_cbox.bind("<Button-1>", self.setup_tab.unbind_scrolling) 
 
         #########
 
@@ -524,6 +537,7 @@ class SetupBody:
 
         self.set_auto_minimize_cblist()
         self.auto_minimize_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_auto_minimize)
+        self.auto_minimize_cbox.bind("<Button-1>", self.setup_tab.unbind_scrolling) 
 
         #########################
 
@@ -560,6 +574,7 @@ class SetupBody:
 
         self.set_simplify_data_cblist()
         self.simplify_data_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_simplify_data)
+        self.simplify_data_cbox.bind("<Button-1>", self.setup_tab.unbind_scrolling) 
 
         #########
 

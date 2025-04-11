@@ -124,7 +124,7 @@ class GroupFrame((tk.Frame)):
     def enter_view_group(self,e):
         self.lbl_group_edit.configure(foreground=self.style_dict["highlight_color_grey"])
         for main_account_frame in self.main_account_frame_list:
-            if main_account_frame.main_account_clock.str_timedelta(main_account_frame.main_account_clock.get_total_time_sum()) != "00:00:00":
+            if self.data_manager.duration_dt_to_duration_str(main_account_frame.main_account_clock.get_total_time_sum()) != "00:00:00":
                 return
             else:
                 if self.tree_view == False:
@@ -150,7 +150,7 @@ class GroupFrame((tk.Frame)):
 
     def fold_up_group_clocks(self):
         for main_account_frame in self.main_account_frame_list:
-            if main_account_frame.main_account_clock.str_timedelta(main_account_frame.main_account_clock.get_total_time_sum()) != "00:00:00":
+            if self.data_manager.duration_dt_to_duration_str(main_account_frame.main_account_clock.get_total_time_sum()) != "00:00:00":
                 return
 
         self.tree_view = False

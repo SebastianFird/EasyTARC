@@ -233,7 +233,6 @@ class AccountsTableHead:
         self.available_hours_frame.refresh_style()
         self.lbl_available_hours.refresh_style()
 
-
         self.table_head_frame.configure(background=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.status_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.name_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
@@ -247,7 +246,6 @@ class AccountsTableHead:
         self.response_texts_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.date_expiration_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.available_hours_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
-    
 
         self.lbl_status_name.configure(text=self.language_dict["status"])
         self.lbl_name.configure(text=self.language_dict["name"])
@@ -262,9 +260,6 @@ class AccountsTableHead:
         self.lbl_date_expiration.configure(text=self.language_dict["expiration_date"])
         self.lbl_available_hours.configure(text=self.language_dict["available_hours"])
         
-        
-        
-
         self.update_table_head()
         return
 

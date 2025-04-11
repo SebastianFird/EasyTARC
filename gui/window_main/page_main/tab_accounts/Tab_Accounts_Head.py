@@ -87,6 +87,8 @@ class AccountsHead:
         self.search_cbox.bind("<<ComboboxSelected>>", self.updt_search_entry)
         self.search_cbox.pack(side="left", padx=10,pady=10)
 
+        self.search_cbox.bind("<Button-1>", self.accounts_tab.unbind_scrolling) 
+
         self.search_var = tk.StringVar()
         self.textBox_search_var = MyEntry(self.main_head_frame, self.data_manager, textvariable=self.search_var, width=36)
         self.textBox_search_var.pack(side="left", padx=10,pady=10)

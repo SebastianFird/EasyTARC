@@ -77,18 +77,12 @@ class WorkWindowList(tk.Toplevel):
         self.ww_bar_attach_pos = self.main_app.get_setting('bar_work_window_attach_pos')
         self.attach_pos = self.main_app.get_setting('list_work_window_attach_pos')
 
-        self.geometry_factor = round(self.main_app.get_geometry_factor())
+        self.geometry_factor = round(self.main_app.get_geometry_factor(),1)
 
         if self.geometry_factor <= 1.2:
-            self.geometry_factor_vertical = 1
-        elif self.geometry_factor > 1.2 and self.geometry_factor <= 1.4:
-            self.geometry_factor_vertical = 1.2
-        elif self.geometry_factor > 1.4 and self.geometry_factor <= 1.6:
-            self.geometry_factor_vertical = 1.4
-        elif self.geometry_factor > 1.6:
-            self.geometry_factor_vertical = 1.6
+            self.geometry_factor_vertical = self.geometry_factor
         else:
-            self.geometry_factor_vertical = 1
+            self.geometry_factor_vertical = self.geometry_factor*0.8
 
         if self.attach_pos =="left":
             self.info_v_rel_x_1 = 0
@@ -96,6 +90,8 @@ class WorkWindowList(tk.Toplevel):
         else:
             self.info_v_rel_x_1 = -150
             self.info_v_rel_x_2 = -80
+
+        
 
 
         ###########
@@ -482,7 +478,7 @@ class WorkWindowList(tk.Toplevel):
         self.vertical_btn_frame.pack(side='top', fill = "x")
 
         self.option_button_v = MyLabelPixel(self.vertical_btn_frame, self.data_manager, text=u'\U00002026')
-        self.option_button_v.configure(background=self.style_dict["titlebar_color"], height=int(20*self.geometry_factor_vertical))
+        self.option_button_v.configure(background=self.style_dict["titlebar_color"], height=int(25*self.geometry_factor_vertical))
         self.option_button_v.pack(side='top', fill = "x")
         self.option_button_v.bind('<Button-1>', self.option_clicked)
         self.on_option_button_v = False
@@ -525,13 +521,9 @@ class WorkWindowList(tk.Toplevel):
         if self.main_app.get_action_state() == "study":
             self.vertical_frame_ttp.text = ''
 
-        font_family = self.main_app.get_setting('font_family')
-        font_size = self.main_app.get_setting("font_size")
-        Font_tuple = (font_family, font_size)
-
         self.canvas_lbl_name = tk.Canvas(self.vertical_name_frame, width= self.win_vertical_width, height= int(210*self.geometry_factor_vertical), bg=self.style_dict["recording_color_green"], bd=0, highlightthickness=0)
         self.canvas_lbl_name.pack(side='top')
-        self.canvas_text = self.canvas_lbl_name.create_text((int(15*self.geometry_factor),int(190*self.geometry_factor_vertical)),text="Hello", fill=self.style_dict["font_color"], angle=90, font=Font_tuple,anchor="w")
+        self.canvas_text = self.canvas_lbl_name.create_text((int(15*self.geometry_factor),int(190*self.geometry_factor_vertical)),text="Hello", fill=self.style_dict["font_color"], angle=90,anchor="w")
         self.canvas_lbl_name.bind("<Double-Button-1>", self.status_double_click)
         self.canvas_lbl_name.bind('<B1-Motion>', self.move_window)
         self.canvas_lbl_name.bind('<Button-1>', self.get_pos)
@@ -855,7 +847,7 @@ class ClockFrame((tk.Frame)):
 
         self.lbl_activate_account_clock = MyLabel(self, self.data_manager, image=self.image_dict['photo_btn_off'])
         self.lbl_activate_account_clock.image = self.image_dict['photo_btn_off']
-        self.lbl_activate_account_clock.pack(side = "left", padx=5, pady=5)
+        self.lbl_activate_account_clock.pack(side = "left", padx=5, pady=8)
 
         if self.clock.get_id() == 0:
             name = self.language_dict['without_allocation']
@@ -865,7 +857,7 @@ class ClockFrame((tk.Frame)):
                 name = ' ' + u'\U00002B9E' + ' ' + name # 1F517 # 02B9E
 
         self.lbl_name = MyLabel(self,self.data_manager,text = name, anchor='w')
-        self.lbl_name.pack(side = "left", padx=5, pady=5)
+        self.lbl_name.pack(side = "left", padx=5, pady=8)
 
         if self.clock.get_response_text() == ' - ':
             response_text = ''
@@ -879,6 +871,9 @@ class ClockFrame((tk.Frame)):
         self.lbl_activate_account_clock.bind("<Leave>", self.account_clock_leave)
         self.lbl_activate_account_clock.bind("<Button-1>", self.activate_account_clock)
         self.on_activate_default = False
+
+        self.bind("<Double-Button-1>", self.activate_account_clock)
+        self.lbl_name.bind("<Double-Button-1>", self.activate_account_clock)
         return
     
     def account_clock_enter(self,e):

@@ -23,6 +23,7 @@ class Clock():
     def __init__(self,main_app,passed_hours, passed_minutes, passed_seconds, added_minutes):
 
         self.main_app = main_app
+        self.data_manager = self.main_app.data_manager
         self.running = False
 
         self.previous_passed_time = datetime.timedelta()
@@ -59,37 +60,10 @@ class Clock():
             time_delta = self.stop_timestamp - self.start_timestamp
             self.passed_time = self.previous_passed_time + time_delta
             self.total_time = self.previous_total_time + time_delta
-            time_delta_string_list = [self.start_timestamp.strftime('%H:%M'),self.stop_timestamp.strftime('%H:%M'), self.str_timedelta(time_delta)]
+            time_delta_string_list = [self.start_timestamp.strftime('%H:%M'),self.stop_timestamp.strftime('%H:%M'), self.data_manager.duration_dt_to_duration_str(time_delta)]
             self.time_str_list_list.append(time_delta_string_list)
         else:
             pass
-
-    def str_timedelta(self,duration):
-        days, seconds = duration.days, duration.seconds
-
-        def add_zero(time_count):
-            if time_count < 10:
-                time_str = '0'+str(time_count)
-            else:
-                time_str = str(time_count)
-            return(time_str)
-
-        hours = days * 24 + seconds // 3600
-        str_hours = add_zero(hours)
-
-        minutes = (seconds % 3600) // 60
-        str_minutes = add_zero(minutes)
-
-        seconds = (seconds % 60)
-        str_seconds = add_zero(seconds)
-
-        delta_string = str_hours + ':' + str_minutes + ':' + str_seconds
-        return (delta_string)
-
-    def float_hourdelta(self,duration):
-        days, seconds = duration.days, duration.seconds
-        hours = days * 24 + seconds / 3600
-        return (hours)
 
     def __del__(self):
         return
@@ -121,19 +95,18 @@ class InfoClock(Clock):
         return(self.name)
 
     def start(self):
-        data_manager = self.main_app.data_manager
         if self.running == False:
             if self.name == 'work_time':
-                pause_clock = data_manager.get_pause_clock()
+                pause_clock = self.data_manager.get_pause_clock()
                 pause_clock.stop()
             elif self.name == 'break_time':
-                work_clock = data_manager.get_work_clock()
-                active_clock = data_manager.get_active_clock()
+                work_clock = self.data_manager.get_work_clock()
+                active_clock = self.data_manager.get_active_clock()
                 work_clock.stop()
                 if active_clock != None:
                     active_clock.stop()
                 work_clock.stop()
-                data_manager.set_active_clock(self)
+                self.data_manager.set_active_clock(self)
                 
             self.running = True
             self.start_timestamp = datetime.datetime.now()
@@ -189,7 +162,6 @@ class AccountClock(Clock):
         super().__init__(main_app,passed_hours, passed_minutes, passed_seconds, added_minutes)
 
         self.account_dict = account_dict
-        self.datamanager = main_app.data_manager
         self.user_db = main_app.data_manager.user_db
 
         self.id = self.account_dict.get("account_id")
@@ -223,7 +195,7 @@ class AccountClock(Clock):
                     "timestamp": datetime.datetime.now(),
                     "kind":"start",
                     "sign":'',
-                    "abs_time":self.str_timedelta(datetime.timedelta(hours = 0,minutes = added_minutes_from_backup,seconds=0)),
+                    "abs_time":self.data_manager.duration_dt_to_duration_str(datetime.timedelta(hours = 0,minutes = added_minutes_from_backup,seconds=0)),
                     "unit":""
                 }
                 self.recording_correction_dict_list.append(event_dict)
@@ -355,8 +327,7 @@ class AccountClock(Clock):
         self.response_text = response_text_list[0]
 
     def add_time(self,sign,add_minutes):
-        data_manager = self.main_app.data_manager
-        work_clock = data_manager.get_work_clock()
+        work_clock = self.data_manager.get_work_clock()
 
         add_time = datetime.timedelta(minutes=add_minutes)
 
@@ -400,34 +371,33 @@ class AccountClock(Clock):
         else:
             response = False
         
-        data_manager.set_last_tracked_interaction()
+        self.data_manager.set_last_tracked_interaction()
         return(response)
 
     def get_added_time(self):
         zero_time = datetime.timedelta()
         if self.added_time > zero_time:
-            added_str_time = self.str_timedelta(self.added_time)
+            added_str_time = self.data_manager.duration_dt_to_duration_str(self.added_time)
             sign = '+'
         else:
             added_secounds = int(abs(self.added_time.total_seconds()))
             abs_added_time = datetime.timedelta(seconds=added_secounds)
-            added_str_time = self.str_timedelta(abs_added_time)
+            added_str_time = self.data_manager.duration_dt_to_duration_str(abs_added_time)
             sign = '-'
         
         return(sign,added_str_time)
 
     def start(self):
-        data_manager = self.main_app.data_manager
         if self.running == False:
-            work_clock = data_manager.get_work_clock()
-            pause_clock = data_manager.get_pause_clock()
-            active_clock = data_manager.get_active_clock()
+            work_clock = self.data_manager.get_work_clock()
+            pause_clock = self.data_manager.get_pause_clock()
+            active_clock = self.data_manager.get_active_clock()
             
             if active_clock != None:
                 active_clock.stop()
             pause_clock.stop()
             work_clock.start()
-            data_manager.set_active_clock(self)
+            self.data_manager.set_active_clock(self)
 
             self.running = True
             self.start_timestamp = datetime.datetime.now()
@@ -435,12 +405,11 @@ class AccountClock(Clock):
             self.previous_total_time = self.total_time
         else:
             pass
-        data_manager.set_last_tracked_interaction()
+        self.data_manager.set_last_tracked_interaction()
 
     def reset_time(self):
-        data_manager = self.main_app.data_manager
         if self.running == False:
-            work_clock = data_manager.get_work_clock()
+            work_clock = self.data_manager.get_work_clock()
             check = work_clock.reset_account_time(self.total_time)
             if check == True:
                 old_total_time = self.total_time
@@ -454,12 +423,12 @@ class AccountClock(Clock):
                     "timestamp": datetime.datetime.now(),
                     "kind":"reset",
                     "sign":'',
-                    "abs_time":self.str_timedelta(old_total_time) + ' -> ' + self.str_timedelta(datetime.timedelta(hours = 0,minutes = 0,seconds=0)),
+                    "abs_time":self.data_manager.duration_dt_to_duration_str(old_total_time) + ' -> ' + self.data_manager.duration_dt_to_duration_str(datetime.timedelta(hours = 0,minutes = 0,seconds=0)),
                     "unit":""
                 }
                 self.recording_correction_dict_list.append(event_dict)
 
-        data_manager.set_last_tracked_interaction()
+        self.data_manager.set_last_tracked_interaction()
 
     def get_passed_time(self):
         if self.running == True:
@@ -597,7 +566,7 @@ class MainAccountClock(AccountClock):
     ############################################################
 
     def get_info_dict(self):
-        self.language_dict = self.main_app.data_manager.get_language_dict()
+        self.language_dict = self.data_manager.get_language_dict()
         #############
         info_dict = {self.language_dict["type"]:self.language_dict["main_account"]}
         #############
@@ -729,7 +698,7 @@ class SubAccountClock(AccountClock):
     ############################################################
 
     def get_info_dict(self):
-        self.language_dict = self.main_app.data_manager.get_language_dict()
+        self.language_dict = self.data_manager.get_language_dict()
         info_dict = {self.language_dict["type"]:self.language_dict["sub_account"],
                     self.language_dict["main_account"]:'='+str(self.main_account_clock.get_name()),
                     self.language_dict["name"]:'='+str(self.name)                       

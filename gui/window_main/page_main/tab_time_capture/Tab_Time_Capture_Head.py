@@ -248,21 +248,21 @@ class CaptureHead:
                 restored_timestamp = last_tracked_interaction_list [1]
                 info_dict.update({self.language_dict["execution"]+'\n'+timestamp_restoring.strftime('%d.%m.%Y') +' ' + timestamp_restoring.strftime('%H:%M') + ' ' + self.language_dict["o_clock"]:self.language_dict["restored"]+'\n'+restored_timestamp.strftime('%d.%m.%Y') +' ' + restored_timestamp.strftime('%H:%M') + ' ' + self.language_dict["o_clock"]})
 
-        work_time = work_clock.str_timedelta(work_clock.get_total_time())
+        work_time = self.data_manager.duration_dt_to_duration_str(work_clock.get_total_time())
         work_time_q = work_clock.get_total_time()
 
         main_account_clock_list = self.data_manager.get_main_account_clock_list()
         if main_account_clock_list != []:
-            activated_main_account_clock_list = [ele for ele in main_account_clock_list if ele.str_timedelta(ele.get_total_time_sum()) != '00:00:00']
+            activated_main_account_clock_list = [ele for ele in main_account_clock_list if self.data_manager.duration_dt_to_duration_str(ele.get_total_time_sum()) != '00:00:00']
             if activated_main_account_clock_list != []:
                 info_dict.update({self.language_dict["recorded_times"]:'#'})
                 for main_account_clock in activated_main_account_clock_list:
-                    info_dict.update({main_account_clock.get_name():main_account_clock.str_timedelta(main_account_clock.get_total_time_sum())})
+                    info_dict.update({main_account_clock.get_name():self.data_manager.duration_dt_to_duration_str(main_account_clock.get_total_time_sum())})
 
         info_dict.update({self.language_dict["analysis"]:'#'})
         recording_period = recording_period - pause_clock.get_total_time()
-        info_dict.update({self.language_dict["recording_period"]:work_clock.str_timedelta(recording_period)})
-        info_dict.update({self.language_dict["working_time"]:work_clock.str_timedelta(work_time_q)})
+        info_dict.update({self.language_dict["recording_period"]:self.data_manager.duration_dt_to_duration_str(recording_period)})
+        info_dict.update({self.language_dict["working_time"]:self.data_manager.duration_dt_to_duration_str(work_time_q)})
 
         if main_account_clock_list != []:
             activated_main_account_clock_not_bookable_list = [ele for ele in activated_main_account_clock_list if ele.get_bookable() == 0]

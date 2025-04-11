@@ -64,15 +64,15 @@ class MainWindowReminder(tk.Frame):
         if self.many_hours_check() == True:
             self.add_reminder_frame('booking_reminder_2')
             
-    def add_reminder_frame(self, dict_entry='', text='',dict_entry_2=''):
-        reminder_frame = Reminder(self.main_frame, self.main_app, self.gui, self.main_window,dict_entry, text, dict_entry_2)
+    def add_reminder_frame(self, dict_entry='', text='',dict_entry_2='', text_2='',dict_entry_3='',time_correction=None):
+        reminder_frame = Reminder(self.main_frame, self.main_app, self.gui, self.main_window,dict_entry, text, dict_entry_2, text_2, dict_entry_3,time_correction)
         self.reminder_frame_list.append(reminder_frame)
-        self.reminder_notes_list_list.append([dict_entry, text, dict_entry_2])
+        self.reminder_notes_list_list.append([dict_entry, text, dict_entry_2, text_2, dict_entry_3])
         
     def get_reminder_notes_list(self):
         reminder_notes_list = []
         for note in self.reminder_notes_list_list:
-            reminder_note = self.language_dict[note[0]] + ' ' + note[1] + ' ' + self.language_dict[note[2]]
+            reminder_note = self.language_dict[note[0]] + ' ' + note[1] + ' ' + self.language_dict[note[2]] + note[3] + self.language_dict[note[4]]
             reminder_notes_list.append(reminder_note)
         return(reminder_notes_list)
 
@@ -153,7 +153,7 @@ class ReminderTest(tk.Frame):
 
 class Reminder(tk.Frame):
 
-    def __init__(self, container, main_app, gui, main_window, dict_entry='', text='',dict_entry_2=''):
+    def __init__(self, container, main_app, gui, main_window, dict_entry='', text='',dict_entry_2='', text_2='',dict_entry_3='',time_correction=None):
          
         # get main_app, datamanager, style_dict and language_dict
         self.main_app = main_app
@@ -163,6 +163,9 @@ class Reminder(tk.Frame):
         self.dict_entry = dict_entry
         self.text = text
         self.dict_entry_2 = dict_entry_2
+        self.text_2 = text_2
+        self.dict_entry_3 = dict_entry_3
+        self.time_correction = time_correction
 
         # get gui for additional windows
         self.gui = gui
@@ -200,11 +203,54 @@ class Reminder(tk.Frame):
         self.lbl_close_reminder.bind("<Enter>", close_reminder_enter)
         self.lbl_close_reminder.bind("<Leave>", close_reminder_leave)
         self.lbl_close_reminder.bind("<Button-1>", close_reminder)
+
+
+        if self.time_correction != None:
+
+            self.time_corrected = False
+
+            self.lbl_time_correction = MyLabel(self.destroy_frame, self.data_manager, text=" " + self.language_dict["time_correction"] + " ", anchor='w')
+            self.lbl_time_correction.configure(background=self.style_dict["highlight_color_yellow"],foreground=self.style_dict["font_color_black"])
+            self.lbl_time_correction.pack(side = "right",fill='y')
+
+            def time_correction_enter(e):
+                if self.time_corrected == False:
+                    self.lbl_time_correction.configure(background=self.style_dict["btn_color_grey"])
+                    self.lbl_time_correction.configure(foreground=self.style_dict["font_color"])
+
+            def time_correction_leave(e):
+                self.lbl_time_correction.configure(background=self.style_dict["highlight_color_yellow"])
+                self.lbl_time_correction.configure(foreground=self.style_dict["font_color_black"])
+
+            def time_correction(e):
+                if self.time_corrected == False:
+                    default_clock = self.data_manager.get_default_clock()
+                    add_minutes = self.data_manager.duration_dt_to_hour_float(self.time_correction)*60
+                    default_clock.add_time('+',add_minutes)
+
+                    event_dict = {
+                        "timestamp": datetime.datetime.now(),
+                        "kind":"system_start_correction",
+                        "sign":"+",
+                        "abs_time":str(self.data_manager.duration_dt_to_duration_str(self.time_correction)),
+                        "unit":""
+                    }
+                    default_clock.append_recording_correction_dict_list(event_dict)
+
+                    self.time_corrected = True
+                    self.lbl_time_correction.configure(text=self.language_dict["time_corrected"])
+                    self.lbl_time_correction.configure(background=self.style_dict["highlight_color_yellow"])
+                    self.lbl_time_correction.configure(foreground=self.style_dict["font_color_black"])
+
+            self.lbl_time_correction.bind("<Enter>", time_correction_enter)
+            self.lbl_time_correction.bind("<Leave>", time_correction_leave)
+            self.lbl_time_correction.bind("<Button-1>", time_correction)
+
             
-        self.lbl_reminder = MyLabel(self.destroy_frame, self.data_manager, text=" " + self.language_dict[self.dict_entry] + ' ' + self.text + ' ' + self.language_dict[self.dict_entry_2],anchor='w',justify='left')
+        self.lbl_reminder = MyLabel(self.destroy_frame, self.data_manager, text=" " + self.language_dict[self.dict_entry] + ' ' + self.text + ' ' + self.language_dict[self.dict_entry_2] + self.text_2 + self.language_dict[self.dict_entry_3],anchor='w',justify='left')
         self.lbl_reminder.configure(background=self.style_dict["highlight_color_yellow"],foreground=self.style_dict["font_color_black"])
         self.lbl_reminder.pack(side = "left")
-        self.lbl_reminder_ttp = CreateToolTip(self.lbl_reminder, self.data_manager, 5, 30, text=self.language_dict[self.dict_entry] + ' ' + self.text + ' ' + self.language_dict[self.dict_entry_2])
+        self.lbl_reminder_ttp = CreateToolTip(self.lbl_reminder, self.data_manager, 5, 30, text=self.language_dict[self.dict_entry] + ' ' + self.text + ' ' + self.language_dict[self.dict_entry_2]+ self.text_2 + self.language_dict[self.dict_entry_3])
 
 
     def refresh(self):
@@ -220,6 +266,16 @@ class Reminder(tk.Frame):
         self.destroy_frame.configure(background=self.style_dict["highlight_color_yellow"],highlightthickness=1,highlightbackground=self.style_dict["btn_color_grey"],highlightcolor=self.style_dict["btn_color_grey"])
         self.lbl_close_reminder.configure(background=self.style_dict["highlight_color_yellow"],foreground=self.style_dict["font_color_black"])
         self.lbl_reminder.configure(background=self.style_dict["highlight_color_yellow"],foreground=self.style_dict["font_color_black"])
-        self.lbl_reminder.configure(text=" " + self.language_dict[self.dict_entry] + ' ' + self.text + ' ' + self.language_dict[self.dict_entry_2], anchor='w')
-        self.lbl_reminder_ttp.text = self.language_dict[self.dict_entry] + ' ' + self.text + ' ' + self.language_dict[self.dict_entry_2]
+        self.lbl_reminder.configure(text=" " + self.language_dict[self.dict_entry] + ' ' + self.text + ' ' + self.language_dict[self.dict_entry_2]+ self.text_2 + self.language_dict[self.dict_entry_3], anchor='w')
+        self.lbl_reminder_ttp.text = self.language_dict[self.dict_entry] + ' ' + self.text + ' ' + self.language_dict[self.dict_entry_2] + self.text_2 + self.language_dict[self.dict_entry_3]
+
+        if  self.time_correction != None:
+            self.lbl_time_correction.refresh_style()
+            self.lbl_time_correction.configure(background=self.style_dict["highlight_color_yellow"],foreground=self.style_dict["font_color_black"])
+            
+            if self.time_corrected == True:
+                self.lbl_time_correction.configure(text=self.language_dict["time_corrected"])
+            else:
+                self.lbl_time_correction.configure(text=self.language_dict["time_correction"])
+
 

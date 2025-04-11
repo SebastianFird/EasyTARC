@@ -91,16 +91,29 @@ class CreateEditRecord(tk.Frame):
     
 #################################################################
 
-    def user_input(self,account_name,date,time,status, account_dict_list,response_text):
+    def user_input(self,account_name,date,hours,minutes,seconds,status, account_dict_list,response_text):
 
         account_name = account_name.get()
         date = date.get()
-        time = time.get()
+        hours = hours.get()
+        minutes = minutes.get()
+        seconds = seconds.get()
         status = status.get()
         response_text = response_text.get()
 
-        input_checked = self.check_new_record_input(time)
-        input_checked_2 = self.check_characters([response_text])
+        if hours == '' or hours.isspace() == True:
+            hours = '00'
+
+        if minutes == '' or minutes.isspace() == True:
+            minutes = '00'
+
+        if seconds == '' or seconds.isspace() == True:
+            seconds = '00'
+
+        input_checked = self.check_new_record_input(hours)
+        input_checked_2 = self.check_new_record_input(minutes)
+        input_checked_3 = self.check_new_record_input(seconds)
+        input_checked_4 = self.check_characters([response_text])
 
         if input_checked != True:
             info = input_checked
@@ -108,8 +121,20 @@ class CreateEditRecord(tk.Frame):
         elif input_checked_2 != True:
             info = input_checked_2
             return(info)
+        elif input_checked_3 != True:
+            info = input_checked_3
+            return(info)
+        elif input_checked_4 != True:
+            info = input_checked_4
+            return(info)
         else:
-            time = float(locale.atof(time, decimal.Decimal))
+            hours = float(locale.atof(hours, decimal.Decimal))
+            minutes = float(locale.atof(minutes, decimal.Decimal))
+            seconds = float(locale.atof(seconds, decimal.Decimal))
+            duration = datetime.timedelta(hours = hours,minutes = minutes,seconds=seconds)
+            time = self.data_manager.duration_dt_to_hour_float(duration)
+            if time <= 0:
+                return(self.language_dict['nbr_for_hour_fields'])
             self.save(account_name,date,time,status,account_dict_list,response_text)
             return(None)
         

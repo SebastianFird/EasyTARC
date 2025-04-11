@@ -144,7 +144,7 @@ class ClockFrame(tk.Frame):
         self.lbl_add_time.bind("<Enter>", self.correction_time_enter)
         self.lbl_add_time.bind("<Leave>", self.correction_time_leave)
 
-        total_time = self.clock.str_timedelta(self.clock.get_total_time())
+        total_time = self.data_manager.duration_dt_to_duration_str(self.clock.get_total_time())
         self.lbl_total_time_2 = MyLabel(self, self.data_manager, width=8, anchor='w',text = total_time)
         self.lbl_total_time_2_ttp = TimeTip(self.lbl_total_time_2, self.data_manager, 0, 30, self.clock,'without_correction_time',True)
         self.lbl_current_added_time_ttp =CurrentAddedTimeTip(self.lbl_total_time_2, self.data_manager, 0, 30, self)
@@ -153,7 +153,7 @@ class ClockFrame(tk.Frame):
 
         self.lbl_empty_time = MyLabel(self, self.data_manager, width=4, anchor='w')
 
-        total_time = self.clock.str_timedelta(self.clock.get_total_time())
+        total_time = self.data_manager.duration_dt_to_duration_str(self.clock.get_total_time())
         self.lbl_total_time = MyLabel(self, self.data_manager, width=8, anchor='w',text = total_time)
 
         ############
@@ -210,7 +210,8 @@ class ClockFrame(tk.Frame):
 
         self.response_text_cbox = MyCombobox(self, width = 45, textvariable = self.entered_response_text, postcommand=self.update_response_text_cbox_from_clock)
         self.response_text_cbox.bind("<KeyRelease>", self.update_response_text_to_clock)
-        self.response_text_cbox.bind("<FocusOut>", self.update_response_text_to_clock)
+        self.response_text_cbox.bind("<FocusOut>", self.update_response_text_to_clock)  
+        self.response_text_cbox.bind("<Button-1>", self.response_text_clicked) #self.capture_tab.unbind_scrolling()
         self.response_text_cbox.bind("<<ComboboxSelected>>", self.update_response_text_to_clock)
 
         self.cbox_response_text_ttp = CreateInfo(self.response_text_cbox, self.data_manager,0, 30)
@@ -290,6 +291,14 @@ class ClockFrame(tk.Frame):
         self.lbl_empty5.bind("<Button-3>", self.right_clicked)
         self.lbl_empty6.bind("<Button-3>", self.right_clicked)
         self.lbl_name.bind("<Button-3>", self.right_clicked)
+
+        self.bind("<Double-Button-1>", self.activate_clock)
+        self.lbl_empty3.bind("<Double-Button-1>", self.activate_clock)
+        self.lbl_empty4.bind("<Double-Button-1>", self.activate_clock)
+        self.lbl_empty5.bind("<Double-Button-1>", self.activate_clock)
+        self.lbl_empty6.bind("<Double-Button-1>", self.activate_clock)
+        self.lbl_empty7.bind("<Double-Button-1>", self.activate_clock)
+        self.lbl_name.bind("<Double-Button-1>", self.activate_clock)
         
         self.packed_time_col = None
 
@@ -328,6 +337,7 @@ class ClockFrame(tk.Frame):
         if self.main_app.get_action_state() == "normal": 
             self.response_text_edit = True
             self.update_response_text_lbl_state()
+            self.response_text_cbox.focus()
         return  
 
 ##################################################
@@ -374,7 +384,7 @@ class ClockFrame(tk.Frame):
 ##################################################
 
     def enter_view_sub(self,e=None):
-        if self.clock.str_timedelta(self.clock.get_sub_time_sum()) == "00:00:00" and self.clock.get_id() != 0:
+        if self.data_manager.duration_dt_to_duration_str(self.clock.get_sub_time_sum()) == "00:00:00" and self.clock.get_id() != 0:
             self.lbl_view_sub_clocks.configure(foreground=self.style_dict["font_color"])
 
     def leave_view_sub(self,e=None):
@@ -534,6 +544,7 @@ class ClockFrame(tk.Frame):
             self.update_response_text_lbl_state()
 
     def clock_frame_clicked(self,e=None):
+        self.capture_tab.rebind_scrolling()
         if self.main_app.get_action_state() == "normal" or self.main_app.get_action_state() == "endofwork":
             if self.data_manager.get_selected_clock() == self.clock:
                 self.capture_tab.set_selected_clock_frame_none()
@@ -546,7 +557,6 @@ class ClockFrame(tk.Frame):
             if self.data_manager.get_selected_clock() != self.clock:
                 self.clock_frame_clicked(e)
             self.option_menu.popup(e)
-
 
 ################################################################################################################################
 
@@ -609,7 +619,7 @@ class ClockFrame(tk.Frame):
 ################################################################################################################################
 
     def update_fold_out_state(self):
-        total_time = self.clock.str_timedelta(self.clock.get_total_time())
+        total_time = self.data_manager.duration_dt_to_duration_str(self.clock.get_total_time())
         if total_time != "00:00:00" and self.clock.get_clock_kind() == 'sub' and self.main_account_frame.tree_view == False:
             self.main_account_frame.fold_out_sub_clocks()  
 
@@ -727,7 +737,7 @@ class ClockFrame(tk.Frame):
 
         update_pack = False
 
-        total_time = self.clock.str_timedelta(self.clock.get_total_time())
+        total_time = self.data_manager.duration_dt_to_duration_str(self.clock.get_total_time())
 
         if (self.clock.get_response_texts() != " - " or self.clock.get_response_text() != "" or self.response_text_edit == True) and (total_time != "00:00:00" or self.clock.get_runninig() == True) and self.clock.get_id() != 0:
             if self.response_text_lbl_state != "cbox":
@@ -756,6 +766,10 @@ class ClockFrame(tk.Frame):
 
     def update_response_text_cbox_from_clock(self,e=None):
         self.response_text_cbox['values'] = self.clock.get_response_text_list()
+
+    def response_text_clicked(self,e=None):
+        self.capture_tab.unbind_scrolling()
+        self.update_response_text_to_clock()
 
     def update_response_text_to_clock(self,e=None):
         response_text = self.entered_response_text.get()
@@ -793,7 +807,7 @@ class ClockFrame(tk.Frame):
 ######################################################
 
     def auto_update_clock(self,i=1):
-        total_time = self.clock.str_timedelta(self.clock.get_total_time())
+        total_time = self.data_manager.duration_dt_to_duration_str(self.clock.get_total_time())
         sign, added_time = self.clock.get_added_time()
 
         self.lbl_total_time.configure(text = total_time)
@@ -832,7 +846,7 @@ class ClockFrame(tk.Frame):
         # State 2:
         # -> highlight_color_grey
 
-        total_time = self.clock.str_timedelta(self.clock.get_total_time())
+        total_time = self.data_manager.duration_dt_to_duration_str(self.clock.get_total_time())
 
         if (self.clock.get_runninig() == True or total_time != "00:00:00"):
             if self.time_font_color != self.style_dict["font_color"]:
@@ -853,20 +867,20 @@ class ClockFrame(tk.Frame):
             self.hours_used_up = False
             font_color = self.style_dict["font_color"]
 
-            self.lbl_hours_left.configure(text = str('{:n}'.format(round(float(self.clock.float_hourdelta(time_left)),1))) +' '+ self.language_dict["hours_abbreviation"])
+            self.lbl_hours_left.configure(text = str('{:n}'.format(round(float(self.data_manager.duration_dt_to_hour_float(time_left)),1))) +' '+ self.language_dict["hours_abbreviation"])
             recorded_time = self.clock.get_recorded_time_with_sub_clocks()
-            hours_used = str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"]
-            prozent = round(100*(float(self.clock.float_hourdelta(recorded_time))/float(self.clock.get_available_hours())))
+            hours_used = str('{:n}'.format(round(float(self.data_manager.duration_dt_to_hour_float(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"]
+            prozent = round(100*(float(self.data_manager.duration_dt_to_hour_float(recorded_time))/float(self.clock.get_available_hours())))
             self.lbl_prozent_progress.configure(text = str('{:n}'.format(prozent)) + ' %')
 
             if self.clock.get_sub_clock_list() != []:
                 recorded_time_only_main = self.clock.get_recorded_time()
-                hours_used_ttp = self.language_dict["hours_used"] + '\n' + self.language_dict["share_of_the_main_account"] + ': ' + str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time_only_main)),1))) +' '+ self.language_dict["hours_abbreviation"]
+                hours_used_ttp = self.language_dict["hours_used"] + '\n' + self.language_dict["share_of_the_main_account"] + ': ' + str('{:n}'.format(round(float(self.data_manager.duration_dt_to_hour_float(recorded_time_only_main)),1))) +' '+ self.language_dict["hours_abbreviation"]
             else:
                 hours_used_ttp = self.language_dict["hours_used"]
             
             hours_left_info_text = self.language_dict["hours_left"] 
-            prozent_progress_info_text = self.language_dict["percent_progress"] + '\n '+ str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"] + ' / ' + str('{:n}'.format(round(self.clock.get_available_hours(),1))) +' ' + self.language_dict["hours_abbreviation"] 
+            prozent_progress_info_text = self.language_dict["percent_progress"] + '\n '+ str('{:n}'.format(round(float(self.data_manager.duration_dt_to_hour_float(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"] + ' / ' + str('{:n}'.format(round(self.clock.get_available_hours(),1))) +' ' + self.language_dict["hours_abbreviation"] 
 
         ####################
 
@@ -874,19 +888,19 @@ class ClockFrame(tk.Frame):
             self.hours_used_up = True
             font_color = self.style_dict["caution_color_red"]
 
-            self.lbl_hours_left.configure(text = str('-'+'{:n}'.format(round(float(self.clock.float_hourdelta(time_left)),1))) + ' '+ self.language_dict["hours_abbreviation"])                
+            self.lbl_hours_left.configure(text = str('-'+'{:n}'.format(round(float(self.data_manager.duration_dt_to_hour_float(time_left)),1))) + ' '+ self.language_dict["hours_abbreviation"])                
             recorded_time = self.clock.get_recorded_time_with_sub_clocks()
-            hours_used = str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"]
-            prozent = round(100*(float(self.clock.float_hourdelta(recorded_time))/float(self.clock.get_available_hours())))
+            hours_used = str('{:n}'.format(round(float(self.data_manager.duration_dt_to_hour_float(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"]
+            prozent = round(100*(float(self.data_manager.duration_dt_to_hour_float(recorded_time))/float(self.clock.get_available_hours())))
             self.lbl_prozent_progress.configure(text = str('{:n}'.format(prozent)) + ' %')
             if self.clock.get_sub_clock_list() != []:
                 recorded_time_only_main = self.clock.get_recorded_time()
-                hours_used_ttp = self.language_dict["hours_used"] + '\n' + self.language_dict["share_of_the_main_account"] + ': ' + str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time_only_main)),1))) +' '+ self.language_dict["hours_abbreviation"]
+                hours_used_ttp = self.language_dict["hours_used"] + '\n' + self.language_dict["share_of_the_main_account"] + ': ' + str('{:n}'.format(round(float(self.data_manager.duration_dt_to_hour_float(recorded_time_only_main)),1))) +' '+ self.language_dict["hours_abbreviation"]
             else:
                 hours_used_ttp = self.language_dict["hours_used"]
                     
             hours_left_info_text = self.language_dict["hours_left"] 
-            prozent_progress_info_text = self.language_dict["percent_progress"] + '\n '+ str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"] + ' / ' + str('{:n}'.format(round(self.clock.get_available_hours(),1))) +' ' + self.language_dict["hours_abbreviation"] 
+            prozent_progress_info_text = self.language_dict["percent_progress"] + '\n '+ str('{:n}'.format(round(float(self.data_manager.duration_dt_to_hour_float(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"] + ' / ' + str('{:n}'.format(round(self.clock.get_available_hours(),1))) +' ' + self.language_dict["hours_abbreviation"] 
 
         ####################
 
@@ -899,7 +913,7 @@ class ClockFrame(tk.Frame):
             if self.clock.get_clock_kind() == 'sub':
                 self.main_account_frame.main_clock_frame.update_remaining_hours()
                 recorded_time = self.clock.get_recorded_time()
-                hours_used = '('+str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"]+')' 
+                hours_used = '('+str('{:n}'.format(round(float(self.data_manager.duration_dt_to_hour_float(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"]+')' 
                 hours_used_ttp = self.language_dict["hours_used_sub_info"] 
                 time_left,state = self.main_account_frame.main_account_clock.get_time_left()
                 self.lbl_hours_left.configure(text ='')
@@ -915,10 +929,10 @@ class ClockFrame(tk.Frame):
                 hours_left_info_text = self.language_dict[""]
                 prozent_progress_info_text = self.language_dict[""]
                 recorded_time = self.clock.get_recorded_time_with_sub_clocks()
-                hours_used = str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"] 
+                hours_used = str('{:n}'.format(round(float(self.data_manager.duration_dt_to_hour_float(recorded_time)),1))) +' '+ self.language_dict["hours_abbreviation"] 
                 if self.clock.get_sub_clock_list() != []:
                     recorded_time_only_main = self.clock.get_recorded_time()
-                    hours_used_ttp = self.language_dict["hours_used"] + '\n\n' + self.language_dict["share_of_the_main_account"] + ': ' + str('{:n}'.format(round(float(self.clock.float_hourdelta(recorded_time_only_main)),1))) +' '+ self.language_dict["hours_abbreviation"]
+                    hours_used_ttp = self.language_dict["hours_used"] + '\n\n' + self.language_dict["share_of_the_main_account"] + ': ' + str('{:n}'.format(round(float(self.data_manager.duration_dt_to_hour_float(recorded_time_only_main)),1))) +' '+ self.language_dict["hours_abbreviation"]
                 else:
                     hours_used_ttp = self.language_dict["hours_used"]
             #########

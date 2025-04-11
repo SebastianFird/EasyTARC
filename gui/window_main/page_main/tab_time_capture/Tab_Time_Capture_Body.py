@@ -53,6 +53,8 @@ class CaptureBody:
         self.main_frame = MyFrame(container,self.data_manager)
         self.main_frame.pack(side = "top", fill = "both", expand = True)
 
+        self.main_frame.bind("<Enter>", self.capture_tab.rebind_scrolling)
+
         if self.data_manager.get_backup_found() == False:
             self.gui.start_recording = True
         else:
@@ -80,10 +82,12 @@ class CaptureBody:
         self.start_auto_backup()
 
         system_start_time = self.main_app.get_system_start_time()
+        print("test")
+        print(system_start_time)
         if system_start_time != None and load_clocks == True:            
-            work_clock = self.data_manager.get_work_clock()
             deviation_start_time = self.data_manager.get_start_timestamp() - system_start_time
-            self.gui.main_window.reminder_frame.add_reminder_frame("system_start_info_1",work_clock.str_timedelta(deviation_start_time),"system_start_info_2")
+            print(deviation_start_time)
+            self.gui.main_window.reminder_frame.add_reminder_frame("system_start_info_1",self.data_manager.duration_dt_to_duration_str(deviation_start_time),"system_start_info_2",str(system_start_time.strftime('%H:%M')),"system_start_info_3",deviation_start_time)
 
     def forget_backup_request_frame(self):
         self.backup_request_frame.pack_forget()

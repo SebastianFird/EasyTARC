@@ -143,6 +143,12 @@ class Scroll_Frame_2:
         return
     '''
 
+    def unbind_scrolling(self,e=None):
+        self.my_canvas.unbind_all("<MouseWheel>")
+
+    def rebind_scrolling(self,e=None):
+        self.activate()
+
     def activate(self):
         def adjust_scrollregion(event):
             self.my_canvas.configure(scrollregion=self.my_canvas.bbox("all"))

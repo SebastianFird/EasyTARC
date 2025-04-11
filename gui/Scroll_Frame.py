@@ -105,12 +105,19 @@ class Scroll_Frame:
         return
     '''
 
+    def unbind_scrolling(self,e=None):
+        self.my_canvas.unbind_all("<MouseWheel>")
+
+    def rebind_scrolling(self,e=None):
+        self.activate()
+
     def activate(self):
         def adjust_scrollregion(event):
             self.my_canvas.configure(scrollregion=self.my_canvas.bbox("all"))
         self.canvas_container.bind("<Configure>", adjust_scrollregion)
         self.my_canvas.bind_all("<MouseWheel>", self._on_mousewheel)
         return
+
 
     def refresh_scroll_frame(self):
         # configure style and language of main frame body

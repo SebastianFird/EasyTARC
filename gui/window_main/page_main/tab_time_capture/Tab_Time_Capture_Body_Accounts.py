@@ -48,7 +48,7 @@ class MainAccountFrame(tk.Frame):
         for sub_clock in sub_clock_list:
             self.create_sub_clock_frame(sub_clock)
 
-        if self.main_account_clock.str_timedelta(self.main_account_clock.get_sub_time_sum()) == "00:00:00" and self.account_date_expiration_or_hours_used_up == False:
+        if self.data_manager.duration_dt_to_duration_str(self.main_account_clock.get_sub_time_sum()) == "00:00:00" and self.account_date_expiration_or_hours_used_up == False:
             self.fold_up_sub_clocks()
         else:
             self.fold_out_sub_clocks()
@@ -89,7 +89,7 @@ class MainAccountFrame(tk.Frame):
 
     def fold_up_sub_clocks(self):
         if self.main_account_clock.get_sub_clock_list() != []:
-            if self.main_account_clock.str_timedelta(self.main_account_clock.get_sub_time_sum()) == "00:00:00":
+            if self.data_manager.duration_dt_to_duration_str(self.main_account_clock.get_sub_time_sum()) == "00:00:00":
                 self.tree_view = False
                 self.main_clock_frame.lbl_view_sub_clocks.configure(text = '  ' + u'\U00002B9E')
                 for sub_clock_frame in self.sub_clock_frame_list:

@@ -258,7 +258,7 @@ class MyEntry(tk.Entry):
 
     def update_font_size(self):
         defaultFont = tk.font.nametofont(self.cget("font"))
-        defaultFont.configure(size=self.data_manager.main_app.get_setting("font_size"))
+        defaultFont.configure(size=str(int(self.data_manager.main_app.get_setting("font_size"))-2))
         self.configure(font=defaultFont)
 
     def refresh_style(self):
@@ -287,7 +287,7 @@ class MyText(tk.Text):
 
     def update_font_size(self):
         defaultFont = tk.font.nametofont(self.cget("font"))
-        defaultFont.configure(size=self.data_manager.main_app.get_setting("font_size"))
+        defaultFont.configure(size=str(int(self.data_manager.main_app.get_setting("font_size"))-2))
         self.configure(font=defaultFont)
 
     def refresh_style(self):

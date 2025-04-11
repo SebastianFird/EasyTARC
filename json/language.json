@@ -212,7 +212,8 @@
         "not_allowed_characters":"Nicht erlaubte Satzzeichen",
         "analysis":"Auswertung",
         "system_start_info_1":"Der Start der Erfassung weicht um",
-        "system_start_info_2":"vom Systemstart deines PC ab. Diese Info kann hilfreich für eine Korrektur der Erfassung sein.",
+        "system_start_info_2":"vom Systemstart (",
+        "system_start_info_3":" Uhr) deines PC ab. Möchtest du deine Erfassung korrigieren?",
         "session_data":"Session-Daten",
         "system_start_time": "Systemstart (PC)",
         "release_note_text_10" : " 1.7.0 (12.12.2023)\n - Bug fix im Tab Erfasste Zeiten. \n - Verhaltensweise der Fenster bei der Nutzung eines zweiten Bildschirms.\n - Überarbeitung der Datenbankstruktur.\n - Info Fenster zum Beenden von EasyTARC.\n - Einblenden und Ausblenden von Gruppen.\n - Hinweis zum Systemstart.",
@@ -473,10 +474,14 @@
         "dpi_awareness":"Dpi Awareness",
         "dpi_awareness_info":"Die Einstellung hilft bei der Skalierung und Anpassung an die Bildschirmauflösung.\nDiese Einstellung wird nach dem Schließen und Neustart von EasyTARC aktiv.",
         "check_dpi_awareness":"Aufgrund des Updates musst du eventuell die Schriftgröße im Tab 'Einstellungen' für dich erneut anpassen. Solltest du Probleme mit der neuen Skalierung durch das Update haben, kannst du im Tab 'Einstellungen' die 'Dpi Awareness' deaktivieren und EasyTARC neu starten. Sollte dies nicht helfen, wende dich bitte an den Support.",
-        "release_note_text_23":"1.12.5 (05.04.2025)\n - Fehlerbehebungen.\n - Anpassung der Skalierung.",
+        "release_note_text_23":"1.12.5 (05.04.2025)\n - Fehlerbehebungen.\n - Anpassung der Skalierung.\n - Darstellung von Zeiten.",
         "Nein":"no",
         "Ja":"yes",
-        "new_db":"Neue Datenbank"
+        "new_db":"Neue Datenbank",
+        "time_correction":"Korrgieren",
+        "time_corrected":"Korrigiert",
+        "minutes_abbreviation":"m",
+        "system_start_correction":"Systemstart Korrektur"
     },
     "english": 
     {
@@ -691,7 +696,8 @@
         "not_allowed_characters":"Not allowed characters",
         "analysis":"Analysis",
         "system_start_info_1":"The start of recording deviates by",
-        "system_start_info_2":"from the system start of your PC. This information can be helpful for correcting the recording.",
+        "system_start_info_2":"from the system start (",
+        "system_start_info_3":" o'clock) of your PC. Would you like to correct your recording?",
         "session_data": "Session data",
         "system_start_time": "System start (PC)",
         "release_note_text_10" : " 1.7.0 (12.12.2023)\n - Bug fix in tab recording times. \n - Behavior of the windows when using a second screen.\n - Revision of the database structure.\n - Info window for exiting EasyTARC.\n - Show and hide groups.\n - Note on system startup.",
@@ -952,9 +958,13 @@
         "dpi_awareness":"Dpi awareness",
         "dpi_awareness_info":"The setting helps with scaling and adaptation to the screen resolution.\nThis setting becomes active after closing and restarting EasyTARC.",
         "check_dpi_awareness":"Due to the update, you may have to adjust the font size in the 'Settings' tab again. If you have problems with the new scaling due to the update, you can deactivate 'Dpi Awareness' in the 'Settings' tab and restart EasyTARC. If this does not help, please contact support.",
-        "release_note_text_23":"1.12.5 (05.04.2025)\n - Bug fixes.\n - Adjustment of the scaling.",
+        "release_note_text_23":"1.12.5 (05.04.2025)\n - Bug fixes.\n - Adjustment of the scaling.\n - Display of times.",
         "No":"no",
         "Yes":"yes",
-        "new_db":"New database"
+        "new_db":"New database",
+        "time_correction":"Correct",
+        "time_corrected":"Corrected",
+        "minutes_abbreviation":"m",
+        "system_start_correction":"System start correction"
     }
 }

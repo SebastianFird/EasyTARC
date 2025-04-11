@@ -42,6 +42,8 @@ class AccountsBody:
         self.main_frame = MyFrame(container,self.data_manager)
         self.main_frame.pack(side = "top", fill = "both", expand = True)
 
+        self.main_frame.bind("<Enter>", self.accounts_tab.rebind_scrolling)
+
         self.case_frame = CaseFrameManagerTA(self.main_frame, self.main_app, self.gui, self.accounts_tab)
         self.case_frame.pack(side = "top", fill = "both", expand = True)
         return

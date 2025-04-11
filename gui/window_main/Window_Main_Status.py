@@ -157,10 +157,10 @@ class MainWindowStatus(tk.Frame):
         work_clock = self.data_manager.get_work_clock()
         pause_clock = self.data_manager.get_pause_clock()
 
-        work_time = work_clock.str_timedelta(work_clock.get_total_time())
+        work_time = self.data_manager.duration_dt_to_duration_str(work_clock.get_total_time())
         self.lbl_worktime.configure(text=str(work_time))
 
-        pausetime = pause_clock.str_timedelta(pause_clock.get_total_time())
+        pausetime = self.data_manager.duration_dt_to_duration_str(pause_clock.get_total_time())
         self.lbl_pausetime.configure(text=str(pausetime))
 
         main_account_clock_list = self.data_manager.get_main_account_clock_list()
@@ -172,7 +172,7 @@ class MainWindowStatus(tk.Frame):
             if main_account_clock_list != [] and self.refresh_rate_counter >= 3:
                 self.refresh_rate_counter = 0
                 work_time_q = work_clock.get_total_time()
-                activated_main_account_clock_list = [ele for ele in main_account_clock_list if ele.str_timedelta(ele.get_total_time_sum()) != '00:00:00']
+                activated_main_account_clock_list = [ele for ele in main_account_clock_list if self.data_manager.duration_dt_to_duration_str(ele.get_total_time_sum()) != '00:00:00']
                 activated_main_account_clock_not_bookable_list = [ele for ele in activated_main_account_clock_list if ele.get_bookable() == 0]
                 if activated_main_account_clock_not_bookable_list != []:
                     q_not_bookable_time = datetime.timedelta(hours = 0)
@@ -368,21 +368,21 @@ class MainWindowStatus(tk.Frame):
                 info_dict.update({self.language_dict["execution"]+'\n'+timestamp_restoring.strftime('%d.%m.%Y') +' ' + timestamp_restoring.strftime('%H:%M') + ' ' + self.language_dict["o_clock"]:self.language_dict["restored"]+'\n'+restored_timestamp.strftime('%d.%m.%Y') +' ' + restored_timestamp.strftime('%H:%M') + ' ' + self.language_dict["o_clock"]})
 
 
-        work_time = work_clock.str_timedelta(work_clock.get_total_time())
+        work_time = self.data_manager.duration_dt_to_duration_str(work_clock.get_total_time())
         work_time_q = work_clock.get_total_time()
 
         main_account_clock_list = self.data_manager.get_main_account_clock_list()
         if main_account_clock_list != []:
-            activated_main_account_clock_list = [ele for ele in main_account_clock_list if ele.str_timedelta(ele.get_total_time_sum()) != '00:00:00']
+            activated_main_account_clock_list = [ele for ele in main_account_clock_list if self.data_manager.duration_dt_to_duration_str(ele.get_total_time_sum()) != '00:00:00']
             if activated_main_account_clock_list != []:
                 info_dict.update({self.language_dict["recorded_times"]:'#'})
                 for main_account_clock in activated_main_account_clock_list:
-                    info_dict.update({main_account_clock.get_name():main_account_clock.str_timedelta(main_account_clock.get_total_time_sum())})
+                    info_dict.update({main_account_clock.get_name():self.data_manager.duration_dt_to_duration_str(main_account_clock.get_total_time_sum())})
 
         info_dict.update({self.language_dict["analysis"]:'#'})
         recording_period = recording_period - pause_clock.get_total_time()
-        info_dict.update({self.language_dict["recording_period"]:work_clock.str_timedelta(recording_period)})
-        info_dict.update({self.language_dict["working_time"]:work_clock.str_timedelta(work_time_q)})
+        info_dict.update({self.language_dict["recording_period"]:self.data_manager.duration_dt_to_duration_str(recording_period)})
+        info_dict.update({self.language_dict["working_time"]:self.data_manager.duration_dt_to_duration_str(work_time_q)})
 
         if main_account_clock_list != []:
             activated_main_account_clock_not_bookable_list = [ele for ele in activated_main_account_clock_list if ele.get_bookable() == 0]
@@ -394,10 +394,10 @@ class MainWindowStatus(tk.Frame):
                     bookingrate = (1 - (q_not_bookable_time / work_time_q))*100 
                 else:
                     bookingrate = 0
-                info_dict.update({self.language_dict["bookable_time"]:work_clock.str_timedelta(work_time_q-q_not_bookable_time)})
+                info_dict.update({self.language_dict["bookable_time"]:self.data_manager.duration_dt_to_duration_str(work_time_q-q_not_bookable_time)})
                 info_dict.update({self.language_dict["rate"]:str(round(bookingrate)) + ' %   '})
             else:
-                info_dict.update({self.language_dict["bookable_time"]:work_clock.str_timedelta(work_time_q)})
+                info_dict.update({self.language_dict["bookable_time"]:self.data_manager.duration_dt_to_duration_str(work_time_q)})
                 info_dict.update({self.language_dict["rate"]:'100 %   '})
 
         reminder_notes_list = self.gui.main_window.reminder_frame.get_reminder_notes_list()
