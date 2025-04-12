@@ -82,11 +82,8 @@ class CaptureBody:
         self.start_auto_backup()
 
         system_start_time = self.main_app.get_system_start_time()
-        print("test")
-        print(system_start_time)
         if system_start_time != None and load_clocks == True:            
             deviation_start_time = self.data_manager.get_start_timestamp() - system_start_time
-            print(deviation_start_time)
             self.gui.main_window.reminder_frame.add_reminder_frame("system_start_info_1",self.data_manager.duration_dt_to_duration_str(deviation_start_time),"system_start_info_2",str(system_start_time.strftime('%H:%M')),"system_start_info_3",deviation_start_time)
 
     def forget_backup_request_frame(self):

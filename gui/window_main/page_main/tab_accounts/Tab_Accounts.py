@@ -173,7 +173,6 @@ class AccountsTab(Scroll_Frame_2):
             self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.close_main_account_frame(account_dict['group'],account_dict['account_id'])
             if self.body.case_frame.frame != None and self.gui.get_active_tab_nbr() == 3:
                 self.body.case_frame.frame.reload_account_dict_by_main_id(account_dict['main_id'])
-                print("Hello")
         else:
             text = self.language_dict['account_closing_denied']
             info_window = InfoWindow(self.main_app, self.gui, self.gui.main_window ,text,450,200)

@@ -1084,8 +1084,6 @@ Wenn Sie Fragen zu dieser Datenschutzerklärung haben, kontaktieren Sie uns bitt
         hour_all, mins = divmod(mins_all, 60)
         days, hour = divmod(hour_all, 24)
 
-        print(days,hour_all,mins_all)
-
         if days >= 1:
             return(None)
         else:

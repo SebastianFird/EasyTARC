@@ -136,7 +136,6 @@ class Gui_Manager:
             try:
                 ct.windll.shcore.SetProcessDpiAwareness(1)
                 scale_factor = ct.windll.shcore.GetScaleFactorForDevice(0)*0.01
-                print(scale_factor) 
                 self.main_app.set_scale_factor(scale_factor)
             except Exception:
                 pass
@@ -241,8 +240,9 @@ class Gui_Manager:
                 text = text + '\n\n' + self.language_dict["add_start_up_link"]
             text = text + '\n\n' + self.language_dict["add_secondary_back_up"]
             text = text + '\n\n' + self.language_dict["first_steps"]
+            text = text + '\n\n' + self.language_dict["beginner_web_link"]
                 
-            info_window = InfoWindow(self.main_app, self, self.main_window.main_frame ,text,700,350,True)
+            info_window = InfoWindow(self.main_app, self, self.main_window.main_frame ,text,700,380,True,False, "https://easytarc.de/")
         
         self.root.mainloop()
 

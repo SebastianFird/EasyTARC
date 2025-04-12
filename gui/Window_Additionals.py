@@ -24,7 +24,7 @@ import decimal
 import json
 import os
 import locale
-
+import webbrowser
 
 from gui.Scroll_Frame import Scroll_Frame
 
@@ -437,7 +437,7 @@ class CreateInfo(object):
 
 
 class InfoWindow(tk.Toplevel):
-    def __init__(self ,main_app, gui, widget, text, w, h, highlight_window = False, login_window = False,  *args, **kwargs):
+    def __init__(self ,main_app, gui, widget, text, w, h, highlight_window = False, login_window = False, web_link = None,  *args, **kwargs):
         tk.Toplevel.__init__(self,widget)
 
         self.gui = gui
@@ -448,6 +448,7 @@ class InfoWindow(tk.Toplevel):
         self.widget = widget
         self.highlight_window = highlight_window
         self.login_window = login_window
+        self.web_link = web_link
 
         self.geo_factor = self.main_app.get_geometry_factor()
         self.w = int(round(self.geo_factor*w))
@@ -535,7 +536,37 @@ class InfoWindow(tk.Toplevel):
             scroll_frame = self.scroll.create_scroll_frame(bodyframe)
 
             lbl_text = MyLabel(scroll_frame, self.data_manager, text=self.text,wraplength=self.w-20, justify="left")
-            lbl_text.pack(pady = 0, padx=0,side="left", fill="both", expand=True)
+            
+            print(self.web_link)
+            if self.web_link != None:
+                lbl_text.pack(pady = 0, padx=0,side="top", fill="x", expand=True)
+
+                font_family = self.main_app.get_setting('font_family')
+                font_size = str(int(self.main_app.get_setting("font_size"))-2)
+                Font_tuple = (font_family, font_size, "underline")
+
+                lbl_text_web_link = MyLabel(scroll_frame, self.data_manager, text=self.web_link,wraplength=self.w-20,justify="left",font=Font_tuple)
+                lbl_text_web_link.configure(foreground=self.style_dict["info_color_light_blue"])
+                lbl_text_web_link.pack(pady = 10, padx=0,side="top", fill="x", expand=True)
+
+                def on_enter_web_link(e=None):
+                    lbl_text_web_link.configure(foreground=self.style_dict["header_color_blue"])
+
+                def on_leave_web_link(e=None):
+                    lbl_text_web_link.configure(foreground=self.style_dict["info_color_light_blue"])
+
+                def on_clicked_web_link(e=None):
+                    try:
+                        webbrowser.open_new(self.web_link)
+                    except:
+                        lbl_text_web_link.configure(text=self.style_dict["error"])
+
+                lbl_text_web_link.bind("<Enter>", on_enter_web_link)
+                lbl_text_web_link.bind("<Leave>", on_leave_web_link)
+                lbl_text_web_link.bind('<Button-1>', on_clicked_web_link)
+            else:
+                lbl_text.pack(pady = 0, padx=0,side="top", fill="both", expand=True)
+
 
             return(bodyframe)
 

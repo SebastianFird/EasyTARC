@@ -481,7 +481,11 @@
         "time_correction":"Korrgieren",
         "time_corrected":"Korrigiert",
         "minutes_abbreviation":"m",
-        "system_start_correction":"Systemstart Korrektur"
+        "system_start_correction":"Systemstart Korrektur",
+        "pivot_month_accounts":"Pivot Monatlich",
+        "pivot_accounts":"Pivot Zeitkonten",
+        "pivot_accounts_month":"Pivot Zeitkonten monatlich",
+        "beginner_web_link":"Erfahre mehr zu EasyTARC unter:"
     },
     "english": 
     {
@@ -965,6 +969,10 @@
         "time_correction":"Correct",
         "time_corrected":"Corrected",
         "minutes_abbreviation":"m",
-        "system_start_correction":"System start correction"
+        "system_start_correction":"System start correction",
+        "pivot_month_accounts":"Pivot monthly",
+        "pivot_accounts":"Pivot accounts total",
+        "pivot_accounts_month":"Pivot accounts per month",
+        "beginner_web_link":"Find out more about EasyTARC at:"
     }
 }

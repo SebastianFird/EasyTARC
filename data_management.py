@@ -667,7 +667,7 @@ class DataManager:
 
     def create_time_account_dict(self,name,description_text,project_label,order_label,process_label,response_code,response_texts_main,response_texts,external_booking,kind,main_id,group,bookable,date_expiration,available_hours,status = "open"):
         account_id = self.user_db.get_new_accountid()
-        print(response_texts)
+
         if kind == 1:
             main_id = account_id
 
@@ -1147,14 +1147,16 @@ class DataManager:
         df['weekday'] = df['weekday'].replace(5, 'Saturday')
         df['weekday'] = df['weekday'].replace(6, 'Sunday')
 
-        df = df[['month','date','weekday','id','name','kind','main_account','combined name','description_text','group','project_label','order_label','process_label','response_code','comment','hours','booked','bookable','date_expiration','available_hours']]
+        df['hours'] = round(df['hours'],3)
+
+        df = df[['month','date','weekday','main_account','kind','name','description_text','group','project_label','order_label','process_label','response_code','comment','hours','booked','bookable','date_expiration','available_hours']]
         dt = datetime.datetime.now()
         str_today = dt.strftime("%Y") + "_" + dt.strftime("%m") + "_" + dt.strftime("%d")
-        save_str = path + '\Export_' + self.main_app.get_name() + '_' + str_today + '.xlsx'
+        save_str = path + '\\' + 'Export_' + self.main_app.get_name() + '_' + str_today + '.xlsx'
 
         with pd.ExcelWriter(save_str, engine='openpyxl') as writer:
 
-            df.to_excel(writer,self.language_dict['overview'], index=False)
+            df.to_excel(excel_writer=writer, sheet_name=self.language_dict['overview'], index=False)
 
             df_pivot_1 = pd.pivot_table(df, values = 'hours', index=['month','date','weekday'], columns = 'booked', aggfunc='sum' , fill_value=0)
             try:
@@ -1162,21 +1164,18 @@ class DataManager:
                 df_pivot_1['Rate [%]'] = round((100*(df_pivot_1['booked'] / df_pivot_1['Sum [h]'])))
             except KeyError:
                 pass
-            df_pivot_1.to_excel(writer,self.language_dict['rate'])
 
-            df_pivot_3 = pd.pivot_table(df, values = 'hours', index=['month','project_label','order_label','process_label','main_account','comment'], aggfunc='sum' , fill_value=0)
-            df_pivot_3['Percent of Month'] = round((df_pivot_3.hours / df_pivot_3.groupby(by=["month"]).hours.transform(sum) * 100),2)
-            df_pivot_3.to_excel(writer,self.language_dict['pivot_accounts_month_without_sub_accounts'])
+            df_pivot_1.to_excel(excel_writer=writer, sheet_name=self.language_dict['rate'])
 
-            df_pivot_5 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','available_hours','date_expiration','comment'], aggfunc='sum' , fill_value=0)
-            df_pivot_5.to_excel(writer,self.language_dict['pivot_accounts_total_without_sub_accounts'])
+            df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['month','project_label','order_label','process_label','main_account','comment'], aggfunc='sum' , fill_value=0)
+            df_pivot_2['Percent of Month'] = round((df_pivot_2['hours'] / df_pivot_2.groupby(by=["month"])['hours'].transform("sum") * 100),2)
+            df_pivot_2.to_excel(excel_writer=writer, sheet_name=self.language_dict['pivot_month_accounts'], merge_cells=False)
 
-            df_pivot_2 = pd.pivot_table(df, values = 'hours', index=['month','project_label','order_label','process_label','main_account','name','comment'], aggfunc='sum' , fill_value=0)
-            df_pivot_2['Percent of Month'] = round((df_pivot_2.hours / df_pivot_2.groupby(by=["month"]).hours.transform(sum) * 100),2)
-            df_pivot_2.to_excel(writer,self.language_dict['pivot_accounts_month_with_sub_accounts'])
+            df_pivot_3 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','comment'], aggfunc='sum' , fill_value=0)
+            df_pivot_3.to_excel(excel_writer=writer, sheet_name=self.language_dict['pivot_accounts'], merge_cells=False)
 
-            df_pivot_4 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','name','available_hours','date_expiration','comment'], aggfunc='sum' , fill_value=0)
-            df_pivot_4.to_excel(writer,self.language_dict['pivot_accounts_total_with_sub_accounts'])
+            df_pivot_4 = pd.pivot_table(df, values = 'hours', index=['project_label','order_label','process_label','main_account','month','comment'], aggfunc='sum' , fill_value=0)
+            df_pivot_4.to_excel(excel_writer=writer, sheet_name=self.language_dict['pivot_accounts_month'], merge_cells=False)
 
         
     def get_all_account_groups(self,seperate_active=False):

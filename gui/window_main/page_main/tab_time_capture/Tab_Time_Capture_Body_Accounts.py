@@ -113,8 +113,6 @@ class MainAccountFrame(tk.Frame):
         if sub_clock_frame_list_old != self.sub_clock_frame_list:
             self.fold_sub_clocks()
             self.fold_sub_clocks()
-            print('fold')
-
 
     def check_close_clock(self):
         response = True

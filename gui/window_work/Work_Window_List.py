@@ -298,8 +298,6 @@ class WorkWindowList(tk.Toplevel):
         self.attach_pos = attach_pos
         x=self.win_expand_x_pos
         y=self.winfo_y()
-        print(x)
-        print(y)
         if self.attach_pos == 'right':
             screen_root_x,screen_root_y,screen_width,screen_height,task_bar_height_offset = self.gui.check_screen(x,y)
             self.x_pos_right = screen_width + screen_root_x
@@ -915,6 +913,5 @@ class ClockFrame((tk.Frame)):
         return
 
     def right_clicked(self,e):
-        print('test')
         if self.main_app.get_action_state() != "study" and self.clock.get_id() != 0:
             self.work_window.option_menu.popup_time_account(e,self.clock)
