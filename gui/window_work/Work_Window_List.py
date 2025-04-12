@@ -521,7 +521,7 @@ class WorkWindowList(tk.Toplevel):
 
         self.canvas_lbl_name = tk.Canvas(self.vertical_name_frame, width= self.win_vertical_width, height= int(210*self.geometry_factor_vertical), bg=self.style_dict["recording_color_green"], bd=0, highlightthickness=0)
         self.canvas_lbl_name.pack(side='top')
-        self.canvas_text = self.canvas_lbl_name.create_text((int(15*self.geometry_factor),int(190*self.geometry_factor_vertical)),text="Hello", fill=self.style_dict["font_color"], angle=90,anchor="w")
+        self.canvas_text = self.canvas_lbl_name.create_text((int(15*self.geometry_factor_vertical),int(190*self.geometry_factor_vertical)),text="Hello", fill=self.style_dict["font_color"], angle=90,anchor="w")
         self.canvas_lbl_name.bind("<Double-Button-1>", self.status_double_click)
         self.canvas_lbl_name.bind('<B1-Motion>', self.move_window)
         self.canvas_lbl_name.bind('<Button-1>', self.get_pos)
@@ -580,7 +580,7 @@ class WorkWindowList(tk.Toplevel):
         self.title_bar_name.pack(side='right', fill = "both")
 
         self.lbl_emtpy = MyLabelPixel(self.title_bar_name, self.data_manager)
-        self.lbl_emtpy.configure(text = '', background=self.style_dict["titlebar_color"],height=int(30*self.geometry_factor)) # u'\U0001F532'
+        self.lbl_emtpy.configure(text = '', background=self.style_dict["titlebar_color"],height=int(30*self.geometry_factor_vertical)) # u'\U0001F532'
         self.lbl_emtpy.pack(side='right', fill = "y")
         self.lbl_emtpy.bind("<Double-Button-1>", self.status_double_click)
         self.lbl_emtpy.bind("<Button-3>", self.right_clicked)
