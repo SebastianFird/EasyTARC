@@ -43,6 +43,16 @@ class WorkWindowBox(WorkWindowCbox):
         self.btn_frame_displayed = False  
         self.main_frame_leave = True
 
+        if self.main_app.get_setting('win_dpi_awareness') == "on":
+            self.geometry_factor = round(self.main_app.get_geometry_factor(),1)
+        else:
+            self.geometry_factor = 1
+
+        if self.geometry_factor <= 1.2:
+            self.geometry_factor_vertical = self.geometry_factor
+        else:
+            self.geometry_factor_vertical = self.geometry_factor*0.8
+
         ###########
 
         self.attributes("-alpha", 0) 
@@ -192,7 +202,7 @@ class WorkWindowBox(WorkWindowCbox):
         self.title_bar_name.pack(side='right', fill = "both")
 
         self.lbl_emtpy = MyLabelPixel(self.title_bar_name, self.data_manager)
-        self.lbl_emtpy.configure(text = '', background=self.style_dict["titlebar_color"],height=int(30*round(self.main_app.get_geometry_factor()))) # u'\U0001F532'
+        self.lbl_emtpy.configure(text = '', background=self.style_dict["titlebar_color"],height=int(30*self.geometry_factor_vertical)) # u'\U0001F532'
         self.lbl_emtpy.pack(side='right',fill='y')
         self.lbl_emtpy.bind("<Double-Button-1>", self.status_double_click)
         self.lbl_emtpy.bind("<Button-3>", self.right_clicked)

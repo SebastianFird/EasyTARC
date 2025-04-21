@@ -144,7 +144,8 @@ class App():
             "open_booking_website_wait": "on",
             "open_booking_website_wait_time": "2",
             "list_work_window_attach_pos": "right",
-            "win_dpi_awareness":"on"
+            "win_dpi_awareness":"on",
+            "booking_format":"booking_by_hours"
         }
 
         ##########
@@ -1199,7 +1200,8 @@ Wenn Sie Fragen zu dieser Datenschutzerklärung haben, kontaktieren Sie uns bitt
         #check for 1.12.5 update
         if self.check_for_update_to_version_str(self.start_version,'1.12.5') == True:
             update_dict = {"font_size": "12",
-                            "win_dpi_awareness": "on"}
+                            "win_dpi_awareness": "on",
+                            "booking_format":"booking_by_hours"}
             
             self.settings_dict.update(update_dict)
 

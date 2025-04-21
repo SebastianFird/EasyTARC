@@ -66,9 +66,17 @@ class BookingRecordFrame(tk.Frame):
         self.btn_copy_hours.bind("<Enter>", self.enter_copy_hours)
         self.btn_copy_hours.bind("<Leave>", self.leave_copy_hours)
 
-        self.textBox_passed_time = MyText(self, self.data_manager,width=8,height=1,borderwidth=1)
+        self.textBox_passed_time = MyText(self, self.data_manager,width=9,height=1,borderwidth=1)
         self.textBox_passed_time.pack(side='right',padx=3)
-        self.textBox_passed_time.insert(1.0, str('{:n}'.format(round(self.record_dict['hours'],3)))) # round_time
+
+        if self.main_app.get_setting('booking_format') == 'booking_by_hours':
+            self.booking_time_str = str('{:n}'.format(round(self.record_dict['hours'],3)))
+        elif self.main_app.get_setting('booking_format') == 'booking_by_time':
+            self.booking_time_str = self.data_manager.hour_float_to_duration_str(float(self.record_dict['hours']))
+        else:
+            self.booking_time_str = "Error"
+        
+        self.textBox_passed_time.insert(1.0, self.booking_time_str) # round_time
         self.textBox_passed_time.configure(state=tk.DISABLED,inactiveselectbackground=self.textBox_passed_time.cget("selectbackground"))
 
         self.lbl_empty3 = MyLabel(self, self.data_manager, width=7)
@@ -193,7 +201,7 @@ class BookingRecordFrame(tk.Frame):
 
     def activate_copy_hours(self,e=None):
         self.gui.main_window.clipboard_clear()
-        self.gui.main_window.clipboard_append(str('{:n}'.format(round(self.record_dict['hours'],3)))) # round_time
+        self.gui.main_window.clipboard_append(self.booking_time_str) # round_time
         self.btn_copy_hours_ttp.showresponse()
         self.booking_tab.reset_clicked_record_frame_list()
         self.activate_record(e)

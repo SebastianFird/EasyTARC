@@ -541,11 +541,11 @@ class InfoWindow(tk.Toplevel):
             if self.web_link != None:
                 lbl_text.pack(pady = 0, padx=0,side="top", fill="x", expand=True)
 
-                font_family = self.main_app.get_setting('font_family')
-                font_size = str(int(self.main_app.get_setting("font_size"))-2)
-                Font_tuple = (font_family, font_size, "underline")
+                defaultFont = tk.font.nametofont("TkDefaultFont")
+                underlineFont = defaultFont.copy()
+                underlineFont.configure(underline=True)
 
-                lbl_text_web_link = MyLabel(scroll_frame, self.data_manager, text=self.web_link,wraplength=self.w-20,justify="left",font=Font_tuple)
+                lbl_text_web_link = MyLabel(scroll_frame, self.data_manager, text=self.web_link,wraplength=self.w-20,justify="left",font=underlineFont)
                 lbl_text_web_link.configure(foreground=self.style_dict["info_color_light_blue"])
                 lbl_text_web_link.pack(pady = 10, padx=0,side="top", fill="x", expand=True)
 
@@ -687,11 +687,13 @@ class InfoDictWindow(tk.Toplevel):
             bodyframe = MyFrame(self.main_frame,self.data_manager)
             scroll_frame = self.scroll.create_scroll_frame(bodyframe)
 
-            font_family = self.main_app.get_setting('font_family')
-            font_size = self.main_app.get_setting("font_size")
-            Font_tuple = (font_family, font_size, "bold")
+            defaultFont = tk.font.nametofont("TkDefaultFont")
+            boldFont = defaultFont.copy()
+            boldFont.configure(weight="bold")
 
             row_nbr = 0
+
+            widget_list = []
 
             for item in self.text_dict.items():
 
@@ -706,7 +708,7 @@ class InfoDictWindow(tk.Toplevel):
 
                 if len(value_text) > 0:
                     if value_text[0] == '#':
-                        lbl_text_col0.configure(font = Font_tuple)
+                        lbl_text_col0.configure(font = boldFont)
                         value_text = value_text[1:]
                         copy_func = False
                     elif value_text[0] == '=':
@@ -718,14 +720,21 @@ class InfoDictWindow(tk.Toplevel):
                 col_nbr = col_nbr + 1
 
                 lbl_text_col1 = MyLabel(scroll_frame, self.data_manager, text=value_text,wraplength=self.w/2, anchor='w', justify="left")
-                lbl_text_col1.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5,sticky='w')
+                
 
                 if copy_func == True:
+                    lbl_text_col1.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5,sticky='w')
                     col_nbr = col_nbr + 1
-                    btn_copy = MyCopyBtn(scroll_frame, self.data_manager, self.gui,value_text)
+                    btn_copy = MyCopyBtn(scroll_frame, self.data_manager, self.gui,value_text, anchor='w', justify="left")
+                    widget_list.append(btn_copy)
                     btn_copy.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5,sticky='w')
+                else:
+                    lbl_text_col1.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5,sticky='w',columnspan=2)
 
                 row_nbr = row_nbr + 1
+
+            for widget in widget_list:
+                scroll_frame.grid_columnconfigure(widget, weight=1)
             return(bodyframe)
 
         bodyframe = body_frame()
@@ -800,8 +809,8 @@ class ExitSavingWindow(tk.Toplevel):
         self.widget = widget
 
         self.geo_factor = self.main_app.get_geometry_factor()
-        self.w = int(round(self.geo_factor*350))
-        self.h = int(round(self.geo_factor*200))
+        self.w = int(round(self.geo_factor*330))
+        self.h = int(round(self.geo_factor*180))
 
         self.user_db = self.main_app.data_manager.user_db
 
@@ -1587,11 +1596,13 @@ class Endofworkinfo(tk.Toplevel):
             bodyframe = MyFrame(self.main_frame,self.data_manager)
             scroll_frame = self.scroll.create_scroll_frame(bodyframe)
 
-            font_family = self.main_app.get_setting('font_family')
-            font_size = self.main_app.get_setting("font_size")
-            Font_tuple = (font_family, font_size, "bold")
+            defaultFont = tk.font.nametofont("TkDefaultFont")
+            boldFont = defaultFont.copy()
+            boldFont.configure(weight="bold")
 
             row_nbr = 0
+
+            widget_list = []
 
             for item in self.text_dict.items():
 
@@ -1602,21 +1613,44 @@ class Endofworkinfo(tk.Toplevel):
                 col_nbr = 0
 
                 lbl_text_col0 = MyLabel(scroll_frame, self.data_manager, text=key_text + ': ',wraplength=self.w/2.5, anchor='w', justify="left")
-                lbl_text_col0.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5, sticky='w')
+                lbl_text_col0.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5,sticky='w')
 
                 if len(value_text) > 0:
                     if value_text[0] == '#':
-                        lbl_text_col0.configure(font = Font_tuple)
+                        lbl_text_col0.configure(font = boldFont)
                         value_text = value_text[1:]
+                        copy_func = False
+                    elif value_text[0] == '=':
+                        copy_func = True
+                        value_text = value_text[1:]
+                    else:
+                        copy_func = False
 
                 col_nbr = col_nbr + 1
 
                 lbl_text_col1 = MyLabel(scroll_frame, self.data_manager, text=value_text,wraplength=self.w/2, anchor='w', justify="left")
-                lbl_text_col1.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5, sticky='w')
+                
+
+                if copy_func == True:
+                    lbl_text_col1.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5,sticky='w')
+                    col_nbr = col_nbr + 1
+                    btn_copy = MyCopyBtn(scroll_frame, self.data_manager, self.gui,value_text, anchor='w', justify="left")
+                    widget_list.append(btn_copy)
+                    btn_copy.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5,sticky='w')
+                else:
+                    lbl_text_col1.grid(row=row_nbr, column=col_nbr, pady = 5, padx=5,sticky='w',columnspan=2)
 
                 row_nbr = row_nbr + 1
 
+            for widget in widget_list:
+                scroll_frame.grid_columnconfigure(widget, weight=1)
+
             return(bodyframe)
+
+
+
+
+
 
         bodyframe = body_frame()
         bodyframe.pack(side = "top", fill = "both", expand = True)
@@ -1931,9 +1965,9 @@ class SleepModeinfo(tk.Toplevel):
             bodyframe = MyFrame(self.main_frame,self.data_manager)
             scroll_frame = self.scroll.create_scroll_frame(bodyframe)
 
-            font_family = self.main_app.get_setting('font_family')
-            font_size = self.main_app.get_setting("font_size")
-            Font_tuple = (font_family, font_size, "bold")
+            defaultFont = tk.font.nametofont("TkDefaultFont")
+            boldFont = defaultFont.copy()
+            boldFont.configure(weight="bold")
 
             row_nbr = 0
 
@@ -1950,7 +1984,7 @@ class SleepModeinfo(tk.Toplevel):
 
                 if len(value_text) > 0:
                     if value_text[0] == '#':
-                        lbl_text_col0.configure(font = Font_tuple)
+                        lbl_text_col0.configure(font = boldFont)
                         value_text = value_text[1:]
 
                 col_nbr = col_nbr + 1

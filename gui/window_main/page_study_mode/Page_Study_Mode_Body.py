@@ -43,13 +43,13 @@ class StudyModeBody:
 
         self.after_func = None
 
-        font_family = self.main_app.get_setting('font_family')
-        font_size = str(int(self.main_app.get_setting("font_size"))+30)
-        self.Font_tuple1 = (font_family, font_size, "bold")
+        defaultFont = tk.font.nametofont("TkDefaultFont")
 
-        font_family = self.main_app.get_setting('font_family')
-        font_size = str(int(self.main_app.get_setting("font_size"))+5)
-        self.Font_tuple2 = (font_family, font_size, "normal")
+        self.biggerBoldFont = defaultFont.copy()
+        self.biggerBoldFont.configure(size=defaultFont['size'] + 30,weight="bold")
+
+        self.biggerFont = defaultFont.copy()
+        self.biggerFont.configure(size=defaultFont['size'] + 5,weight="normal")
 
         self.scroll = Scroll_Frame(self.main_app,self.gui)
 
@@ -139,7 +139,7 @@ class StudyModeBody:
         self.lbl_empty3.pack(side = "top", padx=10, pady=4)
 
         self.lbl_timer = MyLabel(self.frame_timer,self.data_manager,text='00:00:00')
-        self.lbl_timer.configure(background=self.style_dict["info_color_light_blue"],font=self.Font_tuple1,foreground=self.style_dict["font_color_black"])
+        self.lbl_timer.configure(background=self.style_dict["info_color_light_blue"],font=self.biggerBoldFont,foreground=self.style_dict["font_color_black"])
         self.lbl_timer.pack(side = "top", padx=10, pady=4)
 
         self.frame_minimize = MyFrame(self.main_frame,self.data_manager)
@@ -173,7 +173,7 @@ class StudyModeBody:
         self.btn_quit.pack(side = "left", padx=10, pady=4)
 
         self.btn_study = MyButton(self.frame_center2,self.data_manager,text=self.language_dict['start'], command=self.study_mode_page.start_switch_study_state, width=12)
-        self.btn_study.configure(font=self.Font_tuple2)
+        self.btn_study.configure(font=self.biggerFont)
         self.btn_study.pack(side = "left", padx=10, pady=4)
 
         self.btn_add_time = MyButton(self.frame_center2,self.data_manager,text='+5 ' + self.language_dict['minutes'], command=self.study_mode_page.add_5_min, width=20,state=tk.DISABLED)

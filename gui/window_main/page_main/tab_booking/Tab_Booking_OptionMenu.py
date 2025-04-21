@@ -56,15 +56,12 @@ class BookingOptionMenu(tkinter.Listbox):
 
         if len(clicked_record_frame_list) == 1 or self.main_app.get_booking_link_access() == True:
             self.optionmenu.add_separator()
-
-        if len(clicked_record_frame_list) == 1:
-            self.optionmenu.add_command(label=self.language_dict["copie_data"],command=self.copie_data)
         
         if self.main_app.get_booking_link_access() == True:
             if self.main_app.get_booking_link_dict()["booking_url_1"] != '':
                 self.optionmenu.add_command(label=self.language_dict["booking_website"],command=self.booking_tab.open_booking_website)
 
-        #self.optionmenu.add_command(label=self.language_dict["copie_json"],command=self.copie_json)
+        self.optionmenu.add_command(label=self.language_dict["copie_json"],command=self.copie_json)
 
     def popup(self, event):
         try:
@@ -103,12 +100,31 @@ class BookingOptionMenu(tkinter.Listbox):
             else:
                 name_text = record_dict['name']
 
-            data_dict = {
-                "Name":name_text,
-                "Booking-ID":record_dict['response_code'],
-                "Hours":str("{:n}".format(round(record_dict['hours'],3))),
-                "Booking text":record_dict['response_text'],
-                }
+            if self.main_app.get_setting('booking_format') == 'booking_by_hours':
+
+                data_dict = {
+                    "Name":name_text,
+                    "Booking-ID":record_dict['response_code'],
+                    "Hours":str('{:n}'.format(round(self.record_dict['hours'],3))),
+                    "Booking text":record_dict['response_text'],
+                    }
+
+            elif self.main_app.get_setting('booking_format') == 'booking_by_time':
+                self.booking_time_str = self.data_manager.hour_float_to_duration_str(float(self.record_dict['hours']))
+
+                data_dict = {
+                    "Name":name_text,
+                    "Booking-ID":record_dict['response_code'],
+                    "Time":self.data_manager.hour_float_to_duration_str(float(self.record_dict['hours'])),
+                    "Booking text":record_dict['response_text'],
+                    }
+            else:
+                data_dict = {
+                    "Name":name_text,
+                    "Booking-ID":record_dict['response_code'],
+                    "Hours":"Error",
+                    "Booking text":record_dict['response_text'],
+                    }
             
             booking_dict.update({str(counter):data_dict})
 
@@ -118,33 +134,7 @@ class BookingOptionMenu(tkinter.Listbox):
 
         self.gui.main_window.clipboard_clear()
         self.gui.main_window.clipboard_append(booking_dict)
-
-
-    def copie_data(self):
-
-        hours = str("{:n}".format(round(self.record_dict['hours'],3)))
-
-        #####
-
-        if str(self.record_dict['response_code']) == ' - ' or str(self.record_dict['response_code']) == '':
-            response_code = ''
-        else:
-            response_code = '__' + str(self.record_dict['response_code']) 
-
-        #####
-
-        if str(self.record_dict['response_text']) == ' - ' or str(self.record_dict['response_text']) == '':
-            response_text = ''
-        else:
-            response_text =  str(self.record_dict['response_text']) + '__'
-
-        #####
-
-        record = response_text + hours + response_code
-
-        self.gui.main_window.clipboard_clear()
-        self.gui.main_window.clipboard_append(record)
-
+        
 
     def show_clock_info(self):
         if self.record_dict['account_kind'] == 1:

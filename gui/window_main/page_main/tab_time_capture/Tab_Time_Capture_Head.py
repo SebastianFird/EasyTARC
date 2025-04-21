@@ -218,22 +218,25 @@ class CaptureHead:
         system_start_time = self.main_app.get_system_start_time()
         
         if system_start_time != None:
-            info_dict.update({self.language_dict["system_start_time"]:str(system_start_time.strftime('%H:%M'))+ ' ' + self.language_dict["o_clock"]})
+            info_dict.update({self.language_dict["system_start_time"]:'='+str(system_start_time.strftime('%H:%M'))+ ' ' + self.language_dict["o_clock"]})
 
-        info_dict.update({self.language_dict["recording_start"]:str(self.data_manager.get_start_timestamp().strftime('%H:%M')) + ' ' + self.language_dict["o_clock"]})
+        info_dict.update({self.language_dict["recording_start"]:'='+str(self.data_manager.get_start_timestamp().strftime('%H:%M')) + ' ' + self.language_dict["o_clock"]})
 
         pause_shift_list_list = pause_clock.get_time_str_list_list()
         if pause_shift_list_list != []:
             pause_counter = 1
             for pause_shift in pause_shift_list_list:
-                #pause_text =  pause_shift[0] + ' '+ self.language_dict["o_clock"] + ' ' + self.language_dict["to"] +' ' + pause_shift[1] + ' '+ self.language_dict["o_clock"] + '\n(' + self.language_dict["duration"] + ': ' + pause_shift[2] + ')'
-                pause_text =  pause_shift[0] + ' '+ self.language_dict["o_clock"] + '\n -> ' + pause_shift[2] + '\n' + pause_shift[1] + ' '+ self.language_dict["o_clock"]
-                info_dict.update({self.language_dict["break"] + ' ' + str(pause_counter):pause_text})
+                pause_text_1 =  pause_shift[0] + ' '+ self.language_dict["o_clock"] 
+                pause_text_2 =  pause_shift[2] 
+                pause_text_3 =  pause_shift[1] + ' '+ self.language_dict["o_clock"]
+                info_dict.update({self.language_dict["start"] + ' ' + self.language_dict["break"] + ' ' + str(pause_counter):'='+pause_text_1})
+                info_dict.update({'   ' + self.language_dict["break_abbreviation"] + str(pause_counter) + ' ' + self.language_dict["duration"]  :pause_text_2})
+                info_dict.update({'   ' +self.language_dict["break_abbreviation"] + str(pause_counter) + ' ' + self.language_dict["end"]:'='+pause_text_3})
                 pause_counter = pause_counter + 1
 
         end_timestamp = self.data_manager.get_end_timestamp()
         if end_timestamp != None:
-            info_dict.update({self.language_dict["recording_closed"]:str(self.data_manager.get_end_timestamp().strftime('%H:%M')) + ' '+ self.language_dict["o_clock"]})
+            info_dict.update({self.language_dict["recording_closed"]:'='+str(self.data_manager.get_end_timestamp().strftime('%H:%M')) + ' '+ self.language_dict["o_clock"]})
             recording_period = self.data_manager.get_end_timestamp() - self.data_manager.get_start_timestamp()
         else:
             recording_period = datetime.datetime.now() - self.data_manager.get_start_timestamp()

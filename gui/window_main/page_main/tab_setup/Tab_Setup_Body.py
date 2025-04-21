@@ -63,9 +63,9 @@ class SetupBody:
 
     def create_main_frame(self,container):
 
-        font_family = self.main_app.get_setting('font_family')
-        font_size = self.main_app.get_setting("font_size")
-        Font_tuple = (font_family, font_size, "bold")
+        defaultFont = tk.font.nametofont("TkDefaultFont")
+        boldFont = defaultFont.copy()
+        boldFont.configure(weight="bold")
 
         self.main_frame = MyFrame(container,self.data_manager)
         self.main_frame.pack(side = "top", fill = "both", expand = True)
@@ -78,7 +78,7 @@ class SetupBody:
         self.head_appearance_frame.pack(side = "top",fill='x')
 
         self.lbl_category_appearance = MyLabel(self.head_appearance_frame,self.data_manager,text = self.language_dict['appearance'], anchor = 'w', width=35)
-        self.lbl_category_appearance.configure(font = Font_tuple)
+        self.lbl_category_appearance.configure(font = boldFont)
         self.lbl_category_appearance.pack(side = "left", padx=15)
 
         self.appearance_frame = MyFrame(self.main_frame,self.data_manager)
@@ -171,7 +171,7 @@ class SetupBody:
         self.head_link_frame.pack(side = "top",fill='x')
 
         self.lbl_category_link = MyLabel(self.head_link_frame,self.data_manager,text = self.language_dict['app_links'], anchor = 'w', width=35)
-        self.lbl_category_link.configure(font = Font_tuple)
+        self.lbl_category_link.configure(font = boldFont)
         self.lbl_category_link.pack(side = "left", padx=15)
 
         self.link_frame = MyFrame(self.main_frame,self.data_manager)
@@ -238,7 +238,7 @@ class SetupBody:
         self.head_folder_frame.pack(side = "top",fill='x')
 
         self.lbl_category_folder = MyLabel(self.head_folder_frame,self.data_manager,text = self.language_dict['folder'], anchor = 'w', width=35)
-        self.lbl_category_folder.configure(font = Font_tuple)
+        self.lbl_category_folder.configure(font = boldFont)
         self.lbl_category_folder.pack(side = "left", padx=15)
 
         self.folder_frame = MyFrame(self.main_frame,self.data_manager)
@@ -297,7 +297,7 @@ class SetupBody:
         self.head_websites_frame.pack(side = "top",fill='x')
 
         self.lbl_category_websites = MyLabel(self.head_websites_frame,self.data_manager,text = self.language_dict['websites'], anchor = 'w', width=35)
-        self.lbl_category_websites.configure(font = Font_tuple)
+        self.lbl_category_websites.configure(font = boldFont)
         self.lbl_category_websites.pack(side = "left", padx=15)
 
         self.websites_frame = MyFrame(self.main_frame,self.data_manager)
@@ -382,7 +382,7 @@ class SetupBody:
         self.head_sleep_mode_frame.pack(side = "top",fill='x')
 
         self.lbl_category_sleep_mode = MyLabel(self.head_sleep_mode_frame,self.data_manager,text = self.language_dict['sleep_mode'], anchor = 'w', width=35)
-        self.lbl_category_sleep_mode.configure(font = Font_tuple)
+        self.lbl_category_sleep_mode.configure(font = boldFont)
         self.lbl_category_sleep_mode.pack(side = "left", padx=15)
 
         self.sleep_mode_frame = MyFrame(self.main_frame,self.data_manager)
@@ -458,7 +458,7 @@ class SetupBody:
         self.head_rate_frame.pack(side = "top",fill='x')
 
         self.lbl_category_rate = MyLabel(self.head_rate_frame,self.data_manager,text = self.language_dict['rate'], anchor = 'w', width=35)
-        self.lbl_category_rate.configure(font = Font_tuple)
+        self.lbl_category_rate.configure(font = boldFont)
         self.lbl_category_rate.pack(side = "left", padx=15)
 
         self.rate_frame = MyFrame(self.main_frame,self.data_manager)
@@ -495,7 +495,7 @@ class SetupBody:
         self.head_workwindow_frame.pack(side = "top",fill='x')
 
         self.lbl_category_workwindow = MyLabel(self.head_workwindow_frame,self.data_manager,text = self.language_dict['working_window'], anchor = 'w', width=35)
-        self.lbl_category_workwindow.configure(font = Font_tuple)
+        self.lbl_category_workwindow.configure(font = boldFont)
         self.lbl_category_workwindow.pack(side = "left", padx=15)
 
         self.workwindow_frame = MyFrame(self.main_frame,self.data_manager)
@@ -551,7 +551,7 @@ class SetupBody:
         self.head_database_frame.pack(side = "top",fill='x')
 
         self.lbl_category_database = MyLabel(self.head_database_frame,self.data_manager,text = self.language_dict['database'], anchor = 'w', width=35)
-        self.lbl_category_database.configure(font = Font_tuple)
+        self.lbl_category_database.configure(font = boldFont)
         self.lbl_category_database.pack(side = "left", padx=15)
 
         self.database_frame = MyFrame(self.main_frame,self.data_manager)
@@ -740,6 +740,9 @@ class SetupBody:
         dpi_awareness = self.clicked_dpi_awareness.get()
         self.main_app.change_settings('win_dpi_awareness',self.language_dict[dpi_awareness])
         self.update_btn_set_dpi_awareness()
+
+        text = self.language_dict['restart_easytarc_for_setting']
+        info_window = InfoWindow(self.main_app, self.gui, self.setup_tab.main_frame ,text,350,150)
 
 
 ###############################
@@ -1385,11 +1388,11 @@ class SetupBody:
         self.lbl_simplify_data_info_ttp.refresh()
         self.lbl_delete_data_info_ttp.refresh()
 
-        font_family = self.main_app.get_setting('font_family')
-        font_size = self.main_app.get_setting("font_size")
-        Font_tuple = (font_family, font_size, "bold")
+        defaultFont = tk.font.nametofont("TkDefaultFont")
+        boldFont = defaultFont.copy()
+        boldFont.configure(weight="bold")
 
-        self.lbl_category_appearance.configure(font = Font_tuple)
+        self.lbl_category_appearance.configure(font = boldFont)
         self.lbl_category_appearance.configure(text = self.language_dict['appearance'])
         self.lbl_style.configure(text = '   ' + self.language_dict['style'])
         self.btn_set_style.configure(text=self.language_dict['apply'])
@@ -1404,7 +1407,7 @@ class SetupBody:
         
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
 
-        self.lbl_category_link.configure(font = Font_tuple)
+        self.lbl_category_link.configure(font = boldFont)
         self.lbl_category_link.configure(text = self.language_dict['app_links'])
         self.lbl_start_up_link.configure(text = '   ' + self.language_dict['start_up_link'])
         self.btn_set_start_up_link.configure(text=self.language_dict['add'])
@@ -1415,7 +1418,7 @@ class SetupBody:
 
         self.separator_frame_2.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
 
-        self.lbl_category_folder.configure(font = Font_tuple)
+        self.lbl_category_folder.configure(font = boldFont)
         self.lbl_category_folder.configure(text=self.language_dict['folder'])
         self.lbl_back_up_folder.configure(text=self.language_dict['back_up_2'])
         self.btn_remove_back_up_folder.configure(text=self.language_dict['remove'])
@@ -1426,7 +1429,7 @@ class SetupBody:
 
         self.separator_frame_3.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
 
-        self.lbl_category_websites.configure(font = Font_tuple)
+        self.lbl_category_websites.configure(font = boldFont)
         self.lbl_category_websites.configure(text=self.language_dict['websites'])
         self.btn_web_link_1.configure(text=self.language_dict['open_up'])
         self.btn_web_link_2.configure(text=self.language_dict['open_up'])
@@ -1435,7 +1438,7 @@ class SetupBody:
 
         self.separator_frame_4.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
 
-        self.lbl_category_sleep_mode.configure(font = Font_tuple)
+        self.lbl_category_sleep_mode.configure(font = boldFont)
         self.lbl_category_sleep_mode.configure(text=self.language_dict['sleep_mode'])
         self.lbl_sleep_mode.configure(text=self.language_dict['status'])
         self.btn_set_sleep_mode.configure(text=self.language_dict['apply'])
@@ -1450,7 +1453,7 @@ class SetupBody:
 
         self.separator_frame_5.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
 
-        self.lbl_category_rate.configure(font = Font_tuple)
+        self.lbl_category_rate.configure(font = boldFont)
         self.lbl_category_rate.configure(text=self.language_dict['rate'])
         self.lbl_rate.configure(text=self.language_dict['display'])
         self.btn_set_rate.configure(text=self.language_dict['apply'])
@@ -1459,7 +1462,7 @@ class SetupBody:
 
         self.separator_frame_6.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
 
-        self.lbl_category_workwindow.configure(font = Font_tuple)
+        self.lbl_category_workwindow.configure(font = boldFont)
         self.lbl_category_workwindow.configure(text=self.language_dict['working_window'])
         self.lbl_dynamic_opacity.configure(text=self.language_dict['dynamic_opacity']+ ' [%]')
         self.btn_set_dynamic_opacity.configure(text=self.language_dict['apply'])
@@ -1473,7 +1476,7 @@ class SetupBody:
 
         self.separator_frame_7.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
 
-        self.lbl_category_database.configure(font = Font_tuple)
+        self.lbl_category_database.configure(font = boldFont)
         self.lbl_category_database.configure(text=self.language_dict['database'])
         self.lbl_simplify_data.configure(text=self.language_dict['compression_of_data'])
         self.lbl_delete_data.configure(text=self.language_dict['delete_data'])

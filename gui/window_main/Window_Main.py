@@ -63,8 +63,8 @@ class MainWindow(tk.Frame):
         if width >= screen_width*0.9:
             width = int(round(screen_width*0.9))
 
-        if height >= screen_height*0.8:
-            height = int(round(screen_height*0.8))
+        if height >= screen_height*0.7:
+            height = int(round(screen_height*0.7))
 
         x_pos = int(round(screen_width/2 - width/2))
         y_pos = int(round(screen_height/2 - height/2))

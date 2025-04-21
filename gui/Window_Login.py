@@ -56,17 +56,19 @@ class LoginWindow(tk.Frame):
         self.language_dict = self.data_manager.get_language_dict()
         self.image_dict = self.data_manager.get_image_dict()
 
-        font_family = self.main_app.get_setting('font_family')
-        font_size = self.main_app.get_setting("font_size")
-        self.Font_tuple = (font_family, font_size, "bold")
+        defaultFont = tk.font.nametofont("TkDefaultFont")
 
-        font_size_2 = str(int(self.main_app.get_setting("font_size")) + 5)
-        self.Font_tuple_head = (font_family, font_size_2, "bold")
+        self.boldFont = defaultFont.copy()
+        self.boldFont.configure(weight="bold")
 
-        font_size_3 = str(int(self.main_app.get_setting("font_size")) - 1)
-        self.Font_tuple_small = (font_family, font_size_3, "normal")
+        self.biggerBoldFont = defaultFont.copy()
+        self.biggerBoldFont.configure(size=defaultFont['size'] + 5,weight="bold")
 
-        self.Font_tuple_underline = font.Font(family=font_family, size=int(self.main_app.get_setting("font_size")),underline=True)
+        self.smallerFont = defaultFont.copy()
+        self.smallerFont.configure(size=defaultFont['size'] - 1)
+
+        self.underlineFont = defaultFont.copy()
+        self.underlineFont.configure(underline=True)
 
         self.x_win = None
         self.y_win = None
@@ -136,7 +138,7 @@ class LoginWindow(tk.Frame):
         self.main_head_frame.pack(side = "top", fill = "x")
 
         self.lbl_welcome = MyLabel(self.main_head_frame, self.data_manager, text=self.language_dict['welcome'])
-        self.lbl_welcome.configure(font = self.Font_tuple_head)
+        self.lbl_welcome.configure(font = self.biggerBoldFont)
         self.lbl_welcome.configure(background=self.style_dict["header_color_blue"],foreground=self.style_dict["font_color_white"])
         self.lbl_welcome.pack(side='top',padx=10,pady=10, fill = "x")
 
@@ -184,7 +186,7 @@ class LoginWindow(tk.Frame):
         self.lbl_description_info.pack(side = "left")
 
         self.lbl_short_description = MyLabel(self.short_description_frame, self.data_manager, text=self.language_dict['easy_tarc_short_description'] + '\n\n' + self.language_dict['info_description_1'] + u'\U00002139' + self.language_dict['info_description_2'],anchor='w',justify='left')
-        self.lbl_short_description.configure(font=self.Font_tuple_small)
+        self.lbl_short_description.configure(font=self.smallerFont)
         self.lbl_short_description.pack(side='left',pady=10)
 
         self.sign_up_settings_frame = MyFrame(self.top_frame,self.data_manager)
@@ -257,7 +259,7 @@ class LoginWindow(tk.Frame):
         self.separator_frame_1.pack(side = "top",fill='x',pady=1)
 
         self.lbl_permisson_headline = MyLabel(self.permission_frame_head,self.data_manager,text = self.language_dict['permission'], anchor = 'w', width=35)
-        self.lbl_permisson_headline.configure(font = self.Font_tuple)
+        self.lbl_permisson_headline.configure(font = self.boldFont)
         self.lbl_permisson_headline.pack(side = "left", padx=5)
 
         #########
@@ -378,7 +380,7 @@ class LoginWindow(tk.Frame):
         self.separator_frame_2.pack(side = "top",fill='x',pady=1)
 
         self.lbl_db_config_headline = MyLabel(self.db_config_frame_head,self.data_manager,text = self.language_dict['db_config'], anchor = 'w', width=35)
-        self.lbl_db_config_headline.configure(font = self.Font_tuple)
+        self.lbl_db_config_headline.configure(font = self.boldFont)
         self.lbl_db_config_headline.pack(side = "left", padx=5)
 
         #########
@@ -412,7 +414,7 @@ class LoginWindow(tk.Frame):
         self.lbl_empty_4.pack(side = "top",fill='x')
 
         self.lbl_db_password_headline = MyLabel(self.password_frame_head,self.data_manager,text = self.language_dict['set_password'], anchor = 'w', width=35)
-        self.lbl_db_password_headline.configure(font = self.Font_tuple)
+        self.lbl_db_password_headline.configure(font = self.boldFont)
         self.lbl_db_password_headline.pack(side = "left", padx=5)
 
         #########
@@ -474,13 +476,13 @@ class LoginWindow(tk.Frame):
         self.lbl_accept_2.pack(side = "left")
         self.lbl_accept_2.bind('<Button-1>',self.toggle_accept_2)
 
-        self.btn_policy_2 = MyLabel(self.apply_frame_accept,self.data_manager,anchor='w',justify='left',width=20,text=self.language_dict["privacy_policy"], font=self.Font_tuple_underline)
+        self.btn_policy_2 = MyLabel(self.apply_frame_accept,self.data_manager,anchor='w',justify='left',width=20,text=self.language_dict["privacy_policy"], font=self.underlineFont)
         self.btn_policy_2.configure(foreground=self.style_dict["header_color_blue"])
         self.btn_policy_2.pack(side = "left")
 
         self.btn_policy_2.bind('<Button-1>',self.show_privacy_policy)
 
-        self.btn_license_2 = MyLabel(self.apply_frame_accept,self.data_manager,anchor='w',justify='left',width=10,text=self.language_dict["license"], font=self.Font_tuple_underline)
+        self.btn_license_2 = MyLabel(self.apply_frame_accept,self.data_manager,anchor='w',justify='left',width=10,text=self.language_dict["license"], font=self.underlineFont)
         self.btn_license_2.configure(foreground=self.style_dict["header_color_blue"])
         self.btn_license_2.pack(side = "left")
 
@@ -496,7 +498,7 @@ class LoginWindow(tk.Frame):
         self.btn_start_easytarc = MyButton(self.apply_frame_head, self.data_manager, text=self.language_dict["start_easytarc"],width=40,command=self.sign_up)
         self.btn_start_easytarc.pack(side='top',padx = 10)
 
-        self.btn_start_easytarc.configure(font = self.Font_tuple)
+        self.btn_start_easytarc.configure(font = self.boldFont)
 
         self.lbl_empty_5 = MyLabel(self.apply_frame_head,self.data_manager,anchor='w',justify='left',width=4)
         self.lbl_empty_5.pack(side = "top",fill='x')
@@ -613,7 +615,7 @@ class LoginWindow(tk.Frame):
         self.separator_frame_5.pack(side = "top",fill='x')
 
         self.lbl_transfer_data_headline = MyLabel(self.transfer_data_frame_head,self.data_manager,text = self.language_dict['transfer_data'], anchor = 'w', width=35)
-        self.lbl_transfer_data_headline.configure(font = self.Font_tuple)
+        self.lbl_transfer_data_headline.configure(font = self.boldFont)
         self.lbl_transfer_data_headline.pack(side = "left", padx=5)
 
         #########
@@ -707,13 +709,13 @@ class LoginWindow(tk.Frame):
         self.lbl_accept_1.pack(side = "left")
         self.lbl_accept_1.bind('<Button-1>',self.toggle_accept_1)
 
-        self.btn_policy_1 = MyLabel(self.apply_frame_accept,self.data_manager,anchor='w',justify='left',width=20,text=self.language_dict["privacy_policy"], font=self.Font_tuple_underline)
+        self.btn_policy_1 = MyLabel(self.apply_frame_accept,self.data_manager,anchor='w',justify='left',width=20,text=self.language_dict["privacy_policy"], font=self.underlineFont)
         self.btn_policy_1.configure(foreground=self.style_dict["header_color_blue"])
         self.btn_policy_1.pack(side = "left")
 
         self.btn_policy_1.bind('<Button-1>',self.show_privacy_policy)
 
-        self.btn_license_1 = MyLabel(self.apply_frame_accept,self.data_manager,anchor='w',justify='left',width=20,text=self.language_dict["license"], font=self.Font_tuple_underline)
+        self.btn_license_1 = MyLabel(self.apply_frame_accept,self.data_manager,anchor='w',justify='left',width=20,text=self.language_dict["license"], font=self.underlineFont)
         self.btn_license_1.configure(foreground=self.style_dict["header_color_blue"])
         self.btn_license_1.pack(side = "left")
 
@@ -729,7 +731,7 @@ class LoginWindow(tk.Frame):
         self.btn_start_transfer = MyButton(self.apply_transfer_frame, self.data_manager, text=self.language_dict["start_easytarc"],width=40,command= self.transfer_data)
         self.btn_start_transfer.pack(side='top',padx = 10)
 
-        self.btn_start_transfer.configure(font = self.Font_tuple)
+        self.btn_start_transfer.configure(font = self.boldFont)
 
         self.lbl_empty_6 = MyLabel(self.apply_transfer_frame,self.data_manager,anchor='w',justify='left',width=4)
         self.lbl_empty_6.pack(side = "top",fill='x')
@@ -885,7 +887,7 @@ class LoginWindow(tk.Frame):
         self.lbl_empty_4.pack(side = "top",fill='x')
 
         self.lbl_db_password_headline = MyLabel(self.password_frame_head,self.data_manager,text = self.language_dict['password'], anchor = 'w', width=35)
-        self.lbl_db_password_headline.configure(font = self.Font_tuple)
+        self.lbl_db_password_headline.configure(font = self.boldFont)
         self.lbl_db_password_headline.pack(side = "left", padx=5)
 
         #########
@@ -919,7 +921,7 @@ class LoginWindow(tk.Frame):
         self.btn_start_sign_in = MyButton(self.apply_frame_head, self.data_manager, text=self.language_dict["start_easytarc"],width=40,command=self.sign_in)
         self.btn_start_sign_in.pack(side='top',padx = 10)
 
-        self.btn_start_sign_in.configure(font = self.Font_tuple)
+        self.btn_start_sign_in.configure(font = self.boldFont)
 
         self.lbl_empty_5 = MyLabel(self.apply_frame_head,self.data_manager,anchor='w',justify='left',width=4)
         self.lbl_empty_5.pack(side = "top",fill='x')

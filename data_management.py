@@ -512,7 +512,7 @@ class DataManager:
         btn_3_width = 32
         btn_height = 18
 
-        geometry_factor = self.main_app.get_geometry_factor()*1.1
+        geometry_factor = self.main_app.get_geometry_factor()
 
         icon_btn_size = (int(round(geometry_factor*icon_width)),int(round(geometry_factor*icon_height)))
         activation_btn_size = (int(round(geometry_factor*btn_1_width)),int(round(geometry_factor*btn_height)))

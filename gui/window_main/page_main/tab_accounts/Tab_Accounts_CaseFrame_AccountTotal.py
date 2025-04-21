@@ -138,9 +138,9 @@ class GroupFrame((tk.Frame)):
 
     def create_group_head_frame(self):
 
-        font_family = self.main_app.get_setting('font_family')
-        font_size = self.main_app.get_setting("font_size")
-        Font_tuple = (font_family, font_size, "bold")
+        defaultFont = tk.font.nametofont("TkDefaultFont")
+        boldFont = defaultFont.copy()
+        boldFont.configure(weight="bold")
 
         self.separator_frame_1 = MyFrame(self.group_frame,self.data_manager)
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
@@ -151,7 +151,7 @@ class GroupFrame((tk.Frame)):
             self.group_name_frame.pack(side = "top",fill='x')
             
         self.lbl_group = MyLabel(self.group_name_frame,self.data_manager,text = '  ' + str(self.group_name), anchor = 'w')
-        self.lbl_group.configure(font = Font_tuple)
+        self.lbl_group.configure(font = boldFont)
         self.lbl_group.pack(side = "left")
 
         self.lbl_group_edit = MyLabel(self.group_name_frame,self.data_manager,text=u'\U0001F58D',width=5, anchor = 'w')

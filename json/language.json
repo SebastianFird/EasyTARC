@@ -167,7 +167,6 @@
         "Dynamisch" : "dynamic_view",
         "tips_and_tricks_9" : "Wechseln der Ansicht statischer Arbeitsfenster:\nZum Wechseln von der 'Ansicht Info' zur 'Ansicht Steuerung' und umgekehrt, kannst du einfach einen Doppelklick auf den angezeigten Namen des gerade aktiven Zeitkontos machen.",
         "release_note_text_4" : " 1.6.3 (19.09.2023)\n - Das neue Verhalten der Arbeitsfenster aus dem letzten Update wurde überarbeitet.",
-        "booking_reminder_2" : "Hinweis: Erinnerung zum Verbuchen. Du hast viele ungebuchte Stunden.",
         "list" : "Liste",
         "Liste" : "list",
         "dropdown" : "Dropdown",
@@ -485,7 +484,13 @@
         "pivot_month_accounts":"Pivot Monatlich",
         "pivot_accounts":"Pivot Zeitkonten",
         "pivot_accounts_month":"Pivot Zeitkonten monatlich",
-        "beginner_web_link":"Erfahre mehr zu EasyTARC unter:"
+        "beginner_web_link":"Erfahre mehr zu EasyTARC unter:",
+        "restart_easytarc_for_setting":"Du musst EasyTARC beenden und neu starten, damit diese Einstellung aktiv wird.",
+        "booking_reminder_many_unbooked_hours_1" : "Hinweis: Erinnerung zum Verbuchen. Du hast",
+        "booking_reminder_many_unbooked_hours_2" : "ungebuchte Stunden.",
+        "break_abbreviation":"P",
+        "booking_by_hours":"Stunden",
+        "booking_by_time":"--:--:--"
     },
     "english": 
     {
@@ -655,7 +660,6 @@
         "Dynamic" : "dynamic_view",
         "tips_and_tricks_9" : "Switching the view of static work windows:\nTo switch from the 'Info view' to the 'Control view' and vice versa, simply double-click on the name of the currently active time account.",
         "release_note_text_4" : " 1.6.3 (19.09.2023)\n - The new behaviour of the working windows from the last update has been revised.",
-        "booking_reminder_2" : "Note: Reminder to book. You have many unbooked hours.",
         "list" : "List",
         "List" : "list",
         "dropdown" : "Dropdown",
@@ -973,6 +977,12 @@
         "pivot_month_accounts":"Pivot monthly",
         "pivot_accounts":"Pivot accounts total",
         "pivot_accounts_month":"Pivot accounts per month",
-        "beginner_web_link":"Find out more about EasyTARC at:"
+        "beginner_web_link":"Find out more about EasyTARC at:",
+        "restart_easytarc_for_setting":"You must exit and restart EasyTARC for this setting to become active.",
+        "booking_reminder_many_unbooked_hours_1" : "Note: Reminder to book. You have",
+        "booking_reminder_many_unbooked_hours_2" : "unbooked hours.",
+        "break_abbreviation":"B",
+        "booking_by_hours":"Hours",
+        "booking_by_time":"--:--:--"
     }
 }

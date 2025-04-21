@@ -213,6 +213,7 @@ class ClockFrame(tk.Frame):
         self.response_text_cbox.bind("<FocusOut>", self.update_response_text_to_clock)  
         self.response_text_cbox.bind("<Button-1>", self.response_text_clicked) #self.capture_tab.unbind_scrolling()
         self.response_text_cbox.bind("<<ComboboxSelected>>", self.update_response_text_to_clock)
+        self.response_text_cbox.bind("<Button-3>", self.open_response_text_dropdown)
 
         self.cbox_response_text_ttp = CreateInfo(self.response_text_cbox, self.data_manager,0, 30)
         self.response_text_cbox.bind("<Enter>", self.enter_cbox_response_text)
@@ -317,7 +318,12 @@ class ClockFrame(tk.Frame):
 
     def enter_cbox_response_text(self,e=None):
         response_text = self.clock.get_response_text()
-        self.cbox_response_text_ttp.text = response_text
+        if response_text != '':
+            text = response_text + '\n' + self.language_dict["right_click"]
+        else:
+            text = ''
+
+        self.cbox_response_text_ttp.text = text
         self.cbox_response_text_ttp.scheduleinfo()
 
     def leave_cbox_response_text(self,e=None):
@@ -770,6 +776,9 @@ class ClockFrame(tk.Frame):
     def response_text_clicked(self,e=None):
         self.capture_tab.unbind_scrolling()
         self.update_response_text_to_clock()
+
+    def open_response_text_dropdown(self,e=None):
+        self.response_text_cbox.event_generate("<Button-1>")
 
     def update_response_text_to_clock(self,e=None):
         response_text = self.entered_response_text.get()

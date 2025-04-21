@@ -77,7 +77,11 @@ class WorkWindowList(tk.Toplevel):
         self.ww_bar_attach_pos = self.main_app.get_setting('bar_work_window_attach_pos')
         self.attach_pos = self.main_app.get_setting('list_work_window_attach_pos')
 
-        self.geometry_factor = round(self.main_app.get_geometry_factor(),1)
+
+        if self.main_app.get_setting('win_dpi_awareness') == "on":
+            self.geometry_factor = round(self.main_app.get_geometry_factor(),1)
+        else:
+            self.geometry_factor = 1
 
         if self.geometry_factor <= 1.2:
             self.geometry_factor_vertical = self.geometry_factor
@@ -795,9 +799,9 @@ class GroupFrame((tk.Frame)):
 
     def create_main_frame(self):
 
-        font_family = self.main_app.get_setting('font_family')
-        font_size = self.main_app.get_setting("font_size")
-        Font_tuple = (font_family, font_size, "bold")
+        defaultFont = tk.font.nametofont("TkDefaultFont")
+        boldFont = defaultFont.copy()
+        boldFont.configure(weight="bold")
 
         self.separator_frame_1 = MyFrame(self,self.data_manager)
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["selected_color_grey"],highlightbackground=self.style_dict["selected_color_grey"])
@@ -807,7 +811,7 @@ class GroupFrame((tk.Frame)):
         self.group_frame.pack(side = "top",fill='x')
 
         self.lbl_group = MyLabel(self.group_frame,self.data_manager,text = '     '+str(self.group) + ':', anchor = 'w')
-        self.lbl_group.configure(font = Font_tuple)
+        self.lbl_group.configure(font = boldFont)
         self.lbl_group.pack(side = "left")
         return
 

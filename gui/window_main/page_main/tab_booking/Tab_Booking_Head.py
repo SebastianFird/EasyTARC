@@ -90,6 +90,10 @@ class BookingHead:
         self.booking_view_cbox = MyCombobox(self.main_head_frame, state="readonly", width = 45, textvariable = self.clicked_booking_view)
         self.booking_view_cbox.pack(side='left',padx = 10,pady=15)
 
+        self.clicked_booking_format = tk.StringVar()
+        self.booking_format_cbox = MyCombobox(self.main_head_frame, state="readonly", width = 15, textvariable = self.clicked_booking_format)
+        self.booking_format_cbox.pack(side='left',padx = 10,pady=15)
+
         self.btn_reload = MyButton(self.main_head_frame, self.data_manager, text=u'\U00002B6E',width=5,command=self.set_booking_view) # 27F3 # U00002B6E #U000021BB
         self.btn_reload.pack(side='left',padx = 10,pady=10)  
 
@@ -99,7 +103,9 @@ class BookingHead:
                 self.btn_booking_website.pack(side='right',padx = 10,pady=10)   
         
         self.set_booking_view_cblist()
+        self.set_booking_format_cblist() 
         self.booking_view_cbox.bind("<<ComboboxSelected>>", self.set_booking_view)
+        self.booking_format_cbox.bind("<<ComboboxSelected>>", self.set_booking_format)
 
         self.update_main_head()
         return
@@ -125,11 +131,32 @@ class BookingHead:
             self.show_cumulativ_booking_subaccounts()
         return
     
+    def set_booking_format_cblist(self):
+        self.booking_format_cbox['values'] = [self.language_dict["booking_by_hours"],self.language_dict["booking_by_time"]]
+        if self.main_app.get_setting('booking_format') == 'booking_by_hours':
+            self.booking_format_cbox.current(0)
+        elif self.main_app.get_setting('booking_format') == 'booking_by_time':
+            self.booking_format_cbox.current(1)
+        else:
+            self.booking_format_cbox.current(0)
+    
+    def set_booking_format(self,e=None):
+        booking_format = self.clicked_booking_format.get()
+        if booking_format == self.language_dict["booking_by_hours"]:
+            self.main_app.change_settings("booking_format","booking_by_hours")
+        elif booking_format == self.language_dict["booking_by_time"]:
+            self.main_app.change_settings("booking_format","booking_by_time")
+        else:
+            self.main_app.change_settings("booking_format","booking_by_hours")
+        self.set_booking_view()
+        return
+    
     def select_all_open_booking_website(self):
         self.booking_tab.open_booking_website(True)
 
     def update_main_head(self):
-        self.set_booking_view_cblist()        
+        self.set_booking_view_cblist()     
+        self.set_booking_format_cblist()   
         return
 
     def refresh_main_head(self):
@@ -218,13 +245,13 @@ class BookingHead:
         self.passed_time_visible_frame = MyFrame(self.passed_time_frame,self.data_manager)
         self.passed_time_visible_frame.pack(side = "top",fill='y')
 
-        self.lbl_empty7 = MyLabel(self.passed_time_visible_frame, self.data_manager, width=2)
+        self.lbl_empty7 = MyLabel(self.passed_time_visible_frame, self.data_manager)
         self.lbl_empty7.pack(side='right',padx=3)
 
-        self.lbl_passed_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=self.language_dict["hours"] + ' [' + self.language_dict["hours_abbreviation"] + ']',width=9)
-        self.lbl_passed_time.pack(side='right',padx = 3)
+        self.lbl_passed_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=self.language_dict["working_time"],width=15)
+        self.lbl_passed_time.pack(side='right')
 
-        self.lbl_empty8 = MyLabel(self.passed_time_visible_frame, self.data_manager, width=5)
+        self.lbl_empty8 = MyLabel(self.passed_time_visible_frame, self.data_manager)
         self.lbl_empty8.pack(side='right',padx=3)
 
         ################
@@ -361,7 +388,7 @@ class BookingHead:
 
         self.lbl_booking.configure(text=self.language_dict["book"])
         self.lbl_response.configure(text=self.language_dict["response_text"])
-        self.lbl_passed_time.configure(text=self.language_dict["hours"])
+        self.lbl_passed_time.configure(text=self.language_dict["working_time"])
         self.lbl_response_code.configure(text=self.language_dict["response_code"])
         self.lbl_name.configure(text=self.language_dict["name"])
 

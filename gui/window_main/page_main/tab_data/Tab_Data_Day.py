@@ -126,9 +126,9 @@ class DataDateFrame:
         self.main_frame = MyFrame(container,self.data_manager)
         self.main_frame.pack(side = "top", fill = "x")
 
-        font_family = self.main_app.get_setting('font_family')
-        font_size = self.main_app.get_setting("font_size")
-        Font_tuple = (font_family, font_size, "bold")
+        defaultFont = tk.font.nametofont("TkDefaultFont")
+        boldFont = defaultFont.copy()
+        boldFont.configure(weight="bold")
 
         self.separator_frame_1 = MyFrame(self.main_frame,self.data_manager)
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
@@ -156,7 +156,7 @@ class DataDateFrame:
         }
         date_info = ' ' + date_str + '   -   ' + weekdy_dict[weekday_nbr]
         self.lbl_date = MyLabel(self.date_frame,self.data_manager,text = date_info, anchor = 'w', width=30)
-        self.lbl_date.configure(font = Font_tuple)
+        self.lbl_date.configure(font = boldFont)
         self.lbl_date.pack(side = "left")
 
         #############
@@ -188,9 +188,9 @@ class DataDateFrame:
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
 
-        font_family = self.main_app.get_setting('font_family')
-        font_size = self.main_app.get_setting("font_size")
-        Font_tuple = (font_family, font_size, "bold")
+        defaultFont = tk.font.nametofont("TkDefaultFont")
+        boldFont = defaultFont.copy()
+        boldFont.configure(weight="bold")
 
         self.main_frame.refresh_style()
         self.separator_frame_1.refresh_style()
@@ -199,7 +199,7 @@ class DataDateFrame:
         self.lbl_date.refresh_style()
 
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
-        self.lbl_date.configure(font = Font_tuple)
+        self.lbl_date.configure(font = boldFont)
         self.lbl_view_records.configure(foreground=self.style_dict["highlight_color_grey"])
 
         pd_datetime = pd.to_datetime(self.datetime)

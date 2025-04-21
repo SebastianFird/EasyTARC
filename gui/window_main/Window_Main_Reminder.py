@@ -62,7 +62,8 @@ class MainWindowReminder(tk.Frame):
             self.add_reminder_frame('booking_reminder')
 
         if self.many_hours_check() == True:
-            self.add_reminder_frame('booking_reminder_2')
+            unbooked_hours =  str('{:n}'.format(round(self.data_manager.check_unbooked_hours(),1)))
+            self.add_reminder_frame('booking_reminder_many_unbooked_hours_1',unbooked_hours,'booking_reminder_many_unbooked_hours_2')
             
     def add_reminder_frame(self, dict_entry='', text='',dict_entry_2='', text_2='',dict_entry_3='',time_correction=None):
         reminder_frame = Reminder(self.main_frame, self.main_app, self.gui, self.main_window,dict_entry, text, dict_entry_2, text_2, dict_entry_3,time_correction)
