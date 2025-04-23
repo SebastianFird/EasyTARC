@@ -173,7 +173,21 @@ class DataRecordFrame(tk.Frame):
         self.on_record = True
         self.update()
 
+    def is_within_frame(self,event, frame):
+        widget_under_mouse = frame.winfo_containing(event.x_root, event.y_root)
+        
+        while widget_under_mouse:
+            if widget_under_mouse == frame:
+                return True
+            widget_under_mouse = widget_under_mouse.winfo_parent()
+            if widget_under_mouse:
+                widget_under_mouse = frame.nametowidget(widget_under_mouse)
+        
+        return False
+
     def leave_record(self,e):
+        if self.is_within_frame(e, self):
+            return 
         self.on_record = False
         self.update()
 

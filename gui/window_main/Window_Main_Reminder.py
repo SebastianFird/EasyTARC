@@ -238,6 +238,8 @@ class Reminder(tk.Frame):
                     }
                     default_clock.append_recording_correction_dict_list(event_dict)
 
+                    self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.body.update()
+
                     self.time_corrected = True
                     self.lbl_time_correction.configure(text=self.language_dict["time_corrected"])
                     self.lbl_time_correction.configure(background=self.style_dict["highlight_color_yellow"])
