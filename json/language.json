@@ -490,7 +490,7 @@
         "booking_reminder_many_unbooked_hours_2" : "ungebuchte Stunden.",
         "break_abbreviation":"P",
         "booking_by_hours":"Stunden",
-        "booking_by_time":"--:--:--"
+        "booking_by_time":"hh:mm:ss"
     },
     "english": 
     {
@@ -983,6 +983,6 @@
         "booking_reminder_many_unbooked_hours_2" : "unbooked hours.",
         "break_abbreviation":"B",
         "booking_by_hours":"Hours",
-        "booking_by_time":"--:--:--"
+        "booking_by_time":"hh:mm:ss"
     }
 }
