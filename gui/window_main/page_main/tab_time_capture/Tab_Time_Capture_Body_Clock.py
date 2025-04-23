@@ -541,14 +541,28 @@ class ClockFrame(tk.Frame):
         self.on_clock_frame = True
         self.update_background_color()
 
+    def is_within_frame(self,event, frame):
+        widget_under_mouse = frame.winfo_containing(event.x_root, event.y_root)
+        
+        while widget_under_mouse:
+            if widget_under_mouse == frame:
+                return True
+            widget_under_mouse = widget_under_mouse.winfo_parent()
+            if widget_under_mouse:
+                widget_under_mouse = frame.nametowidget(widget_under_mouse)
+        
+        return False
+
     def clock_frame_leave(self,e=None):
-        if not self.winfo_containing(e.x_root, e.y_root) == self:
-            self.on_clock_frame = False
-            self.lbl_current_added_time_ttp.set_count_down_near_end()
-            self.update_background_color()
-            if self.response_text_edit == True:
-                self.response_text_edit = False
-                self.update_response_text_lbl_state()
+        if self.is_within_frame(e, self):
+            return 
+
+        self.on_clock_frame = False
+        self.lbl_current_added_time_ttp.set_count_down_near_end()
+        self.update_background_color()
+        if self.response_text_edit == True:
+            self.response_text_edit = False
+            self.update_response_text_lbl_state()
 
     def clock_frame_clicked(self,e=None):
         self.capture_tab.rebind_scrolling()
