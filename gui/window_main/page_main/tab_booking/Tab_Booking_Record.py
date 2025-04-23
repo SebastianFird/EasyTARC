@@ -179,21 +179,26 @@ class BookingRecordFrame(tk.Frame):
 ##################################################
 
     def enter_copy_response_text(self,e):
-        self.btn_copy_response_text.configure(foreground=self.style_dict["font_color"])
+        self.enter_record()
+        if str(self.record_dict['response_text']) != ' - ':
+            self.btn_copy_response_text.configure(foreground=self.style_dict["font_color"])
 
     def leave_copy_response_text(self,e):
         self.btn_copy_response_text.configure(foreground=self.style_dict["highlight_color_grey"])
 
     def activate_copy_response_text(self,e=None):
-        self.gui.main_window.clipboard_clear()
-        self.gui.main_window.clipboard_append(str(self.record_dict['response_text']))
-        self.btn_copy_response_text_ttp.showresponse()
+        if str(self.record_dict['response_text']) != ' - ':
+            self.gui.main_window.clipboard_clear()
+            self.gui.main_window.clipboard_append(str(self.record_dict['response_text']))
+            self.btn_copy_response_text_ttp.showresponse()
+
         self.booking_tab.reset_clicked_record_frame_list()
         self.activate_record(e)
 
 ##################################################
 
     def enter_copy_hours(self,e):
+        self.enter_record()
         self.btn_copy_hours.configure(foreground=self.style_dict["font_color"])
 
     def leave_copy_hours(self,e):
@@ -209,21 +214,24 @@ class BookingRecordFrame(tk.Frame):
 ##################################################
 
     def enter_copy_response_code(self,e):
-        self.btn_copy_response_code.configure(foreground=self.style_dict["font_color"])
+        self.enter_record()
+        if str(self.record_dict['response_code']) != ' - ':
+            self.btn_copy_response_code.configure(foreground=self.style_dict["font_color"])
 
     def leave_copy_response_code(self,e):
         self.btn_copy_response_code.configure(foreground=self.style_dict["highlight_color_grey"])
 
     def activate_copy_response_code(self,e=None):
-        self.gui.main_window.clipboard_clear()
-        self.gui.main_window.clipboard_append(str(self.record_dict['response_code']))
-        self.btn_copy_response_code_ttp.showresponse()
+        if str(self.record_dict['response_code']) != ' - ':
+            self.gui.main_window.clipboard_clear()
+            self.gui.main_window.clipboard_append(str(self.record_dict['response_code']))
+            self.btn_copy_response_code_ttp.showresponse()
         self.booking_tab.reset_clicked_record_frame_list()
         self.activate_record(e)
 
 ##################################################
 
-    def enter_record(self,e):
+    def enter_record(self,e=None):
         self.on_record = True
         self.update()
 
