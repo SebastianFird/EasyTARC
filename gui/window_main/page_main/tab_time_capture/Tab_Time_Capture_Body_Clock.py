@@ -317,7 +317,6 @@ class ClockFrame(tk.Frame):
 ##################################################
 
     def enter_cbox_response_text(self,e=None):
-        self.clock_frame_enter()
         response_text = self.clock.get_response_text()
         if response_text != '':
             text = response_text + '\n' + self.language_dict["right_click"]
@@ -333,7 +332,6 @@ class ClockFrame(tk.Frame):
 ##################################################
 
     def enter_edit_response_text(self,e=None):
-        self.clock_frame_enter()
         self.btn_edit_response_text.configure(foreground=self.style_dict["font_color"])
         self.btn_edit_response_text_ttp.scheduleinfo()
 
@@ -351,11 +349,9 @@ class ClockFrame(tk.Frame):
 ##################################################
 
     def enter_add_response_texts(self,e=None):
-        self.clock_frame_enter()
         if self.clock.get_response_text() not in self.clock.get_response_text_list() and self.clock.get_response_text() != "" and self.main_app.get_action_state() == "normal":
             self.btn_add_response_texts.configure(foreground=self.style_dict["font_color"])
             self.btn_add_response_texts_ttp.scheduleinfo()
-        
 
     def leave_add_response_texts(self,e=None):
         self.btn_add_response_texts_ttp.hideinfo()
@@ -376,7 +372,6 @@ class ClockFrame(tk.Frame):
 ##################################################
     
     def enter_edit_hours_left(self,e=None):
-        self.clock_frame_enter()
         self.btn_edit_hours_left.configure(foreground=self.style_dict["font_color"])
         self.btn_edit_hours_left_ttp.scheduleinfo()
 
@@ -395,7 +390,6 @@ class ClockFrame(tk.Frame):
 ##################################################
 
     def enter_view_sub(self,e=None):
-        self.clock_frame_enter()
         if self.data_manager.duration_dt_to_duration_str(self.clock.get_sub_time_sum()) == "00:00:00" and self.clock.get_id() != 0:
             self.lbl_view_sub_clocks.configure(foreground=self.style_dict["font_color"])
 
@@ -408,7 +402,6 @@ class ClockFrame(tk.Frame):
 ##################################################
 
     def activate_enter(self,e=None):
-        self.clock_frame_enter()
         self.on_activate = True
         if self.clock.get_runninig() == False:
             self.lbl_activate_clock.configure(image=self.image_dict['photo_btn_highlight'])
@@ -433,7 +426,6 @@ class ClockFrame(tk.Frame):
 ##################################################
 
     def btn_minus_enter(self,e=None):
-        self.clock_frame_enter()
         self.on_btn_minus = True
         self.btn_minus.configure(image=self.image_dict['photo_btn_minus_font'])
         self.btn_minus.image = self.image_dict['photo_btn_minus_font']
@@ -455,7 +447,6 @@ class ClockFrame(tk.Frame):
 ##################################################
 
     def btn_minus_minus_enter(self,e=None):
-        self.clock_frame_enter()
         self.on_btn_minus_minus = True
         self.btn_minus_minus.configure(image=self.image_dict['photo_btn_minus_minus_font'])
         self.btn_minus_minus.image = self.image_dict['photo_btn_minus_minus_font']
@@ -477,7 +468,6 @@ class ClockFrame(tk.Frame):
 ##################################################
 
     def btn_plus_plus_enter(self,e=None):
-        self.clock_frame_enter()
         self.on_btn_plus_plus = True
         self.btn_plus_plus.configure(image=self.image_dict['photo_btn_plus_plus_font'])
         self.btn_plus_plus.image = self.image_dict['photo_btn_plus_plus_font']
@@ -499,7 +489,6 @@ class ClockFrame(tk.Frame):
 ##################################################
 
     def btn_plus_enter(self,e=None):
-        self.clock_frame_enter()
         self.on_btn_plus = True
         self.btn_plus.configure(image=self.image_dict['photo_btn_plus_font'])
         self.btn_plus.image = self.image_dict['photo_btn_plus_font']
@@ -521,7 +510,6 @@ class ClockFrame(tk.Frame):
 ##################################################
 
     def correction_time_enter(self,e=None):
-        self.clock_frame_enter()
         info_correction_text = ''
         recording_correction_dict_list = self.clock.get_recording_correction_dict_list()
         for recording_correction_dict in recording_correction_dict_list:
@@ -542,9 +530,7 @@ class ClockFrame(tk.Frame):
 ##################################################
 
     def name_enter(self,e=None):
-        self.clock_frame_enter()
         self.account_info_ttp.scheduleinfo()
-        
 
     def name_leave(self,e=None):
         self.account_info_ttp.hideinfo()
@@ -556,12 +542,13 @@ class ClockFrame(tk.Frame):
         self.update_background_color()
 
     def clock_frame_leave(self,e=None):
-        self.on_clock_frame = False
-        self.lbl_current_added_time_ttp.set_count_down_near_end()
-        self.update_background_color()
-        if self.response_text_edit == True:
-            self.response_text_edit = False
-            self.update_response_text_lbl_state()
+        if not self.winfo_containing(e.x_root, e.y_root) == self:
+            self.on_clock_frame = False
+            self.lbl_current_added_time_ttp.set_count_down_near_end()
+            self.update_background_color()
+            if self.response_text_edit == True:
+                self.response_text_edit = False
+                self.update_response_text_lbl_state()
 
     def clock_frame_clicked(self,e=None):
         self.capture_tab.rebind_scrolling()
@@ -1208,7 +1195,3 @@ class ClockFrame(tk.Frame):
 
         self.update_background_color()
         return
-
-
-
-

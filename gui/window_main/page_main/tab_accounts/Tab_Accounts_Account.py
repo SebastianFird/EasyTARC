@@ -271,7 +271,6 @@ class AccountFrame(tk.Frame):
 ##################################################
 
     def enter_status(self,e=None):
-        self.enter_account()
         self.btn_status.configure(foreground=self.style_dict["font_color"])
         self.btn_status_ttp.scheduleinfo()
 
@@ -300,7 +299,7 @@ class AccountFrame(tk.Frame):
     
 ##################################################
 
-    def enter_account(self,e=None):
+    def enter_account(self,e):
         self.on_account = True
         self.update()
 
