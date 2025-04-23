@@ -242,7 +242,7 @@ class DataDateFrame:
         self.lbl_date.pack(side = "left")
         self.lbl_date.bind("<Button-3>", self.right_clicked)
 
-        self.lbl_work_time = MyLabel(self.date_frame,self.data_manager, anchor = 'e', width=8)
+        self.lbl_work_time = MyLabel(self.date_frame,self.data_manager, anchor = 'w', width=8)
         self.lbl_work_time.configure(font = boldFont)
         self.lbl_work_time.pack(side = "left")
         self.lbl_work_time.bind("<Button-3>", self.right_clicked)
