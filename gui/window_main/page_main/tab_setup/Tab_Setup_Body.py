@@ -29,9 +29,10 @@ import shutil
 import webbrowser
 import subprocess
 from pyshortcuts import make_shortcut
-from gui.Window_Additionals import InfoWindow
+from gui.Window_Additionals import InfoWindow,EditSetting
 from gui.Window_Additionals import CreateToolTip
 from gui.Window_Additionals import DeleteDatabase
+
 
 from style_classes import MyFrame
 from style_classes import MyLabel
@@ -138,26 +139,44 @@ class SetupBody:
         self.language_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_language)
         self.language_cbox.bind("<Button-1>", self.setup_tab.unbind_scrolling) 
 
+        #########
+
+        self.lbl_booking_system_info = MyLabel(self.appearance_frame,self.data_manager,text=u'\U00002139',width=3)
+        self.lbl_booking_system_info.grid(row=3, column=0, padx=5, pady=5)
+        self.lbl_booking_system_info_ttp = CreateToolTip(self.lbl_booking_system_info, self.data_manager, 0, 30, self.language_dict['booking_system_setup_info'], True)
+
+        self.lbl_booking_system = MyLabel(self.appearance_frame,self.data_manager,text = self.language_dict['booking_system'], anchor = 'w', width=25)
+        self.lbl_booking_system.grid(row=3, column=1, padx=5, pady=5)
+
+        self.clicked_booking_system = tk.StringVar()
+        self.booking_system_cbox = MyCombobox(self.appearance_frame, state="readonly", width = 30, textvariable = self.clicked_booking_system)
+        self.booking_system_cbox.grid(row=3, column=2, padx=5, pady=10)
+
+        self.btn_set_booking_system = MyButton(self.appearance_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=self.set_booking_system)
+
+        self.set_booking_system_cblist()
+        self.booking_system_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_booking_system)
+        self.booking_system_cbox.bind("<Button-1>", self.setup_tab.unbind_scrolling) 
+
 
         #########
 
         self.lbl_dpi_awareness_info = MyLabel(self.appearance_frame,self.data_manager,text=u'\U00002139',width=3)
-        self.lbl_dpi_awareness_info.grid(row=3, column=0, padx=5, pady=5)
+        self.lbl_dpi_awareness_info.grid(row=4, column=0, padx=5, pady=5)
         self.lbl_dpi_awareness_info_ttp = CreateToolTip(self.lbl_dpi_awareness_info, self.data_manager, 0, 30, self.language_dict['dpi_awareness_info'], True)
 
         self.lbl_dpi_awareness = MyLabel(self.appearance_frame,self.data_manager,text = self.language_dict['dpi_awareness'], anchor = 'w', width=25)
-        self.lbl_dpi_awareness.grid(row=3, column=1, padx=5, pady=5)
+        self.lbl_dpi_awareness.grid(row=4, column=1, padx=5, pady=5)
 
         self.clicked_dpi_awareness = tk.StringVar()
         self.dpi_awareness_cbox = MyCombobox(self.appearance_frame, state="readonly", width = 30, textvariable = self.clicked_dpi_awareness)
-        self.dpi_awareness_cbox.grid(row=3, column=2, padx=5, pady=10)
+        self.dpi_awareness_cbox.grid(row=4, column=2, padx=5, pady=10)
 
         self.btn_set_dpi_awareness = MyButton(self.appearance_frame, self.data_manager, text=self.language_dict['apply'],width=12,command=self.set_dpi_awareness)
 
         self.set_dpi_awareness_cblist()
         self.dpi_awareness_cbox.bind("<<ComboboxSelected>>", self.update_btn_set_dpi_awareness)
         self.dpi_awareness_cbox.bind("<Button-1>", self.setup_tab.unbind_scrolling) 
-
 
         #########################
 
@@ -307,18 +326,45 @@ class SetupBody:
 
         row_nbr = 0
 
+        self.lbl_your_website_info = MyLabel(self.folder_frame,self.data_manager,text="",width=3)
+        self.lbl_your_website_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        self.lbl_web_link_your_website = MyLabel(self.websites_frame,self.data_manager,text = self.language_dict['your_website'], anchor = 'w', width=25)
+        self.lbl_web_link_your_website.grid(row=row_nbr, column=1, padx=5, pady=5)
+        
+        self.btn_edit_your_website = MyButton(self.websites_frame, self.data_manager, text=self.language_dict['edit'],width=12,command=lambda:EditSetting(self.main_app, self.gui, self.setup_tab.main_frame ,"your_website_url",'your_website_info','your_website',550,150))
+        self.btn_edit_your_website.grid(row=row_nbr, column=2, padx=5, pady=5,sticky="w")
+
+        row_nbr = row_nbr + 1
+
+        #########
+
+        self.lbl_booking_website_info = MyLabel(self.folder_frame,self.data_manager,text="",width=3)
+        self.lbl_booking_website_info.grid(row=row_nbr, column=0, padx=5, pady=5)
+
+        self.lbl_web_link_booking_website = MyLabel(self.websites_frame,self.data_manager,text = self.language_dict['booking_website'], anchor = 'w', width=25)
+        self.lbl_web_link_booking_website.grid(row=row_nbr, column=1, padx=5, pady=5)
+        
+        self.btn_edit_booking_website = MyButton(self.websites_frame, self.data_manager, text=self.language_dict['edit'],width=12,command=lambda:EditSetting(self.main_app, self.gui, self.setup_tab.main_frame ,"booking_website_url",'booking_website_info','booking_website',550,150))
+        self.btn_edit_booking_website.grid(row=row_nbr, column=2, padx=5, pady=5,sticky="w")
+
+        row_nbr = row_nbr + 1
+
+
+        #########
+
         self.lbl_web_link_1_info = MyLabel(self.websites_frame,self.data_manager,text = '', anchor = 'w', width=3)
 
         self.lbl_web_link_1_name = MyLabel(self.websites_frame,self.data_manager,text = str(self.main_app.get_setting("web_link_1_name")), anchor = 'w', width=25)
         
-        self.btn_web_link_1 = MyButton(self.websites_frame, self.data_manager, text=self.language_dict['open_up'],width=12,command=lambda:self.open_url(self.main_app.get_setting("web_link_1_url")))
+        self.btn_web_link_1 = MyButton(self.websites_frame, self.data_manager, text=self.language_dict['open_up'],width=8,command=lambda:self.open_url(self.main_app.get_setting("web_link_1_url")))
         
         self.btn_web_link_1_ttp = CreateToolTip(self.btn_web_link_1, self.data_manager, 0, 30, str(self.main_app.get_setting("web_link_1_url")))
 
         if str(self.main_app.get_setting("web_link_1_url")) != '':
             self.lbl_web_link_1_info.grid(row=row_nbr, column=0, padx=5, pady=5)
             self.lbl_web_link_1_name.grid(row=row_nbr, column=1, padx=5, pady=5)
-            self.btn_web_link_1.grid(row=row_nbr, column=2, padx=5, pady=5)
+            self.btn_web_link_1.grid(row=row_nbr, column=2, padx=5, pady=5,sticky="w")
             row_nbr = row_nbr + 1
 
 
@@ -328,14 +374,14 @@ class SetupBody:
 
         self.lbl_web_link_2_name = MyLabel(self.websites_frame,self.data_manager,text = str(self.main_app.get_setting("web_link_2_name")), anchor = 'w', width=25)
 
-        self.btn_web_link_2 = MyButton(self.websites_frame, self.data_manager, text=self.language_dict['open_up'],width=12,command=lambda:self.open_url(self.main_app.get_setting("web_link_2_url")))
+        self.btn_web_link_2 = MyButton(self.websites_frame, self.data_manager, text=self.language_dict['open_up'],width=8,command=lambda:self.open_url(self.main_app.get_setting("web_link_2_url")))
 
         self.btn_web_link_2_ttp = CreateToolTip(self.btn_web_link_2, self.data_manager, 0, 30, str(self.main_app.get_setting("web_link_2_url")))
 
         if str(self.main_app.get_setting("web_link_2_url")) != '':
             self.lbl_web_link_2_info.grid(row=row_nbr, column=0, padx=5, pady=5)
             self.lbl_web_link_2_name.grid(row=row_nbr, column=1, padx=5, pady=5)
-            self.btn_web_link_2.grid(row=row_nbr, column=2, padx=5, pady=5)
+            self.btn_web_link_2.grid(row=row_nbr, column=2, padx=5, pady=5,sticky="w")
             row_nbr = row_nbr + 1
 
         #########
@@ -344,14 +390,14 @@ class SetupBody:
 
         self.lbl_web_link_3_name = MyLabel(self.websites_frame,self.data_manager,text = str(self.main_app.get_setting("web_link_3_name")), anchor = 'w', width=25)
 
-        self.btn_web_link_3 = MyButton(self.websites_frame, self.data_manager, text=self.language_dict['open_up'],width=12,command=lambda:self.open_url(self.main_app.get_setting("web_link_3_url")))
+        self.btn_web_link_3 = MyButton(self.websites_frame, self.data_manager, text=self.language_dict['open_up'],width=8,command=lambda:self.open_url(self.main_app.get_setting("web_link_3_url")))
 
         self.btn_web_link_3_ttp = CreateToolTip(self.btn_web_link_3, self.data_manager, 0, 30, str(self.main_app.get_setting("web_link_3_url")))
 
         if str(self.main_app.get_setting("web_link_3_url")) != '':
             self.lbl_web_link_3_info.grid(row=row_nbr, column=0, padx=5, pady=5)
             self.lbl_web_link_3_name.grid(row=row_nbr, column=1, padx=5, pady=5)
-            self.btn_web_link_3.grid(row=row_nbr, column=2, padx=5, pady=5)
+            self.btn_web_link_3.grid(row=row_nbr, column=2, padx=5, pady=5,sticky="w")
             row_nbr = row_nbr + 1
 
         #########
@@ -360,14 +406,14 @@ class SetupBody:
 
         self.lbl_web_link_4_name = MyLabel(self.websites_frame,self.data_manager,text = str(self.main_app.get_setting("web_link_4_name")), anchor = 'w', width=25)
 
-        self.btn_web_link_4 = MyButton(self.websites_frame, self.data_manager, text=self.language_dict['open_up'],width=12,command=lambda:self.open_url(self.main_app.get_setting("web_link_4_url")))
+        self.btn_web_link_4 = MyButton(self.websites_frame, self.data_manager, text=self.language_dict['open_up'],width=8,command=lambda:self.open_url(self.main_app.get_setting("web_link_4_url")))
 
         self.btn_web_link_4_ttp = CreateToolTip(self.btn_web_link_4, self.data_manager, 0, 30, str(self.main_app.get_setting("web_link_4_url")))
 
         if str(self.main_app.get_setting("web_link_4_url")) != '':
             self.lbl_web_link_4_info.grid(row=row_nbr, column=0, padx=5, pady=5)
             self.lbl_web_link_4_name.grid(row=row_nbr, column=1, padx=5, pady=5)
-            self.btn_web_link_4.grid(row=row_nbr, column=2, padx=5, pady=5)
+            self.btn_web_link_4.grid(row=row_nbr, column=2, padx=5, pady=5,sticky="w")
 
 
         #########################
@@ -720,6 +766,44 @@ class SetupBody:
 
 #########
 
+    def set_booking_system_cblist(self):
+        self.default_list = self.main_app.get_booking_system_list_default().copy()
+        booking_system_list = self.default_list + self.main_app.get_booking_system_list_costumized().copy()
+        booking_system_list[booking_system_list.index("unkown_booking_system")] = self.language_dict["unkown_booking_system"]
+        booking_system_list[booking_system_list.index("no_booking_system")] = self.language_dict["no_booking_system"] 
+        booking_system_list[booking_system_list.index("booking_system_not_specified")] = self.language_dict["booking_system_not_specified"]
+
+        booking_system = self.main_app.get_setting('booking_system')
+        if booking_system in self.default_list:
+            booking_system = self.language_dict[booking_system]
+
+        self.booking_system_cbox['values'] = booking_system_list
+
+        self.clicked_booking_system.set(booking_system)
+
+    def update_btn_set_booking_system(self,event=None):
+        booking_system = self.main_app.get_setting('booking_system')
+        if booking_system in self.default_list:
+            booking_system = self.language_dict[booking_system]
+
+        clicked_booking_system = self.clicked_booking_system.get()
+
+        if booking_system == clicked_booking_system:
+            self.btn_set_booking_system.configure(text=u'\U00002713')
+        else:
+            self.btn_set_booking_system.configure(text=self.language_dict['apply']) 
+            self.btn_set_booking_system.grid(row=3, column=3, padx=5, pady=5)
+    
+    def set_booking_system(self):
+        booking_system = self.clicked_booking_system.get()
+        if booking_system in self.language_dict:
+            if self.language_dict[booking_system] in self.default_list:
+                booking_system = self.language_dict[booking_system]
+        self.main_app.set_booking_system(booking_system,True)
+        self.update_btn_set_booking_system()
+
+#########
+
     def set_dpi_awareness_cblist(self):
         dpi_awareness = self.main_app.get_setting('win_dpi_awareness')
         self.dpi_awareness_cbox['values'] = [self.language_dict['on'],self.language_dict['off']]
@@ -734,7 +818,7 @@ class SetupBody:
             self.btn_set_dpi_awareness.configure(text=u'\U00002713')
         else:
             self.btn_set_dpi_awareness.configure(text=self.language_dict['apply']) 
-            self.btn_set_dpi_awareness.grid(row=3, column=3, padx=5, pady=5)
+            self.btn_set_dpi_awareness.grid(row=4, column=3, padx=5, pady=5)
     
     def set_dpi_awareness(self):
         dpi_awareness = self.clicked_dpi_awareness.get()
@@ -1205,6 +1289,10 @@ class SetupBody:
         self.update_btn_set_dpi_awareness()
         self.btn_set_dpi_awareness.grid_forget()
 
+        self.set_booking_system_cblist()
+        self.update_btn_set_booking_system()
+        self.btn_set_booking_system.grid_forget()
+
         self.set_sleep_mode_cblist()
         self.update_btn_set_sleep_mode()
         self.btn_set_sleep_mode.grid_forget()
@@ -1255,12 +1343,15 @@ class SetupBody:
         self.lbl_font_size_info.refresh_style()
         self.lbl_font_size.refresh_style()
         self.btn_set_font_size.refresh_style()
-
         self.lbl_dpi_awareness_info.refresh_style()
         self.lbl_dpi_awareness.refresh_style()
         self.btn_set_dpi_awareness.refresh_style()
-
         self.lbl_dpi_awareness_info_ttp.refresh()
+
+        self.lbl_booking_system_info.refresh_style()
+        self.lbl_booking_system.refresh_style()
+        self.btn_set_booking_system.refresh_style()
+        self.lbl_booking_system_info_ttp.refresh()
 
         self.separator_frame_1.refresh_style()
 
@@ -1308,6 +1399,14 @@ class SetupBody:
         self.head_websites_frame.refresh_style()
         self.lbl_category_websites.refresh_style()
         self.websites_frame.refresh_style()
+
+        self.lbl_your_website_info.refresh_style()
+        self.lbl_web_link_your_website.refresh_style()
+        self.btn_edit_your_website.refresh_style()
+        self.lbl_booking_website_info.refresh_style()
+        self.lbl_web_link_booking_website.refresh_style()
+        self.btn_edit_booking_website.refresh_style()
+
         self.lbl_web_link_1_info.refresh_style()
         self.lbl_web_link_1_name.refresh_style()
         self.btn_web_link_1.refresh_style()
@@ -1400,10 +1499,14 @@ class SetupBody:
         self.btn_set_language.configure(text=self.language_dict['apply'])
         self.lbl_font_size.configure(text = '   ' + self.language_dict['font_size'])
         self.btn_set_font_size.configure(text=self.language_dict['apply'])
-
+        
         self.lbl_dpi_awareness.configure(text=self.language_dict['dpi_awareness'])
         self.btn_set_dpi_awareness.configure(text=self.language_dict['apply'])
         self.lbl_dpi_awareness_info_ttp.text = self.language_dict['dpi_awareness_info']
+
+        self.lbl_booking_system.configure(text=self.language_dict['booking_system'])
+        self.btn_set_booking_system.configure(text=self.language_dict['apply'])
+        self.lbl_booking_system_info_ttp.text = self.language_dict['booking_system_setup_info']
         
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
 
@@ -1431,6 +1534,13 @@ class SetupBody:
 
         self.lbl_category_websites.configure(font = boldFont)
         self.lbl_category_websites.configure(text=self.language_dict['websites'])
+
+        self.lbl_web_link_your_website.configure(text=self.language_dict['your_website'])
+        self.lbl_web_link_booking_website.configure(text=self.language_dict['booking_website'])
+
+        self.btn_edit_your_website.configure(text=self.language_dict['edit'])
+        self.btn_edit_booking_website.configure(text=self.language_dict['edit'])
+
         self.btn_web_link_1.configure(text=self.language_dict['open_up'])
         self.btn_web_link_2.configure(text=self.language_dict['open_up'])
         self.btn_web_link_3.configure(text=self.language_dict['open_up'])

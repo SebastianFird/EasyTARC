@@ -231,7 +231,7 @@ class SqlUserDataManager(SqlManager):
 
                 available_hours = 0
 
-                account_dict = {"account_id":account_id,
+                account_dict_0 = {"account_id":account_id,
                                 "account_kind":kind,
                                 "main_id":main_id,
                                 "name":name,
@@ -250,7 +250,150 @@ class SqlUserDataManager(SqlManager):
                                 "available_hours":available_hours
                                 }
 
-                self.add_account((account_dict))
+                self.add_account((account_dict_0))
+
+                language_dict = self.main_app.data_manager.get_language_dict()
+                account_id_1 = self.get_new_accountid()
+
+                account_id = account_id_1
+                name = language_dict["new_db_name_1"]
+                description_text = language_dict["new_db_description_text_1"]
+                kind = 1
+                main_id = account_id_1
+                project_label = language_dict["new_db_project_label_1"]
+                order_label = language_dict["new_db_order_label_1"]
+                process_label = language_dict["new_db_process_label_1"]
+                response_code = language_dict["new_db_response_code_1"]
+                response_texts_main = 1
+                response_texts = language_dict["new_db_response_texts_1"]
+                external_booking = 0
+                status = "open"
+                group = language_dict["new_db_group_1"]
+                bookable = 1
+
+                expiration_day = 1
+                expiration_month = 1
+                expiration_year = 2000
+
+                date_expiration = datetime.date(expiration_year, expiration_month, expiration_day)
+
+                available_hours = 0
+
+                account_dict_1 = {"account_id":account_id,
+                                "account_kind":kind,
+                                "main_id":main_id,
+                                "name":name,
+                                "description_text":description_text,
+                                "project_label":project_label,
+                                "order_label":order_label,
+                                "process_label":process_label,
+                                "response_code":response_code,
+                                "response_texts_main":response_texts_main,
+                                "response_texts":response_texts,
+                                "external_booking":external_booking,
+                                "status":status,
+                                "group":group,
+                                "bookable":bookable,
+                                "date_expiration":date_expiration,
+                                "available_hours":available_hours
+                                }
+
+                self.add_account((account_dict_1))
+
+                account_id_2 = self.get_new_accountid()
+
+                account_id = account_id_2
+                name = language_dict["new_db_name_2"]
+                description_text = language_dict["new_db_description_text_2"]
+                kind = 0
+                main_id = account_id_1
+                project_label = language_dict["new_db_project_label_1"]
+                order_label = language_dict["new_db_order_label_1"]
+                process_label = language_dict["new_db_process_label_1"]
+                response_code = language_dict["new_db_response_code_1"]
+                response_texts_main = 1
+                response_texts = language_dict["new_db_response_texts_1"]
+                external_booking = 0
+                status = "open"
+                group = language_dict["new_db_group_1"]
+                bookable = 1
+
+                expiration_day = 1
+                expiration_month = 1
+                expiration_year = 2000
+
+                date_expiration = datetime.date(expiration_year, expiration_month, expiration_day)
+
+                available_hours = 0
+
+                account_dict_2 = {"account_id":account_id,
+                                "account_kind":kind,
+                                "main_id":main_id,
+                                "name":name,
+                                "description_text":description_text,
+                                "project_label":project_label,
+                                "order_label":order_label,
+                                "process_label":process_label,
+                                "response_code":response_code,
+                                "response_texts_main":response_texts_main,
+                                "response_texts":response_texts,
+                                "external_booking":external_booking,
+                                "status":status,
+                                "group":group,
+                                "bookable":bookable,
+                                "date_expiration":date_expiration,
+                                "available_hours":available_hours
+                                }
+
+                self.add_account((account_dict_2))
+
+                account_id_3 = self.get_new_accountid()
+
+                account_id = account_id_3
+                name = language_dict["new_db_name_3"]
+                description_text = language_dict["new_db_description_text_1"]
+                kind = 1
+                main_id = account_id_3
+                project_label = language_dict["new_db_project_label_1"]
+                order_label = language_dict["new_db_order_label_1"]
+                process_label = language_dict["new_db_process_label_1"]
+                response_code = language_dict["new_db_response_code_1"]
+                response_texts_main = 1
+                response_texts = language_dict["new_db_response_texts_3"]
+                external_booking = 0
+                status = "open"
+                group = language_dict["new_db_group_1"]
+                bookable = 1
+
+                expiration_day = 1
+                expiration_month = 1
+                expiration_year = 2000
+
+                date_expiration = datetime.date(expiration_year, expiration_month, expiration_day)
+
+                available_hours = 0
+
+                account_dict_1 = {"account_id":account_id,
+                                "account_kind":kind,
+                                "main_id":main_id,
+                                "name":name,
+                                "description_text":description_text,
+                                "project_label":project_label,
+                                "order_label":order_label,
+                                "process_label":process_label,
+                                "response_code":response_code,
+                                "response_texts_main":response_texts_main,
+                                "response_texts":response_texts,
+                                "external_booking":external_booking,
+                                "status":status,
+                                "group":group,
+                                "bookable":bookable,
+                                "date_expiration":date_expiration,
+                                "available_hours":available_hours
+                                }
+
+                self.add_account((account_dict_1))
+
                 return()
 
             if test_id == 0:

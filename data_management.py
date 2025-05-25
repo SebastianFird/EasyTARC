@@ -945,6 +945,65 @@ class DataManager:
         return(record_dict_list_date_list)
     
     #################################################################
+    
+    def create_record_dict_list_main_account_list(self,df):
+
+        record_dict_list_main_account_list = []
+
+        main_id_list = df.main_id.values.tolist()
+        main_id_list = list(set(main_id_list))
+
+        main_name_dict = self.user_db.get_namedict_by_accountid_list(main_id_list)
+
+        for main_id in main_id_list:
+
+            main_account_dict_list = []
+
+            date_record_list = df.loc[(df['main_id'] == main_id)].date_record.tolist()
+            date_record_list = list(set(date_record_list))
+            date_record_list.sort(reverse = True)
+            date_record_list_2 = date_record_list.copy()
+            for date_record in date_record_list_2:
+
+                account_id_list = df.loc[(df['main_id'] == main_id) & (df['date_record'] == date_record)].accountid.values.tolist()
+                account_id_list = list(set(account_id_list))
+                account_id_list.sort()
+                account_id_list_2 = account_id_list.copy()
+                for account_id in account_id_list_2:
+
+                    passed_id_list = df.loc[(df['main_id'] == main_id) & (df['date_record'] == date_record) & (df['accountid'] == account_id)].passedid.values.tolist()
+                    passed_id_list.sort()
+                    passed_id_list_2 = passed_id_list.copy()
+                    for passed_id in passed_id_list_2:
+                        
+                        record_dict = {"passed_id":passed_id,   
+                                    "account_id":account_id,   
+                                    "main_id":main_id,  
+                                    "main_name":main_name_dict[main_id],
+                                    "account_kind":df.loc[(df['accountid'] == account_id)].account_kind.values.tolist()[0],  
+                                    "name":df.loc[(df['accountid'] == account_id)].name.values.tolist()[0], 
+                                    "group":df.loc[(df['accountid'] == account_id)].group_name.values.tolist()[0], 
+                                    "description_text":df.loc[(df['accountid'] == account_id)].description_text.values.tolist()[0],  
+                                    "project_label":df.loc[(df['accountid'] == account_id)].project_label.values.tolist()[0], 
+                                    "order_label":df.loc[(df['accountid'] == account_id)].order_label.values.tolist()[0],  
+                                    "process_label":df.loc[(df['accountid'] == account_id)].process_label.values.tolist()[0],  
+                                    "response_code":df.loc[(df['accountid'] == account_id)].response_code.values.tolist()[0],   
+                                    "response_texts_main":df.loc[(df['accountid'] == account_id)].response_texts_main.values.tolist()[0],      
+                                    "response_texts":df.loc[(df['accountid'] == account_id)].response_texts.values.tolist()[0],  
+                                    "response_text":df.loc[(df['passedid'] == passed_id)].response_text.values.tolist()[0], 
+                                    "external_booking":df.loc[(df['accountid'] == account_id)].external_booking.values.tolist()[0], 
+                                    "status":df.loc[(df['accountid'] == account_id)].status.values.tolist()[0],
+                                    "bookable":df.loc[(df['accountid'] == account_id)].bookable.values.tolist()[0],
+                                    "date_expiration":df.loc[(df['accountid'] == account_id)].date_expiration.tolist()[0],
+                                    "available_hours":df.loc[(df['accountid'] == account_id)].available_hours.values.tolist()[0], 
+                                    "date_record":df.loc[(df['passedid'] == passed_id)].date_record.tolist()[0],
+                                    "booked":df.loc[(df['passedid'] == passed_id)].booked.values.tolist()[0],
+                                    "hours":df.loc[(df['passedid'] == passed_id)].hours.values.tolist()[0]  }
+                        main_account_dict_list.append(record_dict)
+            record_dict_list_main_account_list.append(main_account_dict_list)
+        return(record_dict_list_main_account_list)
+    
+    #################################################################
 
     def create_account_dict_list_group_list(self,df):
 
@@ -1041,6 +1100,20 @@ class DataManager:
     
     def set_unbooked_times_by_passed_id(self,passed_id):
         self.user_db.set_unbooked_time_booked(passed_id)
+
+    #################################################################
+
+    def get_unbooked_record_dict_list_main_account_list(self):
+        two_month_limit = True
+
+        booking_status = 'unbooked'
+        df = self.user_db.get_passed_times_with_accounts(two_month_limit,booking_status)
+        if df.empty:
+            return([])
+        df = df.fillna('')
+
+        record_dict_list_main_account_list = self.create_record_dict_list_main_account_list(df)
+        return(record_dict_list_main_account_list)
 
     #################################################################
 

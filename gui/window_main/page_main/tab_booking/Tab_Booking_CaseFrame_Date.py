@@ -191,7 +191,7 @@ class BookingDateFrame:
         self.separator_frame_1.pack(side = "top",fill='x')
 
         self.date_frame = MyFrame(self.main_frame,self.data_manager)
-        self.date_frame.pack(side = "top",fill='x')
+        self.date_frame.pack(side = "top",fill='x',pady=[15,5])
 
         date_str = self.date_record.strftime('%d.%m.%Y')
         weekday_nbr = self.date_record.dayofweek

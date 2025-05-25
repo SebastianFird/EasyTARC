@@ -632,21 +632,29 @@ class CreateEditAccountBody:
         self.lbl_bookable = MyLabel(self.frame_bookable_state,self.data_manager,width=22,anchor='w',justify='left',text=self.language_dict['bookable'] + ':')
         self.lbl_bookable.pack(side = "left", padx=10)
 
-        self.lbl_check_bookable = MyLabel(self.frame_bookable_state, self.data_manager, image=self.image_dict['photo_btn_off_mirrored'])
-        self.lbl_check_bookable.image = self.image_dict['photo_btn_off_mirrored']
-        self.lbl_check_bookable.pack(side="left", padx=10)
-
-        self.lbl_check_bookable.bind("<Enter>", self.enter_check_bookable)
-        self.lbl_check_bookable.bind("<Leave>", self.leave_check_bookable)
-        self.lbl_check_bookable.bind("<Button-1>", self.toggle_bookable)
-
         if self.modus in ['duplicate_main_account','edit_main']:
             if self.main_account_dict.get("bookable") == 0:
                 self.bookable = 0
             else:
                 self.bookable = 1
         elif self.modus in ['new_main']:
-            self.bookable = 0
+            if self.main_app.get_setting('booking_system') == "no_booking_system":
+                self.bookable = 0
+            elif self.main_app.get_setting('booking_system') == "unkown_booking_system":
+                self.bookable = 1
+            else:
+                self.bookable = 1
+
+        if self.bookable == 1:    
+            image_bookable_btn = self.image_dict['photo_btn_on']
+        else:
+            image_bookable_btn = self.image_dict['photo_btn_not_bookable_mirrored']
+                
+        self.lbl_check_bookable = MyLabel(self.frame_bookable_state, self.data_manager, image=image_bookable_btn)
+        self.lbl_check_bookable.image = image_bookable_btn
+        self.lbl_check_bookable.pack(side="left", padx=10)
+
+        self.lbl_check_bookable.bind("<Button-1>", self.toggle_bookable)
 
         self.lbl_bookable_highlight = MyLabel(self.frame_bookable_state,self.data_manager,text='  '+u'\U0001F808'+' ')
         self.lbl_bookable_highlight.pack(side = "left")
@@ -873,7 +881,7 @@ class CreateEditAccountBody:
         else:
             self.lbl_check_external_booking.configure(text = ' ' + u'\U00002610')
             self.lbl_check_external_booking.configure(foreground=self.style_dict["highlight_color_grey"])
-            self.external_booking = 0
+            #self.external_booking = 0
 
 
     def enter_check_external_booking(self,e=None):
@@ -892,7 +900,7 @@ class CreateEditAccountBody:
                 self.external_booking = 0
             self.update_check_external_booking()
     
-    def update_bookable(self,manual=0):
+    def update_bookable(self):
         if self.bookable == 0 and self.modus in ['new_main','duplicate_main_account','edit_main']:
 
             self.lbl_external_booking_info.pack_forget()
@@ -905,7 +913,7 @@ class CreateEditAccountBody:
 
             self.textBox_response_code.configure(highlightthickness = 0)
             self.textBox_response_code.configure(borderwidth = 1)
-            self.account_response_code.set("")
+            #self.account_response_code.set("")
             self.lbl_external_booking_highlight.configure(foreground=self.style_dict["background_color_grey"])  
             self.textBox_response_code.configure(state=tk.DISABLED)
 
@@ -925,33 +933,7 @@ class CreateEditAccountBody:
             self.lbl_external_booking_highlight.configure(foreground=self.style_dict["highlight_color_yellow"])  
             if self.style_dict['name'] == 'dark':
                 self.textBox_response_code.configure(borderwidth = 0)
-        if manual == 0:
-            if self.bookable == 0:
-                self.lbl_check_bookable.configure(image=self.image_dict['photo_btn_off'])
-                self.lbl_check_bookable.image = self.image_dict['photo_btn_off']
-            else:
-                self.lbl_check_bookable.configure(image=self.image_dict['photo_btn_off_mirrored'])
-                self.lbl_check_bookable.image = self.image_dict['photo_btn_off_mirrored']
         self.update_check_external_booking()
-
-
-    def enter_check_bookable(self,e=None):
-        if self.bookable == 0:
-            self.lbl_check_bookable.configure(image=self.image_dict['photo_btn_not_bookable_mirrored'])
-            self.lbl_check_bookable.image = self.image_dict['photo_btn_not_bookable_mirrored']
-        else:
-            self.lbl_check_bookable.configure(image=self.image_dict['photo_btn_on'])
-            self.lbl_check_bookable.image = self.image_dict['photo_btn_on']
-
-
-
-    def leave_check_bookable(self,e=None):
-        if self.bookable == 0:
-            self.lbl_check_bookable.configure(image=self.image_dict['photo_btn_off'])
-            self.lbl_check_bookable.image = self.image_dict['photo_btn_off']
-        else:
-            self.lbl_check_bookable.configure(image=self.image_dict['photo_btn_off_mirrored'])
-            self.lbl_check_bookable.image = self.image_dict['photo_btn_off_mirrored']
 
     def toggle_bookable(self,e=None):
         if self.modus in ['new_main','duplicate_main_account','edit_main']:
@@ -963,7 +945,7 @@ class CreateEditAccountBody:
                 self.bookable = 0
                 self.lbl_check_bookable.configure(image=self.image_dict['photo_btn_not_bookable_mirrored'])
                 self.lbl_check_bookable.image = self.image_dict['photo_btn_not_bookable_mirrored']
-            self.update_bookable(1)
+            self.update_bookable()
         
     
     def update(self):

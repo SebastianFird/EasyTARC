@@ -299,10 +299,15 @@ class MyCombobox(ttk.Combobox):
     def __init__(self, master, **kw):
         ttk.Combobox.__init__(self, master=master, **kw)
         self.bind("<MouseWheel>",self.disable_combobox_scroll)
+        self.bind("<Button-3>", self.open_dropdown)
         self.configure(takefocus=0)
 
     def disable_combobox_scroll(self,event):
         return "break"
+    
+    def open_dropdown(self,event):
+        self.event_generate("<Button-1>")
+        return 
 
 
 

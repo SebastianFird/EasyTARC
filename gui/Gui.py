@@ -32,7 +32,7 @@ from gui.window_work.Work_Window_Box import WorkWindowBox
 from gui.window_work.Work_Window_Bar import WorkWindowBar
 from gui.window_work.Work_Window_List import WorkWindowList
 from gui.window_main.Window_Main_CaseFrame_Manager import NotebookFrame
-
+from gui.Window_Additionals import InfoWindowSetupBookingSystem
 from gui.Window_Additionals import InfoWindow, EditRemainingTime
 
 
@@ -234,6 +234,10 @@ class Gui_Manager:
                 text = text + '\n\n' + self.language_dict["check_dpi_awareness"]
                 info_window = InfoWindow(self.main_app, self, self.main_window.main_frame ,text,700,350,True)
 
+            if self.main_app.get_app_version() == '1.12.6':
+                text = '\nUpdate:\n\n' + self.language_dict["release_note_text_24"]
+                info_window = InfoWindowSetupBookingSystem(self.main_app, self, self.main_window.main_frame ,text,700,350,True)
+
         elif self.main_app.get_new_sign_up() == True:
             text = '\n' + self.language_dict["welcome_to_easytarc"]
             if self.main_app.get_setting('create_start_up_link') != "on":
@@ -241,8 +245,15 @@ class Gui_Manager:
             text = text + '\n\n' + self.language_dict["add_secondary_back_up"]
             text = text + '\n\n' + self.language_dict["first_steps"]
             text = text + '\n\n' + self.language_dict["beginner_web_link"]
+
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++__START
+
+            url = "https://easytarc.de/"
                 
-            info_window = InfoWindow(self.main_app, self, self.main_window.main_frame ,text,700,380,True,False, "https://easytarc.de/")
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++__END
+
+            info_window = InfoWindowSetupBookingSystem(self.main_app, self, self.main_window.main_frame ,text,650,480,True,False, url)
+
         
         self.root.mainloop()
 
@@ -317,6 +328,10 @@ class Gui_Manager:
         self.data_manager.set_last_tracked_interaction()
         self.root.attributes('-disabled', False)
         self.root_window_disabled = False
+        
+    def lift_main_window(self):
+        self.root.lift()
+        self.root.focus_force()
 
     def disable_login_window(self):
         self.root.attributes('-disabled',True)

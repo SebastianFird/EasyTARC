@@ -70,11 +70,21 @@ class DataRecordFrame(tk.Frame):
         self.lbl_empty0 = MyLabel(self, self.data_manager, text='', width=2)
         self.lbl_empty0.pack(side='right',padx=3)
 
+        if self.main_app.get_setting('passed_time_format') == 'passed_time_by_hours':
+            passed_time_str = str('{:n}'.format(round(self.record_dict['hours'],3)))
+            passed_time_info = self.data_manager.hour_float_to_duration_str(float(self.record_dict['hours']))
+        elif self.main_app.get_setting('passed_time_format') == 'passed_time_by_time':
+            passed_time_str = self.data_manager.hour_float_to_duration_str(float(self.record_dict['hours']))
+            passed_time_info = str('{:n}'.format(round(self.record_dict['hours'],3))) + ' ' + self.language_dict["hours"]
+        else:
+            passed_time_str = "Error"
+            passed_time_info = "Error"
+
         #self.lbl_passed_time = MyLabel(self, self.data_manager,width=9,text=str('{:n}'.format(round(self.record_dict['hours'],3)))) # round_time
-        self.lbl_passed_time = MyLabel(self, self.data_manager,width=15,text=self.data_manager.hour_float_to_duration_str(self.record_dict['hours'])) # round_time
+        self.lbl_passed_time = MyLabel(self, self.data_manager,width=15,text=passed_time_str) # round_time
         self.lbl_passed_time.pack(side='right',padx=3)
-        passed_hours = str('{:n}'.format(round(self.record_dict['hours'],3))) + ' ' + self.language_dict["hours"]
-        self.lbl_passed_time_ttp = CreateToolTip(self.lbl_passed_time, self.data_manager, 30, 25, passed_hours,True)
+        
+        self.lbl_passed_time_ttp = CreateToolTip(self.lbl_passed_time, self.data_manager, 30, 25, passed_time_info,True)
 
         self.lbl_empty1 = MyLabel(self, self.data_manager, text='', width=2)
         self.lbl_empty1.pack(side='right',padx=3)

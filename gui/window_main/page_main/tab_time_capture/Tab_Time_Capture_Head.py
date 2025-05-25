@@ -20,15 +20,17 @@ import tkinter.ttk as ttk
 import tkinter.font as tkfont
 from PIL import ImageTk, Image
 import datetime
+import os
 
 from gui.Window_Additionals import CreateToolTip,CreateInfo
 from gui.Window_Additionals import Endofworkinfo, InfoWindow
+from gui.Window_Excel_Search import SearchExcel
 
 from style_classes import MyLabelPixel
 from style_classes import MyFrame
 from style_classes import MyButton
 from style_classes import MyLabel
-
+from style_classes import MyCombobox
 
 class CaptureHead:
     def __init__(self, container, main_app, gui, case_frame_manager, capture_tab):
@@ -89,7 +91,7 @@ class CaptureHead:
         self.main_head_frame.pack(side = "top", fill = "x")
     
         self.btn_add_clock = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict['new_time_account'],width=25,command=lambda:self.add_new_main_account())
-        self.btn_add_clock.pack(side='left',padx = 10,pady=10)
+        self.btn_add_clock.pack(side='left',padx = 10,pady=10)      
 
         self.btn_end_of_work = MyButton(self.main_head_frame, self.data_manager, text=u'\U0001F4BE' + '   ' + self.language_dict['close_recording'],width=25,command=self.end_of_work)
         self.btn_end_of_work.pack(side='right',padx = 10,pady=10)
@@ -118,6 +120,16 @@ class CaptureHead:
         self.lbl_break_info.pack(side='right',padx = 10,pady=10)
         self.lbl_break_info_ttp = CreateToolTip(self.lbl_break_info, self.data_manager, -300, 30, self.language_dict['break_info'], True)
 
+        self.clicked_search_action = tk.StringVar()
+        self.search_action_cbox = MyCombobox(self.main_head_frame, state="readonly", width = 25, textvariable = self.clicked_search_action)
+        self.search_action_cbox.pack(side='left',padx = [20,4],pady=10)
+
+        self.btn_search_action = MyButton(self.main_head_frame, self.data_manager, text=u'\U00002386',width=5,command=self.apply_search_action)
+        self.btn_search_action.pack(side='left',padx = [4,10],pady=10)  
+
+        self.load_search_actions()
+        self.search_action_cbox.bind("<<ComboboxSelected>>", self.set_search_action)
+
         self.update_main_head()
         return
 
@@ -128,6 +140,140 @@ class CaptureHead:
             text = self.language_dict["locked_function"]
             info_window = InfoWindow(self.main_app, self.gui, self.capture_tab.main_frame ,text,350,200)
         return
+
+    def load_search_actions(self):
+
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++__START
+
+        self.costumized_language_dict = {
+                "german": 
+                {
+                    "your_website":"Deine Website",
+                    "Deine Website":"your_website",
+                    "test_website":"Test Website",
+                    "Test Website":"test_website",
+                    "excel_search":"Excel-Suche",
+                    "Excel-Suche":"excel_search"
+                },
+                "english": 
+                {   
+                    "your_website":"Deine Website",
+                    "Deine Website":"your_website",
+                    "test_website":"Test Website",
+                    "Test Website":"test_website",
+                    "excel_search":"Excel-Search",
+                    "Excel-Search":"excel_search"
+                }
+            }    
+        
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++_END
+        
+        self.language_name = self.main_app.get_setting('language_name')
+
+        search_action_list = [self.costumized_language_dict[self.language_name]["your_website"]]
+
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++__START
+
+        if "test_website" in self.main_app.get_booking_system_list_costumized():
+            search_action_list.append(self.costumized_language_dict[self.language_name]["test_website"])
+
+        if "test_website_2" in self.main_app.get_booking_system_list_costumized():
+            search_action_list.append(self.costumized_language_dict[self.language_name]["excel_search"])
+
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++_END
+
+        self.search_action_cbox['values'] = search_action_list
+
+        if self.costumized_language_dict[self.language_name][self.main_app.get_setting('search_action')] in search_action_list:
+            self.clicked_search_action.set(self.costumized_language_dict[self.language_name][self.main_app.get_setting('search_action')])
+        else:
+            self.clicked_search_action.set(self.costumized_language_dict[self.language_name]["your_website"])
+        return
+
+
+    def apply_search_action(self):
+        search_action = self.clicked_search_action.get()
+
+        if "your_website" == self.costumized_language_dict[self.language_name][search_action]:
+
+            your_website_url = self.main_app.get_setting("your_website_url")
+            if your_website_url != "":
+                self.capture_tab.open_website(your_website_url)
+            else:
+                info_window = InfoWindow(self.main_app, self.gui, self.capture_tab.main_frame ,self.language_dict["save_your_website"],300,150)
+
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++__START
+
+        if "test_website" == self.costumized_language_dict[self.language_name][search_action]:
+            website_url = "https://github.com/SebastianFird/EasyTARC"
+            self.capture_tab.open_website(website_url)
+
+        if "excel_search" == self.costumized_language_dict[self.language_name][search_action]:
+            file_path_excel = ""
+
+            file_path_1 = r''
+            file_path_2 = r''
+            file_path_list = [file_path_1,file_path_2]
+
+            for file_path in file_path_list:
+                if os.path.isfile(file_path) == True:
+                    file_path_excel = file_path
+
+            if (self.main_app.get_action_state()=="normal" or self.main_app.get_action_state()=="endofwork") and file_path_excel != "":
+                print(file_path_excel)
+
+                sheet_name = 'test'
+
+                costumized_language_dict = {
+                        "german": 
+                        {
+                            "excel_search":"Excel Suche",
+                            "serach_info":"Test",
+                            "serach_info_2":"Die Suchergebnisse sind auf die ersten 200 begrenzt.",
+                            "no_results":"Keine Suchergebnisse.",
+                            "search_results":"Suchergebnisse",
+                            "project":"Projekt",
+                            "order":"Auftrag",
+                            "process":"Prozess",
+                            "description_text":"Beschreibung",
+                            "response_code":"Buchungs-ID"
+                        },
+                        "english": 
+                        {   
+                            "excel_search":"Excel Search",
+                            "serach_info":"Test",
+                            "serach_info_2":"The search results are limited to the first 200.",
+                            "no_results":"No results.",
+                            "search_results":"Search results",
+                            "project":"Project",
+                            "order":"Order",
+                            "process":"Process",
+                            "description_text":"Description",
+                            "response_code":"Booking-ID"
+                        }
+                    }    
+                
+                excel_col_dict = {
+                    "project":"Project",
+                    "order":"Order",
+                    "process":"Process",
+                    "description":"Description",
+                    "response_code":'Booking-ID'
+                }
+                
+                search_window = SearchExcel(self.main_app, self.gui, self.capture_tab.main_frame, file_path_excel, self.case_frame_manager,sheet_name, excel_col_dict, costumized_language_dict)
+            else:
+                info_window = InfoWindow(self.main_app, self.gui, self.capture_tab.main_frame ,self.language_dict["locked_function"],350,200)
+            
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++_END
+        return
+
+
+    def set_search_action(self,e=None):
+        search_action = self.clicked_search_action.get()
+        self.main_app.change_settings("search_action",self.costumized_language_dict[self.language_name][search_action])
+        return
+    
 
     def pause_enter(self,e):
         self.on_activate_pause = True
@@ -267,7 +413,7 @@ class CaptureHead:
         info_dict.update({self.language_dict["recording_period"]:self.data_manager.duration_dt_to_duration_str(recording_period)})
         info_dict.update({self.language_dict["working_time"]:self.data_manager.duration_dt_to_duration_str(work_time_q)})
 
-        if main_account_clock_list != []:
+        if main_account_clock_list != [] and self.main_app.get_setting('booking_rate_details') == 'on':
             activated_main_account_clock_not_bookable_list = [ele for ele in activated_main_account_clock_list if ele.get_bookable() == 0]
             if activated_main_account_clock_not_bookable_list != []:
                 q_not_bookable_time = datetime.timedelta(hours = 0)
@@ -294,6 +440,7 @@ class CaptureHead:
     def refresh_main_head(self):
         self.btn_add_clock.refresh_style()
         self.btn_end_of_work.refresh_style()
+        self.btn_search_action.refresh_style()
         self.lbl_activate_pause.refresh_style()
         self.lbl_pause.refresh_style()
         self.lbl_empty0.refresh_style()
@@ -309,6 +456,8 @@ class CaptureHead:
         
         self.btn_add_clock.configure(text=self.language_dict['new_time_account'])
         self.lbl_pause.configure(text=self.language_dict['break'])
+
+        self.load_search_actions()
 
         self.update_main_head()
         return

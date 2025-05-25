@@ -196,6 +196,10 @@ class CreateEditAccount(tk.Frame):
         else:
             external_booking = '0'
 
+        if bookable == 0:
+            external_booking = '0'
+            response_code = ' - '
+
         input_checked = self.check_new_account_input(name,[group],[name,project_label,order_label,process_label,group,description_text,response_code,response_texts],available_hours)
 
         if input_checked != True:

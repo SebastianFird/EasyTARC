@@ -22,7 +22,7 @@ import ctypes
 
 from gui.Window_Additionals import InfoDictWindow
 from gui.Window_Additionals import SleepModeinfo
-from gui.Window_Additionals import CreateToolTip
+from gui.Window_Additionals import CreateToolTip, CreateInfo
 from gui.window_main.Window_Main_Status_OptionMenu import MainWindowStatusOptionMenu
 
 from style_classes import MyFrame
@@ -62,12 +62,15 @@ class MainWindowStatus(tk.Frame):
         self.lbl_backup = MyLabel(self.main_frame, self.data_manager,  text=u'\U0001F5D8',width=4, anchor='w')
         self.lbl_backup.configure(foreground=self.style_dict["selected_color_grey"])
         self.lbl_backup.pack(side = "right")
-        self.lbl_backup_ttp = CreateToolTip(self.lbl_backup, self.data_manager, -350, 30, self.language_dict["data_are_stored_temporarily"])
+        self.lbl_backup_ttp = CreateToolTip(self.lbl_backup, self.data_manager, -800, 25, self.language_dict["data_are_stored_temporarily"])
 
         self.lbl_btn_info = MyLabel(self.main_frame, self.data_manager, text=u'\U0001F4CA',width=5)  #1F4CA #U00002139 # U0001F4C8 # U0001F4CA
         self.lbl_btn_info.configure(foreground=self.style_dict["font_color"])
         self.lbl_btn_info.pack(side = "right")
         self.lbl_btn_info.bind('<Button-1>', self.info_work_time)
+
+        self.btn_info_ttp = CreateInfo(self.lbl_btn_info, self.data_manager, -50, 25)
+        self.btn_info_ttp.text = self.language_dict["session_data"]
 
         self.lbl_pausetime = MyLabel(self.main_frame, self.data_manager, width=8, anchor='w')
         self.lbl_pausetime.configure(foreground=self.style_dict["font_color"])
@@ -98,6 +101,9 @@ class MainWindowStatus(tk.Frame):
         self.lbl_btn_study_mode.pack(side = "left")
         self.lbl_btn_study_mode.bind('<Button-1>', self.open_study_mode)
 
+        self.btn_study_mode_ttp = CreateInfo(self.lbl_btn_study_mode, self.data_manager, 30, 25)
+        self.btn_study_mode_ttp.text = self.language_dict["study_mode"]
+
         self.lbl_status_text = MyLabel(self.main_frame, self.data_manager, anchor='w')
         self.lbl_status_text.configure(foreground=self.style_dict["font_color"])
         self.lbl_status_text.pack(side = "left")
@@ -126,20 +132,24 @@ class MainWindowStatus(tk.Frame):
     def info_enter(self,e):
         self.on_info_btn = True
         self.lbl_btn_info.configure(background=self.style_dict["selected_color_grey"])
+        self.btn_info_ttp.scheduleinfo()
 
     def info_leave(self,e):
         self.on_info_btn = False
         self.start_auto_update_status_frame()
+        self.btn_info_ttp.hideinfo()
 
     def study_mode_enter(self,e):
         self.on_study_mode_btn = True
         work_clock = self.data_manager.get_work_clock()
         if self.main_app.get_action_state() == 'normal' and work_clock.get_runninig() == True:
             self.lbl_btn_study_mode.configure(background=self.style_dict["selected_color_grey"])
+        self.btn_study_mode_ttp.scheduleinfo()
 
     def study_mode_leave(self,e):
         self.on_study_mode_btn = False
         self.start_auto_update_status_frame()
+        self.btn_study_mode_ttp.hideinfo()
 
     def backup_saved_on(self):
         self.lbl_backup.configure(foreground=self.style_dict["font_color"])
@@ -315,6 +325,9 @@ class MainWindowStatus(tk.Frame):
         self.lbl_worktime_name.configure(text=self.language_dict["working_time"] + ': ')
         self.lbl_rate_name.configure(text=self.language_dict["rate"] + ': ')
 
+        self.btn_info_ttp.text = self.language_dict["session_data"]
+        self.btn_study_mode_ttp.text = self.language_dict["study_mode"]
+
         self.start_auto_update_status_frame()
         return
     
@@ -385,7 +398,7 @@ class MainWindowStatus(tk.Frame):
         info_dict.update({self.language_dict["recording_period"]:self.data_manager.duration_dt_to_duration_str(recording_period)})
         info_dict.update({self.language_dict["working_time"]:self.data_manager.duration_dt_to_duration_str(work_time_q)})
 
-        if main_account_clock_list != []:
+        if main_account_clock_list != [] and self.main_app.get_setting('booking_rate_details') == 'on':
             activated_main_account_clock_not_bookable_list = [ele for ele in activated_main_account_clock_list if ele.get_bookable() == 0]
             if activated_main_account_clock_not_bookable_list != []:
                 q_not_bookable_time = datetime.timedelta(hours = 0)

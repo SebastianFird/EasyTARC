@@ -372,7 +372,7 @@ class WorkWindowList(tk.Toplevel):
             if self.after_func_leave != None:
                 self.main_frame.after_cancel(self.after_func_leave)
                 self.after_func_leave = None
-            self.after_func_leave = self.main_frame.after(3000,self.show_vertical_frame)
+            self.after_func_leave = self.main_frame.after(1000,self.show_vertical_frame)
 
         self.data_manager.set_last_tracked_interaction()
 
@@ -849,7 +849,7 @@ class ClockFrame((tk.Frame)):
 
         self.lbl_activate_account_clock = MyLabel(self, self.data_manager, image=self.image_dict['photo_btn_off'])
         self.lbl_activate_account_clock.image = self.image_dict['photo_btn_off']
-        self.lbl_activate_account_clock.pack(side = "left", padx=5, pady=8)
+        self.lbl_activate_account_clock.pack(side = "left", padx=5, pady=6)
 
         if self.clock.get_id() == 0:
             name = self.language_dict['without_allocation']
@@ -859,7 +859,7 @@ class ClockFrame((tk.Frame)):
                 name = ' ' + u'\U00002B9E' + ' ' + name # 1F517 # 02B9E
 
         self.lbl_name = MyLabel(self,self.data_manager,text = name, anchor='w')
-        self.lbl_name.pack(side = "left", padx=5, pady=8)
+        self.lbl_name.pack(side = "left", padx=5, pady=6)
 
         if self.clock.get_response_text() == ' - ':
             response_text = ''

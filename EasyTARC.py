@@ -47,6 +47,8 @@ class App():
 
     def __init__(self):
 
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++__START
+
         self.app_name = 'EasyTARC'
         self.customization_name = ""                                                    # OV: ""
 
@@ -65,9 +67,6 @@ class App():
         # no setting to disable the data simplification
         self.simplify_passed_times_on = False                       # True / False      # OV: False
 
-        # access to using a booking link
-        self.booking_link_access = False                            # True / False      # OV: False
-
         # creating auto start up link by sign up
         self.sign_up_auto_stratup_link = "off"                      # on / off          # OV: off
 
@@ -85,10 +84,22 @@ class App():
         # default scale
         self.scale_factor = 1                                       # 1                 # OV: 1
 
+        # default booking system
+        self.booking_system_list_default = [                        # list              # OV: "booking_system_not_specified","no_booking_system","unkown_booking_system"
+            "booking_system_not_specified",
+            "no_booking_system",
+            "unkown_booking_system"
+            ]        
+
+        # costumized booking system
+        self.booking_system_list_costumized = [                     # list              # OV: []    # test: ["test_website"]
+            ]                
+             
+
         ##########
         
         # this app version
-        self.app_version = '1.12.5'
+        self.app_version = '1.12.6'
 
         ##########
 
@@ -145,20 +156,16 @@ class App():
             "open_booking_website_wait_time": "2",
             "list_work_window_attach_pos": "right",
             "win_dpi_awareness":"on",
-            "booking_format":"booking_by_hours"
+            "booking_format":"booking_by_hours",
+            "booking_system":"booking_system_not_specified",
+            "booking_action":"copy_json",
+            "search_action":"your_website",
+            "your_website_url":"",
+            "booking_website_url":"",
+            "passed_time_format":"passed_time_by_time"
         }
 
-        ##########
-
-        self.default_booking_link_dict = {
-            "booking_url_1":"",
-            "booking_url_2":"",
-            "booking_url_3":"",
-            "booking_url_4":"",
-            "booking_url_5":"",
-            "booking_url_6":"",
-            "booking_url_sequence":["booking_url_1","booking_url_2","booking_url_3","response_code","booking_url_4","hours","booking_url_5","response_text","booking_url_6"]
-        }
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++__END
 
         ##########
 
@@ -624,34 +631,12 @@ Wenn Sie Fragen zu dieser Datenschutzerklärung haben, kontaktieren Sie uns bitt
         if self.version_update == True:
             if self.check_updates() == False:
                 return('Update failed')
-
+            
         ######
 
         if os.path.isdir('database') == False:
             new_path = os.path.abspath(os.getcwd()) +'\\' + 'database'
             os.makedirs(new_path)
-
-        ######
-
-        if os.path.isfile('json/booking_link.json') == False and self.booking_link_access == True:
-            booking_link_file = open('json/booking_link.json',"w+",encoding='UTF-8')
-            json.dump(self.default_booking_link_dict, booking_link_file)
-            booking_link_file.close()
-
-        if self.booking_link_access == True:
-            with open('json/booking_link.json',encoding='UTF-8') as json_file:
-                self.booking_link_dict = json.load(json_file)
-        else:
-            empty_booking_link_dict = {
-                "booking_url_1":"",
-                "booking_url_2":"",
-                "booking_url_3":"",
-                "booking_url_4":"",
-                "booking_url_5":"",
-                "booking_url_6":"",
-                "booking_url_sequence":["booking_url_1","booking_url_2","booking_url_3","response_code","booking_url_4","hours","booking_url_5","response_text","booking_url_6"]
-            }
-            self.booking_link_dict = empty_booking_link_dict
 
         ######
 
@@ -1008,12 +993,6 @@ Wenn Sie Fragen zu dieser Datenschutzerklärung haben, kontaktieren Sie uns bitt
     def get_filepath(self):
         return(self.file_path)
     
-    def get_booking_link_dict(self):
-        return(self.booking_link_dict)
-    
-    def get_booking_link_access(self):
-        return(self.booking_link_access)
-    
     def get_sign_option_database_unencrypted(self):
         return(self.sign_option_database_unencrypted)
     
@@ -1029,6 +1008,12 @@ Wenn Sie Fragen zu dieser Datenschutzerklärung haben, kontaktieren Sie uns bitt
     def get_license(self):
         return(self.license)
 
+    def get_booking_system_list_default(self):
+        return(self.booking_system_list_default)
+    
+    def get_booking_system_list_costumized(self):
+        return(self.booking_system_list_costumized)
+
 ############################################################
 
     def get_setting(self,key):
@@ -1040,6 +1025,42 @@ Wenn Sie Fragen zu dieser Datenschutzerklärung haben, kontaktieren Sie uns bitt
             setting_json_file = open('json/settings.json',"w",encoding='UTF-8')
             json.dump(self.settings_dict, setting_json_file)
             setting_json_file.close()
+
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++__START
+
+    def set_booking_system(self,booking_system,refesh=False):
+
+        if booking_system == "no_booking_system": 
+            self.change_settings('booking_system',booking_system)
+            self.change_settings('booking_rate_details',"off")
+            self.change_settings('booking_action',"copy_json")
+            self.change_settings('search_action',"your_website")
+            self.change_settings('booking_kind',"sum")
+            self.change_settings('booking_format',"booking_by_hours")
+
+        elif booking_system == "unkown_booking_system": 
+            self.change_settings('booking_system',booking_system)
+            self.change_settings('booking_rate_details',"on")
+            self.change_settings('booking_action',"open_booking_website")
+            self.change_settings('search_action',"your_website")
+            self.change_settings('booking_kind',"date")
+            self.change_settings('booking_format',"booking_by_hours")
+
+        elif booking_system == "test_website":         
+            self.change_settings('booking_system',booking_system)
+            self.change_settings('booking_rate_details',"on")
+            self.change_settings('booking_action',"open_booking_system")
+            self.change_settings('search_action',"test_website")
+            self.change_settings('booking_kind',"main_accounts")
+            self.change_settings('booking_format',"booking_by_time")
+        
+        else:
+            self.change_settings('booking_system',"booking_system_not_specified")
+
+        if refesh == True:
+            self.gui.refresh()
+
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++__END
 
 ############################################################
 
@@ -1202,6 +1223,21 @@ Wenn Sie Fragen zu dieser Datenschutzerklärung haben, kontaktieren Sie uns bitt
             update_dict = {"font_size": "12",
                             "win_dpi_awareness": "on",
                             "booking_format":"booking_by_hours"}
+            
+            self.settings_dict.update(update_dict)
+
+            setting_json_file = open('json/settings.json',"w",encoding='UTF-8')
+            json.dump(self.settings_dict, setting_json_file)
+            setting_json_file.close()
+
+        #check for 1.12.6 update
+        if self.check_for_update_to_version_str(self.start_version,'1.12.6') == True:
+            update_dict = {"booking_system":"booking_system_not_specified",
+                            "booking_action":"copy_json",
+                            "search_action":"your_website",
+                            "your_website_url":"",
+                            "booking_website_url":"",
+                            "passed_time_format":"passed_time_by_time"}
             
             self.settings_dict.update(update_dict)
 

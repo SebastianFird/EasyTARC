@@ -57,11 +57,15 @@ class BookingBySum(tk.Frame):
 
         unbooked_record_dict_list_sum_list = self.booking_tab.get_unbooked_record_dict_list_sum_list()
 
+        record_nbr = 1
+
         for unbooked_record_dict_list in unbooked_record_dict_list_sum_list:
-                record_frame = BookingRecordFrame(self.sum_list_frame, self.main_app, self.gui, self.booking_tab,self,unbooked_record_dict_list,self)
-                record_frame.pack(side = "top", fill = "x")
-                self.record_frame_list.append(record_frame)
-                self.booking_tab.all_record_frame_list.append(record_frame)
+            record_frame = BookingRecordFrame(self.sum_list_frame, self.main_app, self.gui, self.booking_tab,self,unbooked_record_dict_list,self,record_nbr)
+            record_frame.pack(side = "top", fill = "x")
+            self.record_frame_list.append(record_frame)
+            self.booking_tab.all_record_frame_list.append(record_frame)
+            
+            record_nbr += 1 
 
         self.update()
         return

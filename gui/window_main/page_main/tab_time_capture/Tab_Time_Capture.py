@@ -18,10 +18,12 @@ __author__ = 'Sebastian Feiert'
 import tkinter as tk
 from tkinter import ttk
 import datetime
+import webbrowser
 
 from gui.Scroll_Frame import Scroll_Frame
 from gui.window_main.page_main.tab_time_capture.Tab_Time_Capture_Body import CaptureBody
 from gui.window_main.page_main.tab_time_capture.Tab_Time_Capture_Head import CaptureHead
+from gui.Window_Additionals import InfoWindow
 
 class CaptureTab(Scroll_Frame):
     def __init__(self, container, main_app, gui, case_frame_manager):
@@ -141,6 +143,22 @@ class CaptureTab(Scroll_Frame):
         self.correction_column = correction_column
         self.time_column = correction_column
         self.update()
+
+#################################################################
+
+    def open_website(self,url):
+        if url == '':
+            self.show_info(self.language_dict["This_website_could_not_be_reached"])
+            return()
+        try:
+            webbrowser.open_new(url)
+            return(True)
+        except:
+            self.show_info(self.language_dict["This_website_could_not_be_reached"])
+            return()
+        
+    def show_info(self,text):
+        info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,300,210)
 
 
 

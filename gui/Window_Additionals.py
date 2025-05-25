@@ -580,7 +580,9 @@ class InfoWindow(tk.Toplevel):
         else:
             self.gui.enable_main_window()
             self.gui.activate_current_tab()
+            self.gui.lift_main_window()
         self.destroy()
+        
 
 
     def get_pos(self, event):
@@ -743,6 +745,7 @@ class InfoDictWindow(tk.Toplevel):
     def close_window(self,*event):
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
+        self.gui.lift_main_window()
         self.destroy()
 
     def get_pos(self, event):
@@ -904,6 +907,7 @@ class ExitSavingWindow(tk.Toplevel):
     def return_window(self, *event):
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
+        self.gui.lift_main_window()
         self.destroy()
 
     def close_window(self):
@@ -1032,6 +1036,7 @@ class DeleteRecordWarning(tk.Toplevel):
     def return_window(self, *event):
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
+        self.gui.lift_main_window()
         self.destroy()
 
     def delete_record(self):
@@ -1040,6 +1045,7 @@ class DeleteRecordWarning(tk.Toplevel):
         self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.update_clock_properties()
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
+        self.gui.lift_main_window()
         self.destroy()
 
     def get_pos(self, event):
@@ -1159,6 +1165,7 @@ class DeleteDatabase(tk.Toplevel):
     def return_window(self, *event):
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
+        self.gui.lift_main_window()
         self.destroy()
 
     def get_start_up_link(self):
@@ -1337,18 +1344,21 @@ class DeleteAccountWarning(tk.Toplevel):
     def return_window(self, *event):
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
+        self.gui.lift_main_window()
         self.destroy()
 
     def delete_account(self):
         self.account_tab.delete_account(self.account_dict)
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
+        self.gui.lift_main_window()
         self.destroy()
 
     def transfer_delete_account(self):
         self.account_tab.delete_account(self.account_dict,True)
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
+        self.gui.lift_main_window()
         self.destroy()
 
     def get_pos(self, event):
@@ -1475,12 +1485,14 @@ class CloseAccountWarning(tk.Toplevel):
     def return_window(self, *event):
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
+        self.gui.lift_main_window()
         self.destroy()
 
     def close_account(self):
         self.account_tab.close_account(self.account_dict)
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
+        self.gui.lift_main_window()
         self.destroy()
 
     def get_pos(self, event):
@@ -1584,6 +1596,17 @@ class Endofworkinfo(tk.Toplevel):
             btn_booking = MyButton(btnframe, self.data_manager,width=8,text=self.language_dict["booking"],command=self.close_window_go_to_booking)
             btn_booking.pack(side = 'right', pady = 5, padx=5)
 
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++__START
+
+            url = "https://easytarc.de/"
+            btn_text = ""
+
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++__END
+
+            btn_web = MyButton(btnframe, self.data_manager,width=8,text=btn_text,command=lambda:self.open_url(url))
+            if url != "" and btn_text != "":
+                btn_web.pack(side = 'right', pady = 5, padx=5)
+
             btn_ok = MyButton(btnframe, self.data_manager,width=8,text=self.language_dict["ok"],command=self.close_window)
             btn_ok.pack(side = 'left', pady = 5, padx=5)
 
@@ -1648,22 +1671,27 @@ class Endofworkinfo(tk.Toplevel):
             return(bodyframe)
 
 
-
-
-
-
         bodyframe = body_frame()
         bodyframe.pack(side = "top", fill = "both", expand = True)
 
     def close_window(self,*event):
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
+        self.gui.lift_main_window()
         self.destroy()
 
     def close_window_go_to_booking(self,*event):
         self.gui.enable_main_window()
         self.gui.change_to_booking_tab()
+        self.gui.lift_main_window()
         self.destroy()
+
+    def open_url(self,url):
+        try:
+            webbrowser.open_new(url)
+        except:
+            pass
+        return
 
     def close_easytarc(self,*event):
         self.gui.root.quit()
@@ -1819,6 +1847,7 @@ class EditGroupName(tk.Toplevel):
     def return_window(self, *event):
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
+        self.gui.lift_main_window()
         self.destroy()
 
     def save_group_name(self):
@@ -1827,6 +1856,7 @@ class EditGroupName(tk.Toplevel):
         if self.original_group_name == group_name:
             self.gui.enable_main_window()
             self.gui.activate_current_tab()
+            self.gui.lift_main_window()
             self.destroy()
 
 
@@ -1848,6 +1878,7 @@ class EditGroupName(tk.Toplevel):
 
             self.gui.enable_main_window()
             self.gui.activate_current_tab()
+            self.gui.lift_main_window()
             self.destroy()
         else:
             self.lbl_error_info.configure(text=check_response)
@@ -2003,6 +2034,7 @@ class SleepModeinfo(tk.Toplevel):
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
         self.gui.set_sleeping(False)
+        self.gui.lift_main_window()
         self.destroy()
     
     def restore_recording(self,*event):
@@ -2022,6 +2054,7 @@ class SleepModeinfo(tk.Toplevel):
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
         self.gui.set_sleeping(False)
+        self.gui.lift_main_window()
         self.destroy()
         return
 
@@ -2162,7 +2195,7 @@ class EditDataDate(tk.Toplevel):
 
         self.date_cbox['values'] = date_list
         self.date.set(date_list[0])
-        self.date_cbox.pack(side="left", padx=10)
+        self.date_cbox.pack( padx=10)
 
         bodyframe.pack(side="top", fill="both", expand=True)
         return()
@@ -2170,6 +2203,7 @@ class EditDataDate(tk.Toplevel):
     def return_window(self, *event):
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
+        self.gui.lift_main_window()
         self.destroy()
 
     def save_new_date(self):
@@ -2189,6 +2223,7 @@ class EditDataDate(tk.Toplevel):
         self.data_tab.reload()
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
+        self.gui.lift_main_window()
         self.destroy()
 
     def get_pos(self, event):
@@ -2433,6 +2468,7 @@ class EditRemainingTime(tk.Toplevel):
     def return_window(self, *event):
         self.gui.enable_main_window()
         self.gui.activate_current_tab()
+        self.gui.lift_main_window()
         self.destroy()
 
     def save_new_available_hours(self):
@@ -2452,6 +2488,7 @@ class EditRemainingTime(tk.Toplevel):
             self.gui.main_window.case_frame.notebook_frame.tab_manager.capture_tab.update_clock_properties()
             self.gui.enable_main_window()
             self.gui.activate_current_tab()
+            self.gui.lift_main_window()
             self.destroy()
 
     def get_pos(self, event):
@@ -2467,3 +2504,346 @@ class EditRemainingTime(tk.Toplevel):
         self.start_x = event.x_root
         self.start_y = event.y_root
 
+class InfoWindowSetupBookingSystem(tk.Toplevel):
+    def __init__(self ,main_app, gui, widget, text, w, h, highlight_window = False, login_window = False, web_link = None,  *args, **kwargs):
+        tk.Toplevel.__init__(self,widget)
+
+        self.gui = gui
+        self.main_app = main_app
+        self.data_manager = self.main_app.get_data_manager()
+        self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
+        self.widget = widget
+        self.highlight_window = highlight_window
+        self.login_window = login_window
+        self.web_link = web_link
+
+        self.geo_factor = self.main_app.get_geometry_factor()
+        self.w = int(round(self.geo_factor*w))
+        self.h = int(round(self.geo_factor*h))
+
+        self.text = text
+
+        x, y, cx, cy = self.widget.bbox("insert")
+
+        x = x + self.widget.winfo_rootx() + self.widget.winfo_width()/2 - self.w/2
+        y = y + cy + self.widget.winfo_rooty() + self.widget.winfo_height()/2 - self.h/2
+
+        self.gui.disable_main_window()
+
+        self.wm_geometry('%dx%d+%d+%d' % (self.w, self.h, x, y))
+        self.wm_overrideredirect(1)
+        self.attributes('-topmost',True)
+
+        if self.highlight_window == True:
+            self.widget_color = self.style_dict["highlight_color_yellow"]
+        else:
+            self.widget_color = self.style_dict["info_color_light_blue"]
+
+        self.title_fcolor = self.style_dict["font_color"]
+
+        self.scroll = Scroll_Frame(self.main_app,self.gui)
+
+
+        self.run_main_frame()
+
+    def run_main_frame(self):
+
+        # Create A Main Frame
+        self.main_frame = MyFrame(self, self.data_manager)
+        self.main_frame.configure(highlightthickness=1, highlightcolor=self.widget_color,
+                            highlightbackground=self.widget_color)
+        self.main_frame.pack(side = "top", fill = "both", expand = True)
+
+        self.main_frame.grid_rowconfigure(0, weight = 1)
+        self.main_frame.grid_columnconfigure(0, weight = 1)
+
+
+        # make a frame for the title bar
+        self.title_bar = MyFrame(self.main_frame,self.data_manager)
+        self.title_bar.configure(background=self.widget_color)
+        self.title_bar.pack(side='top', fill = "x")
+        self.title_bar.bind('<B1-Motion>', self.move_window)
+        self.title_bar.bind('<Button-1>', self.get_pos)
+
+
+        close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
+        close_button.configure(background=self.widget_color,height=int(round(self.geo_factor*30)))
+        close_button.pack(side='right')
+        close_button.bind('<Button-1>', self.close_window)
+
+        def on_enter1(e):
+            close_button.configure(background=self.style_dict["caution_color_red"])
+
+        def on_leave1(e):
+            close_button.configure(background=self.widget_color)
+
+        close_button.bind("<Enter>", on_enter1)
+        close_button.bind("<Leave>", on_leave1)
+
+        lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text = '   ' + self.language_dict["info"])
+        lbl_name.configure(background=self.widget_color,height=int(round(self.geo_factor*30)),foreground=self.title_fcolor)
+        lbl_name.pack(side='left')
+        lbl_name.bind('<B1-Motion>', self.move_window)
+        lbl_name.bind('<Button-1>', self.get_pos)
+
+        def btn_frame():
+            btnframe = MyFrame(self.main_frame,self.data_manager)
+            btnframe.configure(background=self.style_dict["btn_color_grey"])
+
+            btn_ok = MyButton(btnframe, self.data_manager,width=8,text=self.language_dict["ok"],command=self.close_window)
+            btn_ok.pack(side = 'right', pady = 5, padx=5)
+
+            return(btnframe)
+
+        btnframe = btn_frame()
+        btnframe.pack(side = "bottom", fill = "x")
+            
+        def body_frame():
+            bodyframe = MyFrame(self.main_frame,self.data_manager)
+            scroll_frame = self.scroll.create_scroll_frame(bodyframe)
+
+            frame_text_1 = MyFrame(scroll_frame,self.data_manager)
+            frame_text_1.pack(side = "top", padx=0, pady=20)
+
+            lbl_text = MyLabel(frame_text_1, self.data_manager, text=self.text,wraplength=self.w-20, justify="left")
+            
+            print(self.web_link)
+            if self.web_link != None:
+                lbl_text.pack(pady = 0, padx=0,side="top", fill="x", expand=True)
+
+                defaultFont = tk.font.nametofont("TkDefaultFont")
+                underlineFont = defaultFont.copy()
+                underlineFont.configure(underline=True)
+
+                lbl_text_web_link = MyLabel(frame_text_1, self.data_manager, text=self.web_link,wraplength=self.w-20,justify="left",font=underlineFont)
+                lbl_text_web_link.configure(foreground=self.style_dict["info_color_light_blue"])
+                lbl_text_web_link.pack(pady = 10, padx=0,side="top", fill="x", expand=True)
+
+                def on_enter_web_link(e=None):
+                    lbl_text_web_link.configure(foreground=self.style_dict["header_color_blue"])
+
+                def on_leave_web_link(e=None):
+                    lbl_text_web_link.configure(foreground=self.style_dict["info_color_light_blue"])
+
+                def on_clicked_web_link(e=None):
+                    try:
+                        webbrowser.open_new(self.web_link)
+                    except:
+                        lbl_text_web_link.configure(text=self.style_dict["error"])
+
+                lbl_text_web_link.bind("<Enter>", on_enter_web_link)
+                lbl_text_web_link.bind("<Leave>", on_leave_web_link)
+                lbl_text_web_link.bind('<Button-1>', on_clicked_web_link)
+            else:
+                lbl_text.pack(pady = 0, padx=0,side="top", fill="x", expand=True)
+
+            frame_text_2 = MyFrame(scroll_frame,self.data_manager)
+            frame_text_2.pack(side = "top", padx=0, pady=20)
+
+            lbl_booking_system_text = MyLabel(frame_text_2,self.data_manager,text =self.language_dict["using_a_booking_system"], anchor = 'w')
+            lbl_booking_system_text.pack(side='left',padx=0)
+
+            frame_dropdown = MyFrame(scroll_frame,self.data_manager)
+            frame_dropdown.pack(side = "top", padx=15, pady=10)
+
+            self.booking_system = tk.StringVar()
+            self.booking_system_cbox = MyCombobox(frame_dropdown, state="readonly", width = 35, textvariable = self.booking_system)
+
+            self.default_list = self.main_app.get_booking_system_list_default().copy()
+            booking_system_list = self.default_list + self.main_app.get_booking_system_list_costumized().copy()
+            booking_system_list[booking_system_list.index("unkown_booking_system")] = self.language_dict["unkown_booking_system"]
+            booking_system_list[booking_system_list.index("no_booking_system")] = self.language_dict["no_booking_system"]
+            booking_system_list[booking_system_list.index("booking_system_not_specified")] = self.language_dict["booking_system_not_specified"]
+
+            booking_system = self.main_app.get_setting('booking_system')
+            if booking_system in self.default_list:
+                booking_system = self.language_dict[booking_system]
+
+            self.booking_system_cbox['values'] = booking_system_list
+
+            self.booking_system.set(booking_system)
+
+            self.lbl_setup_booking_system_info = MyLabel(frame_dropdown,self.data_manager,text=u'\U00002139',width=3)
+            self.lbl_setup_booking_system_info.pack(side='left',padx=10)
+            self.lbl_setup_booking_system_info_ttp = CreateToolTip(self.lbl_setup_booking_system_info, self.data_manager, 0, 30, self.language_dict["booking_system_setup_info"], True)
+
+            self.booking_system_cbox.pack(side='left',padx=10)
+
+
+            return(bodyframe)
+
+        bodyframe = body_frame()
+        bodyframe.pack(side = "top", fill = "both", expand = True)
+
+    def close_window(self,*event):
+
+        booking_system = self.booking_system.get()
+        if booking_system in self.language_dict:
+            if self.language_dict[booking_system] in self.default_list:
+                booking_system = self.language_dict[booking_system]
+        self.main_app.set_booking_system(booking_system,True)
+        
+        if self.login_window == True:
+            self.gui.enable_login_window()
+        else:
+            self.gui.enable_main_window()
+            self.gui.activate_current_tab()
+            self.gui.lift_main_window()
+        self.destroy()
+
+
+    def get_pos(self, event):
+        self.x_win = self.winfo_x()
+        self.y_win = self.winfo_y()
+        self.start_x = event.x_root
+        self.start_y = event.y_root
+        self.y_win = self.y_win - self.start_y
+        self.x_win = self.x_win - self.start_x
+
+    def move_window(self, event):
+        self.geometry('+{0}+{1}'.format(event.x_root + self.x_win, event.y_root + self.y_win))
+        self.start_x = event.x_root
+        self.start_y = event.y_root
+
+
+class EditSetting(tk.Toplevel):
+    def __init__(self, main_app, gui, widget, setting, setting_info = None, name = None, width=350, height=150, *args, **kwargs):
+        tk.Toplevel.__init__(self, widget)
+
+        self.gui = gui
+        self.main_app = main_app
+        self.data_manager = self.main_app.get_data_manager()
+        self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
+        self.widget = widget
+        self.setting = setting
+        self.setting_info = setting_info
+        self.name = name
+
+        self.geo_factor = self.main_app.get_geometry_factor()
+        self.w = int(round(self.geo_factor*width))
+        self.h = int(round(self.geo_factor*height))
+
+        self.user_db = self.main_app.data_manager.user_db
+
+        x, y, cx, cy = self.widget.bbox("insert")
+
+        x = x + self.widget.winfo_rootx() + self.widget.winfo_width() / 2 - self.w / 2
+        y = y + cy + self.widget.winfo_rooty() + self.widget.winfo_height() / 2 - self.h / 2
+
+        self.gui.disable_main_window()
+
+        self.wm_geometry('%dx%d+%d+%d' % (self.w, self.h, x, y))
+        self.wm_overrideredirect(1)
+        self.attributes('-topmost', True)
+
+        self.widget_color = self.style_dict["info_color_light_blue"]
+        self.title_fcolor = self.style_dict["font_color"]
+
+        self.scroll = Scroll_Frame(self.main_app,self.gui)
+
+        self.run_main_frame()
+
+    def run_main_frame(self):
+        # Create A Main Frame
+        self.main_frame = MyFrame(self, self.data_manager)
+        self.main_frame.configure(highlightthickness=1, highlightcolor=self.widget_color,
+                                  highlightbackground=self.widget_color)
+        self.main_frame.pack(side="top", fill="both", expand=True)
+
+        self.main_frame.grid_rowconfigure(0, weight=1)
+        self.main_frame.grid_columnconfigure(0, weight=1)
+
+        # make a frame for the title bar
+        self.title_bar = MyFrame(self.main_frame, self.data_manager)
+        self.title_bar.configure(background=self.widget_color)
+        self.title_bar.pack(side='top', fill="x")
+        self.title_bar.bind('<B1-Motion>', self.move_window)
+        self.title_bar.bind('<Button-1>', self.get_pos)
+
+        close_button = MyLabelPixel(self.title_bar, self.data_manager, text='      X      ')
+        close_button.configure(background=self.widget_color, height=int(round(self.geo_factor*30)))
+        close_button.pack(side='right')
+        close_button.bind('<Button-1>', self.return_window)
+
+        def on_enter1(e):
+            close_button.configure(background=self.style_dict["caution_color_red"])
+
+        def on_leave1(e):
+            close_button.configure(background=self.widget_color)
+
+        close_button.bind("<Enter>", on_enter1)
+        close_button.bind("<Leave>", on_leave1)
+
+        lbl_name = MyLabelPixel(self.title_bar, self.data_manager, text=self.language_dict[self.name])
+        lbl_name.configure(background=self.widget_color, height=int(round(self.geo_factor*30)), foreground=self.title_fcolor)
+        lbl_name.pack(side='left')
+        lbl_name.bind('<B1-Motion>', self.move_window)
+        lbl_name.bind('<Button-1>', self.get_pos)
+
+        def btn_frame():
+            btnframe = MyFrame(self.main_frame,self.data_manager)
+            btnframe.configure(background=self.style_dict["btn_color_grey"])
+
+            btn_save = MyButton(btnframe, self.data_manager, width=20, text=self.language_dict["apply"], command=self.save_setting)
+            btn_save.pack(side='right', pady=5, padx=5)
+
+            btn_back = MyButton(btnframe, self.data_manager, width=8, text=self.language_dict["back"], command=self.return_window)
+            btn_back.pack(side='right', pady=5, padx=5)
+
+            return(btnframe)
+
+        btnframe = btn_frame()
+        btnframe.pack(side = "bottom", fill = "x")
+
+        self.body_frame()
+
+    def body_frame(self):
+        bodyframe = MyFrame(self.main_frame,self.data_manager)
+        scroll_frame = self.scroll.create_scroll_frame(bodyframe)
+
+        frame_dropdown = MyFrame(scroll_frame,self.data_manager)
+        frame_dropdown.pack(side = "top", padx=15, pady=15,fill='x')
+
+        if self.setting_info != None:
+            lbl_setting_info = MyLabel(frame_dropdown,self.data_manager,text=u'\U00002139',width=3)
+            lbl_setting_info.pack(side = "left")
+            lbl_setting_info_ttp = CreateToolTip(lbl_setting_info, self.data_manager, 5, int(round(self.geo_factor*15)), self.language_dict[self.setting_info], True)
+
+        self.setting_text = tk.StringVar()
+
+        self.textBox_setting = MyEntry(frame_dropdown,self.data_manager, textvariable=self.setting_text, width=70)
+        self.textBox_setting.pack(side = "left", padx=10)
+
+        self.setting_text.set(str(self.main_app.get_setting(self.setting)))
+
+        bodyframe.pack(side="top", fill="both", expand=True)
+        return()
+
+    def return_window(self, *event):
+        self.gui.enable_main_window()
+        self.gui.activate_current_tab()
+        self.gui.lift_main_window()
+        self.destroy()
+
+    def save_setting(self):
+        self.main_app.change_settings(self.setting,str(self.setting_text.get()))
+        self.gui.enable_main_window()
+        self.gui.activate_current_tab()
+        self.gui.lift_main_window()
+        self.destroy()
+        return
+
+    def get_pos(self, event):
+        self.x_win = self.winfo_x()
+        self.y_win = self.winfo_y()
+        self.start_x = event.x_root
+        self.start_y = event.y_root
+        self.y_win = self.y_win - self.start_y
+        self.x_win = self.x_win - self.start_x
+
+    def move_window(self, event):
+        self.geometry('+{0}+{1}'.format(event.x_root + self.x_win, event.y_root + self.y_win))
+        self.start_x = event.x_root
+        self.start_y = event.y_root

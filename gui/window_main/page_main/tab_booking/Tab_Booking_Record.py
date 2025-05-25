@@ -25,7 +25,7 @@ from style_classes import MyText
 from gui.window_main.page_main.tab_booking.Tab_Booking_OptionMenu import BookingOptionMenu
 
 class BookingRecordFrame(tk.Frame):
-    def __init__(self, container, main_app, gui, booking_tab,booking_category,record_dict,record_scope):
+    def __init__(self, container, main_app, gui, booking_tab,booking_category,record_dict,record_scope,record_nbr=None,week_day=False):
          
         self.main_app = main_app
         self.data_manager = self.main_app.get_data_manager()
@@ -38,6 +38,8 @@ class BookingRecordFrame(tk.Frame):
         self.record_dict = record_dict
         self.booked_check = False
         self.record_scope = record_scope
+        self.record_nbr = record_nbr
+        self.week_day = week_day
 
         MyFrame.__init__(self, container, self.data_manager)
 
@@ -48,13 +50,13 @@ class BookingRecordFrame(tk.Frame):
 
     def create_main_frame(self):
 
-        self.lbl_empty0 = MyLabel(self, self.data_manager, width=5)
+        self.lbl_empty0 = MyLabel(self, self.data_manager, width=3)
         self.lbl_empty0.pack(side='right',padx=3)
 
         self.btn_booking = MyButton(self, self.data_manager, text=self.language_dict["booked"],width=8,command=self.book_time)
         self.btn_booking.pack(side='right',padx = 3,pady=10)
 
-        self.lbl_empty1 = MyLabel(self, self.data_manager, width=5)
+        self.lbl_empty1 = MyLabel(self, self.data_manager, width=2)
         self.lbl_empty1.pack(side='right',padx=3)
 
         self.btn_copy_hours = MyLabel(self, self.data_manager, text=u'\U0000274F', width=2)
@@ -110,8 +112,36 @@ class BookingRecordFrame(tk.Frame):
 
         ###########################
 
-        self.lbl_empty5 = MyLabel(self, self.data_manager, width=2)
+        self.lbl_empty5 = MyLabel(self, self.data_manager, width=1)
         self.lbl_empty5.pack(side='left',padx=3)
+
+        if self.record_nbr == None:
+            str_record_extra_info = ""
+            width_record_extra_info = 1
+        else:
+            str_record_extra_info = str(self.record_nbr)
+            width_record_extra_info = 3
+
+        if self.week_day == True:
+            date_record = self.record_dict['date_record']
+            date_str = date_record.strftime('%d.%m.%Y')
+            weekday_nbr = date_record.dayofweek
+
+            weekdy_dict = {
+                0:self.language_dict["monday"],
+                1:self.language_dict["tuesday"],
+                2:self.language_dict["wednesday"],
+                3:self.language_dict["thursday"],
+                4:self.language_dict["friday"],
+                5:self.language_dict["saturday"],
+                6:self.language_dict["sunday"],
+            }
+            str_record_extra_info = date_str + '  ' + weekdy_dict[weekday_nbr] 
+            width_record_extra_info = 23
+
+
+        self.lbl_record_extra_info = MyLabel(self, self.data_manager, text = str_record_extra_info, anchor='w', width=width_record_extra_info)
+        self.lbl_record_extra_info.pack(side='left',padx=3)
 
         self.textBox_response_code = MyText(self, self.data_manager,width=15,height=1,borderwidth=1)
         self.textBox_response_code.pack(side='left',padx=3)
@@ -153,6 +183,7 @@ class BookingRecordFrame(tk.Frame):
 
         self.bind("<Button-1>", self.activate_record)
         self.lbl_name.bind("<Button-1>", self.activate_record)
+        self.lbl_record_extra_info.bind("<Button-1>", self.activate_record)
         self.lbl_empty4.bind("<Button-1>", self.activate_record)
         self.lbl_empty3.bind("<Button-1>", self.activate_record)
         self.lbl_empty2.bind("<Button-1>", self.activate_record)
@@ -161,6 +192,7 @@ class BookingRecordFrame(tk.Frame):
 
         self.bind("<Control-1>", self.append_activate_record)
         self.lbl_name.bind("<Control-1>", self.append_activate_record)
+        self.lbl_record_extra_info.bind("<Control-1>", self.append_activate_record)
         self.lbl_empty4.bind("<Control-1>", self.append_activate_record)
         self.lbl_empty3.bind("<Control-1>", self.append_activate_record)
         self.lbl_empty2.bind("<Control-1>", self.append_activate_record)
@@ -169,6 +201,7 @@ class BookingRecordFrame(tk.Frame):
 
         self.bind("<Button-3>", self.right_clicked)
         self.lbl_name.bind("<Button-3>", self.right_clicked)
+        self.lbl_record_extra_info.bind("<Button-3>", self.right_clicked)
         self.lbl_empty4.bind("<Button-3>", self.right_clicked)
         self.lbl_empty3.bind("<Button-3>", self.right_clicked)
         self.lbl_empty2.bind("<Button-3>", self.right_clicked)
@@ -303,6 +336,7 @@ class BookingRecordFrame(tk.Frame):
             background_color = self.style_dict["background_color_grey"]
 
         self.configure(background=background_color)
+        self.lbl_record_extra_info.configure(background=background_color)
         self.lbl_name.configure(background=background_color)
         self.lbl_empty0.configure(background=background_color)
         self.lbl_empty1.configure(background=background_color)
@@ -348,6 +382,7 @@ class BookingRecordFrame(tk.Frame):
         self.btn_booking.refresh_style()
         self.textBox_response_code.refresh_style()
         self.btn_copy_response_code.refresh_style()
+        self.lbl_record_extra_info.refresh_style()
 
         self.lbl_empty0.refresh_style()
         self.lbl_empty1.refresh_style()
@@ -370,10 +405,28 @@ class BookingRecordFrame(tk.Frame):
         else:
             name_text = self.record_dict['name']
 
-        self.lbl_name .configure(text = name_text)
+        self.lbl_name.configure(text = name_text)
 
         info_text = self.language_dict["name"] + ': ' + name_text + '\n' + self.language_dict["project"] + ': ' + str(self.record_dict['project_label']) + '   ' + self.language_dict["order"] + ': ' + str(self.record_dict['order_label']) + '   ' + self.language_dict["process"] + ': ' + str(self.record_dict['process_label'])  + '\n' + self.language_dict["description"]  + ': ' + str(self.record_dict['description_text']) 
         self.account_info_ttp = CreateToolTip(self.lbl_name, self.data_manager, 30, 25, info_text)
+
+        if self.week_day == True:
+            date_record = self.record_dict['date_record']
+            date_str = date_record.strftime('%d.%m.%Y')
+            weekday_nbr = date_record.dayofweek
+
+            weekdy_dict = {
+                0:self.language_dict["monday"],
+                1:self.language_dict["tuesday"],
+                2:self.language_dict["wednesday"],
+                3:self.language_dict["thursday"],
+                4:self.language_dict["friday"],
+                5:self.language_dict["saturday"],
+                6:self.language_dict["sunday"],
+            }
+            str_record_extra_info = date_str + '  ' + weekdy_dict[weekday_nbr] 
+
+            self.lbl_record_extra_info.configure(text = str_record_extra_info)
 
         self.update()
         return

@@ -18,6 +18,7 @@ __author__ = 'Sebastian Feiert'
 import tkinter as tk
 from tkinter import ttk
 import os
+import pandas as pd
 
 from style_classes import MyFrame
 from style_classes import MyLabel
@@ -85,17 +86,17 @@ class AccountsHead:
         clicked_search = tk.StringVar()
         self.search_cbox = MyCombobox(self.main_head_frame, state="readonly", width = 25, textvariable = clicked_search, postcommand = self.updt_search_cblist)
         self.search_cbox.bind("<<ComboboxSelected>>", self.updt_search_entry)
-        self.search_cbox.pack(side="left", padx=10,pady=10)
+        self.search_cbox.pack(side="left", padx=[10,4],pady=10)
 
         self.search_cbox.bind("<Button-1>", self.accounts_tab.unbind_scrolling) 
 
         self.search_var = tk.StringVar()
         self.textBox_search_var = MyEntry(self.main_head_frame, self.data_manager, textvariable=self.search_var, width=36)
-        self.textBox_search_var.pack(side="left", padx=10,pady=10)
+        self.textBox_search_var.pack(side="left", padx=[4,4],pady=10)
         self.textBox_search_var.bind('<Return>', self.hit_enter_textBox)
 
-        self.btn_search = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict["search"],width=10,command=self.hit_enter_textBox)
-        self.btn_search.pack(side="left", padx=10,pady=10)
+        self.btn_search = MyButton(self.main_head_frame, self.data_manager,text=u'\U0001F50D' ,width=5,command=self.hit_enter_textBox)
+        self.btn_search.pack(side="left", padx=[4,10],pady=10)
 
         self.btn_import_time_accounts = MyButton(self.main_head_frame, self.data_manager,text=self.language_dict["import_time_accounts"],width=30,command=self.import_time_accounts)
         self.btn_import_time_accounts.pack(side="right", padx=10,pady=10)
@@ -202,9 +203,92 @@ class AccountsHead:
         self.gui.disable_main_window()
         folder_path = filedialog.askopenfilename()
         self.gui.enable_main_window()
+
         try:
-            with open(folder_path,encoding='UTF-8') as json_file:
-                time_accounts_import_dict = json.load(json_file)
+            if folder_path.endswith('.json'):
+                with open(folder_path,encoding='UTF-8') as json_file:
+                    time_accounts_import_dict = json.load(json_file)
+
+            elif  folder_path.endswith('.xlsx'):
+
+                df = pd.read_excel(folder_path,engine='openpyxl',header=0)
+
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++__START
+
+                header_dict = {
+                    "project_nbr":"Project",
+                    "order_nbr":"Order",
+                    "process_nbr":"Process",
+                    "response_code":"Booking-ID",
+                    "name":"Name",
+                    "description_text":"Description"
+                }
+
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++__END
+
+                if header_dict["project_nbr"] in df.columns:
+                    project_label_col = df.columns.get_loc(header_dict["project_nbr"])
+                else:
+                    self.show_info(self.language_dict["import_time_accounts_failed"])
+                    return
+                
+                if header_dict["order_nbr"] in df.columns:
+                    order_label_col = df.columns.get_loc(header_dict["order_nbr"])
+                else:
+                    self.show_info(self.language_dict["import_time_accounts_failed"])
+                    return
+
+                if header_dict["process_nbr"] in df.columns:
+                    process_label_col = df.columns.get_loc(header_dict["process_nbr"])
+                else:
+                    self.show_info(self.language_dict["import_time_accounts_failed"])
+                    return
+
+                if header_dict["response_code"] in df.columns:
+                    response_code_col = df.columns.get_loc(header_dict["response_code"])
+                else:
+                    self.show_info(self.language_dict["import_time_accounts_failed"])
+                    return
+
+                if header_dict["name"] in df.columns:
+                    name_col = df.columns.get_loc(header_dict["name"])
+                else:
+                    self.show_info(self.language_dict["import_time_accounts_failed"])
+                    return
+
+                if header_dict["description_text"] in df.columns:
+                    description_text_col = df.columns.get_loc(header_dict["description_text"])
+                else:
+                    self.show_info(self.language_dict["import_time_accounts_failed"])
+                    return
+                
+                time_accounts_import_dict = {}
+                for i, row in df.iterrows():
+                    time_accounts_import_dict[i] = {
+                        "account_id":1,
+                        "main_id":1,
+                        "main_name":"Give me a name (" + str(row.iloc[name_col]) + " " + str(row.iloc[response_code_col]) + ")",
+                        "account_kind":1,
+                        "name":"Give me a name (" + str(row.iloc[name_col]) + " " + str(row.iloc[response_code_col]) + ")",
+                        "group":" - ",
+                        "description_text": str(row.iloc[name_col]) + " " + str(row.iloc[description_text_col]),
+                        "project_label": str(row.iloc[project_label_col]),
+                        "order_label": str(row.iloc[order_label_col]),
+                        "process_label": str(row.iloc[process_label_col]),
+                        "response_code": str(row.iloc[response_code_col]),
+                        "response_texts_main": 1,
+                        "response_texts": " - ",
+                        "external_booking": 0,
+                        "status":"open",
+                        "bookable":1,
+                        "date_expiration":"",
+                        "available_hours":0.0
+                    }
+
+            else:
+                self.show_info(self.language_dict["import_time_accounts_failed"])
+                return
+
         except:
             self.show_info(self.language_dict["import_time_accounts_failed"])
             return
@@ -356,7 +440,7 @@ class AccountsHead:
 
         self.main_head_frame.configure(background=self.style_dict["header_color_blue"])
 
-        self.btn_search.configure(text=self.language_dict["search"])
+        #self.btn_search.configure(text=self.language_dict["search"])
         self.btn_import_time_accounts.configure(text=self.language_dict["import_time_accounts"])
 
         self.update_main_head()

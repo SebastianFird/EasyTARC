@@ -54,14 +54,19 @@ class BookingOptionMenu(tkinter.Listbox):
         else:  
             self.optionmenu.add_command(label=self.language_dict["select_all"],command=self.select_all)
 
-        if len(clicked_record_frame_list) == 1 or self.main_app.get_booking_link_access() == True:
+        if len(clicked_record_frame_list) == 1:
             self.optionmenu.add_separator()
-        
-        if self.main_app.get_booking_link_access() == True:
-            if self.main_app.get_booking_link_dict()["booking_url_1"] != '':
-                self.optionmenu.add_command(label=self.language_dict["booking_website"],command=self.booking_tab.open_booking_website)
 
-        self.optionmenu.add_command(label=self.language_dict["copie_json"],command=self.copie_json)
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++_START
+
+        if "test_website" in self.main_app.get_booking_system_list_costumized():
+            self.optionmenu.add_command(label=self.language_dict["booking_website"],command=self.booking_tab.open_booking_system)
+        
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++_END
+
+        self.optionmenu.add_command(label=self.language_dict["copie_json"],command=self.booking_tab.copie_json)
+
+
 
     def popup(self, event):
         try:
@@ -84,57 +89,6 @@ class BookingOptionMenu(tkinter.Listbox):
 
     def select_all(self):
         self.booking_tab.get_clicked_record_frame_list()[0].activate_all_records()
-
-
-    def copie_json(self):
-        booking_dict = {}
-        clicked_record_frame_list = self.booking_tab.get_clicked_record_frame_list()
-
-        counter = 1
-
-        for clicked_record_frame  in clicked_record_frame_list:
-            record_dict = clicked_record_frame.record_dict
-
-            if record_dict['account_kind'] == 0:
-                name_text = record_dict['name'] +' -> '+ record_dict['main_name']
-            else:
-                name_text = record_dict['name']
-
-            if self.main_app.get_setting('booking_format') == 'booking_by_hours':
-
-                data_dict = {
-                    "Name":name_text,
-                    "Booking-ID":record_dict['response_code'],
-                    "Hours":str('{:n}'.format(round(self.record_dict['hours'],3))),
-                    "Booking text":record_dict['response_text'],
-                    }
-
-            elif self.main_app.get_setting('booking_format') == 'booking_by_time':
-                self.booking_time_str = self.data_manager.hour_float_to_duration_str(float(self.record_dict['hours']))
-
-                data_dict = {
-                    "Name":name_text,
-                    "Booking-ID":record_dict['response_code'],
-                    "Time":self.data_manager.hour_float_to_duration_str(float(self.record_dict['hours'])),
-                    "Booking text":record_dict['response_text'],
-                    }
-            else:
-                data_dict = {
-                    "Name":name_text,
-                    "Booking-ID":record_dict['response_code'],
-                    "Hours":"Error",
-                    "Booking text":record_dict['response_text'],
-                    }
-            
-            booking_dict.update({str(counter):data_dict})
-
-            counter = counter + 1
-
-        booking_dict = json.dumps(booking_dict)
-
-        self.gui.main_window.clipboard_clear()
-        self.gui.main_window.clipboard_append(booking_dict)
-        
 
     def show_clock_info(self):
         if self.record_dict['account_kind'] == 1:

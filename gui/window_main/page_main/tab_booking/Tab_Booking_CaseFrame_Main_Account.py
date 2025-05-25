@@ -21,12 +21,70 @@ from tkinter import ttk
 from style_classes import MyFrame
 from style_classes import MyLabel
 from style_classes import MyButtonPixel 
-import pandas as pd
 
 from gui.window_main.page_main.tab_booking.Tab_Booking_Record import BookingRecordFrame
 
-class BookingDayFrame:
-    def __init__(self, container, main_app, gui, booking_tab, booking_category, day_record_list):
+class BookingByMainAccount(tk.Frame):
+    def __init__(self, container, main_app, gui, booking_tab):
+
+        # get main_app, datamanager, style_dict and language_dict
+        self.main_app = main_app
+        self.data_manager = self.main_app.get_data_manager()
+        self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
+
+        MyFrame.__init__(self, container,self.data_manager)
+
+        # get gui for additional windows
+        # capture tab for booking tab
+        self.gui = gui
+        self.booking_tab = booking_tab
+
+        self.main_account_frame_list = []
+
+        # run the main frame of this layer
+        self.create_main_frame()
+
+#################################################################
+
+    def create_main_frame(self):
+
+        self.main_frame = MyFrame(self,self.data_manager)
+        self.main_frame.pack(side = "top", fill = "x")
+
+        # special class variables
+        unbooked_record_dict_list_main_account_list = self.booking_tab.get_unbooked_record_dict_list_main_account_list()
+
+        for unbooked_record_dict_list in unbooked_record_dict_list_main_account_list:
+            main_account_frame = BookingMainAccountFrame(self.main_frame, self.main_app, self.gui,self.booking_tab,self,unbooked_record_dict_list)
+            self.main_account_frame_list.append(main_account_frame)
+
+        self.update()
+        return
+    
+    def book_time(self,record_dict):
+         self.data_manager.set_unbooked_times_by_passed_id(record_dict["passed_id"])
+
+    def update(self):
+        for main_account_frame in self.main_account_frame_list:
+            main_account_frame.update()
+        return
+
+    def refresh(self):
+        # configure style and language of main frame
+        self.style_dict = self.data_manager.get_style_dict()
+        self.language_dict = self.data_manager.get_language_dict()
+
+        self.main_frame.refresh_style()
+
+        for main_account_frame in self.main_account_frame_list:
+            main_account_frame.refresh()
+
+        self.update()
+        return
+    
+class BookingMainAccountFrame:
+    def __init__(self, container, main_app, gui, booking_tab, booking_category, main_account_record_list):
          
         self.main_app = main_app
         self.data_manager = self.main_app.get_data_manager()
@@ -36,8 +94,8 @@ class BookingDayFrame:
         self.gui = gui
         self.booking_tab = booking_tab
         self.booking_category = booking_category
-        self.day_record_list = day_record_list
-        self.datetime = day_record_list[0]['datetime']
+        self.main_account_record_list = main_account_record_list
+        self.first_main_account_record = main_account_record_list[0]
         self.record_frame_list = []
 
         # run the main frame of this layer
@@ -48,17 +106,13 @@ class BookingDayFrame:
         self.main_frame = MyFrame(container,self.data_manager)
         self.main_frame.pack(side = "top", fill = "x")
 
-        self.date_frame = BookingDateFrame(self.main_frame, self.main_app, self.gui, self, self.datetime)
+        self.date_frame = BookingMainAccountHeadFrame(self.main_frame, self.main_app, self.gui, self, self.first_main_account_record)
 
-        record_nbr = 1
-
-        for record_dict in self.day_record_list:
-            record_frame = BookingRecordFrame(self.main_frame, self.main_app, self.gui,self.booking_tab,self.booking_category,record_dict,record_nbr)
+        for record_dict in self.main_account_record_list:
+            record_frame = BookingRecordFrame(self.main_frame, self.main_app, self.gui,self.booking_tab,self.booking_category,record_dict,self,None,True)
             record_frame.pack(side = "top", fill = "x")
             self.record_frame_list.append(record_frame)
             self.booking_tab.all_record_frame_list.append(record_frame)
-
-            record_nbr += 1 
 
         self.fold_out_day_records()
         return
@@ -75,7 +129,7 @@ class BookingDayFrame:
     def fold_up_day_records(self):
         if self.record_frame_list != []:
             self.tree_view = False
-            self.date_frame.lbl_view_records.configure(text = ' ' + u'\U00002B9E')
+            self.date_frame.update()
             for record_frame in self.record_frame_list:
                 record_frame.pack_forget()
         return
@@ -83,7 +137,7 @@ class BookingDayFrame:
     def fold_out_day_records(self):
         if self.record_frame_list != []:
             self.tree_view = True
-            self.date_frame.lbl_view_records.configure(text = ' ' + u'\U00002B9F')
+            self.date_frame.update()
             for record_frame in self.record_frame_list:
                 record_frame.pack(side="top", fill="x")
         return
@@ -99,14 +153,16 @@ class BookingDayFrame:
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
 
+        self.main_frame.refresh_style()
+
         self.date_frame.refresh()
         for record_frame in self.record_frame_list:
             record_frame.refresh()
         return
 
 
-class BookingDateFrame:
-    def __init__(self, container, main_app, gui, day_frame, datetime):
+class BookingMainAccountHeadFrame:
+    def __init__(self, container, main_app, gui, main_account_frame, first_main_account_record):
          
         self.main_app = main_app
         self.data_manager = self.main_app.get_data_manager()
@@ -114,8 +170,8 @@ class BookingDateFrame:
         self.language_dict = self.data_manager.get_language_dict()
 
         self.gui = gui
-        self.day_frame = day_frame
-        self.datetime = datetime
+        self.main_account_frame = main_account_frame
+        self.first_main_account_record = first_main_account_record
 
 
         # run the main frame of this layer
@@ -134,53 +190,43 @@ class BookingDateFrame:
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
         self.separator_frame_1.pack(side = "top",fill='x')
 
-        self.date_frame = MyFrame(self.main_frame,self.data_manager)
-        self.date_frame.pack(side = "top",fill='x')
+        self.head_frame = MyFrame(self.main_frame,self.data_manager)
+        self.head_frame.pack(side = "top",fill='x',pady=[15,5])
 
-        self.lbl_view_records = MyLabel(self.date_frame, self.data_manager, anchor='w',width = 2, text = '  ')
-        self.lbl_view_records.configure(foreground=self.style_dict["highlight_color_grey"])
-        self.lbl_view_records.pack(side='left')
-
-        pd_datetime = pd.to_datetime(self.datetime)
-        date_str = pd_datetime.strftime('%d.%m.%Y')
-        weekday_nbr = pd_datetime.dayofweek
-
-        weekdy_dict = {
-            0:self.language_dict["monday"],
-            1:self.language_dict["tuesday"],
-            2:self.language_dict["wednesday"],
-            3:self.language_dict["thursday"],
-            4:self.language_dict["friday"],
-            5:self.language_dict["saturday"],
-            6:self.language_dict["sunday"],
-        }
-        date_info = date_str + '   -   ' + weekdy_dict[weekday_nbr]
-        self.lbl_date = MyLabel(self.date_frame,self.data_manager,text = date_info, anchor = 'w', width=30)
-        self.lbl_date.configure(font = boldFont)
-        self.lbl_date.pack(side = "left")
+        main_account_info =  "  " + self.first_main_account_record["main_name"] 
+        self.lbl_main_account = MyLabel(self.head_frame,self.data_manager,text = main_account_info, anchor = 'w', width=30)
+        self.lbl_main_account.configure(font = boldFont)
+        self.lbl_main_account.pack(side = "left")
 
         #############
 
         def enter_view_records(e):
-            self.lbl_view_records.configure(foreground=self.style_dict["font_color"])
+            if self.main_account_frame.tree_view == True:
+                self.lbl_main_account.configure(foreground=self.style_dict["highlight_color_grey"])
+            else:
+                self.lbl_main_account.configure(foreground=self.style_dict["font_color"])
 
 
         def leave_view_records(e):
-            self.lbl_view_records.configure(foreground=self.style_dict["highlight_color_grey"])
+            self.update()
 
-        self.lbl_view_records.bind("<Enter>", enter_view_records)
-        self.lbl_view_records.bind("<Leave>", leave_view_records)
+        self.lbl_main_account.bind("<Enter>", enter_view_records)
+        self.lbl_main_account.bind("<Leave>", leave_view_records)
 
         def clicked_view_records(e):
-            self.day_frame.fold_day_records()
+            self.main_account_frame.fold_day_records()
 
-        self.lbl_view_records.bind("<Button-1>", clicked_view_records)
+        self.lbl_main_account.bind("<Button-1>", clicked_view_records)
 
         #############
 
         return
 
     def update(self):
+        if self.main_account_frame.tree_view == True:
+            self.lbl_main_account.configure(foreground=self.style_dict["font_color"])
+        else:
+            self.lbl_main_account.configure(foreground=self.style_dict["highlight_color_grey"])
         return
 
     def refresh(self):
@@ -194,28 +240,15 @@ class BookingDateFrame:
 
         self.main_frame.refresh_style()
         self.separator_frame_1.refresh_style()
-        self.date_frame.refresh_style()
-        self.lbl_view_records.refresh_style()
-        self.lbl_date.refresh_style()
+        self.head_frame.refresh_style()
+        self.lbl_main_account.refresh_style()
+
+        main_account_info = "  " + self.first_main_account_record["main_name"] 
+        self.lbl_main_account.configure(text = main_account_info)
 
         self.separator_frame_1.configure(highlightthickness=1,highlightcolor=self.style_dict["highlight_color_grey"],highlightbackground=self.style_dict["highlight_color_grey"])
-        self.lbl_date.configure(font = boldFont)
-        self.lbl_view_records.configure(foreground=self.style_dict["highlight_color_grey"])
-
-        pd_datetime = pd.to_datetime(self.datetime)
-        date_str = pd_datetime.strftime('%d.%m.%Y')
-        weekday_nbr = pd_datetime.dayofweek
-
-        weekdy_dict = {
-            0:self.language_dict["monday"],
-            1:self.language_dict["tuesday"],
-            2:self.language_dict["wednesday"],
-            3:self.language_dict["thursday"],
-            4:self.language_dict["friday"],
-            5:self.language_dict["saturday"],
-            6:self.language_dict["sunday"],
-        }
-        date_info = date_str + '   -   ' + weekdy_dict[weekday_nbr]
-        self.lbl_date.configure(text = date_info)
+        self.lbl_main_account.configure(font = boldFont)
+        self.update()
 
         return
+    

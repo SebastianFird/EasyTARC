@@ -23,6 +23,7 @@ from style_classes import MyLabel
 from style_classes import MyButton
 from style_classes import MyLabelPixel
 from gui.Window_Additionals import InfoDictWindow
+from style_classes import MyCombobox
 
 
 class DataHead:
@@ -186,8 +187,12 @@ class DataHead:
         self.lbl_empty3 = MyLabel(self.passed_time_visible_frame, self.data_manager, width=2)
         self.lbl_empty3.pack(side='right',padx=3)
 
-        self.lbl_passed_time = MyLabel(self.passed_time_visible_frame, self.data_manager, text=self.language_dict['working_time'],width=15)
-        self.lbl_passed_time.pack(side='right',padx = 3)
+        self.clicked_passed_time_format = tk.StringVar()
+        self.passed_time_format_cbox = MyCombobox(self.passed_time_visible_frame, state="readonly", width = 12, textvariable = self.clicked_passed_time_format)
+        self.passed_time_format_cbox.pack(side='right')
+
+        self.set_passed_time_format_cblist() 
+        self.passed_time_format_cbox.bind("<<ComboboxSelected>>", self.set_passed_time_format)
 
         self.lbl_empty4 = MyLabel(self.passed_time_visible_frame, self.data_manager, width=2)
         self.lbl_empty4.pack(side='right',padx=3)
@@ -240,8 +245,34 @@ class DataHead:
 
         self.update_table_head()     
         return   
+    
+    ###########
+    
+    def set_passed_time_format_cblist(self):
+        self.passed_time_format_cbox['values'] = [self.language_dict["passed_time_by_hours"],self.language_dict["passed_time_by_time"]]
+        if self.main_app.get_setting('passed_time_format') == 'passed_time_by_hours':
+            self.passed_time_format_cbox.current(0)
+        elif self.main_app.get_setting('passed_time_format') == 'passed_time_by_time':
+            self.passed_time_format_cbox.current(1)
+        else:
+            self.passed_time_format_cbox.current(1)
+
+    def set_passed_time_format(self,e=None):
+        passed_time_format = self.clicked_passed_time_format.get()
+        if passed_time_format == self.language_dict["booking_by_hours"]:
+            self.main_app.change_settings("passed_time_format","passed_time_by_hours")
+        elif passed_time_format == self.language_dict["booking_by_time"]:
+            self.main_app.change_settings("passed_time_format","passed_time_by_time")
+        else:
+            self.main_app.change_settings("passed_time_format","passed_time_by_hours")
+
+        self.data_tab.reload()
+        return
+
+###########
 
     def update_table_head(self):
+        self.set_passed_time_format_cblist()  
         return
     
     def refresh_table_head(self):
@@ -259,7 +290,7 @@ class DataHead:
         self.passed_time_frame.refresh_style()
         self.passed_time_invisible_frame.refresh_style()
         self.passed_time_visible_frame.refresh_style()
-        self.lbl_passed_time.refresh_style()
+        #self.lbl_passed_time.refresh_style()
 
         self.response_text_frame.refresh_style()
         self.response_text_invisible_frame.refresh_style()
@@ -288,9 +319,9 @@ class DataHead:
         self.status_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.passed_time_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
         self.name_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
+        self.response_text_frame.configure(highlightbackground=self.style_dict["highlight_color_grey"],highlightcolor=self.style_dict["highlight_color_grey"],highlightthickness=1)
 
         self.lbl_status_name.configure(text=self.language_dict["status"])
-        self.lbl_passed_time.configure(text=self.language_dict['working_time'])
         self.lbl_response_text.configure(text=self.language_dict["response_text"])
         self.lbl_name.configure(text=self.language_dict["name"])
 

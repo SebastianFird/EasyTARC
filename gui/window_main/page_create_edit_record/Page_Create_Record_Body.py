@@ -19,6 +19,8 @@ import tkinter as tk
 from tkinter import ttk
 import pandas as pd
 import datetime
+import decimal
+import locale
 
 from gui.Scroll_Frame import Scroll_Frame
 
@@ -169,35 +171,48 @@ class CreateEditRecordBody:
 
         self.hours = tk.StringVar()
         self.textBox_hours = MyEntry(self.frame_time, self.data_manager, textvariable=self.hours, width=3)
-        self.textBox_hours.pack(side="left", padx=10)
-        self.textBox_hours.bind("<KeyRelease>", self.build_hours)
+        self.textBox_hours.bind("<KeyRelease>", self.transform_time)
 
         self.lbl_1 = MyLabel(self.frame_time,self.data_manager,width=1,anchor='w',justify='left',text=':')
-        self.lbl_1.pack(side = "left")
 
         self.minutes = tk.StringVar()
         self.textBox_minutes = MyEntry(self.frame_time, self.data_manager, textvariable=self.minutes, width=3)
-        self.textBox_minutes.pack(side="left", padx=10)
-        self.textBox_minutes.bind("<KeyRelease>", self.build_hours)
+        self.textBox_minutes.bind("<KeyRelease>", self.transform_time)
 
         self.lbl_2 = MyLabel(self.frame_time,self.data_manager,width=1,anchor='w',justify='left',text=':')
-        self.lbl_2.pack(side = "left")
 
         self.seconds = tk.StringVar()
         self.textBox_seconds = MyEntry(self.frame_time, self.data_manager, textvariable=self.seconds, width=3)
-        self.textBox_seconds.pack(side="left", padx=10)
-        self.textBox_seconds.bind("<KeyRelease>", self.build_hours)
+        self.textBox_seconds.bind("<KeyRelease>", self.transform_time)
 
         self.lbl_3 = MyLabel(self.frame_time,self.data_manager,anchor='w',justify='left',text='0 ' + self.language_dict["hours"])
         self.lbl_3.configure(foreground=self.style_dict["highlight_color_grey"])
-        self.lbl_3.pack(side = "left", padx=30)
 
-        if self.modus in  ['edit_record']:
-            duration_str_list = self.data_manager.hour_float_to_duration_str_list(self.record_dict['hours'])
-            self.hours.set(duration_str_list[0])
-            self.minutes.set(duration_str_list[1])
-            self.seconds.set(duration_str_list[2])
-            self.lbl_3.configure(text=str('{:n}'.format(round(self.record_dict['hours'],3))) + ' ' + self.language_dict["hours"])
+        if self.main_app.get_setting('passed_time_format') == 'passed_time_by_hours':
+            self.textBox_hours.configure(width=8)
+            self.textBox_hours.pack(side="left", padx=10)
+
+            if self.modus in  ['edit_record']:
+                duration_str_list = self.data_manager.hour_float_to_duration_str_list(round(self.record_dict['hours'],3))
+                self.hours.set(str('{:n}'.format(round(self.record_dict['hours'],3))))
+                self.minutes.set(0)
+                self.seconds.set(0)
+
+        else:
+            self.textBox_hours.pack(side="left", padx=10)
+            self.lbl_1.pack(side = "left")
+            self.textBox_minutes.pack(side="left", padx=10)
+            self.lbl_2.pack(side = "left")
+            self.textBox_seconds.pack(side="left", padx=10)
+
+            if self.modus in  ['edit_record']:
+                duration_str_list = self.data_manager.hour_float_to_duration_str_list(round(self.record_dict['hours'],3))
+                self.hours.set(duration_str_list[0])
+                self.minutes.set(duration_str_list[1])
+                self.seconds.set(duration_str_list[2])
+
+        self.lbl_3.pack(side = "left", padx=30)
+        self.transform_time()
 
         self.textBox_hours.configure(highlightthickness = 1, state=tk.NORMAL)
         self.textBox_minutes.configure(highlightthickness = 1, state=tk.NORMAL)
@@ -333,22 +348,38 @@ class CreateEditRecordBody:
             self.cbox_selected()
         return
     
-    def build_hours(self,e=None):
-        try:
-            hours = self.hours.get()
-            if hours == '' or hours.isspace() == True:
-                hours = '0'
-            minutes = self.minutes.get()
-            if minutes == '' or minutes.isspace() == True:
-                minutes = '0'
-            seconds = self.seconds.get()
-            if seconds == '' or seconds.isspace() == True:
-                seconds = '0'
-            duration = datetime.timedelta(hours = float(hours),minutes = float(minutes),seconds=float(seconds))
-            time = self.data_manager.duration_dt_to_hour_float(duration)
-            self.lbl_3.configure(text=str('{:n}'.format(round(time,3))) + ' ' + self.language_dict["hours"])
-        except:
-            self.lbl_3.configure(text="x") 
+    def transform_time(self,e=None):
+
+        if self.main_app.get_setting('passed_time_format') == 'passed_time_by_hours':
+            try:
+                hours = self.hours.get()
+                if hours == '' or hours.isspace() == True:
+                    hours = '0'
+                hours = float(locale.atof(hours, decimal.Decimal))
+                passed_time_info = self.data_manager.hour_float_to_duration_str(float(hours))
+                self.lbl_3.configure(text=passed_time_info)
+            except:
+                self.lbl_3.configure(text="x") 
+        else:
+            try:
+                hours = self.hours.get()
+                if hours == '' or hours.isspace() == True:
+                    hours = '0'
+                minutes = self.minutes.get() 
+                if minutes == '' or minutes.isspace() == True:
+                    minutes = '0'
+                seconds = self.seconds.get()
+                if seconds == '' or seconds.isspace() == True:
+                    seconds = '0'
+                hours = float(locale.atof(hours, decimal.Decimal))
+                minutes = float(locale.atof(minutes, decimal.Decimal))
+                seconds = float(locale.atof(seconds, decimal.Decimal))
+                duration = datetime.timedelta(hours = float(hours),minutes = float(minutes),seconds=float(seconds))
+                time = self.data_manager.duration_dt_to_hour_float(duration)
+                self.lbl_3.configure(text=str('{:n}'.format(round(time,3))) + ' ' + self.language_dict["hours"])
+            except:
+                self.lbl_3.configure(text="x") 
+
         return
     
     def cbox_selected(self,e=None):

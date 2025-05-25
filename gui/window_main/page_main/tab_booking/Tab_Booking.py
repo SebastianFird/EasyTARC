@@ -31,9 +31,7 @@ class BookingTab(Scroll_Frame):
         super().__init__(main_app, gui)
         self.case_frame_manager = case_frame_manager
 
-        self.booking_kind = self.main_app.get_setting('booking_kind')
-        if self.booking_kind not in ['date','sum','sum_subaccounts']:
-            self.booking_kind = 'sum'
+        self.update_booking_kind()
 
         self.all_record_frame_list = []
         self.clicked_record_frame_list = []
@@ -54,10 +52,17 @@ class BookingTab(Scroll_Frame):
         self.create_head()
         self.create_body()
 
+    def update_booking_kind(self):
+        self.booking_kind = self.main_app.get_setting('booking_kind')
+        if self.booking_kind not in ['date','sum','sum_subaccounts','main_accounts']:
+            self.booking_kind = 'sum'
+
     def refresh(self):
         # configure style and language of main frame
         self.style_dict = self.data_manager.get_style_dict()
         self.language_dict = self.data_manager.get_language_dict()
+
+        self.update_booking_kind()
 
         self.refresh_head()
         self.refresh_body()
@@ -89,6 +94,8 @@ class BookingTab(Scroll_Frame):
             self.load_booking_by_sum()
         elif self.booking_kind == 'sum_subaccounts':
             self.load_booking_by_sum_subaccounts()
+        elif self.booking_kind == 'main_accounts':
+            self.load_booking_by_main_account()
         else:
             self.body.case_frame.show_empty_frame()
 
@@ -111,9 +118,12 @@ class BookingTab(Scroll_Frame):
             self.load_booking_by_sum()
         elif kind == 'sum_subaccounts':
             self.load_booking_by_sum_subaccounts()
+        elif self.booking_kind == 'main_accounts':
+            self.load_booking_by_main_account()
         else:
             self.body.case_frame.show_empty_frame()
         self.main_app.change_settings("booking_kind",kind)
+        self.head.update_table_head()
         return
     
     def load_booking_by_sum_subaccounts(self):
@@ -151,6 +161,18 @@ class BookingTab(Scroll_Frame):
     
     def get_unbooked_record_dict_list_date_list(self):
         return(self.unbooked_record_dict_list_date_list)
+    
+    def load_booking_by_main_account(self):
+        self.all_record_frame_list = []
+        self.clicked_record_frame_list = []
+        self.body.case_frame.show_loading_frame()
+        self.gui.root.update()
+        self.unbooked_record_dict_list_main_account_list = self.data_manager.get_unbooked_record_dict_list_main_account_list()
+        self.body.case_frame.show_booking_by_main_account()
+        return
+    
+    def get_unbooked_record_dict_list_main_account_list(self):
+        return(self.unbooked_record_dict_list_main_account_list)
 
 #################################################################
     
@@ -192,14 +214,30 @@ class BookingTab(Scroll_Frame):
     def empty_body_clicked(self,e):
         self.reset_clicked_record_frame_list()
 
+    
 #################################################################
 
-    def open_booking_website(self,auto_all=False):
 
-        if self.main_app.get_booking_link_access() == False:
+    def open_booking_system(self,auto_all=False):
+
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++_START
+        
+        booking_link_dict =  {
+            "booking_url_1":"https://github.com/SebastianFird/EasyTARC",
+            "booking_url_2":"",
+            "booking_url_3":"",
+            "booking_url_4":"",
+            "booking_url_5":"",
+            "booking_url_6":"",
+            "booking_url_sequence":["booking_url_1","booking_url_2","booking_url_3","response_code","booking_url_4","hours","booking_url_5","response_text","booking_url_6"]
+        }
+
+##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++##++_END
+
+        if booking_link_dict["booking_url_1"] == "":
+            text = '\n' + self.language_dict["failed"]
+            info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,400,250)
             return
-
-        booking_link_dict = self.main_app.get_booking_link_dict()
 
         if auto_all == True:
             record_frame_list = self.get_all_record_frame_list()
@@ -214,8 +252,10 @@ class BookingTab(Scroll_Frame):
         record_frame_list = [ele for ele in record_frame_list if ele.booked_check == False]
 
         if record_frame_list == []:
+            text = '\n' + self.language_dict["failed"]
+            info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,400,250)
             return
-
+ 
         for record_frame  in record_frame_list:
 
             record_dict = record_frame.record_dict
@@ -262,9 +302,9 @@ class BookingTab(Scroll_Frame):
             info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,700,350)
         else:
             self.gui.root.deiconify()
-            
-        return
 
+        return
+    
     def open_url(self,url):
         if url == '':
             return(False)
@@ -273,7 +313,80 @@ class BookingTab(Scroll_Frame):
             return(True)
         except:
             return(False)
+    
+######################
 
+    def open_booking_website(self,url):
+        if url == '':
+            self.show_info(self.language_dict["This_website_could_not_be_reached"])
+            return()
+        try:
+            webbrowser.open_new(url)
+            return(True)
+        except:
+            self.show_info(self.language_dict["This_website_could_not_be_reached"])
+            return()
+        
+    def show_info(self,text):
+        info_window = InfoWindow(self.main_app, self.gui, self.main_frame ,text,300,210)
+
+######################
+
+    def copie_json(self,auto_all=False):
+        booking_dict = {}
+
+        if auto_all == True:
+            clicked_record_frame_list = self.get_all_record_frame_list()
+            self.set_clicked_record_frame_list(clicked_record_frame_list)
+            for record_frame  in clicked_record_frame_list:
+                record_frame.update()
+        else:
+            clicked_record_frame_list = self.get_clicked_record_frame_list()
+
+        counter = 1
+
+        for clicked_record_frame  in clicked_record_frame_list:
+            record_dict = clicked_record_frame.record_dict
+
+            if record_dict['account_kind'] == 0:
+                name_text = record_dict['name'] +' -> '+ record_dict['main_name']
+            else:
+                name_text = record_dict['name']
+
+            if self.main_app.get_setting('booking_format') == 'booking_by_hours':
+
+                data_dict = {
+                    "Name":name_text,
+                    "Booking-ID":record_dict['response_code'],
+                    "Hours":str('{:n}'.format(round(record_dict['hours'],3))),
+                    "Booking text":record_dict['response_text'],
+                    }
+
+            elif self.main_app.get_setting('booking_format') == 'booking_by_time':
+                self.booking_time_str = self.data_manager.hour_float_to_duration_str(float(record_dict['hours']))
+
+                data_dict = {
+                    "Name":name_text,
+                    "Booking-ID":record_dict['response_code'],
+                    "Time":self.data_manager.hour_float_to_duration_str(float(record_dict['hours'])),
+                    "Booking text":record_dict['response_text'],
+                    }
+            else:
+                data_dict = {
+                    "Name":name_text,
+                    "Booking-ID":record_dict['response_code'],
+                    "Hours":"Error",
+                    "Booking text":record_dict['response_text'],
+                    }
+            
+            booking_dict.update({str(counter):data_dict})
+
+            counter = counter + 1
+
+        booking_dict = json.dumps(booking_dict)
+
+        self.gui.main_window.clipboard_clear()
+        self.gui.main_window.clipboard_append(booking_dict)
 
 
 
