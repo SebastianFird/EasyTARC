@@ -522,7 +522,8 @@
         "new_db_name_2":"Dies ist ein Unterkonto",
         "new_db_description_text_2":"Unterteile Zeiten mit Unterkonten und Kommentaren",
         "new_db_name_3":"Schließe nicht genutzte Zeitkonten (Rechtsklick)",
-        "new_db_response_texts_3":"Du findest alle Zeitkonten im Tab Zeitkonten"
+        "new_db_response_texts_3":"Du findest alle Zeitkonten im Tab Zeitkonten",
+        "release_note_text_25":"1.12.7 (02.09.2025)\n - Fehlerbehebung im Falle einer defekten Datenbank."
     },
     "english": 
     {
@@ -1047,6 +1048,7 @@
         "new_db_name_2":"This is a sub-account",
         "new_db_description_text_2":"Differentiate times with sub-accounts and comments",
         "new_db_name_3":"Close unused time accounts (right-click)",
-        "new_db_response_texts_3":"You can find all time accounts in the Time accounts tab"
+        "new_db_response_texts_3":"You can find all time accounts in the Time accounts tab",
+        "release_note_text_25":"1.12.7 (02.09.2025)\n - Bug fixes in the event of a broken database."
     }
 }

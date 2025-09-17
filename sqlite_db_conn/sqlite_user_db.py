@@ -52,6 +52,10 @@ class SqlUserDataManager(SqlManager):
         self.set_db_config(db_config,folder_name,name,name_ending,db_password,db_salt)
         print('start_db')
 
+        backup_db_to_restore_name = self.folder_name + '\\' + self.name + '_backup_to_restore' + self.name_ending 
+        if os.path.isfile(backup_db_to_restore_name) == True:
+            self.restore_backup()
+
         #connection_check
         try:
             conn = self.open_db_conn()
@@ -62,7 +66,11 @@ class SqlUserDataManager(SqlManager):
             self.save_and_close_db(conn)
 
         except:
-            conn.close()
+            try:
+                conn.close()
+            except:
+                pass
+
             self.request_restoring_backup()
             return(False)
             
@@ -110,26 +118,39 @@ class SqlUserDataManager(SqlManager):
         if os.path.isfile(full_db_backup_db_name) == True:
             result = messagebox.askquestion("EasyTARC", 'EsayTARC cannot retrieve any data, there is a database error. However, a backup was found. This backup does not contain the last session. Should the backup be used?')
             if result == 'yes':
-                self.restore_backup()
+                self.prepare_restoring_backup()
             else:
                 messagebox.showinfo('EasyTARC','EsayTARC cannot retrieve data. Please contact the support.')
         else:
             messagebox.showinfo('EasyTARC','EsayTARC cannot retrieve data, there is a database error. Please contact the support.')
         self.main_app.fast_exit()
 
+    def prepare_restoring_backup(self):
+        path = os.path.abspath(os.getcwd())
+        full_db_backup_path  = path + '\\' + self.folder_name + '\\' + self.name + '_backup' + self.name_ending 
+        backup_db_to_restore_path  = path + '\\' + self.folder_name + '\\' + self.name + '_backup_to_restore' + self.name_ending 
+        shutil.copy(full_db_backup_path, backup_db_to_restore_path)
+
+        self.root = NewRoot()
+        result = messagebox.showinfo("EasyTARC", 'Please restart EasyTARC.')
+
     def restore_backup(self):
         path = os.path.abspath(os.getcwd())
+
         # renaming the crashed db in error_db 
         file_path = path + '\\' + self.folder_name + '\\' + self.name + self.name_ending 
         random_number = random.randint(10**9, 10**10 - 1)
         file_path_err = path + '\\' + self.folder_name + '\\error_' + self.name+ '_' + str(random_number) + self.name_ending 
         os.rename(file_path, file_path_err)
+
         # renaming the backup_db in db 
-        full_db_backup_path  = path + '\\' + self.folder_name + '\\' + self.name + '_backup' + self.name_ending 
-        shutil.copy(full_db_backup_path, file_path)
-        #os.rename(full_db_backup_path, file_path)
+        backup_db_to_restore_path  = path + '\\' + self.folder_name + '\\' + self.name + '_backup_to_restore' + self.name_ending 
+        #shutil.copy(full_db_backup_path, file_path)
+        os.rename(backup_db_to_restore_path, file_path)
+        
         self.root = NewRoot()
-        result = messagebox.showinfo("EasyTARC", 'Please restart EasyTARC.')
+        result = messagebox.showinfo("EasyTARC", 'Please restart EasyTARC one more time.')
+        self.main_app.fast_exit()
         return
 
 ####################################################################################################################

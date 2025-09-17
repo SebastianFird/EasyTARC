@@ -238,6 +238,10 @@ class Gui_Manager:
                 text = '\nUpdate:\n\n' + self.language_dict["release_note_text_24"]
                 info_window = InfoWindowSetupBookingSystem(self.main_app, self, self.main_window.main_frame ,text,700,350,True)
 
+            if self.main_app.get_app_version() == '1.12.7':
+                text = '\nUpdate:\n\n' + self.language_dict["release_note_text_25"]
+                info_window = InfoWindow(self.main_app, self, self.main_window.main_frame ,text,700,350,True)
+
         elif self.main_app.get_new_sign_up() == True:
             text = '\n' + self.language_dict["welcome_to_easytarc"]
             if self.main_app.get_setting('create_start_up_link') != "on":
